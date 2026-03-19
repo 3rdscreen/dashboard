@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-ibra
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -192,10 +191,10 @@ const GRANULAR={
 // CONFIG
 // ═══════════════════════════════════════════════════════
 const PL=[
-  {key:"meta",   label:"Meta",     color:"#1877F2"},
-  {key:"tiktok", label:"TikTok",   color:"#EE1D52"},
-  {key:"snap",   label:"Snap", color:"#FFFC00", textColor:"#1a1a1a"},
-  {key:"google", label:"Google",   color:"#34A853"},
+  {key:"meta",   label:"META",     color:"#1877F2"},
+  {key:"tiktok", label:"TIKTOK",   color:"#EE1D52"},
+  {key:"snap",   label:"SNAP", color:"#FFFC00", textColor:"#1a1a1a"},
+  {key:"google", label:"GOOGLE",   color:"#34A853"},
 ];
 const GK={
   meta:  ["uae","ksa","ku","cat"],
@@ -453,49 +452,56 @@ let snapAdsPeriod=null;
 let googleCampsPeriod=null;
 
 function buildGoogleCampsHTML(camps, ds){
-  // For Google: campaigns are MTD totals — use as-is, but if ds provided compute from daily D
-  // If a period is active, sum daily D.google entries for those dates, split by geo→campaign
+  // Map each campaign to its geo
   let rows;
+
   if (ds && ds.length) {
-    // Build per-campaign totals from daily D.google data, distributed by campaign spend proportion
-    const dailyRecs = (ds||[]).map(d=>(D.google||[]).find(x=>x.d===d)).filter(Boolean);
-    if (dailyRecs.length) {
-      // Compute geo proportions from MTD campaigns, then apply to daily totals
-      const geoFromCamp = {
-        'UAE Brand Search':'uae','UAE PMAX':'uae','UAE Search Generic':'uae',
-        'KSA Brand Search':'ksa','KSA PMAX':'ksa',
-        'KUW Brand Search':'ku','KUW Search Generic':'ku',
-      };
-      const mtdTotal = camps.reduce((s,c)=>s+c.spend,0);
-      rows = camps.map(c => {
-        const geo = geoFromCamp[c.name] || 'uae';
-        const campProp = mtdTotal>0 ? c.spend/mtdTotal : 0;
-        const dailyGeoSpend = dailyRecs.reduce((s,r)=>{
-          const g=r[geo]||{}; return s+(g.spend||0);
-        },0);
-        const sp  = Math.round(dailyGeoSpend * campProp * (c.spend / (camps.filter(x=>(geoFromCamp[x.name]||'uae')===geo).reduce((s,x)=>s+x.spend,0)||1)) * 100)/100;
-        const sv  = Math.round(sp * c.roas * 100)/100;
-        const cv  = Math.round(sp / (c.cpo||1));
-        const roas= c.roas; const cpo=sp>0&&cv>0?Math.round(sp/cv*100)/100:0;
-        return {name:c.name, spend:sp, sv, conv:cv, roas, cpo};
-      }).filter(c=>c.spend>0);
-    } else {
-      rows = camps;
-    }
+    // Sum D.google daily entries for the selected dates
+    const geoTotals = {uae:{spend:0,sv:0,conv:0},ksa:{spend:0,sv:0,conv:0},ku:{spend:0,sv:0,conv:0}};
+    ds.forEach(d => {
+      const r = (D.google||[]).find(x=>x.d===d);
+      if(!r) return;
+      ['uae','ksa','ku'].forEach(g => {
+        const gd = r[g]||{};
+        if(gd.spend>0){
+          geoTotals[g].spend += gd.spend||0;
+          geoTotals[g].sv    += gd.sv||0;
+          geoTotals[g].conv  += gd.conv||0;
+        }
+      });
+    });
+
+    // For each campaign, take its proportion of the geo total (based on MTD spend ratio)
+    rows = camps.map(c => {
+      const geo = c.geo;
+      if(!geo) return null;
+      // MTD proportion of this campaign within its geo
+      const geoMTD = camps.filter(x=>x.geo===geo).reduce((s,x)=>s+x.spend,0);
+      const prop   = geoMTD>0 ? c.spend/geoMTD : 0;
+      const sp   = Math.round(geoTotals[geo].spend * prop * 100)/100;
+      const sv   = Math.round(geoTotals[geo].sv    * prop * 100)/100;
+      const conv = Math.round(geoTotals[geo].conv  * prop);
+      const roas = sp>0 ? Math.round(sv/sp*100)/100 : 0;
+      const cpo  = conv>0 ? Math.round(sp/conv*100)/100 : 0;
+      return {name:c.name, spend:sp, sv, conv, roas, cpo};
+    }).filter(c=>c&&c.spend>0);
   } else {
-    rows = camps;
+    // MTD: use stored campaign totals directly
+    rows = camps.map(c => ({name:c.name,spend:c.spend,sv:c.sv||0,conv:c.conv||0,roas:c.roas||0,cpo:c.cpo||0}));
   }
 
+  if(!rows||!rows.length) return '<tr><td colspan="6" style="text-align:center;padding:14px;color:#aaa;font-size:12px">No data for this period</td></tr>';
+
   return rows.sort((a,b)=>b.spend-a.spend).map(c => {
-    const sig = _SIG[_adSig({spend:c.spend,sv:c.sv||0,conv:c.conv||0,roas:c.roas||0,cpo:c.cpo||0})];
+    const sig = _SIG[_adSig({spend:c.spend,sv:c.sv,conv:c.conv,roas:c.roas,cpo:c.cpo})];
     const tag = sig.tag ? `<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:${sig.tb};color:${sig.tc};margin-left:6px;white-space:nowrap">${sig.tag}</span>` : '';
     return `<tr style="background:${sig.bg};border-left:3px solid ${sig.border}">
       <td style="font-size:11px;color:#444;max-width:220px;word-break:break-word;padding-left:6px;cursor:pointer" data-adname="${c.name.replace(/"/g,'&#39;')}" onmouseenter="showAdHoverChartByEl(event,this)" onmouseleave="hideAdHoverChart()"><span style="border-bottom:1px dashed #ccc">${c.name}</span>${tag}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px">${fR(c.roas||0)}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px">${fS(c.spend)}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px">${fSV(c.sv||0)}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px">${fC(c.conv||0)}</td>
-      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px">${fCPO(c.cpo||0)}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:8px">${fR(c.roas)}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:8px">${fS(c.spend)}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:8px">${c.sv>0?fSV(c.sv):'—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:8px">${c.conv>0?fC(c.conv):'—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:8px">${c.cpo>0?fCPO(c.cpo):'—'}</td>
     </tr>`;
   }).join('');
 }
@@ -511,7 +517,7 @@ function reRenderGoogleCamps(){
 
   const camps=GRANULAR.google.campaigns||[];
   const periodTxt=googleCampsPeriod==='7d'?'Last 7 Days':googleCampsPeriod==='3d'?'Last 3 Days':null;
-  const lbl=periodTxt?`Campaigns — ${periodTxt}`:`Campaigns — MTD Mar 1–${allDs[allDs.length-1].replace('Mar ','')}`;
+  const lbl=periodTxt?`CAMPAIGNS — ${periodTxt}`:`CAMPAIGNS — MTD Mar 1–${allDs[allDs.length-1].replace('Mar ','')}`;
 
   document.getElementById('google-camps-inner').innerHTML=`<table class="gtbl">${tblHdr(["Campaign",...PERF_HDR])}<tbody>${buildGoogleCampsHTML(camps, adsDates)}</tbody></table>`;
   document.getElementById('google-camps-label').textContent=lbl;
@@ -897,7 +903,7 @@ function renderOverviewRange(rd){
     ];
   }).flat();
   _atcDates = rd;
-  document.getElementById("view").innerHTML=`<div class="g5">${cardHTML}</div>${buildPlatformTable(rws.map(p=>({...p,r:p.a})), selStart+" – "+selEnd)}${buildCampaignTable(rd, selStart+" – "+selEnd)}${buildMarketTable(rd, selStart+" – "+selEnd)}${buildTopAdsTable(rd, selStart+" – "+selEnd, 10)}<div class="cc"><div class="clbl">ROAS Trend — All Platforms (${selStart} – ${selEnd} highlighted)</div><div class="cw" style="height:200px"><canvas id="rng-trend"></canvas></div></div>`;
+  document.getElementById("view").innerHTML=`<div class="g5">${cardHTML}</div>${buildPlatformTable(rws.map(p=>({...p,r:p.a})), selStart+" – "+selEnd)}${buildCampaignTable(rd, selStart+" – "+selEnd)}${buildMarketTable(rd, selStart+" – "+selEnd)}${buildTopAdsTable(rd, selStart+" – "+selEnd, 10)}<div class="cc"><div class="clbl">ROAS TREND — ALL PLATFORMS (${selStart} – ${selEnd} highlighted)</div><div class="cw" style="height:200px"><canvas id="rng-trend"></canvas></div></div>`;
   dc("rng-trend");CR["rng-trend"]=new Chart(document.getElementById("rng-trend"),{type:"line",data:{labels:allDatesAll,datasets:trendDS},options:{...bc,plugins:{legend:{position:"top",labels:{boxWidth:8,font:{size:10}}}},scales:ax(v=>`${v}x`)}});
 }
 
@@ -909,7 +915,7 @@ function renderPlatRange(pk, rd){
   const mtdRoas=totSpend>0?wR/totSpend:0, mtdCPO=totConv>0?totSpend/totConv:0;
   const gr=geos.map((g,i)=>{let sp=0,sv=0,cv=0,wr=0;rd.forEach(d=>{const r=row(pk,d);if(r){const geo=r[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);}});return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};});
   const kpis=[{l:"ROAS",v:fR(mtdRoas)},{l:"SPEND",v:fS(totSpend)},{l:"SALES VALUE",v:fSV(totSV)},{l:"SALES",v:fC(totConv)},{l:"CPO",v:fCPO(mtdCPO)}];
-  document.getElementById("view").innerHTML=`<div class="g5">${kpis.map(k=>`<div class="card" style="border-top:2px solid ${p.color}"><div class="klbl">${k.l}</div><div class="kval sm">${k.v}</div></div>`).join("")}</div><div class="cc"><div class="clbl">Market Breakdown — ${selStart} to ${selEnd}</div><table class="gtbl"><thead><tr><th>Market</th><th>ROAS</th><th>Spend</th><th>Sales Value</th><th>Sales</th><th>CPO</th></tr></thead><tbody>${gr.map(g=>`<tr><td><span class="gn"><span class="gs" style="background:${g.color}"></span>${g.label}</span></td><td>${g.spend>0?fR(g.roas):"—"}</td><td>${g.spend>0?fS(g.spend):"—"}</td><td>${g.spend>0?fSV(g.sv):"—"}</td><td>${g.spend>0?fC(g.conv):"—"}</td><td>${g.spend>0?fCPO(g.cpo):"—"}</td></tr>`).join("")}</tbody></table></div><div class="cc"><div class="clbl">ROAS Trend — ${p.label}</div><div class="cw" style="height:200px"><canvas id="rng-pt"></canvas></div></div>`;
+  document.getElementById("view").innerHTML=`<div class="g5">${kpis.map(k=>`<div class="card" style="border-top:2px solid ${p.color}"><div class="klbl">${k.l}</div><div class="kval sm">${k.v}</div></div>`).join("")}</div><div class="cc"><div class="clbl">MARKET BREAKDOWN — ${selStart} to ${selEnd}</div><table class="gtbl"><thead><tr><th>Market</th><th>ROAS</th><th>Spend</th><th>Sales Value</th><th>Sales</th><th>CPO</th></tr></thead><tbody>${gr.map(g=>`<tr><td><span class="gn"><span class="gs" style="background:${g.color}"></span>${g.label}</span></td><td>${g.spend>0?fR(g.roas):"—"}</td><td>${g.spend>0?fS(g.spend):"—"}</td><td>${g.spend>0?fSV(g.sv):"—"}</td><td>${g.spend>0?fC(g.conv):"—"}</td><td>${g.spend>0?fCPO(g.cpo):"—"}</td></tr>`).join("")}</tbody></table></div><div class="cc"><div class="clbl">ROAS TREND — ${p.label}</div><div class="cw" style="height:200px"><canvas id="rng-pt"></canvas></div></div>`;
   // ROAS trend — show full platform history, highlight selected range window
   const allDatesForPk=(D[pk]||[]).map(x=>x.d);
   const rdSet=new Set(rd);
@@ -1001,7 +1007,7 @@ function buildPlatformTable(rws, label){
     `<th style="padding:8px ${i===0?12:8}px;text-align:${i===0?"left":"center"};font-size:10px;font-weight:700;letter-spacing:.06em;color:#888;border-bottom:2px solid #ebebeb;white-space:nowrap">${c}</th>`
   ).join("")}</tr>`;
   return `<div class="cc" style="margin-bottom:16px">
-    <div class="clbl">Overall Performance by Platform — ${label}</div>
+    <div class="clbl">OVERALL PERFORMANCE BY PLATFORM — ${label}</div>
     <div style="overflow-x:auto">
     <table style="width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:12px">
       <thead>${hdr}</thead>
@@ -1105,10 +1111,10 @@ function buildCampaignTable(datesArr, label){
 
   // ── Build HTML — group per platform with colored left border + header row
   const groups = [
-    { label:'Meta',     color:metaColor,  camps:metaCamps  },
-    { label:'TikTok',   color:ttColor,    camps:ttCamps    },
-    { label:'Snapchat', color:snapColor,  camps:snapCamps  },
-    { label:'Google',   color:gColor,     camps:gCamps     },
+    { label:'META',     color:metaColor,  camps:metaCamps  },
+    { label:'TIKTOK',   color:ttColor,    camps:ttCamps    },
+    { label:'SNAPCHAT', color:snapColor,  camps:snapCamps  },
+    { label:'GOOGLE',   color:gColor,     camps:gCamps     },
   ];
 
   let tbody = '';
@@ -1140,7 +1146,7 @@ function buildCampaignTable(datesArr, label){
   ).join("")}</tr>`;
 
   return `<div class="cc" style="margin-bottom:16px">
-    <div class="clbl">Overall Performance by Campaign — ${label}</div>
+    <div class="clbl">OVERALL PERFORMANCE BY CAMPAIGN — ${label}</div>
     <div style="overflow-x:auto">
     <table style="width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:12px">
       <thead>${hdr}</thead>
@@ -1253,7 +1259,7 @@ function buildMarketTable(datesArr, label){
   ).join("")}</tr>`;
 
   return `<div class="cc" style="margin-bottom:16px">
-    <div class="clbl">Overall Performance by Market — ${label}</div>
+    <div class="clbl">OVERALL PERFORMANCE BY MARKET — ${label}</div>
     <div style="overflow-x:auto">
     <table style="width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:12px">
       <thead>${hdr}</thead>
@@ -1263,7 +1269,7 @@ function buildMarketTable(datesArr, label){
   </div>`;
 }
 
-// ── Top Performing Ads Table
+// ── TOP PERFORMING ADS Table
 // ── Top Ads state (for filters)
 let _topAdsState = { market:'all', period:'all', baseDates:[], baseLabel:'' };
 
@@ -1493,7 +1499,7 @@ function renderTopAdsInner(baseDates, baseLabel, N, marketFilter, periodFilter){
   }
 
   return `<div class="cc" style="margin-bottom:16px" id="top-ads-card">
-    <div class="clbl">Overall — Top Performing Ads — ${periodLabel ? periodLabel.replace(" · ","") : baseLabel}</div>
+    <div class="clbl">Overall — Top Performing ADS — ${periodLabel ? periodLabel.replace(" · ","") : baseLabel}</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center">
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
         <span style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em;margin-right:2px">MARKET</span>
@@ -1506,9 +1512,9 @@ function renderTopAdsInner(baseDates, baseLabel, N, marketFilter, periodFilter){
       </div>
     </div>
     <div style="overflow-x:auto" id="top-ads-table-wrap">
-      ${platSection('Meta',    '#1877F2', rows)}
-      ${platSection('TikTok',  '#EE1D52', ttRows)}
-      ${platSection('Snap',    '#FFFC00', snapRows)}
+      ${platSection('META',    '#1877F2', rows)}
+      ${platSection('TIKTOK',  '#EE1D52', ttRows)}
+      ${platSection('SNAP',    '#FFFC00', snapRows)}
     </div>
   </div>`;
 }
@@ -1621,7 +1627,7 @@ function renderOverview(d){
     ${buildMarketTable(d, d)}
     ${buildTopAdsTable(d, d, 10)}
     <div class="cc">
-      <div class="clbl">ROAS Trend — All Platforms</div>
+      <div class="clbl">ROAS TREND — ALL PLATFORMS</div>
       <div class="cw" style="height:200px"><canvas id="ov-trend"></canvas></div>
     </div>
     <div class="g2">
@@ -1705,7 +1711,7 @@ function renderOverviewMTD(){
     ${buildMarketTable(ds, "MTD Mar 1–"+last)}
     ${buildTopAdsTable(ds, "MTD Mar 1–"+last, 10)}
     <div class="cc">
-      <div class="clbl">ROAS Trend — MTD</div>
+      <div class="clbl">ROAS TREND — MTD</div>
       <div class="cw" style="height:200px"><canvas id="mtd-trend"></canvas></div>
     </div>`;
 
@@ -1743,7 +1749,7 @@ function renderPlat(pk,d){
       ${kpis.map(k=>`<div class="card" style="border-top:2px solid ${p.color}"><div class="klbl">${k.l}</div><div class="kval sm">${k.v}</div></div>`).join("")}
     </div>
     <div class="cc">
-      <div class="clbl">Market Breakdown — ${d}</div>
+      <div class="clbl">MARKET BREAKDOWN — ${d}</div>
       <table class="gtbl">
         <thead><tr><th>Market</th><th>ROAS</th><th>Spend</th><th>Sales Value</th><th>Sales</th><th>CPO</th></tr></thead>
         <tbody>${gr.map(g=>`<tr>
@@ -1757,19 +1763,19 @@ function renderPlat(pk,d){
       </table>
     </div>
     <div class="gg">
-      <div class="cc" style="margin-bottom:0"><div class="clbl">ROAS by Market</div><div class="cw" style="height:160px"><canvas id="gr"></canvas></div></div>
-      <div class="cc" style="margin-bottom:0"><div class="clbl">Spend by Market</div><div class="cw" style="height:160px"><canvas id="gs"></canvas></div></div>
+      <div class="cc" style="margin-bottom:0"><div class="clbl">ROAS BY MARKET</div><div class="cw" style="height:160px"><canvas id="gr"></canvas></div></div>
+      <div class="cc" style="margin-bottom:0"><div class="clbl">SPEND BY MARKET</div><div class="cw" style="height:160px"><canvas id="gs"></canvas></div></div>
     </div>
     <div class="gg">
-      <div class="cc" style="margin-bottom:0"><div class="clbl">Sales Value by Market</div><div class="cw" style="height:160px"><canvas id="gsv"></canvas></div></div>
-      <div class="cc" style="margin-bottom:0"><div class="clbl">CPO by Market</div><div class="cw" style="height:160px"><canvas id="gcpo"></canvas></div></div>
+      <div class="cc" style="margin-bottom:0"><div class="clbl">SALES VALUE BY MARKET</div><div class="cw" style="height:160px"><canvas id="gsv"></canvas></div></div>
+      <div class="cc" style="margin-bottom:0"><div class="clbl">CPO BY MARKET</div><div class="cw" style="height:160px"><canvas id="gcpo"></canvas></div></div>
     </div>
-    <div class="cc"><div class="clbl">ROAS Trend — ${p.label}</div><div class="cw" style="height:190px"><canvas id="pt"></canvas></div></div>
+    <div class="cc"><div class="clbl">ROAS TREND — ${p.label}</div><div class="cw" style="height:190px"><canvas id="pt"></canvas></div></div>
     <div class="gg">
-      <div class="cc" style="margin-bottom:0"><div class="clbl">Sales Value Trend</div><div class="cw" style="height:160px"><canvas id="psv"></canvas></div></div>
-      <div class="cc" style="margin-bottom:0"><div class="clbl">CPO Trend</div><div class="cw" style="height:160px"><canvas id="pcpo"></canvas></div></div>
+      <div class="cc" style="margin-bottom:0"><div class="clbl">SALES VALUE TREND</div><div class="cw" style="height:160px"><canvas id="psv"></canvas></div></div>
+      <div class="cc" style="margin-bottom:0"><div class="clbl">CPO TREND</div><div class="cw" style="height:160px"><canvas id="pcpo"></canvas></div></div>
     </div>
-    <div class="cc"><div class="clbl">Sales — ${p.label}</div><div class="cw" style="height:160px"><canvas id="pc"></canvas></div></div>
+    <div class="cc"><div class="clbl">SALES — ${p.label}</div><div class="cw" style="height:160px"><canvas id="pc"></canvas></div></div>
     ${renderGranular(pk,d)}`;
 
   // ROAS bar
@@ -1876,7 +1882,7 @@ function aggRecords(records){
 }
 
 // renderGranular — accepts single date string OR array of date strings
-// ── Signal logic (same as Top Performing Ads)
+// ── Signal logic (same as TOP PERFORMING ADS)
 const AD_ROAS_TARGET = 3.0, AD_CPO_TARGET = 60;
 function adRowSignal(agg){
   if(!agg || agg.spend <= 0) return 'neutral';
@@ -1930,7 +1936,7 @@ function renderGranular(pk, dates) {
     const fConv  = followerRecs.reduce((s,r)=>s+(r.conv||0),0);
     if (fSpend > 0) {
       html += `<div class="cc" style="margin-top:4px">
-        <div class="clbl">Followers Campaign — ${label}</div>
+        <div class="clbl">FOLLOWERS CAMPAIGN — ${label}</div>
         <table class="gtbl">
           <thead><tr><th>Campaign</th><th style="text-align:right">Spend</th><th style="text-align:right">Profile Visits</th><th style="text-align:right">CPF</th></tr></thead>
           <tbody><tr>
@@ -1954,7 +1960,7 @@ function renderGranular(pk, dates) {
 
   if (campRows.length) {
     html += `<div class="cc" style="margin-top:4px">
-      <div class="clbl">Sales Campaigns — ${label}</div>
+      <div class="clbl">SALES CAMPAIGNS — ${label}</div>
       <table class="gtbl">${tblHdr(["Campaign",...PERF_HDR])}<tbody>${campRows.join("")}</tbody></table>
     </div>`;
   }
@@ -1970,7 +1976,7 @@ function renderGranular(pk, dates) {
 
   if (asRows.length) {
     html += `<div class="cc" style="margin-top:4px">
-      <div class="clbl">Ad Sets — ${label}</div>
+      <div class="clbl">AD SETS — ${label}</div>
       <table class="gtbl">${tblHdr(["Ad Set",...PERF_HDR])}<tbody>${asRows.join("")}</tbody></table>
     </div>`;
   }
@@ -2043,7 +2049,7 @@ function renderGranular(pk, dates) {
   if (adsHTML) {
     html += `<div class="cc" style="margin-top:4px" id="meta-ads-card">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-        <div class="clbl" style="margin-bottom:0">Ads — ${label}</div>
+        <div class="clbl" style="margin-bottom:0">ADS — ${label}</div>
         <div style="display:flex;gap:6px;align-items:center">
           <span style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em">PERIOD</span>
           <button onclick="metaAdsPeriod=metaAdsPeriod==='7d'?null:'7d';reRenderMetaAds()" id="meta-ads-btn-7d"
@@ -2102,7 +2108,7 @@ function renderGranularOther(pk, ds, label) {
     const campRowsHTML = `<table class="gtbl">${tblHdr(["Campaign",...PERF_HDR])}<tbody>${buildGoogleCampsHTML(GRANULAR.google.campaigns,null)}</tbody></table>`;
     html += `<div class="cc" style="margin-top:4px" id="google-camps-card">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-        <div class="clbl" style="margin-bottom:0" id="google-camps-label">Campaigns — MTD Mar 1–${dates()[dates().length-1].replace('Mar ','')}</div>
+        <div class="clbl" style="margin-bottom:0" id="google-camps-label">CAMPAIGNS — MTD Mar 1–${dates()[dates().length-1].replace('Mar ','')}</div>
         <div style="display:flex;gap:6px;align-items:center">
           <span style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em">PERIOD</span>
           <button onclick="googleCampsPeriod=googleCampsPeriod==='7d'?null:'7d';reRenderGoogleCamps()" id="google-camps-btn-7d"
@@ -2126,7 +2132,7 @@ function renderGranularOther(pk, ds, label) {
   }).filter(Boolean);
 
   if (asRows.length) {
-    const lbl = pk==='snap' ? 'Ad Sets (Geo)' : 'Ad Sets';
+    const lbl = pk==='snap' ? 'AD SETS (GEO)' : 'AD SETS';
     html += `<div class="cc" style="margin-top:4px">
       <div class="clbl">${lbl} — ${label}</div>
       <table class="gtbl">${tblHdr(["Ad Set",...PERF_HDR])}<tbody>${asRows.join("")}</tbody></table>
@@ -2145,7 +2151,7 @@ function renderGranularOther(pk, ds, label) {
     if (ttAdsHTML) {
       html += `<div class="cc" style="margin-top:4px" id="tt-ads-card">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-          <div class="clbl" style="margin-bottom:0" id="tt-ads-label">Ads — ${label}</div>
+          <div class="clbl" style="margin-bottom:0" id="tt-ads-label">ADS — ${label}</div>
           <div style="display:flex;gap:6px;align-items:center">
             <span style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em">PERIOD</span>
             <button onclick="ttAdsPeriod=ttAdsPeriod==='7d'?null:'7d';reRenderTTAds()" id="tt-ads-btn-7d"
@@ -2163,7 +2169,7 @@ function renderGranularOther(pk, ds, label) {
     if (snapAdsHTML) {
       html += `<div class="cc" style="margin-top:4px" id="snap-ads-card">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
-          <div class="clbl" style="margin-bottom:0" id="snap-ads-label">Ads — ${label}</div>
+          <div class="clbl" style="margin-bottom:0" id="snap-ads-label">ADS — ${label}</div>
           <div style="display:flex;gap:6px;align-items:center">
             <span style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em">PERIOD</span>
             <button onclick="snapAdsPeriod=snapAdsPeriod==='7d'?null:'7d';reRenderSnapAds()" id="snap-ads-btn-7d"
@@ -2187,7 +2193,7 @@ function renderGranularOther(pk, ds, label) {
 
     if (adRows.length) {
       html += `<div class="cc" style="margin-top:4px">
-        <div class="clbl">Ads — ${label}</div>
+        <div class="clbl">ADS — ${label}</div>
         <table class="gtbl">${tblHdr(["Ad",...PERF_HDR])}<tbody>${adRows.join("")}</tbody></table>
       </div>`;
     }
@@ -2238,7 +2244,7 @@ function renderPlatMTD(pk){
       ${kpis.map(k=>`<div class="card" style="border-top:2px solid ${p.color}"><div class="klbl">${k.l}</div><div class="kval sm">${k.v}</div></div>`).join("")}
     </div>
     <div class="cc">
-      <div class="clbl">Market Breakdown — MTD Mar 1–${last}</div>
+      <div class="clbl">MARKET BREAKDOWN — MTD Mar 1–${last}</div>
       <table class="gtbl">
         <thead><tr><th>Market</th><th>ROAS</th><th>Spend</th><th>Sales Value</th><th>Sales</th><th>CPO</th></tr></thead>
         <tbody>${gr.map(g=>`<tr>
@@ -2252,15 +2258,15 @@ function renderPlatMTD(pk){
       </table>
     </div>
     <div class="gg">
-      <div class="cc" style="margin-bottom:0"><div class="clbl">ROAS by Market — MTD</div><div class="cw" style="height:160px"><canvas id="m-gr"></canvas></div></div>
-      <div class="cc" style="margin-bottom:0"><div class="clbl">Spend by Market — MTD</div><div class="cw" style="height:160px"><canvas id="m-gs"></canvas></div></div>
+      <div class="cc" style="margin-bottom:0"><div class="clbl">ROAS BY MARKET — MTD</div><div class="cw" style="height:160px"><canvas id="m-gr"></canvas></div></div>
+      <div class="cc" style="margin-bottom:0"><div class="clbl">SPEND BY MARKET — MTD</div><div class="cw" style="height:160px"><canvas id="m-gs"></canvas></div></div>
     </div>
-    <div class="cc"><div class="clbl">ROAS Trend — ${p.label} MTD</div><div class="cw" style="height:200px"><canvas id="m-pt"></canvas></div></div>
+    <div class="cc"><div class="clbl">ROAS TREND — ${p.label} MTD</div><div class="cw" style="height:200px"><canvas id="m-pt"></canvas></div></div>
     <div class="gg">
-      <div class="cc" style="margin-bottom:0"><div class="clbl">Sales Value Trend — MTD</div><div class="cw" style="height:160px"><canvas id="m-psv"></canvas></div></div>
-      <div class="cc" style="margin-bottom:0"><div class="clbl">CPO Trend — MTD</div><div class="cw" style="height:160px"><canvas id="m-pcpo"></canvas></div></div>
+      <div class="cc" style="margin-bottom:0"><div class="clbl">SALES VALUE TREND — MTD</div><div class="cw" style="height:160px"><canvas id="m-psv"></canvas></div></div>
+      <div class="cc" style="margin-bottom:0"><div class="clbl">CPO TREND — MTD</div><div class="cw" style="height:160px"><canvas id="m-pcpo"></canvas></div></div>
     </div>
-    <div class="cc"><div class="clbl">Sales — ${p.label} MTD</div><div class="cw" style="height:160px"><canvas id="m-pc"></canvas></div></div>
+    <div class="cc"><div class="clbl">SALES — ${p.label} MTD</div><div class="cw" style="height:160px"><canvas id="m-pc"></canvas></div></div>
     ${renderGranular(pk, all.map(r=>r.d))}`;
 
   // ROAS bar by market
@@ -2326,6 +2332,33 @@ window.st = t => { tab=t; render(); };
 let _ahcChart = null;
 
 function getAdDailyData(baseName){
+  // ── Google campaign: build daily from D.google geo data
+  const googleCamps = GRANULAR.google?.campaigns || [];
+  const gCamp = googleCamps.find(c => c.name === baseName);
+  if (gCamp) {
+    const geo = gCamp.geo || 'uae';
+    // Compute this campaign's share within its geo (by MTD spend)
+    const geoMTDSpend = (D.google||[]).reduce((s,r) => s + (r[geo]?.spend||0), 0);
+    const campMTDSpend = gCamp.spend || 0;
+    const geoCampsTotal = googleCamps
+      .filter(c => (c.geo||'uae') === geo)
+      .reduce((s,c) => s + c.spend, 0);
+    const prop = geoCampsTotal > 0 ? campMTDSpend / geoCampsTotal : 1;
+
+    return ALL_DATES.map(d => {
+      const r = (D.google||[]).find(x => x.d === d);
+      if (!r) return null;
+      const g = r[geo] || {};
+      if (!g.spend || g.spend <= 0) return null;
+      const sp   = Math.round(g.spend * prop * 100) / 100;
+      const sv   = Math.round((g.sv||0) * prop * 100) / 100;
+      const conv = Math.round((g.conv||0) * prop);
+      const roas = sp > 0 ? sv / sp : 0;
+      const cpo  = conv > 0 ? Math.round(sp / conv * 100) / 100 : 0;
+      return { d, spend: sp, sv, conv, roas, cpo, atc: 0 };
+    });
+  }
+
   // Search across ALL platform ad granular data
   const allAds = {
     ...( GRANULAR.meta?.ads   || {} ),
