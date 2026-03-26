@@ -1933,10 +1933,10 @@ function renderPlat(pk,d){
 // ═══════════════════════════════════════════════════════
 // Meta campaign → adset → ads mapping
 const META_CAMPS = [
-  { label:"UAE",           adset:"UAE Ongoing - ASC - En",                    prefix:"UAE ·" },
-  { label:"KSA",           adset:"KSA Ongoing - ASC - En",                    prefix:"KSA ·" },
-  { label:"KU / QA / BH", adset:"Ku - Qa - BH Ongoing - ASC - En",           prefix:"KU ·"  },
-  { label:"Catalogue",     adset:"Catalogue Retargeting / Prospecting - GCC", prefix:"CAT ·" },
+  { label:"UAE",           adset:"UAE Ongoing - ASC - En",                    prefix:"UAE ·",  product:"Abaya" },
+  { label:"KSA",           adset:"KSA Ongoing - ASC - En",                    prefix:"KSA ·",  product:"Abaya" },
+  { label:"KU / QA / BH", adset:"Ku - Qa - BH Ongoing - ASC - En",           prefix:"KU ·",   product:"Abaya" },
+  { label:"Catalogue",     adset:"Catalogue Retargeting / Prospecting - GCC", prefix:"CAT ·",  product:"" },
 ];
 const META_FOLLOWERS_KEY = "Followers GCC - Brand";
 
@@ -2150,7 +2150,7 @@ function renderGranular(pk, dates) {
     const recs = ds.map(d=>(adsets[c.adset]||[]).find(x=>x.d===d)).filter(Boolean);
     const agg = aggRecords(recs);
     if (!agg.spend) return null;
-    const shortName = c.adset.replace(' - GCC','').replace('Retargeting / Prospecting','Ret/Pro');
+    const shortName = c.product ? `${c.label} — ${c.product}` : c.adset.replace(' - GCC','').replace('Retargeting / Prospecting','Ret/Pro');
     return perfRow(shortName, agg);
   }).filter(Boolean);
 
