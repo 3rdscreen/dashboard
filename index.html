@@ -856,15 +856,52 @@ function reRenderMetaAds(){
       return {displayName:dn, agg:{spend:m.spend,sv:m.sv,conv:m.conv,atc:m.atc,roas,cpo}};
     });
   });
+  const showDayBreakdown = metaAdsPeriod==='7d' || metaAdsPeriod==='3d';
+
   let adsHTML2='';
   GEO_GROUPS2.forEach(g=>{
     const rows=adsByGeo2[g.label].sort((a,b)=>b.agg.spend-a.agg.spend);
     if(!rows.length) return;
-    adsHTML2+=`<div style="margin-bottom:14px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#888;margin-bottom:8px;padding:4px 8px;background:#f8f8f4;border-radius:6px">${g.label}</div>
-      <table class="gtbl"><thead><tr><th>Ad</th>${PERF_HDR.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
-      <tbody>${rows.map(r=>perfRowSignal(r.displayName,r.agg)).join('')}</tbody></table>
-    </div>`;
+
+    if(showDayBreakdown){
+      // Day-by-day breakdown per ad
+      let tbodyRows='';
+      rows.forEach(r=>{
+        // Total row for this ad (bold header)
+        tbodyRows+=`<tr style="background:#f8f8f4"><td style="font-size:11px;font-weight:700;color:#222;padding:6px 8px">${r.displayName}</td>${['roas','spend','sv','conv','cpo'].map(k=>{
+          const v=r.agg[k]||0;
+          const fmt=k==='roas'?fR(v):k==='spend'?fS(v):k==='sv'?fSV(v):k==='conv'?fC(v):fCPO(v);
+          return `<td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:6px 8px">${fmt}</td>`;
+        }).join('')}</tr>`;
+        // Day sub-rows
+        [...adsDates].reverse().forEach(day=>{
+          // Find matching raw ad key(s) for this display name
+          const dayRecs=Object.keys(ads).filter(name=>{
+            const dn=name.replace(/_mar\d+(_v\d+)?$/i,'').replace(/_v\d+$/i,'').replace(/\s*[-–]\s*Copy\s*\d*$/i,'').trim().substring(0,45);
+            return dn===r.displayName && detectGeo2(name)===g.label;
+          }).map(name=>(ads[name]||[]).find(x=>x.d===day)).filter(Boolean);
+          if(!dayRecs.length) return;
+          const dayAgg=aggRecords(dayRecs);
+          if(!dayAgg.spend) return;
+          tbodyRows+=`<tr><td style="font-size:11px;color:#888;padding:3px 8px 3px 24px">↳ ${day}</td>${['roas','spend','sv','conv','cpo'].map(k=>{
+            const v=dayAgg[k]||0;
+            const fmt=k==='roas'?fR(v):k==='spend'?fS(v):k==='sv'?fSV(v):k==='conv'?fC(v):fCPO(v);
+            return `<td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:#888;padding:3px 8px">${fmt}</td>`;
+          }).join('')}</tr>`;
+        });
+      });
+      adsHTML2+=`<div style="margin-bottom:14px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#888;margin-bottom:8px;padding:4px 8px;background:#f8f8f4;border-radius:6px">${g.label}</div>
+        <table class="gtbl"><thead><tr><th>Ad</th>${PERF_HDR.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${tbodyRows}</tbody></table>
+      </div>`;
+    } else {
+      adsHTML2+=`<div style="margin-bottom:14px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#888;margin-bottom:8px;padding:4px 8px;background:#f8f8f4;border-radius:6px">${g.label}</div>
+        <table class="gtbl"><thead><tr><th>Ad</th>${PERF_HDR.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${rows.map(r=>perfRowSignal(r.displayName,r.agg)).join('')}</tbody></table>
+      </div>`;
+    }
   });
   // Update inner content
   document.getElementById('meta-ads-inner').innerHTML = adsHTML2 || '<p style="color:#aaa;font-size:12px">No ads data</p>';
