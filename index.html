@@ -1876,6 +1876,119 @@ function renderSpendChart(dates){
 }
 
 
+// ── BUDGET BY PLATFORM & MARKET TABLE ───────────────────────────────
+function buildBudgetByMarket(dateArg){
+  // dateArg is either a single date string or an array of dates (MTD)
+  const isMTD = Array.isArray(dateArg);
+  const dates = isMTD ? dateArg : [dateArg];
+
+  const PLATFORMS = [
+    {key:'meta',   label:'Meta',   color:'#1877F2', geos:['uae','ksa','ku','cat']},
+    {key:'tiktok', label:'TikTok', color:'#EE1D52', geos:['uae','ksa','ku','cat']},
+    {key:'snap',   label:'Snap',   color:'#FFCC00', textColor:'#1a1a1a', geos:['uae','ksa','ku']},
+    {key:'google', label:'Google', color:'#34A853', geos:['uae','ksa','ku']},
+  ];
+  const MARKETS = [
+    {key:'uae', label:'UAE'},
+    {key:'ksa', label:'KSA'},
+    {key:'ku',  label:'KU/QA/BH'},
+    {key:'cat', label:'Catalogue'},
+  ];
+
+  // Aggregate spend per platform per geo
+  const agg = {};
+  PLATFORMS.forEach(p => {
+    agg[p.key] = {total:0};
+    MARKETS.forEach(m => { agg[p.key][m.key] = 0; });
+    const rows = D[p.key] || [];
+    dates.forEach(d => {
+      const r = rows.find(x => x.d === d);
+      if (!r || !r.spend) return;
+      agg[p.key].total += r.spend;
+      MARKETS.forEach(m => {
+        const geo = r[m.key];
+        if (geo && geo.spend) agg[p.key][m.key] += geo.spend;
+      });
+    });
+  });
+
+  // Grand totals per market
+  const mktTotals = {};
+  MARKETS.forEach(m => {
+    mktTotals[m.key] = PLATFORMS.reduce((s,p) => s + (agg[p.key][m.key]||0), 0);
+  });
+  const grandTotal = PLATFORMS.reduce((s,p) => s + agg[p.key].total, 0);
+
+  // % share helper
+  const pct = (v, tot) => tot > 0 ? (v/tot*100).toFixed(0)+'%' : '—';
+
+  // Market columns — only show those with any spend
+  const activeMkts = MARKETS.filter(m => PLATFORMS.some(p => agg[p.key][m.key] > 0));
+
+  const headerCols = activeMkts.map(m => `<th>${m.label}</th>`).join('');
+  const platformRows = PLATFORMS.map(p => {
+    const platTotal = agg[p.key].total;
+    if (platTotal === 0) return '';
+    const textCol = p.textColor || '#fff';
+    const mktCells = activeMkts.map(m => {
+      const v = agg[p.key][m.key];
+      return `<td>
+        <div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600">${v>0?'$'+Math.round(v).toLocaleString():'—'}</div>
+        ${v>0?`<div style="font-size:10px;color:#aaa;margin-top:1px">${pct(v,mktTotals[m.key])} of mkt</div>`:''}
+      </td>`;
+    }).join('');
+    return `<tr>
+      <td>
+        <span style="display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:13px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${p.color};flex-shrink:0;display:inline-block"></span>
+          ${p.label}
+        </span>
+      </td>
+      ${mktCells}
+      <td>
+        <div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700">${'$'+Math.round(platTotal).toLocaleString()}</div>
+        <div style="font-size:10px;color:#aaa;margin-top:1px">${pct(platTotal,grandTotal)} of total</div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Totals row
+  const totCells = activeMkts.map(m => {
+    const v = mktTotals[m.key];
+    return `<td style="border-top:2px solid #f0f0ea;padding-top:10px">
+      <div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700">${v>0?'$'+Math.round(v).toLocaleString():'—'}</div>
+      <div style="font-size:10px;color:#aaa;margin-top:1px">${pct(v,grandTotal)} of total</div>
+    </td>`;
+  }).join('');
+
+  return `<div class="cc" style="margin-top:12px">
+    <div class="clbl">SPEND BY PLATFORM &amp; MARKET</div>
+    <div style="overflow-x:auto">
+      <table class="gtbl" style="min-width:480px">
+        <thead>
+          <tr>
+            <th style="min-width:90px">Platform</th>
+            ${headerCols}
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${platformRows}
+          <tr>
+            <td style="border-top:2px solid #f0f0ea;padding-top:10px">
+              <span style="font-weight:700;font-size:12px;color:#888;letter-spacing:.04em">TOTAL</span>
+            </td>
+            ${totCells}
+            <td style="border-top:2px solid #f0f0ea;padding-top:10px">
+              <div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700">${'$'+Math.round(grandTotal).toLocaleString()}</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
 function renderOverview(d){
   const rws=PL.map(p=>{const r=row(p.key,d);return{...p,r};});
 
@@ -1940,6 +2053,7 @@ function renderOverview(d){
   document.getElementById("view").innerHTML=`
     <div class="g5">${cardHTML}</div>
     ${buildSpendChart()}
+    ${buildBudgetByMarket(d)}
     ${buildCampaignTable(d, d)}
     ${buildMarketTable(d, d)}
     ${buildTopAdsTable(d, d, 10)}
@@ -2027,6 +2141,7 @@ function renderOverviewMTD(){
   document.getElementById("view").innerHTML=`
     <div class="g5">${cardHTML}</div>
     ${buildSpendChart()}
+    ${buildBudgetByMarket(ds)}
     ${buildCampaignTable(ds, "MTD Mar 1–"+last)}
     ${buildMarketTable(ds, "MTD Mar 1–"+last)}
     ${buildTopAdsTable(ds, "MTD Mar 1–"+last, 10)}
