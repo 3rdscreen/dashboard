@@ -167,6 +167,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#f4f4ef;color:#1a1a
         <button class="cal-preset" onclick="applyPreset('last30')">Last 30 days</button>
         <button class="cal-preset" onclick="applyPreset('thisweek')">This week</button>
         <button class="cal-preset" onclick="applyPreset('lastweek')">Last week</button>
+        <button class="cal-preset" onclick="applyPreset('lastmonth')">Last month</button>
         <button class="cal-preset active" id="preset-mtd" onclick="applyPreset('mtd')">This month (MTD)</button>
         
       </div>
@@ -262,9 +263,33 @@ const BUDGET_MARKERS = [{"date":"Mar 2","platform":"meta","direction":"down"},{"
 
 let calOpen=false, calPickStart=null, calPickEnd=null, calHover=null, calOffset=0;
 
+// ── Calendar month/year navigation state
+// Derive all months present in ALL_DATES
+function calMonths(){
+  const seen=new Set();
+  ALL_DATES.forEach(d=>{
+    const m=d.replace(/ \d+$/,''); // e.g. "Mar", "Apr"
+    seen.add(m);
+  });
+  return [...seen]; // ordered as they appear
+}
+// Current viewed month index (index into calMonths())
+let calMonthIdx=null; // will be initialised to last month on open
+
+const MONTH_NAMES=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTH_FULL={"Jan":"JANUARY","Feb":"FEBRUARY","Mar":"MARCH","Apr":"APRIL","May":"MAY","Jun":"JUNE",
+                  "Jul":"JULY","Aug":"AUGUST","Sep":"SEPTEMBER","Oct":"OCTOBER","Nov":"NOVEMBER","Dec":"DECEMBER"};
+// Map month abbr → days in 2026
+const DAYS_IN_MONTH_2026={"Jan":31,"Feb":28,"Mar":31,"Apr":30,"May":31,"Jun":30,"Jul":31,"Aug":31,"Sep":30,"Oct":31,"Nov":30,"Dec":31};
+// Day-of-week for the 1st of each month in 2026 (0=Sun)
+const FIRST_DOW_2026={"Jan":4,"Feb":0,"Mar":0,"Apr":3,"May":5,"Jun":1,"Jul":3,"Aug":6,"Sep":2,"Oct":4,"Nov":0,"Dec":2};
+
 function dateIndex(d){ return ALL_DATES.indexOf(d); }
 function calLabel(){
-  if(mtdMode) return `Mar 1 – ${ALL_DATES[ALL_DATES.length-1]}`;
+  if(mtdMode){
+    const first=ALL_DATES[0]; const last=ALL_DATES[ALL_DATES.length-1];
+    return `${first} – ${last}`;
+  }
   if(rangeMode && selEnd) return `${selStart} – ${selEnd}`;
   return sel;
 }
@@ -273,8 +298,14 @@ function toggleCal(e){
   e.stopPropagation();
   calOpen=!calOpen;
   const dd=document.getElementById("cal-dropdown");
-  if(calOpen){ dd.classList.add("open"); renderCalGrid(); }
-  else { dd.classList.remove("open"); }
+  if(calOpen){
+    // Default to the month of the latest date
+    const months=calMonths();
+    const lastMonth=ALL_DATES[ALL_DATES.length-1].replace(/ \d+$/,'');
+    calMonthIdx=months.indexOf(lastMonth);
+    if(calMonthIdx<0) calMonthIdx=months.length-1;
+    dd.classList.add("open"); renderCalGrid();
+  } else { dd.classList.remove("open"); }
 }
 
 function closeCal(){ calOpen=false; document.getElementById("cal-dropdown").classList.remove("open"); }
@@ -284,58 +315,73 @@ document.addEventListener("click", e=>{
 });
 
 function renderCalGrid(){
-  const daysInMarch=31;
-  const firstDOW=0; // March 1 2026 = Sunday
-  const dataSet=new Set(ALL_DATES.map(d=>+d.replace("Mar ","")));
+  const months=calMonths();
+  if(calMonthIdx===null) calMonthIdx=months.length-1;
+  calMonthIdx=Math.max(0,Math.min(months.length-1,calMonthIdx));
+  const curMon=months[calMonthIdx];
+  const canPrev=calMonthIdx>0;
+  const canNext=calMonthIdx<months.length-1;
+
+  // Dates available in this month
+  const dataSet=new Set(
+    ALL_DATES.filter(d=>d.startsWith(curMon+' ')).map(d=>+d.replace(curMon+' ',''))
+  );
+  const daysInMonth=DAYS_IN_MONTH_2026[curMon]||30;
+  const firstDOW=FIRST_DOW_2026[curMon]||0;
 
   const dow=["Su","Mo","Tu","We","Th","Fr","Sa"];
   let html=`<div class="cal-month">
     <div class="cal-month-hdr">
-      <span style="width:26px"></span>
-      <span class="cal-month-title">MARCH 2026</span>
-      <span style="width:26px"></span>
+      <button class="cal-nav-btn" data-dir="-1" style="background:none;border:none;cursor:${canPrev?'pointer':'default'};opacity:${canPrev?1:0.2};font-size:16px;padding:0 4px;color:#1a1a1a;line-height:1" ${canPrev?'':' disabled'}>&#8249;</button>
+      <span class="cal-month-title">${MONTH_FULL[curMon]||curMon.toUpperCase()} 2026</span>
+      <button class="cal-nav-btn" data-dir="1" style="background:none;border:none;cursor:${canNext?'pointer':'default'};opacity:${canNext?1:0.2};font-size:16px;padding:0 4px;color:#1a1a1a;line-height:1" ${canNext?'':' disabled'}>&#8250;</button>
     </div>
     <div class="cal-grid" id="cal-grid-inner">`;
   dow.forEach(d=>{ html+=`<div class="cal-dow">${d}</div>`; });
   for(let i=0;i<firstDOW;i++) html+=`<div class="cal-day empty"></div>`;
-  for(let n=1;n<=daysInMarch;n++){
+  for(let n=1;n<=daysInMonth;n++){
     const hasD=dataSet.has(n);
-    const evts=hasD?`data-n="${n}"` : "";
+    const dateStr=curMon+' '+n;
+    const evts=hasD?`data-d="${dateStr}" data-n="${n}"` : "";
     html+=`<div class="cal-day${hasD?" has-data":" disabled"}" ${evts}>${n}</div>`;
   }
   html+=`</div></div>`;
   document.getElementById("cal-months").innerHTML=html;
 
+  // Nav arrow delegation
+  document.getElementById("cal-months").querySelectorAll(".cal-nav-btn[data-dir]").forEach(btn=>{
+    btn.addEventListener("click", e=>{
+      e.stopPropagation();
+      if(!btn.disabled) calNav(+btn.dataset.dir);
+    });
+  });
+
   // Attach events once via delegation on the grid
   const grid=document.getElementById("cal-grid-inner");
   grid.addEventListener("mouseover", e=>{
-    const el=e.target.closest("[data-n]");
+    const el=e.target.closest("[data-d]");
     if(!el) return;
-    const n=+el.dataset.n;
     if(calPickStart && !calPickEnd){
-      calHoverN=n; applyDayClasses();
+      calHoverD=el.dataset.d; applyDayClasses();
     }
   });
   grid.addEventListener("mouseleave", ()=>{
     if(calPickStart && !calPickEnd){
-      calHoverN=null; applyDayClasses();
+      calHoverD=null; applyDayClasses();
     }
   });
   grid.addEventListener("click", e=>{
-    const el=e.target.closest("[data-n]");
+    const el=e.target.closest("[data-d]");
     if(!el) return;
-    const n=+el.dataset.n;
+    const d=el.dataset.d;
     if(!calPickStart || (calPickStart && calPickEnd)){
-      // Start fresh
-      calPickStartN=n; calPickEndN=null; calHoverN=null;
-      calPickStart="Mar "+n; calPickEnd=null;
+      calPickStart=d; calPickEnd=null; calHoverD=null;
     } else {
-      // Lock in end
-      let s=calPickStartN, en2=n;
-      if(en2<s){[s,en2]=[en2,s];}
-      calPickStartN=s; calPickEndN=en2;
-      calPickStart="Mar "+s; calPickEnd="Mar "+en2;
-      calHoverN=null;
+      // Lock in end — order them by ALL_DATES index
+      const si=dateIndex(calPickStart), ei=dateIndex(d);
+      if(ei>=si){ calPickEnd=d; }
+      else { calPickEnd=calPickStart; calPickStart=d; }
+      calHoverD=null;
     }
     document.querySelectorAll(".cal-preset").forEach(b=>b.classList.remove("active"));
     applyDayClasses();
@@ -346,29 +392,37 @@ function renderCalGrid(){
   updateCalFooter();
 }
 
-// Numeric mirrors of calPickStart/End for fast math
-let calPickStartN=null, calPickEndN=null, calHoverN=null;
+function calNav(dir){
+  const months=calMonths();
+  calMonthIdx=Math.max(0,Math.min(months.length-1,(calMonthIdx||0)+dir));
+  renderCalGrid();
+}
+
+// String-based pick state (works across months)
+let calPickStartN=null, calPickEndN=null, calHoverN=null; // legacy numeric (kept for compat)
+let calHoverD=null; // new string-based hover
 
 function applyDayClasses(){
   const grid=document.getElementById("cal-grid-inner");
   if(!grid) return;
-  const S=calPickStartN, E=calPickEndN, H=calHoverN;
+  const SI=calPickStart ? dateIndex(calPickStart) : null;
+  const EI=calPickEnd   ? dateIndex(calPickEnd)   : null;
+  const HI=calHoverD    ? dateIndex(calHoverD)    : null;
 
-  // Effective range
+  // Effective range indices
   let rA=null, rB=null;
-  if(S!=null && E!=null){ rA=Math.min(S,E); rB=Math.max(S,E); }
-  else if(S!=null && H!=null){ rA=Math.min(S,H); rB=Math.max(S,H); }
+  if(SI!=null && EI!=null){ rA=Math.min(SI,EI); rB=Math.max(SI,EI); }
+  else if(SI!=null && HI!=null){ rA=Math.min(SI,HI); rB=Math.max(SI,HI); }
 
-  grid.querySelectorAll("[data-n]").forEach(el=>{
-    const n=+el.dataset.n;
-    // Reset range classes
+  grid.querySelectorAll("[data-d]").forEach(el=>{
+    const idx=dateIndex(el.dataset.d);
     el.classList.remove("selected","range-start","range-end","in-range","hover-preview");
     if(rA!==null && rB!==null){
-      if(n===rA && n===rB)      el.classList.add("selected");
-      else if(n===rA)           el.classList.add("range-start");
-      else if(n===rB)           el.classList.add("range-end");
-      else if(n>rA && n<rB)    el.classList.add("in-range");
-    } else if(S!=null && n===S){
+      if(idx===rA && idx===rB)     el.classList.add("selected");
+      else if(idx===rA)            el.classList.add("range-start");
+      else if(idx===rB)            el.classList.add("range-end");
+      else if(idx>rA && idx<rB)   el.classList.add("in-range");
+    } else if(SI!=null && idx===SI){
       el.classList.add("selected");
     }
   });
@@ -399,7 +453,6 @@ function applyCalendar(){
   if(!calPickStart) return;
   closeCal();
   if(calPickEnd && calPickStart!==calPickEnd){
-    // Range mode — use MTD-style view spanning those dates
     selStart=calPickStart; selEnd=calPickEnd;
     rangeMode=true; mtdMode=false;
     document.getElementById("mtd-pill").style.display="inline-block";
@@ -407,7 +460,6 @@ function applyCalendar(){
     document.getElementById("cal-label").textContent=`${selStart} – ${selEnd}`;
     renderRangeView();
   } else {
-    // Single day
     sel=calPickStart; mtdMode=false; rangeMode=false;
     document.getElementById("mtd-pill").style.display="none";
     document.getElementById("cal-label").textContent=sel;
@@ -421,55 +473,67 @@ function applyPreset(p){
   document.querySelectorAll(".cal-preset").forEach(b=>b.classList.remove("active"));
   event.target.classList.add("active");
 
-  if(p==="mtd"){
-    calPickStart="Mar 1"; calPickEnd=last; calPickStartN=1; calPickEndN=+last.replace('Mar ',''); calHoverN=null; renderCalGrid();
-    closeCal();
-    mtdMode=true; rangeMode=false; sel=last;
-    document.getElementById("mtd-pill").style.display="inline-block";
-    document.getElementById("mtd-pill").textContent=`MTD Mar 1 – ${last}`;
-    document.getElementById("cal-label").textContent=`Mar 1 – ${last}`;
-    render(); return;
-  }
+  // Helper: get all dates belonging to a month abbr
+  function datesInMonth(mon){ return ds.filter(d=>d.startsWith(mon+' ')); }
 
-  function applyRange(start, end, presetName){
-    calPickStart=start; calPickEnd=end;
-    calPickStartN=+start.replace('Mar ',''); calPickEndN=+end.replace('Mar ','');
-    calHoverN=null;
+  function applyRange(start, end, label){
+    calPickStart=start; calPickEnd=end; calHoverD=null;
+    // Navigate calendar to the month of the start date
+    const startMon=start.replace(/ \d+$/,'');
+    const months=calMonths();
+    calMonthIdx=months.indexOf(startMon);
+    if(calMonthIdx<0) calMonthIdx=0;
     renderCalGrid();
-    // Auto-apply and show label immediately
     selStart=start; selEnd=end;
     rangeMode=true; mtdMode=false;
-    const labelText = `${presetName}: ${start} – ${end}`;
     document.getElementById("mtd-pill").style.display="inline-block";
     document.getElementById("mtd-pill").textContent=`${start} – ${end}`;
-    document.getElementById("cal-label").textContent=labelText;
+    document.getElementById("cal-label").textContent=label||`${start} – ${end}`;
     closeCal();
     renderRangeView();
   }
 
+  // ── This month (MTD) — current month from its 1st to latest date
+  if(p==="mtd"){
+    const lastMon=last.replace(/ \d+$/,'');           // e.g. "Apr"
+    const monthDates=datesInMonth(lastMon);
+    const start=monthDates[0]; const end=monthDates[monthDates.length-1];
+    calPickStart=start; calPickEnd=end; calHoverD=null;
+    const months=calMonths(); calMonthIdx=months.indexOf(lastMon);
+    renderCalGrid(); closeCal();
+    mtdMode=true; rangeMode=false; sel=end;
+    document.getElementById("mtd-pill").style.display="inline-block";
+    document.getElementById("mtd-pill").textContent=`MTD ${start} – ${end}`;
+    document.getElementById("cal-label").textContent=`${start} – ${end}`;
+    render(); return;
+  }
+
+  // ── Last month — full previous month
+  if(p==="lastmonth"){
+    const months=calMonths();
+    if(months.length<2){ applyRange(ds[0], last, "Last month"); return; }
+    const prevMon=months[months.length-2];
+    const prevDates=datesInMonth(prevMon);
+    if(!prevDates.length){ applyRange(ds[0], last, "Last month"); return; }
+    applyRange(prevDates[0], prevDates[prevDates.length-1], `Last month`);
+    return;
+  }
+
   if(p==="last7"){   applyRange(ds[Math.max(0,ds.length-7)], last, "Last 7 days");   return; }
   if(p==="last14"){  applyRange(ds[Math.max(0,ds.length-14)], last, "Last 14 days");  return; }
-  if(p==="last30"){  applyRange(ds[0], last, "Last 30 days");  return; }
+  if(p==="last30"){  applyRange(ds[Math.max(0,ds.length-30)], last, "Last 30 days");  return; }
+
   if(p==="thisweek"){
-    // This week: Monday of current week → last available date
     const today=new Date(); const dow=today.getDay(); const diffToMon=dow===0?6:dow-1;
     const monDate=new Date(today); monDate.setDate(today.getDate()-diffToMon);
-    const monDay=monDate.getDate();
-    // Find closest available date >= Monday in ds
-    const twStart = ds.find(d=>+d.replace('Mar ','')>=monDay) || ds[ds.length-7];
+    const twStart=ds.find(d=>dateIndex(d)>=ds.length-7)||ds[Math.max(0,ds.length-7)];
     applyRange(twStart, last, "This week"); return;
   }
   if(p==="lastweek"){
-    // Last week: Monday–Sunday of previous week
-    const today=new Date(); const dow=today.getDay(); const diffToMon=dow===0?6:dow-1;
-    const lastSun=new Date(today); lastSun.setDate(today.getDate()-diffToMon-1);
-    const lastMon=new Date(lastSun); lastMon.setDate(lastSun.getDate()-6);
-    const lwStartN=lastMon.getDate(), lwEndN=lastSun.getDate();
-    const lwStart=ds.find(d=>+d.replace('Mar ','')>=lwStartN) || ds[0];
-    const lwEnd=[...ds].reverse().find(d=>+d.replace('Mar ','')<=lwEndN) || last;
-    applyRange(lwStart, lwEnd, "Last week"); return;
+    const twStart=ds[Math.max(0,ds.length-14)];
+    const twEnd=ds[Math.max(0,ds.length-8)];
+    applyRange(twStart, twEnd||last, "Last week"); return;
   }
-
 }
 
 // ─── Range rendering (when a multi-day range is selected)
