@@ -657,7 +657,7 @@ function buildGoogleCampsHTML(camps, ds, periodOverride){
     const sig = _SIG[_adSig({spend:c.spend,sv:c.sv,conv:c.conv,roas:c.roas,cpo:c.cpo})];
     const tag = sig.tag ? `<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:${sig.tb};color:${sig.tc};margin-left:6px;white-space:nowrap">${sig.tag}</span>` : '';
     return `<tr style="background:${sig.bg};border-left:3px solid ${sig.border}">
-      <td style="font-size:11px;color:#444;max-width:220px;word-break:break-word;padding-left:6px;cursor:pointer" data-adname="${c.name.replace(/"/g,'&#39;')}" data-platform="${pk}" onmouseenter="showAdHoverChartByEl(event,this)" onmouseleave="hideAdHoverChart()"><span style="border-bottom:1px dashed #ccc">${c.name}</span>${tag}</td>
+      <td style="font-size:11px;color:#444;max-width:220px;word-break:break-word;padding-left:6px;cursor:pointer" data-adname="${c.name.replace(/"/g,'&#39;')}" data-platform="google" onmouseenter="showAdHoverChartByEl(event,this)" onmouseleave="hideAdHoverChart()"><span style="border-bottom:1px dashed #ccc">${c.name}</span>${tag}</td>
       <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:8px">${fR(c.roas)}</td>
       <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:8px">${fS(c.spend)}</td>
       <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:8px">${c.sv>0?fSV(c.sv):'—'}</td>
@@ -692,6 +692,11 @@ function reRenderGoogleCamps(){
   });
 }
 
+const TIKTOK_AD_STATUS = {
+  "500_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Tiktok_KSA_Sales": "inactive",
+  "500_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Tiktok_Ku & Qa_Sales_ASC": "inactive",
+  "500_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Tiktok_Ku_Qa_Sales_ASC": "inactive",
+};
 function buildSnapAdsHTML(ads, adNames, ds, label, periodOverride){
   const SNAP_GEO = [
     { label:'UAE',               pattern:/Snap_UAE|Snapchat_UAE/i },
@@ -2715,11 +2720,6 @@ const META_AD_STATUS = {
   "501_Abaya0126_Fm_Vid short_Vert_UGCO VO_En_GLO_Meta_KSA_Sales_ASC \\u2013 Copy 2": "inactive",
   "501_Abaya0126_Fm_Vid short_Vert_UGCO VO_En_GLO_Meta_KSA_Sales_ASC \u2013 Copy 2": "inactive",
   "501_Abaya0126_Fm_Vid short_Vert_UGCO VO_En_GLO_Meta_Ku_Sales_ASC": "inactive"
-};
-const TIKTOK_AD_STATUS = {
-  "500_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Tiktok_KSA_Sales": "inactive",
-  "500_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Tiktok_Ku & Qa_Sales_ASC": "inactive",
-  "500_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Tiktok_Ku_Qa_Sales_ASC": "inactive",
 };
 const SNAP_AD_STATUS = {
   "279_Spring0325_Wm_Vid short_Vert_UGC No_En_GLO": "inactive",
