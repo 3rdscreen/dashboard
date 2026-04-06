@@ -1388,7 +1388,6 @@ function renderOverviewRange(rd){
     {lbl:"ROAS",sub:`${selStart}–${selEnd}`,val:fR(blended),rows:bySpend,fn:a=>fR(a.roas)},
     {lbl:"SALES VALUE",sub:"TOTAL",val:fSV(totSV),rows:bySpend,fn:a=>fSV(a.sv)},
     {lbl:"SALES",sub:"TOTAL",val:fC(totConv),rows:bySpend,fn:a=>fC(a.conv)},
-    {lbl:"ATC",sub:"TOTAL",val:fC(totAtc),rows:bySpend,fn:a=>a.atc>0?fC(a.atc):'—'},
     {lbl:"CPO",sub:"BLENDED",val:fCPO(totCPO),rows:bySpend,fn:a=>fCPO(a.cpo)},
   ];
   const cardHTML=cards.map(c=>`<div class="card"><div class="klbl" style="margin-bottom:4px">${c.lbl}</div><div class="klbl" style="margin-bottom:10px;font-size:9px;color:#ccc">${c.sub}</div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0 10px;border-bottom:2px solid #e6e6e0;margin-bottom:4px;"><span style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700">${c.val}</span></div>${c.rows.map(p=>dotRow(p,c.fn)).join("")}</div>`).join("");
@@ -1515,7 +1514,7 @@ function buildPlatformTable(rws, label){
     <td style="${totTdS}">${totSV > 0 ? fSV(totSV) : "—"}</td>
   </tr>`;
 
-  const cols = ["Platform","Purchases","ROAS","Spent","ATC","CPO","Avg Purchase Value","Conversion Value"];
+  const cols = ["Platform","Purchases","ROAS","Spent","ATC","CPO","AOV","Conversion Value"];
   const hdr = `<tr style="background:#f8f8f4">${cols.map((c,i)=>
     `<th style="padding:8px ${i===0?12:8}px;text-align:${i===0?"left":"center"};font-size:10px;font-weight:700;letter-spacing:.06em;color:#888;border-bottom:2px solid #ebebeb;white-space:nowrap">${c}</th>`
   ).join("")}</tr>`;
@@ -1650,7 +1649,7 @@ function buildCampaignTable(datesArr, label){
     });
   });
 
-  const cols = ["Campaign","Purchases","ROAS","Spent","ATC","CPO","Avg Conv. Value","Conversion Value"];
+  const cols = ["Campaign","Purchases","ROAS","Spent","ATC","CPO","AOV","Conversion Value"];
   const hdr = `<tr style="background:#f8f8f4">${cols.map((c,i)=>
     `<th style="padding:9px ${i===0?14:8}px;text-align:${i===0?"left":"center"};font-size:10px;font-weight:700;letter-spacing:.06em;color:#888;border-bottom:2px solid #ebebeb;white-space:nowrap">${c}</th>`
   ).join("")}</tr>`;
@@ -1792,7 +1791,7 @@ function buildAdsetTable(datesArr, label){
     });
   });
 
-  const cols = ["Ad Set","Purchases","ROAS","Spent","ATC","CPO","Avg Conv. Value","Conversion Value"];
+  const cols = ["Ad Set","Purchases","ROAS","Spent","ATC","CPO","AOV","Conversion Value"];
   const hdr = `<tr style="background:#f8f8f4">${cols.map((c,i)=>
     `<th style="padding:9px ${i===0?14:8}px;text-align:${i===0?'left':'center'};font-size:10px;font-weight:700;letter-spacing:.06em;color:#888;border-bottom:2px solid #ebebeb;white-space:nowrap">${c}</th>`
   ).join('')}</tr>`;
@@ -1905,7 +1904,7 @@ function buildMarketTable(datesArr, label){
     <td style="${tS}">${totSV>0?fSV(totSV):"—"}</td>
   </tr>`;
 
-  const cols = ["Market","Purchases","ROAS","Spent","Avg Purchase Value","CPO","Conversion Value"];
+  const cols = ["Market","Purchases","ROAS","Spent","AOV","CPO","Conversion Value"];
   const hdr = `<tr style="background:#f8f8f4">${cols.map((c,i)=>
     `<th style="padding:9px ${i===0?12:8}px;text-align:${i===0?"left":"center"};font-size:10px;font-weight:700;letter-spacing:.06em;color:#888;border-bottom:2px solid #ebebeb;white-space:nowrap">${c}</th>`
   ).join("")}</tr>`;
@@ -2073,7 +2072,7 @@ function renderTopAdsInner(baseDates, baseLabel, N, marketFilter, periodFilter){
     </tr>`;
   }).join('') : `<tr><td colspan="8" style="text-align:center;padding:20px;color:#aaa;font-size:12px">No ads data for this selection</td></tr>`;
 
-  const cols = ["Ad Name","Purchases","ROAS","Spent","ATC","CPO","Avg Purchase Value","Conversion Value"];
+  const cols = ["Ad Name","Purchases","ROAS","Spent","ATC","CPO","AOV","Conversion Value"];
   const hdr = `<tr style="background:#f8f8f4">${cols.map((c,i)=>
     `<th style="padding:9px ${i===0?12:8}px;text-align:${i===0?"left":"center"};font-size:10px;font-weight:700;letter-spacing:.06em;color:#888;border-bottom:2px solid #ebebeb;white-space:nowrap">${c}</th>`
   ).join("")}</tr>`;
