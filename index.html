@@ -1528,7 +1528,9 @@ function buildCampaignTable(datesArr, label){
   const ttRet = aggRecs(ds.map(d=>{
     const r=ttData.find(x=>x.d===d);
     if(!r||!r.cat||!r.cat.spend) return null;
-    return {spend:r.cat.spend||0, sv:r.cat.sv||0, conv:r.cat.conv||0, roas:r.cat.roas||0, atc:null};
+    const catShare = r.spend>0 ? (r.cat.spend||0)/r.spend : 0;
+    const atcRet = r.atc!=null ? Math.round((r.atc||0)*catShare) : null;
+    return {spend:r.cat.spend||0, sv:r.cat.sv||0, conv:r.cat.conv||0, roas:r.cat.roas||0, atc:atcRet};
   }).filter(Boolean));
   const ttPros = aggRecs(ds.map(d=>{
     const r=ttData.find(x=>x.d===d);
@@ -1537,7 +1539,9 @@ function buildCampaignTable(datesArr, label){
     const sv=(r.uae?.sv||0)+(r.ksa?.sv||0)+(r.ku?.sv||0);
     const cv=(r.uae?.conv||0)+(r.ksa?.conv||0)+(r.ku?.conv||0);
     const wR=(r.uae?.roas||0)*(r.uae?.spend||0)+(r.ksa?.roas||0)*(r.ksa?.spend||0)+(r.ku?.roas||0)*(r.ku?.spend||0);
-    return {spend:s, sv, conv:cv, roas:s>0?wR/s:0, atc:null};
+    const catShare2 = r.spend>0 ? (r.cat?.spend||0)/r.spend : 0;
+    const atcPros = r.atc!=null ? Math.round((r.atc||0)*(1-catShare2)) : null;
+    return {spend:s, sv, conv:cv, roas:s>0?wR/s:0, atc:atcPros};
   }).filter(Boolean));
   const ttCamps = [
     {name:'GCC - Sales (Retargeting)',  agg:ttRet},
@@ -1661,7 +1665,7 @@ function buildAdsetTable(datesArr, label){
   if(!ttAdsets.length){
     const ttD = D.tiktok || [];
     ['uae','ksa','ku','cat'].forEach(g => {
-      const agg = aggRecs(ds.map(d=>{const r=ttD.find(x=>x.d===d);return r&&r[g]?{spend:r[g].spend||0,sv:r[g].sv||0,conv:r[g].conv||0,roas:r[g].roas||0,atc:r[g].atc??null}:null;}).filter(Boolean));
+      const agg = aggRecs(ds.map(d=>{const r=ttD.find(x=>x.d===d);if(!r||!r[g]) return null; const gShare=r.spend>0?(r[g].spend||0)/r.spend:0; const atcG=r.atc!=null?Math.round((r.atc||0)*gShare):null; return {spend:r[g].spend||0,sv:r[g].sv||0,conv:r[g].conv||0,roas:r[g].roas||0,atc:atcG};}).filter(Boolean));
       if(agg.spend>0) ttAdsets.push({geo:GL[g], agg});
     });
   }
