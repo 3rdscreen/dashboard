@@ -72,23 +72,96 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#f4f4ef;color:#1a1a
 /* ── No data */
 .nodata{text-align:center;padding:60px 20px;color:#aaa;font-size:14px}
 
-/* ── Responsive */
+/* ── Responsive breakpoints ───────────────────────────────────────────
+   Desktop first. Adapts down through 3 tiers:
+   - ≤600px: tablets / large phones (most phones landscape)
+   - ≤480px: standard phones portrait
+   - ≤380px: small phones */
+
+/* Tables need horizontal scroll on mobile */
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* Tablet / large phone */
 @media(max-width:600px){
-  .hdr{padding:12px 14px}
-  .ctrl{padding:12px 14px 0}
-  .tabs{padding:12px 14px 0}
-  .view{padding:16px 14px 60px}
-  .g3{grid-template-columns:1fr 1fr}
-  .g5{grid-template-columns:1fr 1fr}
+  body{font-size:13px}
+  .hdr{padding:10px 12px;flex-wrap:wrap;gap:8px}
+  .hdr-title{font-size:16px}
+  .ctrl{padding:10px 12px 0;flex-wrap:wrap}
+  .tabs{padding:10px 12px 0;gap:4px;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{padding:6px 12px;font-size:11px;white-space:nowrap;flex-shrink:0}
+  .view{padding:12px 12px 60px}
+  .cc{padding:14px;margin-bottom:10px;border-radius:10px}
+  .clbl{font-size:11px}
+
+  /* Card grids collapse */
+  .g6{grid-template-columns:repeat(3,1fr);gap:8px}
+  .g5{grid-template-columns:repeat(2,1fr)}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(2,1fr)}
   .gg,.g2{grid-template-columns:1fr}
-  .kval{font-size:18px}
-  .kval.sm{font-size:15px}
-  .cal-dropdown{min-width:calc(100vw - 28px);max-width:calc(100vw - 28px);left:0}
-  #ad-hover-chart{width:calc(100vw - 24px);left:12px!important;right:12px}
+
+  .kval{font-size:17px}
+  .kval.sm{font-size:14px}
+
+  /* Tables: compact + horizontal scroll wrapper */
+  .gtbl{font-size:11px}
+  .gtbl th,.gtbl td{padding:5px 6px!important}
+  table{font-size:11px}
+
+  /* Budget trend chart: stack header controls vertically */
+  .bt-controls{flex-direction:column;align-items:stretch!important;gap:8px!important}
+  .bt-controls > div{justify-content:flex-start}
+  .mbt-range-btn{font-size:10px;padding:3px 8px}
+  .metric-toggle{width:100%}
+  .mt-btn{flex:1;text-align:center}
+
+  /* Chart heights tighter on mobile */
+  .cw{min-height:0}
+  .cw[style*="280px"]{height:220px!important}
+  .cw[style*="220px"]{height:180px!important}
+  .cw[style*="190px"]{height:170px!important}
+  .cw[style*="160px"]{height:150px!important}
+
+  /* Calendar dropdown fills screen */
+  .cal-dropdown{min-width:calc(100vw - 24px);max-width:calc(100vw - 24px);left:0;right:0}
+  .cal-btn{font-size:12px;padding:6px 10px}
+
+  /* Hover charts */
+  #ad-hover-chart{width:calc(100vw - 24px);left:12px!important;right:12px;max-width:none}
 }
+
+/* Standard phone portrait */
+@media(max-width:480px){
+  .g6{grid-template-columns:repeat(2,1fr)}
+  .g5{grid-template-columns:1fr}
+  .hdr-title{font-size:14px}
+  .hdr-sub{font-size:10px}
+  .tab{padding:5px 10px;font-size:10px}
+  .cc{padding:12px}
+  .clbl{font-size:10px;letter-spacing:.05em}
+  .kval{font-size:15px}
+  .kval.sm{font-size:13px}
+
+  /* Budget trend controls: range buttons wrap, metric toggle full-width */
+  .bt-range-wrap{flex-wrap:wrap;gap:3px!important}
+  .mbt-range-btn{flex:0 0 auto;padding:3px 7px;font-size:10px}
+
+  /* Chart legend crammed — let it wrap better by reducing font */
+  .cw[style*="280px"]{height:200px!important}
+  .cw[style*="220px"]{height:170px!important}
+}
+
+/* Small phone */
 @media(max-width:380px){
-  .g3,.g5{grid-template-columns:1fr}
+  .g6,.g4,.g3,.g5{grid-template-columns:1fr}
   .kval{font-size:16px}
+  .kval.sm{font-size:13px}
+  .cc{padding:10px}
+  .hdr{padding:8px 10px}
+  .view{padding:10px 10px 40px}
+  .tab{padding:4px 8px;font-size:10px}
+  .cw[style*="280px"]{height:180px!important}
 }
 
 /* ── Calendar Picker */
@@ -170,6 +243,12 @@ body{font-family:'Inter',-apple-system,sans-serif;background:#f4f4ef;color:#1a1a
 }
 .mbt-range-btn:hover{ border-color:#999; color:#333 }
 .mbt-range-btn.active{ background:#1a1a1a; color:#fff; border-color:#1a1a1a }
+
+/* Auto-scroll any card holding a gtbl on narrow screens */
+@media(max-width:600px){
+  .cc{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .cc > table.gtbl,.cc > div > table.gtbl{min-width:480px}
+}
 </style>
 </head>
 <body>
@@ -2692,10 +2771,10 @@ function buildBudgetTrendCard(pk){
   return {
     canvasId,
     html: `<div class="cc" style="margin-top:4px">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px">
+      <div class="bt-controls" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px">
         <div class="clbl" id="${canvasId}-label" style="margin-bottom:0">BUDGET TREND — DAILY SPEND BY CAMPAIGN</div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <div id="${canvasId}-range" style="display:flex;gap:4px;align-items:center">
+          <div class="bt-range-wrap" id="${canvasId}-range" style="display:flex;gap:4px;align-items:center">
             <button class="mbt-range-btn" data-range="7"   onclick="_switchBudgetTrendRange('${pk}','${canvasId}','7')">7d</button>
             <button class="mbt-range-btn" data-range="14"  onclick="_switchBudgetTrendRange('${pk}','${canvasId}','14')">14d</button>
             <button class="mbt-range-btn" data-range="30"  onclick="_switchBudgetTrendRange('${pk}','${canvasId}','30')">30d</button>
