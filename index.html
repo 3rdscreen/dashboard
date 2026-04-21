@@ -4092,7 +4092,7 @@ function buildGoogleBudgetWidget() {
 
   const shiftRows = shifts.length === 0
     ? `<div style="color:#aaa;font-size:12px;padding:8px 0">No significant budget shifts detected across ${active.length} days of data.</div>`
-    : shifts.map(s => {
+    : [...shifts].reverse().map(s => {
         const arrow = s.dir === 'up' ? '▲' : '▼';
         const color = s.dir === 'up' ? '#16a34a' : '#dc2626';
         const pctStr = (s.pct > 0 ? '+' : '') + (s.pct * 100).toFixed(0) + '%';
