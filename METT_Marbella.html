@@ -170,9 +170,11 @@
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   table.data { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 600px; }
   table.data th { text-align: left; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+  table.data th.num { text-align: right; }
   table.data td { padding: 12px; border-bottom: 1px solid var(--line); color: var(--ink-2); }
   table.data td.num { font-variant-numeric: tabular-nums; text-align: right; font-family: var(--font-mono); font-size: 12px; white-space: nowrap; }
   table.data td.name { color: var(--ink); font-weight: 600; }
+  table.data .tot-row td.num { font-family: var(--font-mono); }
   table.data tr:hover td { background: var(--surface-2); }
   table.data .tot-row td { font-weight: 700; color: var(--ink); border-top: 1px solid var(--ink-4); border-bottom: none; background: var(--surface-2); padding-top: 14px; padding-bottom: 14px; }
   .pill { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.5px; font-weight: 700; white-space: nowrap; }
