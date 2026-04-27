@@ -710,11 +710,11 @@
             <tr><th>Offer</th><th>Channel</th><th class="num">Spend</th><th class="num">Revenue</th><th class="num">Bookings</th><th class="num">ROAS</th><th class="num">CPB</th><th>Landing page</th></tr>
           </thead>
           <tbody>
-            <tr><td class="name">Early Booking Offer</td><td>Google PMAX</td><td class="num">&euro;1,820</td><td class="num">&euro;58,940</td><td class="num">26</td><td class="num"><span class="pill good">32.4x</span></td><td class="num">&euro;70</td><td>/offers/early-booking</td></tr>
-            <tr><td class="name">Summer Escape</td><td>Meta + Google</td><td class="num">&euro;2,106</td><td class="num">&euro;47,215</td><td class="num">21</td><td class="num"><span class="pill good">22.4x</span></td><td class="num">&euro;100</td><td>/offers/summer-escape</td></tr>
-            <tr><td class="name">Spa &amp; Wellness</td><td>Meta retarget.</td><td class="num">&euro;1,248</td><td class="num">&euro;31,380</td><td class="num">15</td><td class="num"><span class="pill good">25.1x</span></td><td class="num">&euro;83</td><td>/spa/the-ritual</td></tr>
-            <tr><td class="name">Beach Club Activation</td><td>Meta Ads</td><td class="num">&euro;778</td><td class="num">&euro;22,104</td><td class="num">12</td><td class="num"><span class="pill good">28.4x</span></td><td class="num">&euro;65</td><td>/beach-club</td></tr>
-            <tr><td class="name">Dining / Nobu</td><td>Meta + Organic</td><td class="num">&euro;466</td><td class="num">&euro;13,208</td><td class="num">9</td><td class="num"><span class="pill good">28.3x</span></td><td class="num">&euro;52</td><td>/dining/nobu</td></tr>
+            <tr><td class="name">Plan Ahead Offer</td><td>Google PMAX</td><td class="num">&euro;1,820</td><td class="num">&euro;58,940</td><td class="num">26</td><td class="num"><span class="pill good">32.4x</span></td><td class="num">&euro;70</td><td>/marbella/offers/plan-ahead-save/</td></tr>
+            <tr><td class="name">Opening Offer (Find Your Way Back Home)</td><td>Meta + Google</td><td class="num">&euro;2,106</td><td class="num">&euro;47,215</td><td class="num">21</td><td class="num"><span class="pill good">22.4x</span></td><td class="num">&euro;100</td><td>/marbella/offers/find-your-way-back-home/</td></tr>
+            <tr><td class="name">MOI Spa &amp; Wellness</td><td>Meta retarget.</td><td class="num">&euro;1,248</td><td class="num">&euro;31,380</td><td class="num">15</td><td class="num"><span class="pill good">25.1x</span></td><td class="num">&euro;83</td><td>/marbella/moi_spa/</td></tr>
+            <tr><td class="name">Azure Beach Club</td><td>Meta Ads</td><td class="num">&euro;778</td><td class="num">&euro;22,104</td><td class="num">12</td><td class="num"><span class="pill good">28.4x</span></td><td class="num">&euro;65</td><td>/marbella/restaurants/azure-beach-marbella/</td></tr>
+            <tr><td class="name">Dining (Isola / Ammos)</td><td>Meta + Organic</td><td class="num">&euro;466</td><td class="num">&euro;13,208</td><td class="num">9</td><td class="num"><span class="pill good">28.3x</span></td><td class="num">&euro;52</td><td>/marbella/dine-play/</td></tr>
             <tr class="tot-row"><td colspan="2">Total offers</td><td class="num">&euro;6,418</td><td class="num">&euro;172,847</td><td class="num">83</td><td class="num">26.9x</td><td class="num">&euro;77</td><td>&mdash;</td></tr>
           </tbody>
         </table>
@@ -811,41 +811,58 @@
 
     <div class="grid-2">
       <div class="card">
-        <div class="card-head"><div><h3>Top booking pages</h3><div class="card-sub">Pages preceding a booking</div></div></div>
+        <div class="card-head"><div><h3>Top viewed pages</h3><div class="card-sub">Real GA4 page views &middot; last 30 days</div></div></div>
         <div class="table-wrap">
           <table class="data">
-            <thead><tr><th>Page path</th><th class="num">Sessions</th><th class="num">Bookings</th><th class="num">Rev</th></tr></thead>
+            <thead><tr><th>Page path</th><th class="num">Sessions</th><th class="num">Page views</th></tr></thead>
             <tbody>
-              <tr><td class="name">/</td><td class="num">4,826</td><td class="num">38</td><td class="num">&euro;79,410</td></tr>
-              <tr><td class="name">/rooms</td><td class="num">3,144</td><td class="num">29</td><td class="num">&euro;62,185</td></tr>
-              <tr><td class="name">/offers/early-booking</td><td class="num">1,892</td><td class="num">26</td><td class="num">&euro;58,940</td></tr>
-              <tr><td class="name">/offers/summer-escape</td><td class="num">2,284</td><td class="num">21</td><td class="num">&euro;47,215</td></tr>
-              <tr><td class="name">/spa/the-ritual</td><td class="num">2,117</td><td class="num">15</td><td class="num">&euro;31,380</td></tr>
-              <tr><td class="name">/beach-club</td><td class="num">2,055</td><td class="num">12</td><td class="num">&euro;22,104</td></tr>
+              <tr><td class="name">Booking engine (Synxis &middot; rooms)</td><td class="num">7,381</td><td class="num">13,033</td></tr>
+              <tr><td class="name">/marbella/</td><td class="num">6,906</td><td class="num">8,725</td></tr>
+              <tr><td class="name">/marbella/booking/</td><td class="num">4,998</td><td class="num">7,228</td></tr>
+              <tr><td class="name">/marbella/dine-play/</td><td class="num">1,336</td><td class="num">2,063</td></tr>
+              <tr><td class="name">/marbella/rooms/</td><td class="num">827</td><td class="num">1,045</td></tr>
+              <tr><td class="name">/marbella/about-us/</td><td class="num">616</td><td class="num">704</td></tr>
+              <tr><td class="name">/marbella/restaurants/azure-beach/</td><td class="num">537</td><td class="num">771</td></tr>
+              <tr><td class="name">/marbella/moi_spa/</td><td class="num">529</td><td class="num">608</td></tr>
+              <tr><td class="name">Booking engine (add-ons)</td><td class="num">486</td><td class="num">775</td></tr>
+              <tr><td class="name">/marbella/restaurants/isola/</td><td class="num">422</td><td class="num">622</td></tr>
+              <tr><td class="name">/marbella/restaurants/ammos/</td><td class="num">399</td><td class="num">585</td></tr>
+              <tr><td class="name">/marbella/offers/plan-ahead-save/</td><td class="num">270</td><td class="num">520</td></tr>
+              <tr><td class="name">/marbella/offers/find-your-way-back-home/</td><td class="num">199</td><td class="num">245</td></tr>
             </tbody>
           </table>
         </div>
+        <p style="font-size: 11px; color: var(--ink-3); margin-top: 12px; line-height: 1.5;"><em>Per-page booking revenue is not visible in GA4 because purchases complete on the Synxis subdomain (<code style="font-family: var(--font-mono); font-size: 10.5px; background: var(--surface-2); padding: 1px 5px;">reservations.sunsethotelsandresorts.com</code>) where attribution resets. See Recommendations.</em></p>
       </div>
       <div class="card">
-        <div class="card-head"><div><h3>Drop-off pages</h3><div class="card-sub">Sessions failing to progress</div></div></div>
+        <div class="card-head"><div><h3>Top landing pages</h3><div class="card-sub">Where sessions enter the site &middot; with bounce rate</div></div></div>
         <div class="table-wrap">
           <table class="data">
-            <thead><tr><th>Page path</th><th class="num">Exits</th><th class="num">Drop-off</th><th>Severity</th></tr></thead>
+            <thead><tr><th>Landing page</th><th class="num">Sessions</th><th class="num">Bounce rate</th></tr></thead>
             <tbody>
-              <tr><td class="name">/booking-engine/step-2 (mob)</td><td class="num">1,482</td><td class="num">68.2%</td><td><span class="pill bad">Critical</span></td></tr>
-              <tr><td class="name">/rates</td><td class="num">1,211</td><td class="num">54.7%</td><td><span class="pill warn">High</span></td></tr>
-              <tr><td class="name">/offers/spa</td><td class="num">988</td><td class="num">46.7%</td><td><span class="pill warn">High</span></td></tr>
-              <tr><td class="name">/contact</td><td class="num">672</td><td class="num">38.4%</td><td><span class="pill neutral">Medium</span></td></tr>
-              <tr><td class="name">/location</td><td class="num">431</td><td class="num">31.2%</td><td><span class="pill neutral">Medium</span></td></tr>
+              <tr><td class="name">/marbella/</td><td class="num">5,138</td><td class="num"><span class="pill good">22.8%</span></td></tr>
+              <tr><td class="name">/marbella/booking/</td><td class="num">2,549</td><td class="num"><span class="pill good">26.2%</span></td></tr>
+              <tr><td class="name">/marbella/booking/?[malformed query]</td><td class="num">1,010</td><td class="num"><span class="pill warn">25.9%</span></td></tr>
+              <tr><td class="name">(not set) &middot; tracking issue</td><td class="num">971</td><td class="num"><span class="pill bad">96.1%</span></td></tr>
+              <tr><td class="name">/marbella/dine-play/</td><td class="num">302</td><td class="num"><span class="pill good">25.8%</span></td></tr>
+              <tr><td class="name">/marbella/es/ (Spanish)</td><td class="num">219</td><td class="num"><span class="pill good">17.8%</span></td></tr>
+              <tr><td class="name">/marbella/de/ (German)</td><td class="num">141</td><td class="num"><span class="pill good">13.5%</span></td></tr>
+              <tr><td class="name">/marbella/rooms/</td><td class="num">125</td><td class="num"><span class="pill good">26.4%</span></td></tr>
+              <tr><td class="name">/marbella/about-us/</td><td class="num">115</td><td class="num"><span class="pill warn">36.5%</span></td></tr>
+              <tr><td class="name">/marbella/moi_spa/</td><td class="num">100</td><td class="num"><span class="pill warn">38.0%</span></td></tr>
+              <tr><td class="name">/marbella/suites/</td><td class="num">82</td><td class="num"><span class="pill good">25.6%</span></td></tr>
+              <tr><td class="name">/marbella/restaurants/isola/</td><td class="num">75</td><td class="num"><span class="pill good">28.0%</span></td></tr>
+              <tr><td class="name">/marbella/restaurants/azure-beach/</td><td class="num">73</td><td class="num"><span class="pill warn">32.9%</span></td></tr>
             </tbody>
           </table>
         </div>
+        <p style="font-size: 11px; color: var(--ink-3); margin-top: 12px; line-height: 1.5;"><em>Two issues to fix: a malformed booking URL appears 1,010 times (broken redirect or tagging error), and 971 sessions land on <code style="font-family: var(--font-mono); font-size: 10.5px; background: var(--surface-2); padding: 1px 5px;">(not set)</code> with 96% bounce &mdash; likely tracker spam or a misfired tag.</em></p>
       </div>
     </div>
 
     <div class="insight">
       <div class="insight-mark">!</div>
-      <p>If paid traffic is strong but bookings drop at checkout, the issue is typically <em>booking engine friction, price clarity or mobile UX</em>. The 68% drop-off on booking engine step 2 (mobile) is the single largest revenue-leak in the funnel.</p>
+      <p>The biggest funnel issue here is <em>cross-domain attribution loss</em>. The Synxis booking engine on <code>reservations.sunsethotelsandresorts.com</code> sees 7,381 sessions and 13,033 page views, but GA4 records zero purchases against any of those pages because the domain hop resets last-click attribution. Additionally, 1,010 sessions land on a malformed booking URL, and 971 sessions are bucketed as <code>(not set)</code> with 96% bounce &mdash; both fixable tagging issues.</p>
     </div>
   </section>
 
@@ -940,7 +957,9 @@
         <ul>
           <li>Google Ads conversion value reads &euro;1.02 per conversion &mdash; booking engine isn't passing purchase value back.</li>
           <li>GA4 default attribution classifies chain-domain revenue as referral &mdash; add cross-domain tracking.</li>
-          <li>Mobile booking engine step 2 drops 68% of sessions &mdash; biggest funnel leak.</li>
+          <li>Synxis booking engine on a separate subdomain — 7,381 sessions but zero attributable purchases. Configure GA4 cross-domain tracking and add referral exclusion for <code style="font-family: var(--font-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px;">reservations.sunsethotelsandresorts.com</code>.</li>
+          <li>Malformed booking URL receives 1,010 sessions per month (likely a broken redirect/canonical) — fix the source link.</li>
+          <li><code style="font-family: var(--font-mono); font-size: 11px; background: var(--surface-2); padding: 1px 5px;">(not set)</code> landing page bucket: 971 sessions at 96% bounce — investigate tracker spam or misfired GTM tag.</li>
           <li>Unassigned revenue needs UTM audit.</li>
         </ul>
       </div>
@@ -961,7 +980,7 @@
           <li><strong>Offers</strong>: Early Booking, Summer Escape, Spa Wellness &mdash; all above 22x ROAS.</li>
           <li><strong>Markets</strong>: Netherlands, Ireland, UK, US, Switzerland &mdash; strong conversion, low cost.</li>
           <li><strong>Creative</strong>: break Worldwide set into per-offer variants. One premium video per offer.</li>
-          <li><strong>Funnel</strong>: every 10pt drop reduction &asymp; &euro;21,000 monthly revenue lift.</li>
+          <li><strong>Funnel</strong>: fix cross-domain tracking first &mdash; without it, every other booking-engine optimization is invisible to GA4.</li>
         </ul>
       </div>
     </div>
