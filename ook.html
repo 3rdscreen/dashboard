@@ -1758,12 +1758,10 @@ function buildAdsetTable(datesArr, label){
   function dataCell(h, val){ return `<td style="${tdC}">${h ? val : '—'}</td>`; }
   function geoLabel(geo){ return `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#9ca3af;margin-right:6px;vertical-align:middle"></span>${geo}`; }
 
-  // ── META adsets — UAE/KSA/KU split into Abaya + Pyjama sub-rows
+  // ── META adsets — UAE consolidated to single ALL row (Apr 27+); KSA/KU still split
   const metaAdsets = [
-    { geo:'UAE', isGeoHeader:true, agg: aggAdset('meta',['UAE Abaya - ASC','UAE Pyjama - ASC']) },
-    { geo:'↳ Abaya',   indent:true, agg: aggAdset('meta',['UAE Abaya - ASC']) },
-    { geo:'↳ Pyjama',  indent:true, agg: aggAdset('meta',['UAE Pyjama - ASC']) },
-    { geo:'KSA', isGeoHeader:true, agg: aggAdset('meta',['KSA Abaya - ASC','KSA Pyjama - ASC']) },
+    { geo:'UAE',                    agg: aggAdset('meta',['UAE ALL - ASC']) },
+    { geo:'KSA', isGeoHeader:true,  agg: aggAdset('meta',['KSA Abaya - ASC','KSA Pyjama - ASC']) },
     { geo:'↳ Abaya',   indent:true, agg: aggAdset('meta',['KSA Abaya - ASC']) },
     { geo:'↳ Pyjama',  indent:true, agg: aggAdset('meta',['KSA Pyjama - ASC']) },
     { geo:'KU / QA / BH', isGeoHeader:true, agg: aggAdset('meta',['KU Abaya - ASC','KU Pyjama - ASC']) },
