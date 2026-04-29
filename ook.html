@@ -1498,7 +1498,7 @@ function renderPlatRange(pk, rd){
   const mtdRoas=totSpend>0?wR/totSpend:0, mtdCPO=totConv>0?totSpend/totConv:0;
   const gr=geos.map((g,i)=>{let sp=0,sv=0,cv=0,wr=0;rd.forEach(d=>{const r=row(pk,d);if(r){const geo=r[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);}});return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};});
   const kpis=(pk==='meta'||pk==='tiktok'||pk==='snap')?[{l:"SALES",v:fC(totConv)},{l:"SPEND",v:fS(totSpend)},{l:"ROAS",v:fR(mtdRoas)},{l:"ATC",v:totAtc>0?fC(totAtc):'—'},{l:"CPO",v:fCPO(mtdCPO)},{l:"SALES VALUE",v:fSV(totSV)}]:[{l:"ROAS",v:fR(mtdRoas)},{l:"SPEND",v:fS(totSpend)},{l:"SALES VALUE",v:fSV(totSV)},{l:"SALES",v:fC(totConv)},{l:"CPO",v:fCPO(mtdCPO)}];
-  document.getElementById("view").innerHTML=`<div class="${pk==='google'?'g5':'g6'}">${kpis.map(k=>`<div class="card" style="border-top:2px solid ${p.color}"><div class="klbl">${k.l}</div><div class="kval sm">${k.v}</div></div>`).join("")}</div><div class="cc"><div class="clbl">MARKET BREAKDOWN — <strong class="cperiod">${selStart} to ${selEnd}</strong></div><table class="gtbl"><thead><tr><th>Market</th><th>ROAS</th><th>Sales</th><th>Spend</th>${pk!=='google'?'<th>ATC</th>':''}<th>CPO</th><th>Sales Value</th></tr></thead><tbody>${(()=>{const totAtcRng=totAtc||0;const totSpendRng=gr.reduce((s,g)=>s+g.spend,0);return gr.map(g=>{const gAtc=pk!=='google'&&totSpendRng>0?Math.round(totAtcRng*(g.spend/totSpendRng)):0;return`<tr><td><span class="gn"><span class="gs" style="background:${g.color}"></span>${g.label}</span></td><td>${g.spend>0?fR(g.roas):"—"}</td><td>${g.spend>0?fC(g.conv):"—"}</td><td>${g.spend>0?fS(g.spend):"—"}</td>${pk!=='google'?`<td>${g.spend>0&&gAtc>0?fC(gAtc):"—"}</td>`:''}<td>${g.spend>0?fCPO(g.cpo):"—"}</td><td>${g.spend>0?fSV(g.sv):"—"}</td></tr>`;}).join('');})()}</tbody></table></div><div class="cc"><div class="clbl">ROAS TREND — ${p.label}</div><div class="cw" style="height:200px"><canvas id="rng-pt"></canvas></div></div>`;
+  document.getElementById("view").innerHTML=`<div class="${pk==='google'?'g5':'g6'}">${kpis.map(k=>`<div class="card" style="border-top:2px solid ${p.color}"><div class="klbl">${k.l}</div><div class="kval sm">${k.v}</div></div>`).join("")}</div><div class="cc"><div class="clbl">MARKET BREAKDOWN — <strong class="cperiod">${selStart} to ${selEnd}</strong></div><table class="gtbl"><thead><tr><th>Market</th><th>ROAS</th><th>Sales</th><th>Spend</th>${pk!=='google'?'<th>ATC</th>':''}<th>CPO</th><th>Sales Value</th></tr></thead><tbody>${(()=>{const totAtcRng=totAtc||0;const totSpendRng=gr.reduce((s,g)=>s+g.spend,0);return gr.map(g=>{const gAtc=pk!=='google'&&totSpendRng>0?Math.round(totAtcRng*(g.spend/totSpendRng)):0;return`<tr><td><span class="gn"><span class="gs" style="background:${g.color}"></span>${g.label}</span></td><td>${g.spend>0?fR(g.roas):"—"}</td><td>${g.spend>0?fC(g.conv):"—"}</td><td>${g.spend>0?fS(g.spend):"—"}</td>${pk!=='google'?`<td>${g.spend>0&&gAtc>0?fC(gAtc):"—"}</td>`:''}<td>${g.spend>0?fCPO(g.cpo):"—"}</td><td>${g.spend>0?fSV(g.sv):"—"}</td></tr>${(pk==='meta'&&g.label==='KU / QA / BH'&&g.spend>0)?buildMetaKuCountryRows(rd,true):''}`;}).join('');})()}</tbody></table></div><div class="cc"><div class="clbl">ROAS TREND — ${p.label}</div><div class="cw" style="height:200px"><canvas id="rng-pt"></canvas></div></div>`;
   // ROAS trend — show only selected range dates
   const rdSet=new Set(rd);
   dc("rng-pt");CR["rng-pt"]=new Chart(document.getElementById("rng-pt"),{type:"line",
@@ -3109,7 +3109,7 @@ function buildMTDMarketTable(pk, p) {
       <td>${g.spend>0&&gAtc>0?fC(gAtc):'—'}</td>
       <td>${g.spend>0?fCPO(g.cpo):'—'}</td>
       <td>${g.spend>0?fSV(g.sv):'—'}</td>
-    </tr>`;
+    </tr>${(pk==='meta'&&g.label==='KU / QA / BH'&&g.spend>0)?buildMetaKuCountryRows(mtdDates,true):''}`;
   }).join('');
 
   // Meta followers row
@@ -3172,7 +3172,7 @@ function buildLast7MarketTable(pk, p) {
       <td>${g.spend>0&&gAtc>0?fC(gAtc):'—'}</td>
       <td>${g.spend>0?fCPO(g.cpo):'—'}</td>
       <td>${g.spend>0?fSV(g.sv):'—'}</td>
-    </tr>`;
+    </tr>${(pk==='meta'&&g.label==='KU / QA / BH'&&g.spend>0)?buildMetaKuCountryRows(last7,true):''}`;
   }).join('');
 
   let folRow='';
@@ -3231,7 +3231,7 @@ function buildLast30MarketTable(pk, p) {
       <td>${g.spend>0&&gAtc>0?fC(gAtc):'—'}</td>
       <td>${g.spend>0?fCPO(g.cpo):'—'}</td>
       <td>${g.spend>0?fSV(g.sv):'—'}</td>
-    </tr>`;
+    </tr>${(pk==='meta'&&g.label==='KU / QA / BH'&&g.spend>0)?buildMetaKuCountryRows(last30,true):''}`;
   }).join('');
 
   let folRow='';
@@ -3389,6 +3389,67 @@ const META_CAMPS = [
   { label:"Catalogue",     adsets:["Catalogue Retargeting / Prospecting - GCC"],                prefix:"CAT ·" },
 ];
 const META_FOLLOWERS_KEY = "Followers GCC - Brand";
+
+// ── KU/QA/BH per-day country breakdown (Meta Apr 2026)
+// Source: Supermetrics Meta Country dimension, ad_set_name =@ Ku, OUTCOME_SALES only.
+// Shape: { "Apr N": { kw|qa|bh: { spend, conv, sv, atc, roas, cpo } } }
+// Used to expand the "KU / QA / BH" row in the Meta Market Breakdown into child rows.
+const META_KU_COUNTRY = {"Apr 1":{"kw":{"spend":158.82,"conv":4,"sv":1247.67,"atc":33,"roas":7.86,"cpo":39.7},"qa":{"spend":465.1,"conv":4,"sv":2584.3,"atc":109,"roas":5.56,"cpo":116.28},"bh":{"spend":49.26,"conv":1,"sv":127.93,"atc":10,"roas":2.6,"cpo":49.26}},"Apr 2":{"kw":{"spend":150.14,"conv":0,"sv":0,"atc":7,"roas":0.0,"cpo":0},"qa":{"spend":428.12,"conv":5,"sv":743.73,"atc":61,"roas":1.74,"cpo":85.62},"bh":{"spend":47.42,"conv":0,"sv":0,"atc":0,"roas":0.0,"cpo":0}},"Apr 3":{"kw":{"spend":174.12,"conv":2,"sv":421.54,"atc":24,"roas":2.42,"cpo":87.06},"qa":{"spend":445.3,"conv":2,"sv":404.52,"atc":40,"roas":0.91,"cpo":222.65},"bh":{"spend":44.38,"conv":1,"sv":270.88,"atc":2,"roas":6.1,"cpo":44.38}},"Apr 4":{"kw":{"spend":141.35,"conv":1,"sv":202.83,"atc":21,"roas":1.43,"cpo":141.35},"qa":{"spend":433.88,"conv":1,"sv":261.87,"atc":44,"roas":0.6,"cpo":433.88},"bh":{"spend":48.39,"conv":0,"sv":0,"atc":9,"roas":0.0,"cpo":0}},"Apr 5":{"kw":{"spend":170.98,"conv":3,"sv":661.26,"atc":15,"roas":3.87,"cpo":56.99},"qa":{"spend":428.87,"conv":3,"sv":708.78,"atc":28,"roas":1.65,"cpo":142.96},"bh":{"spend":52.57,"conv":1,"sv":918.42,"atc":3,"roas":17.47,"cpo":52.57}},"Apr 6":{"kw":{"spend":184.28,"conv":1,"sv":143.13,"atc":7,"roas":0.78,"cpo":184.28},"qa":{"spend":431.59,"conv":7,"sv":1891.38,"atc":66,"roas":4.38,"cpo":61.66},"bh":{"spend":52.94,"conv":0,"sv":0,"atc":0,"roas":0.0,"cpo":0}},"Apr 7":{"kw":{"spend":185.0,"conv":2,"sv":868.97,"atc":30,"roas":4.7,"cpo":92.5},"qa":{"spend":487.29,"conv":5,"sv":1530.94,"atc":55,"roas":3.14,"cpo":97.46},"bh":{"spend":57.51,"conv":0,"sv":0,"atc":0,"roas":0.0,"cpo":0}},"Apr 8":{"kw":{"spend":169.49,"conv":2,"sv":1431.18,"atc":30,"roas":8.44,"cpo":84.75},"qa":{"spend":408.43,"conv":9,"sv":2214.72,"atc":87,"roas":5.42,"cpo":45.38},"bh":{"spend":49.06,"conv":0,"sv":0,"atc":4,"roas":0.0,"cpo":0}},"Apr 9":{"kw":{"spend":162.06,"conv":4,"sv":1006.45,"atc":46,"roas":6.21,"cpo":40.52},"qa":{"spend":408,"conv":1,"sv":212.34,"atc":48,"roas":0.52,"cpo":408.0},"bh":{"spend":43.46,"conv":0,"sv":0,"atc":0,"roas":0.0,"cpo":0}},"Apr 10":{"kw":{"spend":149.45,"conv":2,"sv":251.3,"atc":24,"roas":1.68,"cpo":74.72},"qa":{"spend":385.2,"conv":4,"sv":926.96,"atc":70,"roas":2.41,"cpo":96.3},"bh":{"spend":52.95,"conv":1,"sv":469.36,"atc":11,"roas":8.86,"cpo":52.95}},"Apr 11":{"kw":{"spend":205.9,"conv":1,"sv":186.24,"atc":33,"roas":0.9,"cpo":205.9},"qa":{"spend":355.72,"conv":3,"sv":1252.44,"atc":51,"roas":3.52,"cpo":118.57},"bh":{"spend":64.81,"conv":0,"sv":0,"atc":15,"roas":0.0,"cpo":0}},"Apr 12":{"kw":{"spend":187.55,"conv":2,"sv":307.2,"atc":11,"roas":1.64,"cpo":93.78},"qa":{"spend":367.09,"conv":2,"sv":243.17,"atc":40,"roas":0.66,"cpo":183.54},"bh":{"spend":45.93,"conv":1,"sv":623.23,"atc":0,"roas":13.57,"cpo":45.93}},"Apr 13":{"kw":{"spend":197.75,"conv":2,"sv":639.25,"atc":23,"roas":3.23,"cpo":98.88},"qa":{"spend":376.76,"conv":3,"sv":1151.94,"atc":47,"roas":3.06,"cpo":125.59},"bh":{"spend":48.9,"conv":0,"sv":0,"atc":0,"roas":0.0,"cpo":0}},"Apr 14":{"kw":{"spend":191.61,"conv":2,"sv":732.17,"atc":17,"roas":3.82,"cpo":95.81},"qa":{"spend":369.52,"conv":3,"sv":1245.69,"atc":31,"roas":3.37,"cpo":123.17},"bh":{"spend":57.76,"conv":0,"sv":0,"atc":2,"roas":0.0,"cpo":0}},"Apr 15":{"kw":{"spend":185.74,"conv":0,"sv":0,"atc":11,"roas":0.0,"cpo":0},"qa":{"spend":373.12,"conv":5,"sv":1179.15,"atc":21,"roas":3.16,"cpo":74.62},"bh":{"spend":58.5,"conv":0,"sv":0,"atc":18,"roas":0.0,"cpo":0}},"Apr 16":{"kw":{"spend":225.0,"conv":3,"sv":752.89,"atc":29,"roas":3.35,"cpo":75.0},"qa":{"spend":401.64,"conv":2,"sv":582.26,"atc":50,"roas":1.45,"cpo":200.82},"bh":{"spend":61.67,"conv":1,"sv":285.37,"atc":7,"roas":4.63,"cpo":61.67}},"Apr 17":{"kw":{"spend":198.87,"conv":3,"sv":1058.86,"atc":53,"roas":5.32,"cpo":66.29},"qa":{"spend":358.68,"conv":5,"sv":1566.6,"atc":80,"roas":4.37,"cpo":71.74},"bh":{"spend":59.8,"conv":0,"sv":0,"atc":11,"roas":0.0,"cpo":0}},"Apr 18":{"kw":{"spend":164.28,"conv":0,"sv":0,"atc":15,"roas":0.0,"cpo":0},"qa":{"spend":353.14,"conv":3,"sv":1233.71,"atc":49,"roas":3.49,"cpo":117.71},"bh":{"spend":56.53,"conv":1,"sv":127.93,"atc":3,"roas":2.26,"cpo":56.53}},"Apr 19":{"kw":{"spend":218.22,"conv":1,"sv":156.7,"atc":26,"roas":0.72,"cpo":218.22},"qa":{"spend":382.7,"conv":7,"sv":2023.69,"atc":69,"roas":5.29,"cpo":54.67},"bh":{"spend":65.42,"conv":1,"sv":127.93,"atc":4,"roas":1.96,"cpo":65.42}},"Apr 20":{"kw":{"spend":175.39,"conv":1,"sv":67.5,"atc":4,"roas":0.38,"cpo":175.39},"qa":{"spend":386.09,"conv":1,"sv":148.56,"atc":24,"roas":0.38,"cpo":386.09},"bh":{"spend":61.39,"conv":0,"sv":0,"atc":3,"roas":0.0,"cpo":0}},"Apr 21":{"kw":{"spend":188.71,"conv":4,"sv":707.71,"atc":18,"roas":3.75,"cpo":47.18},"qa":{"spend":434.33,"conv":4,"sv":884.08,"atc":31,"roas":2.04,"cpo":108.58},"bh":{"spend":69.79,"conv":0,"sv":0,"atc":9,"roas":0.0,"cpo":0}},"Apr 22":{"kw":{"spend":190.95,"conv":1,"sv":488.76,"atc":31,"roas":2.56,"cpo":190.95},"qa":{"spend":417.5,"conv":8,"sv":2305.05,"atc":68,"roas":5.52,"cpo":52.19},"bh":{"spend":63.44,"conv":0,"sv":0,"atc":0,"roas":0.0,"cpo":0}},"Apr 23":{"kw":{"spend":251.39,"conv":5,"sv":702.43,"atc":26,"roas":2.79,"cpo":50.28},"qa":{"spend":392.32,"conv":3,"sv":2084.57,"atc":26,"roas":5.31,"cpo":130.77},"bh":{"spend":70.63,"conv":0,"sv":0,"atc":13,"roas":0.0,"cpo":0}},"Apr 24":{"kw":{"spend":242.64,"conv":2,"sv":1156.87,"atc":45,"roas":4.77,"cpo":121.32},"qa":{"spend":334.42,"conv":1,"sv":320.22,"atc":47,"roas":0.96,"cpo":334.42},"bh":{"spend":68.3,"conv":0,"sv":0,"atc":11,"roas":0.0,"cpo":0}},"Apr 25":{"kw":{"spend":244.12,"conv":5,"sv":850.67,"atc":71,"roas":3.48,"cpo":48.82},"qa":{"spend":310.94,"conv":4,"sv":1425.48,"atc":49,"roas":4.58,"cpo":77.73},"bh":{"spend":63.53,"conv":0,"sv":0,"atc":5,"roas":0.0,"cpo":0}},"Apr 26":{"kw":{"spend":266.95,"conv":2,"sv":421.27,"atc":23,"roas":1.58,"cpo":133.47},"qa":{"spend":375.65,"conv":2,"sv":580.77,"atc":42,"roas":1.55,"cpo":187.82},"bh":{"spend":62.96,"conv":2,"sv":513.17,"atc":5,"roas":8.15,"cpo":31.48}},"Apr 27":{"kw":{"spend":245.15,"conv":0,"sv":0,"atc":10,"roas":0.0,"cpo":0},"qa":{"spend":322.92,"conv":5,"sv":1381,"atc":51,"roas":4.28,"cpo":64.58},"bh":{"spend":51.65,"conv":1,"sv":139.56,"atc":2,"roas":2.7,"cpo":51.65}},"Apr 28":{"kw":{"spend":270.71,"conv":5,"sv":573.48,"atc":25,"roas":2.12,"cpo":54.14},"qa":{"spend":352.54,"conv":5,"sv":1446.17,"atc":49,"roas":4.1,"cpo":70.51},"bh":{"spend":59.11,"conv":0,"sv":0,"atc":3,"roas":0.0,"cpo":0}}};
+
+// Aggregate KU country data over a date range. Returns {kw,qa,bh} each with {spend,conv,sv,atc,roas,cpo}.
+function aggMetaKuCountry(dates){
+  const out = {
+    kw: {spend:0,conv:0,sv:0,atc:0,wRoas:0},
+    qa: {spend:0,conv:0,sv:0,atc:0,wRoas:0},
+    bh: {spend:0,conv:0,sv:0,atc:0,wRoas:0},
+  };
+  dates.forEach(d => {
+    const rec = META_KU_COUNTRY[d];
+    if(!rec) return;
+    ['kw','qa','bh'].forEach(k => {
+      const v = rec[k] || {};
+      out[k].spend += v.spend || 0;
+      out[k].conv  += v.conv  || 0;
+      out[k].sv    += v.sv    || 0;
+      out[k].atc   += v.atc   || 0;
+      out[k].wRoas += (v.roas || 0) * (v.spend || 0);
+    });
+  });
+  ['kw','qa','bh'].forEach(k => {
+    const a = out[k];
+    a.roas = a.spend > 0 ? a.wRoas / a.spend : 0;
+    a.cpo  = a.conv  > 0 ? a.spend  / a.conv  : 0;
+    delete a.wRoas;
+  });
+  return out;
+}
+
+// Render the three indented KU/QA/BH country sub-rows for the Meta Market Breakdown.
+// includeAtcCol = false for Google (no ATC column). showAtc = true to render an ATC cell.
+function buildMetaKuCountryRows(dates, showAtc){
+  const agg = aggMetaKuCountry(dates);
+  const sub = [
+    {label:'↳ Kuwait',  k:'kw'},
+    {label:'↳ Qatar',   k:'qa'},
+    {label:'↳ Bahrain', k:'bh'},
+  ];
+  const rowStyle = 'background:#fafaf7;color:#525252;font-size:12px';
+  const cellStyle = 'padding-left:30px';
+  return sub.map(s => {
+    const a = agg[s.k];
+    if(a.spend <= 0) return '';
+    return `<tr style="${rowStyle}">`+
+      `<td style="${cellStyle}"><span class="gn" style="color:#525252">${s.label}</span></td>`+
+      `<td>${fR(a.roas)}</td>`+
+      `<td>${fC(a.conv)}</td>`+
+      `<td>${fS(a.spend)}</td>`+
+      (showAtc ? `<td>${a.atc>0?fC(a.atc):"—"}</td>` : '')+
+      `<td>${a.conv>0?fCPO(a.cpo):"—"}</td>`+
+      `<td>${fSV(a.sv)}</td>`+
+    `</tr>`;
+  }).join('');
+}
+
 
 // Ad status from last Meta export (Mar 26 – Apr 1). active/learning = on, inactive = off.
 /* v2-hover-fix-platform-isolated */
@@ -4398,7 +4459,7 @@ function renderPlatMTD(pk){
           ${pk!=='google'?`<td>${g.spend>0&&gAtc>0?fC(gAtc):"—"}</td>`:''}
           <td>${g.spend>0?fCPO(g.cpo):"—"}</td>
           <td>${g.spend>0?fSV(g.sv):"—"}</td>
-        </tr>`;}).join('');})()}${(()=>{if(pk!=='meta')return'';const folRecs=(GRANULAR.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).filter(r=>ds.includes(r.d));const folSpend=folRecs.reduce((s,r)=>s+(r.spend||0),0);const folConv=folRecs.reduce((s,r)=>s+(r.purchase_conv||0),0);const folSV=folRecs.reduce((s,r)=>s+(r.sv||0),0);if(folSpend<=0)return'';return'<tr><td><span class="gn"><span class="gs" style="background:#94a3b8"></span>Followers / Brand</span></td><td>—</td><td>—</td><td>'+fS(folSpend)+'</td><td>—</td><td>—</td><td>—</td></tr>';})()}${(()=>{const folRecs2=(GRANULAR.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).filter(r=>ds.includes(r.d));const fSp=folRecs2.reduce((s,r)=>s+(r.spend||0),0);const fCv=folRecs2.reduce((s,r)=>s+(r.purchase_conv||0),0);const fSv=folRecs2.reduce((s,r)=>s+(r.sv||0),0);const _pSp=active.reduce((s,r)=>s+r.spend,0)+fSp;const _pSv=active.reduce((s,r)=>s+(r.sv||0),0)+fSv;const _pCv=active.reduce((s,r)=>s+(r.conv||0),0)+fCv;const _pWr=active.reduce((s,r)=>s+r.roas*r.spend,0);const tSp=_pSp,tSv=_pSv,tCv=_pCv;const tRoas=tSp>0?_pWr/_pSp:0;const tCpo=tCv>0?tSp/tCv:0;const tS='padding:9px 0;border-bottom:1px solid #f4f4ef;font-family:monospace;font-size:12px;font-weight:700;background:#f4f4ef';return'<tr style="border-top:2px solid #1a1a1a"><td style="padding:9px 0;background:#f4f4ef;font-size:12px;font-weight:700;color:#1a1a1a">Total</td><td style="'+tS+'">'+(tCv>0?fC(tCv):'—')+'</td><td style="'+tS+'">'+fS(tSp)+'</td><td style="'+tS+'">'+(tRoas>0?fR(tRoas):'—')+'</td>'+(pk!=='google'?'<td style="'+tS+'">'+(totAtcMTD>0?fC(totAtcMTD):'—')+'</td>':'')+'<td style="'+tS+'">'+(tCpo>0?fCPO(tCpo):'—')+'</td><td style="'+tS+'">'+(tSv>0?fSV(tSv):'—')+'</td></tr>';})()}</tbody>
+        </tr>${(pk==='meta'&&g.label==='KU / QA / BH'&&g.spend>0)?buildMetaKuCountryRows(ds,true):''}`;}).join('');})()}${(()=>{if(pk!=='meta')return'';const folRecs=(GRANULAR.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).filter(r=>ds.includes(r.d));const folSpend=folRecs.reduce((s,r)=>s+(r.spend||0),0);const folConv=folRecs.reduce((s,r)=>s+(r.purchase_conv||0),0);const folSV=folRecs.reduce((s,r)=>s+(r.sv||0),0);if(folSpend<=0)return'';return'<tr><td><span class="gn"><span class="gs" style="background:#94a3b8"></span>Followers / Brand</span></td><td>—</td><td>—</td><td>'+fS(folSpend)+'</td><td>—</td><td>—</td><td>—</td></tr>';})()}${(()=>{const folRecs2=(GRANULAR.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).filter(r=>ds.includes(r.d));const fSp=folRecs2.reduce((s,r)=>s+(r.spend||0),0);const fCv=folRecs2.reduce((s,r)=>s+(r.purchase_conv||0),0);const fSv=folRecs2.reduce((s,r)=>s+(r.sv||0),0);const _pSp=active.reduce((s,r)=>s+r.spend,0)+fSp;const _pSv=active.reduce((s,r)=>s+(r.sv||0),0)+fSv;const _pCv=active.reduce((s,r)=>s+(r.conv||0),0)+fCv;const _pWr=active.reduce((s,r)=>s+r.roas*r.spend,0);const tSp=_pSp,tSv=_pSv,tCv=_pCv;const tRoas=tSp>0?_pWr/_pSp:0;const tCpo=tCv>0?tSp/tCv:0;const tS='padding:9px 0;border-bottom:1px solid #f4f4ef;font-family:monospace;font-size:12px;font-weight:700;background:#f4f4ef';return'<tr style="border-top:2px solid #1a1a1a"><td style="padding:9px 0;background:#f4f4ef;font-size:12px;font-weight:700;color:#1a1a1a">Total</td><td style="'+tS+'">'+(tCv>0?fC(tCv):'—')+'</td><td style="'+tS+'">'+fS(tSp)+'</td><td style="'+tS+'">'+(tRoas>0?fR(tRoas):'—')+'</td>'+(pk!=='google'?'<td style="'+tS+'">'+(totAtcMTD>0?fC(totAtcMTD):'—')+'</td>':'')+'<td style="'+tS+'">'+(tCpo>0?fCPO(tCpo):'—')+'</td><td style="'+tS+'">'+(tSv>0?fSV(tSv):'—')+'</td></tr>';})()}</tbody>
       </table>
     </div>
     <div class="cc"><div class="clbl">ROAS TREND — ${p.label} MTD</div><div class="cw" style="height:200px"><canvas id="m-pt"></canvas></div></div>
