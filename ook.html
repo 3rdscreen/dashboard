@@ -1631,9 +1631,15 @@ function buildCampaignTable(datesArr, label){
     return aggRecs(keys.flatMap(k => ds.map(d=>(gran.meta?.adsets?.[k]||[]).find(r=>r.d===d)).filter(Boolean)));
   }
   const metaAdsets = [
-    { name:'UAE Sales - ASC',        agg: aggMetaGeo(['UAE Abaya - ASC','UAE Pyjama - ASC']) },
+    // UAE: post Apr-27 lives in 'UAE ALL - ASC'; legacy Abaya/Pyjama buckets remain
+    // for historical dates (frozen at Apr 26). Without UAE ALL here, the row filters
+    // out as spend=0 for any Apr-27+ date because the legacy buckets have no entries.
+    { name:'UAE Sales - ASC',        agg: aggMetaGeo(['UAE ALL - ASC','UAE Abaya - ASC','UAE Pyjama - ASC']) },
     { name:'KSA Sales - ASC',        agg: aggMetaGeo(['KSA Abaya - ASC','KSA Pyjama - ASC']) },
-    { name:'KUW-QAT-BH Sales - ASC', agg: aggMetaGeo(['KU Abaya - ASC','KU Pyjama - ASC']) },
+    // KU: post Apr-28 will live in 'KU ALL - ASC' once the migration runs (same pattern as UAE).
+    // Including all three keys here is forward-compatible — once Pyjama is renamed to ALL on the
+    // first Apr-28+ refresh, this aggregator picks up the new bucket without further changes.
+    { name:'KUW-QAT-BH Sales - ASC', agg: aggMetaGeo(['KU ALL - ASC','KU Abaya - ASC','KU Pyjama - ASC']) },
     { name:'Catalogue Sales - GCC',  agg: aggMetaGeo(['Catalogue Retargeting / Prospecting - GCC']) },
     { name:'Followers - GCC Brand',  agg: aggRecs(ds.map(d=>(gran.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).find(r=>r.d===d)).filter(Boolean)), isFollowers: true },
   ];
@@ -1764,7 +1770,10 @@ function buildAdsetTable(datesArr, label){
     { geo:'KSA', isGeoHeader:true,  agg: aggAdset('meta',['KSA Abaya - ASC','KSA Pyjama - ASC']) },
     { geo:'↳ Abaya',   indent:true, agg: aggAdset('meta',['KSA Abaya - ASC']) },
     { geo:'↳ Pyjama',  indent:true, agg: aggAdset('meta',['KSA Pyjama - ASC']) },
-    { geo:'KU / QA / BH', isGeoHeader:true, agg: aggAdset('meta',['KU Abaya - ASC','KU Pyjama - ASC']) },
+    // KU: post Apr-28 will live in 'KU ALL - ASC' once the migration runs (same as UAE Apr 27).
+    // Until then, parent header sums Abaya+Pyjama. Once consolidated, KU ALL takes over the parent
+    // and the children show frozen historical numbers (Apr 27 last entry for Abaya).
+    { geo:'KU / QA / BH', isGeoHeader:true, agg: aggAdset('meta',['KU ALL - ASC','KU Abaya - ASC','KU Pyjama - ASC']) },
     { geo:'↳ Abaya',   indent:true, agg: aggAdset('meta',['KU Abaya - ASC']) },
     { geo:'↳ Pyjama',  indent:true, agg: aggAdset('meta',['KU Pyjama - ASC']) },
     { geo:'Catalogue / Retargeting',agg: aggAdset('meta',['Catalogue Retargeting / Prospecting - GCC']) },
@@ -3385,7 +3394,7 @@ ${pk!=='meta'?`    <div class="cc">
 const META_CAMPS = [
   { label:"UAE",           adsets:["UAE ALL - ASC","UAE Abaya - ASC"],                          prefix:"UAE ·" },
   { label:"KSA",           adsets:["KSA Abaya - ASC","KSA Pyjama - ASC"],                       prefix:"KSA ·" },
-  { label:"KU / QA / BH", adsets:["KU Abaya - ASC","KU Pyjama - ASC"],                         prefix:"KU ·"  },
+  { label:"KU / QA / BH", adsets:["KU ALL - ASC","KU Abaya - ASC","KU Pyjama - ASC"],          prefix:"KU ·"  },
   { label:"Catalogue",     adsets:["Catalogue Retargeting / Prospecting - GCC"],                prefix:"CAT ·" },
 ];
 const META_FOLLOWERS_KEY = "Followers GCC - Brand";
