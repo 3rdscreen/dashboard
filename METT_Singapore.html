@@ -218,39 +218,35 @@
   .path-pct { text-align: right; font-size: 11px; color: var(--ink-3); }
 
   /* ================ CREATIVE CARDS ================ */
-  .creative-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-      .creative-thumb { position: relative; width: 100%; aspect-ratio: 4 / 3; background: var(--surface-2); overflow: hidden; border-bottom: 1px solid var(--line); }
-    .creative-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .creative-thumb-fallback { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: var(--ink-3); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
-    .creative-thumb-fail .creative-thumb-fallback { display: flex; }
-    .creative-thumb-fail { background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%); }
-    .creative-thumb-link { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.78); color: #fff; padding: 6px 10px; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 700; text-decoration: none; backdrop-filter: blur(8px); transition: background 0.15s; }
-    .creative-thumb-link:hover { background: var(--gold); color: var(--ink); }
-    .creative-thumb-fail .creative-thumb-link { display: none; }
-
-    .creative { background: var(--surface); border: 1px solid var(--line); overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.2s, transform 0.2s; position: relative; }
-  .creative:hover { border-color: var(--line-2); transform: translateY(-2px); box-shadow: var(--shadow); }
-  .creative-head { background: var(--navy); color: #fff; padding: 18px 18px 16px; position: relative; }
-  .creative-rank { position: absolute; top: 14px; right: 14px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.55); font-weight: 600; }
-  .creative-rank strong { color: var(--gold); font-weight: 700; font-size: 11px; }
-  .creative-fmt { display: inline-flex; align-items: center; gap: 6px; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.75); font-weight: 700; padding-bottom: 8px; }
-  .creative-fmt::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
-  .creative-offer-head { font-size: 17px; font-weight: 600; line-height: 1.2; color: #fff; margin-bottom: 4px; letter-spacing: 0.2px; }
-  .creative-meta { font-size: 11px; color: rgba(255,255,255,0.55); font-weight: 500; letter-spacing: 0.3px; }
-  .creative-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; }
-  .creative-primary { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
-  .creative-primary-val { font-size: 24px; font-weight: 700; color: var(--ink); line-height: 1; letter-spacing: -0.3px; }
-  .creative-primary-val .cur { font-size: 14px; color: var(--gold-2); margin-right: 2px; font-weight: 600; }
-  .creative-primary-label { font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; margin-top: 6px; }
-  .creative-roas { text-align: right; }
-  .creative-roas-val { font-size: 20px; font-weight: 700; color: var(--success); line-height: 1; letter-spacing: -0.3px; }
-  .creative-roas-label { font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; margin-top: 6px; }
-  .creative-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: auto; }
-  .creative-stat .s-label { color: var(--ink-3); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
-  .creative-stat .s-val { font-size: 13px; color: var(--ink); font-weight: 700; margin-top: 3px; font-variant-numeric: tabular-nums; }
-  .creative-stat.positive .s-val { color: var(--success); }
-
-  /* ================ RECOMMENDATIONS ================ */
+  .creative-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .creative { position: relative; aspect-ratio: 1 / 1; background: var(--navy); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+  .creative:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .creative-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
+  .creative-fail { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; z-index: 1; background: linear-gradient(135deg, var(--navy) 0%, #0a1828 100%); }
+  /* Badges */
+  .creative-rank { position: absolute; top: 14px; left: 14px; background: var(--navy); color: #fff; padding: 5px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; z-index: 4; }
+  .creative-fmt { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.95); color: var(--ink); padding: 5px 10px; font-size: 9.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; z-index: 4; }
+  /* Play icon for Reels */
+  .creative-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.85); display: flex; align-items: center; justify-content: center; z-index: 3; pointer-events: none; transition: background 0.2s; }
+  .creative:hover .creative-play { background: #fff; }
+  .creative-play svg { width: 22px; height: 22px; fill: var(--navy); margin-left: 3px; }
+  /* Gradient overlay for text legibility */
+  .creative::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 55%; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%); z-index: 2; pointer-events: none; }
+  /* Title block — overlaid bottom-left */
+  .creative-title { position: absolute; left: 16px; right: 16px; bottom: 70px; z-index: 4; pointer-events: none; }
+  .creative-title-h { font-size: 15px; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 3px; letter-spacing: 0.2px; }
+  .creative-title-sub { font-size: 10.5px; color: rgba(255,255,255,0.75); letter-spacing: 0.3px; font-weight: 500; }
+  /* Stats bar — overlaid bottom edge */
+  .creative-stats { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; padding: 10px 16px 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; border-top: 1px solid rgba(255,255,255,0.1); }
+  .creative-stat .s-label { font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.55); font-weight: 700; margin-bottom: 2px; }
+  .creative-stat .s-val { font-size: 13.5px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; letter-spacing: -0.2px; }
+  .creative-stat .s-val .cur { font-size: 10px; color: rgba(255,255,255,0.7); margin-right: 1px; }
+  /* View link (only visible on hover, top-right under format pill) */
+  .creative-view { position: absolute; top: 48px; right: 14px; background: rgba(0,0,0,0.78); color: #fff; padding: 5px 9px; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 700; text-decoration: none; z-index: 4; opacity: 0; transition: opacity 0.2s; backdrop-filter: blur(8px); }
+  .creative:hover .creative-view { opacity: 1; }
+  .creative-view:hover { background: var(--gold); color: var(--ink); }
+  
+    /* ================ RECOMMENDATIONS ================ */
   .rec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .rec { background: var(--surface); border: 1px solid var(--line); padding: 20px 22px; border-top: 3px solid var(--gold); }
   .rec.good { border-top-color: var(--success); }
@@ -285,9 +281,13 @@
     .kpi-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .rec-grid, .admin-grid { grid-template-columns: 1fr; }
-    .creative-grid { grid-template-columns: repeat(2, 1fr); }
+    .creative-grid { grid-template-columns: repeat(3, 1fr); }
     .date-popover { width: 680px; }
     .presets { width: 180px; }
+  }
+
+  @media (max-width: 820px) {
+    .creative-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (max-width: 720px) {
@@ -1655,39 +1655,31 @@
     var grid = document.getElementById('creative-grid');
     if (!grid) return;
     var html = '';
+    var playIcon = '<div class="creative-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>';
     for (var i = 0; i < creatives.length; i++) {
       var c = creatives[i];
       var rank = '#' + (i + 1);
       var imgUrl = c.image || '';
       var linkUrl = c.permalink || '';
-      var viewBtn = linkUrl ? '<a class="creative-thumb-link" href="' + linkUrl + '" target="_blank" rel="noopener noreferrer" title="Open on Facebook">View &rarr;</a>' : '';
-      var imgHtml = imgUrl
-        ? '<div class="creative-thumb"><img src="' + imgUrl + '" alt="' + c.name + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add(\'creative-thumb-fail\');this.style.display=\'none\';" />' + viewBtn + '<div class="creative-thumb-fallback">Preview unavailable' + (linkUrl ? ' &middot; <a href=\'' + linkUrl + '\' target=\'_blank\' rel=\'noopener noreferrer\' style=\'color:var(--gold);\'>Open on FB</a>' : '') + '</div></div>'
-        : '<div class="creative-thumb creative-thumb-fail"><div class="creative-thumb-fallback">No preview' + (linkUrl ? ' &middot; <a href=\'' + linkUrl + '\' target=\'_blank\' rel=\'noopener noreferrer\' style=\'color:var(--gold);\'>Open on FB</a>' : '') + '</div></div>';
+      var isVideo = (c.fmt && (c.fmt.toLowerCase().indexOf('reel') >= 0 || c.fmt.toLowerCase() === 'video'));
+      var imgEl = imgUrl
+        ? '<img class="creative-img" src="' + imgUrl + '" alt="' + c.name + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class=&quot;creative-fail&quot;>Preview unavailable</div>\';" />'
+        : '<div class="creative-fail">No preview</div>';
+      var viewEl = linkUrl ? '<a class="creative-view" href="' + linkUrl + '" target="_blank" rel="noopener noreferrer" title="Open on Facebook">View &rarr;</a>' : '';
       html += '<div class="creative">' +
-        imgHtml +
-        '<div class="creative-head">' +
-          '<div class="creative-rank"><strong>' + rank + '</strong></div>' +
-          '<div class="creative-fmt">' + c.fmt + '</div>' +
-          '<div class="creative-offer-head">' + c.offer + '</div>' +
-          '<div class="creative-meta">' + c.name + '</div>' +
+        imgEl +
+        '<div class="creative-rank">' + rank + '</div>' +
+        '<div class="creative-fmt">' + c.fmt + '</div>' +
+        viewEl +
+        (isVideo ? playIcon : '') +
+        '<div class="creative-title">' +
+          '<div class="creative-title-h">' + c.offer + '</div>' +
+          '<div class="creative-title-sub">' + c.name + '</div>' +
         '</div>' +
-        '<div class="creative-body">' +
-          '<div class="creative-primary">' +
-            '<div>' +
-              '<div class="creative-primary-val"><span class="cur">$</span>' + c.revenue + '</div>' +
-              '<div class="creative-primary-label">Revenue attributed</div>' +
-            '</div>' +
-            '<div class="creative-roas">' +
-              '<div class="creative-roas-val">' + c.roas + '</div>' +
-              '<div class="creative-roas-label">ROAS</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="creative-stats">' +
-            '<div class="creative-stat positive"><div class="s-label">Bookings</div><div class="s-val">' + c.bookings + '</div></div>' +
-            '<div class="creative-stat"><div class="s-label">Spend</div><div class="s-val">$' + c.spend + '</div></div>' +
-            '<div class="creative-stat"><div class="s-label">CTR</div><div class="s-val">' + c.ctr + '</div></div>' +
-          '</div>' +
+        '<div class="creative-stats">' +
+          '<div class="creative-stat"><div class="s-label">Spend</div><div class="s-val"><span class="cur">$</span>' + c.spend + '</div></div>' +
+          '<div class="creative-stat"><div class="s-label">Impr</div><div class="s-val">' + c.impr + '</div></div>' +
+          '<div class="creative-stat"><div class="s-label">CTR</div><div class="s-val">' + c.ctr + '</div></div>' +
         '</div>' +
       '</div>';
     }
