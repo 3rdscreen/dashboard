@@ -218,28 +218,25 @@
   .path-pct { text-align: right; font-size: 11px; color: var(--ink-3); }
 
   /* ================ CREATIVE CARDS ================ */
-  .creative-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .creative { background: var(--surface); border: 1px solid var(--line); overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; position: relative; }
-  .creative:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(14,35,64,0.08); }
-  .creative-thumb-wrap { position: relative; width: 100%; padding-bottom: 100%; overflow: hidden; background: var(--surface-2); }
-  .creative-thumb-link { position: absolute; inset: 0; display: block; cursor: pointer; }
+  .creative-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .creative { background: var(--surface); border: 1px solid var(--line); overflow: hidden; position: relative; aspect-ratio: 1 / 1; cursor: pointer; display: block; text-decoration: none; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+  .creative:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(14,35,64,0.12); }
+  .creative-thumb-link { position: absolute; inset: 0; display: block; }
   .creative-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
-  .creative-thumb-link:hover .creative-thumb { transform: scale(1.04); }
-  .creative-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0.95; transition: opacity 0.2s, transform 0.2s; }
-  .creative-thumb-link:hover .creative-play { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
-  .creative-rank-badge { position: absolute; top: 12px; left: 12px; background: rgba(14,35,64,0.92); color: #fff; padding: 4px 10px; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 700; }
+  .creative:hover .creative-thumb { transform: scale(1.04); }
+  .creative-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(14,35,64,0.95) 0%, rgba(14,35,64,0.78) 32%, rgba(14,35,64,0.15) 60%, rgba(14,35,64,0) 100%); pointer-events: none; }
+  .creative-play { position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0.92; transition: opacity 0.2s, transform 0.2s; z-index: 2; }
+  .creative:hover .creative-play { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+  .creative-rank-badge { position: absolute; top: 10px; left: 10px; background: rgba(14,35,64,0.92); color: #fff; padding: 4px 9px; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 700; z-index: 2; }
   .creative-rank-badge strong { color: var(--gold); }
-  .creative-fmt-badge { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.95); color: var(--ink); padding: 4px 10px; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; }
-  .creative-info { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
-  .creative-info-head { display: flex; flex-direction: column; gap: 2px; }
-  .creative-offer-name { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: 0.2px; }
-  .creative-meta { font-size: 11px; color: var(--ink-3); letter-spacing: 0.3px; }
-  .creative-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .creative-stat { display: flex; flex-direction: column; gap: 3px; }
-  .creative-stat .s-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
-  .creative-stat .s-val { font-size: 13px; font-weight: 700; color: var(--ink); }
-  .creative-link { font-size: 11px; color: var(--gold-2); text-decoration: none; letter-spacing: 0.5px; font-weight: 600; transition: color 0.15s; }
-  .creative-link:hover { color: var(--ink); }
+  .creative-fmt-badge { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.95); color: var(--ink); padding: 4px 9px; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; z-index: 2; }
+  .creative-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 9px; z-index: 2; pointer-events: none; }
+  .creative-offer-name { font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 0.3px; line-height: 1.25; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+  .creative-meta { font-size: 10px; color: rgba(255,255,255,0.78); letter-spacing: 0.3px; line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+  .creative-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2); }
+  .creative-stat { display: flex; flex-direction: column; gap: 1px; }
+  .creative-stat .s-label { font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.65); font-weight: 600; }
+  .creative-stat .s-val { font-size: 12px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
   /* ================ RECOMMENDATIONS ================ */
   .rec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .rec { background: var(--surface); border: 1px solid var(--line); padding: 20px 22px; border-top: 3px solid var(--gold); }
@@ -275,7 +272,7 @@
     .kpi-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .rec-grid, .admin-grid { grid-template-columns: 1fr; }
-    .creative-grid { grid-template-columns: repeat(2, 1fr); }
+    .creative-grid { grid-template-columns: repeat(3, 1fr); }
     .date-popover { width: 680px; }
     .presets { width: 180px; }
   }
@@ -359,7 +356,7 @@
     .path-pct { text-align: left; order: 3; }
     .path-node { font-size: 10.5px; padding: 4px 8px; }
 
-    .creative-grid { grid-template-columns: 1fr; gap: 12px; }
+    .creative-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .creative-body { padding: 12px 14px; }
 
     .rec-grid { grid-template-columns: 1fr; }
@@ -1671,44 +1668,75 @@
   function buildCreatives() {
     var grid = document.getElementById('creative-grid');
     if (!grid) return;
-    var html = '';
+    grid.innerHTML = '';
     for (var i = 0; i < creatives.length; i++) {
       var c = creatives[i];
       var rank = '#' + (i + 1);
       var isVideo = (c.fmt === 'Reel' || c.fmt === 'Video');
-      // SVG fallback when Facebook signed thumbnail URL expires (after ~24h)
-      var fallbackSvg = "data:image/svg+xml;utf8," + encodeURIComponent(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect fill="%230E2340" width="400" height="400"/><text x="200" y="180" font-family="Calibri" font-size="14" fill="%23C89B94" text-anchor="middle" letter-spacing="2">METT MARBELLA</text><text x="200" y="220" font-family="Calibri" font-size="11" fill="rgba(255,255,255,0.5)" text-anchor="middle">' + c.fmt.toUpperCase() + ' \u00B7 ' + c.offer.toUpperCase() + '</text></svg>'
-      );
-      var playOverlay = isVideo
-        ? '<div class="creative-play"><svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="17" fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/><path d="M14 12 L25 18 L14 24 Z" fill="#fff"/></svg></div>'
-        : '';
-      html += '<div class="creative">' +
-        '<div class="creative-thumb-wrap">' +
-          '<a href="' + c.permalink + '" target="_blank" rel="noopener" class="creative-thumb-link">' +
-            '<img class="creative-thumb" src="' + c.thumb + '" alt="' + c.fmt + ' creative" ' +
-              'onerror="this.onerror=null;this.src=\'' + fallbackSvg + '\';" ' +
-              'loading="lazy" referrerpolicy="no-referrer"/>' +
-            playOverlay +
-            '<div class="creative-rank-badge"><strong>' + rank + '</strong></div>' +
-            '<div class="creative-fmt-badge">' + c.fmt + '</div>' +
-          '</a>' +
-        '</div>' +
-        '<div class="creative-info">' +
-          '<div class="creative-info-head">' +
-            '<div class="creative-offer-name">' + c.offer + '</div>' +
-            '<div class="creative-meta">' + c.name + '</div>' +
-          '</div>' +
-          '<div class="creative-stats-row">' +
-            '<div class="creative-stat"><div class="s-label">Spend</div><div class="s-val"><span class="cur">\u20AC</span>' + c.spend + '</div></div>' +
-            '<div class="creative-stat"><div class="s-label">Impressions</div><div class="s-val">' + c.imp + '</div></div>' +
-            '<div class="creative-stat"><div class="s-label">CTR</div><div class="s-val">' + c.ctr + '</div></div>' +
-          '</div>' +
-          '<a href="' + c.permalink + '" target="_blank" rel="noopener" class="creative-link">View on Facebook \u2192</a>' +
-        '</div>' +
-      '</div>';
+
+      // SVG fallback as a data URI — built without HTML interpolation to avoid quote conflicts
+      var svgMarkup = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">' +
+        '<rect fill="#0E2340" width="400" height="400"/>' +
+        '<text x="200" y="180" font-family="Calibri" font-size="16" fill="#C89B94" text-anchor="middle" letter-spacing="2">METT MARBELLA</text>' +
+        '<text x="200" y="220" font-family="Calibri" font-size="12" fill="rgba(255,255,255,0.55)" text-anchor="middle">' +
+        c.fmt.toUpperCase() + ' \u00B7 ' + c.offer.toUpperCase() +
+        '</text></svg>';
+      var fallbackSvg = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgMarkup)));
+
+      // Build the card as DOM nodes (safer than innerHTML with attribute soup)
+      var card = document.createElement('a');
+      card.className = 'creative';
+      card.href = c.permalink;
+      card.target = '_blank';
+      card.rel = 'noopener';
+      card.title = c.offer + ' \u2014 ' + c.name;
+
+      var img = document.createElement('img');
+      img.className = 'creative-thumb';
+      img.src = c.thumb;
+      img.alt = c.fmt + ' creative';
+      img.loading = 'lazy';
+      img.referrerPolicy = 'no-referrer';
+      img.onerror = (function(fb) {
+        return function() { this.onerror = null; this.src = fb; };
+      })(fallbackSvg);
+      card.appendChild(img);
+
+      var overlay = document.createElement('div');
+      overlay.className = 'creative-overlay';
+      card.appendChild(overlay);
+
+      if (isVideo) {
+        var play = document.createElement('div');
+        play.className = 'creative-play';
+        play.innerHTML = '<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="19" fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/><path d="M16 13 L28 20 L16 27 Z" fill="#fff"/></svg>';
+        card.appendChild(play);
+      }
+
+      var rankBadge = document.createElement('div');
+      rankBadge.className = 'creative-rank-badge';
+      rankBadge.innerHTML = '<strong>' + rank + '</strong>';
+      card.appendChild(rankBadge);
+
+      var fmtBadge = document.createElement('div');
+      fmtBadge.className = 'creative-fmt-badge';
+      fmtBadge.textContent = c.fmt;
+      card.appendChild(fmtBadge);
+
+      var content = document.createElement('div');
+      content.className = 'creative-content';
+      content.innerHTML =
+        '<div class="creative-offer-name">' + c.offer + '</div>' +
+        '<div class="creative-meta">' + c.name + '</div>' +
+        '<div class="creative-stats-row">' +
+          '<div class="creative-stat"><div class="s-label">Spend</div><div class="s-val"><span class="cur">\u20AC</span>' + c.spend + '</div></div>' +
+          '<div class="creative-stat"><div class="s-label">Impr</div><div class="s-val">' + c.imp + '</div></div>' +
+          '<div class="creative-stat"><div class="s-label">CTR</div><div class="s-val">' + c.ctr + '</div></div>' +
+        '</div>';
+      card.appendChild(content);
+
+      grid.appendChild(card);
     }
-    grid.innerHTML = html;
   }
 
   // ===== FUNNEL =====
