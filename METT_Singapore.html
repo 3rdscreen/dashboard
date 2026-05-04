@@ -656,9 +656,9 @@
           <table class="data">
             <thead><tr><th>Campaign</th><th>Type</th><th class="num">Spend</th><th class="num">Bookings</th><th class="num">Revenue</th></tr></thead>
             <tbody>
-              <tr><td class="name">SEM_METT Singapore</td><td>Search (Brand)</td><td class="num" data-base="5061" data-fmt="eur">$5,061</td><td class="num" data-base="12" data-fmt="int">12</td><td class="num" data-base="11785" data-fmt="eur">$11,785</td></tr>
-              <tr><td class="name">PMAX_METT Singapore</td><td>Performance Max</td><td class="num" data-base="3005" data-fmt="eur">$3,005</td><td class="num" data-base="22" data-fmt="int">22</td><td class="num" data-base="21887" data-fmt="eur">$21,887</td></tr>
-              <tr><td class="name">SEM_Weddings</td><td>Search (Generic)</td><td class="num" data-base="85" data-fmt="eur">$85</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="0" data-fmt="eur">$0</td></tr>
+              <tr><td class="name">SEM_METT Singapore</td><td>Search (Brand)</td><td class="num" data-base="5323" data-fmt="eur">$5,323</td><td class="num" data-base="12" data-fmt="int">12</td><td class="num" data-base="11926" data-fmt="eur">$11,926</td></tr>
+              <tr><td class="name">PMAX_METT Singapore</td><td>Performance Max</td><td class="num" data-base="3118" data-fmt="eur">$3,118</td><td class="num" data-base="22" data-fmt="int">22</td><td class="num" data-base="22148" data-fmt="eur">$22,148</td></tr>
+              <tr><td class="name">SEM_Weddings</td><td>Search (Generic)</td><td class="num" data-base="143" data-fmt="eur">$143</td><td class="num" data-base="2" data-fmt="int">2</td><td class="num" data-base="1703" data-fmt="eur">$1,703</td></tr>
             </tbody>
           </table>
         </div>
@@ -1091,7 +1091,7 @@
         <h4>Where to move investment</h4>
         <ul>
           <li><strong>Increase Google PMAX budget</strong> &mdash; 22 bookings on $3,005 spend at 7.3x ROAS, the highest-leverage paid channel.</li>
-          <li><strong>Reduce SEM_METT Singapore (Brand) by ~25%</strong> &mdash; $5,061 spend for 12 bookings at 2.3x ROAS is heavy for brand keywords.</li>
+          <li><strong>Reduce SEM_METT Singapore (Brand) by ~25%</strong> &mdash; $5,323 spend for 12 bookings at 2.2x ROAS is heavy for brand keywords.</li>
           <li>Hold Meta budget at current level &mdash; Mar Tourists ad set delivers the strongest LPV volume (8,450) at $0.06 CPC.</li>
           <li>Re-allocate Page Growth spend ($387 across Mar &amp; Apr) into Website Traffic ad sets &mdash; Page Growth produced 0 LPVs.</li>
         </ul>
@@ -2000,11 +2000,17 @@
   }
 
   function applyPreset(p) {
-    var today = new Date(2026, 3, 23); // "today" fixed to data end-date
+    // Bind "today" to the last day in the data so presets always anchor to data end-date.
+    var lastDateStr = dates[dates.length - 1]; // 'YYYY-MM-DD'
+    var parts = lastDateStr.split('-');
+    var today = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+    var firstDateStr = dates[0];
+    var fParts = firstDateStr.split('-');
+    var dataStart = new Date(+fParts[0], +fParts[1] - 1, +fParts[2]);
     var s, e;
     switch (p) {
       case 'all':
-        s = new Date(2026, 2, 1); e = new Date(2026, 3, 23); break;
+        s = dataStart; e = today; break;
       case 'yesterday':
         s = addDays(today, -1); e = addDays(today, -1); break;
       case '7':
