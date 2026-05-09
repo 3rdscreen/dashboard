@@ -1676,9 +1676,9 @@ function reRenderMetaAds(){
   GEO_GROUPS2.forEach(g=>{
     const gData=byGeoCamp[g.label]||{};
     // Determine which camp types are present, in order
-    // UAE: single consolidated ALL ad set (Apr 27+); KSA/KU still split by Abaya/Pyjama
+    // UAE consolidated Apr 27, KSA consolidated May 7, KU consolidated Apr 28 — all use single 'ALL'
     const campOrder = g.label==='Catalogue' ? ['Catalogue']
-                    : g.label==='UAE' ? ['ALL']
+                    : (g.label==='UAE'||g.label==='KSA'||g.label==='KU / QA / BH') ? ['ALL']
                     : ['Abaya','Pyjama','Catalogue'];
     const presentTypes = campOrder.filter(ct=>gData[ct] && Object.keys(gData[ct]).length>0);
     if(!presentTypes.length) return;
@@ -1710,7 +1710,7 @@ function reRenderMetaAds(){
               dn=dn.replace(/_Sales_ASC.*$/i,'').trim();
               dn=dn.replace(/[_ ]Prospecting[_ ]Catalogue$/i,'').replace(/_Catalogue$/i,'').replace(/[_ ]Catalogue$/i,'').replace(/[_ ]Prospecting$/i,'').trim();
               const adGeo=detectGeo2(name);
-              const nameCT=(adGeo==='Catalogue')?'Catalogue':(adGeo==='UAE')?'ALL':detectCampType(name);
+              const nameCT=(adGeo==='Catalogue')?'Catalogue':(adGeo==='UAE'||adGeo==='KSA'||adGeo==='KU / QA / BH')?'ALL':detectCampType(name);
               return dn===r.displayName && adGeo===g.label && nameCT===ct;
             }).map(name=>(ads[name]||[]).find(x=>x.d===day)).filter(Boolean);
             if(!dayRecs.length) return;
