@@ -1625,7 +1625,8 @@ function reRenderMetaAds(){
     if(!isAdActive(baseName)) return;
     const geo=detectGeo2(name); if(!geo) return;
     // UAE consolidated to single ALL ad set on Apr 27 — render as one group, not split by creative
-    const ct = (geo==='Catalogue') ? 'Catalogue' : (geo==='UAE') ? 'ALL' : detectCampType(name);
+    // KSA consolidated May 7, KU consolidated Apr 28 — same treatment
+    const ct = (geo==='Catalogue') ? 'Catalogue' : (geo==='UAE'||geo==='KSA'||geo==='KU / QA / BH') ? 'ALL' : detectCampType(name);
     // Build display name: strip date suffix, version, copy, then strip _Meta_GEO_Sales_ASC
     // This makes 499_..._Meta_KSA_Sales_ASC and 499_..._Meta_KSA_Sales_ASC_v1 → same dn
     // while 499_..._Meta_KSA and 499_..._Meta_Ku&Qat remain DIFFERENT (handled by geo grouping)
