@@ -1913,6 +1913,30 @@
     renderMonthGrid('cal-grid-left', 'cal-title-left', startM);
     renderMonthGrid('cal-grid-right', 'cal-title-right', endM);
 
+    // Disable prev/next chevrons when navigating past data bounds
+    // Left grid shows startM, right grid shows endM (the month AFTER startM)
+    // Prev should be disabled if the month BEFORE startM has no data (i.e. all days < _dataStart)
+    // Next should be disabled if the month AFTER endM has no data (i.e. all days > _dataEnd)
+    var prevBtn = document.getElementById('cal-prev');
+    var nextBtn = document.getElementById('cal-next');
+    if (prevBtn) {
+      var prevMonthStart = new Date(startM.getFullYear(), startM.getMonth() - 1, 1);
+      var prevMonthEnd = new Date(startM.getFullYear(), startM.getMonth(), 0);
+      // If the last day of the previous month is before the data starts, disable prev
+      var noPrevData = (prevMonthEnd < _dataStart);
+      prevBtn.disabled = noPrevData;
+      prevBtn.style.opacity = noPrevData ? '0.3' : '1';
+      prevBtn.style.cursor = noPrevData ? 'not-allowed' : 'pointer';
+    }
+    if (nextBtn) {
+      var nextMonthStart = new Date(endM.getFullYear(), endM.getMonth() + 1, 1);
+      // If the first day of the next month is after the data ends, disable next
+      var noNextData = (nextMonthStart > _dataEnd);
+      nextBtn.disabled = noNextData;
+      nextBtn.style.opacity = noNextData ? '0.3' : '1';
+      nextBtn.style.cursor = noNextData ? 'not-allowed' : 'pointer';
+    }
+
     // Update selected label
     var sel = state.tempStart && state.tempEnd
       ? '<strong>' + fmtDateShort(state.tempStart) + '</strong> \u2014 <strong>' + fmtDateShort(state.tempEnd) + '</strong>'
@@ -1944,6 +1968,13 @@
 
     for (var day = 1; day <= lastDay.getDate(); day++) {
       var cellDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), day);
+      // Check if this date is within the data bounds (_dataStart .. _dataEnd)
+      // Dates outside the available data range are rendered as disabled/muted
+      var outOfBounds = (cellDate < _dataStart) || (cellDate > _dataEnd);
+      if (outOfBounds) {
+        html += '<button class="cal-day muted" disabled>' + day + '</button>';
+        continue;
+      }
       var classes = 'cal-day';
       var s = state.tempStart, e = state.tempEnd;
       if (s && isSameDay(cellDate, s)) classes += ' range-start';
@@ -2182,13 +2213,23 @@
       })(presets[i]);
     }
 
-    // Month navigation
+    // Month navigation — refuse to navigate past data bounds
     document.getElementById('cal-prev').addEventListener('click', function() {
-      state.viewMonth = new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth() - 1, 1);
+      if (this.disabled) return;
+      var candidate = new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth() - 1, 1);
+      // Don't allow navigating before the data starts (left view must show a month with data)
+      var candidateLastDay = new Date(candidate.getFullYear(), candidate.getMonth() + 1, 0);
+      if (candidateLastDay < _dataStart) return;
+      state.viewMonth = candidate;
       renderCalendar();
     });
     document.getElementById('cal-next').addEventListener('click', function() {
-      state.viewMonth = new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth() + 1, 1);
+      if (this.disabled) return;
+      var candidate = new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth() + 1, 1);
+      // Don't allow navigating past data end (right view shows candidate+1; if that's all out of bounds, refuse)
+      var rightAfterCandidate = new Date(candidate.getFullYear(), candidate.getMonth() + 1, 1);
+      if (rightAfterCandidate > _dataEnd && candidate > _dataEnd) return;
+      state.viewMonth = candidate;
       renderCalendar();
     });
 
