@@ -147,6 +147,7 @@
   .kpi .delta { margin-top: 8px; font-size: 11px; color: var(--ink-3); display: flex; align-items: center; gap: 5px; line-height: 1.3; }
   .kpi .delta .up { color: var(--success); font-weight: 700; }
   .kpi .delta .down { color: var(--danger); font-weight: 700; }
+  .kpi .kpi-note { margin-top: 8px; font-size: 10.5px; color: var(--ink-3); line-height: 1.45; font-style: italic; opacity: 0.85; }
   .kpi.hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--navy); }
 
   /* ================ SECTIONS & CARDS ================ */
@@ -786,9 +787,9 @@
       <h2>Attribution &amp; paid influence</h2>
     </div>
     <div class="kpi-grid cols-6">
-      <div class="kpi" id="kpi-attr-direct"><div class="label">Direct paid revenue</div><div class="value"><span class="cur">$</span>17,227</div><div class="delta">UTM-tagged paid sessions</div></div>
-      <div class="kpi" id="kpi-attr-chain"><div class="label">Chain referral (paid)</div><div class="value"><span class="cur">$</span>36,080</div><div class="delta">Reassigned from referral</div></div>
-      <div class="kpi" id="kpi-attr-unassigned"><div class="label">Direct/unassigned (paid)</div><div class="value"><span class="cur">$</span>7,333</div><div class="delta">Ad-driven direct &amp; unassigned</div></div>
+      <div class="kpi" id="kpi-attr-direct"><div class="label">Direct paid revenue</div><div class="value"><span class="cur">$</span>17,227</div><div class="delta">UTM-tagged paid sessions</div><div class="kpi-note">Bookings where the visitor clicked a Meta or Google ad and converted in the same session. GA4 sees the paid UTM tag and credits it directly.</div></div>
+      <div class="kpi" id="kpi-attr-chain"><div class="label">Chain referral (paid)</div><div class="value"><span class="cur">$</span>36,080</div><div class="delta">Reassigned from referral</div><div class="kpi-note">Visitors that arrived from <code>metthotelsandresorts.com</code> (the chain site) — most were originally driven there by paid ads. GA4 logs these as "referral", so we reassign them to paid.</div></div>
+      <div class="kpi" id="kpi-attr-unassigned"><div class="label">Direct/unassigned (paid)</div><div class="value"><span class="cur">$</span>7,333</div><div class="delta">Ad-driven direct &amp; unassigned</div><div class="kpi-note">Visitors who saw an ad earlier, then came back later by typing the URL or via an untagged link. GA4 buckets them as "direct" or "unassigned", but the ad started the journey.</div></div>
       <div class="kpi hero" id="kpi-attr-paidrev"><div class="label">Paid influenced revenue</div><div class="value"><span class="cur">$</span>60,640</div><div class="delta"><span class="up">82.5% of total</span></div></div>
       <div class="kpi hero" id="kpi-attr-paidbkg"><div class="label">Paid influenced bookings</div><div class="value">58</div><div class="delta"><span class="up">82.3% of bookings</span></div></div>
       <div class="kpi" id="kpi-attr-roas"><div class="label">True blended ROAS</div><div class="value">5.0<span class="unit">x</span></div>
@@ -1071,6 +1072,11 @@
           </tbody>
         </table>
       </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Device split</h3><div class="card-sub">Sessions share</div></div></div><div class="chart-wrap short"><canvas id="chart-device-split" role="img" aria-label="Device session share">Device share.</canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3>New vs returning users</h3><div class="card-sub">Audience freshness</div></div></div><div class="chart-wrap short"><canvas id="chart-new-ret" role="img" aria-label="New versus returning">New vs returning.</canvas></div></div>
     </div>
   </section>
 
@@ -1737,7 +1743,7 @@
       type: 'doughnut',
       data: {
         labels: ['Mobile', 'Desktop', 'Tablet'],
-        datasets: [{ data: [sm(14011), sm(5306), sm(208)], backgroundColor: [C.navy, C.gold, C.sand], borderColor: '#fff', borderWidth: 2 }]
+        datasets: [{ data: [sm(15377), sm(6121), sm(225)], backgroundColor: [C.navy, C.gold, C.sand], borderColor: '#fff', borderWidth: 2 }]
       },
       options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10 } } } }
     }));
@@ -1747,7 +1753,7 @@
       type: 'doughnut',
       data: {
         labels: ['New users', 'Returning'],
-        datasets: [{ data: [sm(10200), sm(3870)], backgroundColor: [C.navy, C.gold], borderColor: '#fff', borderWidth: 2 }]
+        datasets: [{ data: [sm(16539), sm(2377)], backgroundColor: [C.navy, C.gold], borderColor: '#fff', borderWidth: 2 }]
       },
       options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10 } } } }
     }));
