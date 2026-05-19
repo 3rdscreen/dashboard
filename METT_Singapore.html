@@ -223,6 +223,11 @@
   .creative-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .creative { position: relative; aspect-ratio: 1 / 1; background: var(--navy); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
   .creative:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .creative-base { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 0; overflow: hidden; }
+  .creative-base::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.15) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(255,255,255,0.08) 0%, transparent 50%); pointer-events: none; }
+  .creative-base-icon { font-size: 64px; color: rgba(255,255,255,0.85); line-height: 1; margin-bottom: 14px; text-shadow: 0 2px 12px rgba(0,0,0,0.3); z-index: 1; }
+  .creative-base-offer { color: rgba(255,255,255,0.95); font-size: 15px; font-weight: 700; letter-spacing: 0.5px; text-align: center; padding: 0 16px; text-shadow: 0 1px 4px rgba(0,0,0,0.4); z-index: 1; }
+  .creative-base-fmt { position: absolute; top: 14px; left: 14px; color: rgba(255,255,255,0.6); font-size: 9px; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; z-index: 1; }
   .creative-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 1; }
   .creative-fail { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; z-index: 1; background: linear-gradient(135deg, var(--navy) 0%, #0a1828 100%); }
   /* Badges */
@@ -408,8 +413,8 @@
       </div>
     </div>
     <div class="meta-right">
-      <div class="live-pill"><span class="dot"></span> Live &middot; Mar 1 &ndash; May 10, 2026</div>
-      <div class="timestamp" id="timestamp">Updated 13 May 2026 &middot; 17:30 UTC</div>
+      <div class="live-pill"><span class="dot"></span> Live &middot; Mar 1 &ndash; May 17, 2026</div>
+      <div class="timestamp" id="timestamp">Updated 19 May 2026 &middot; 06:00 UTC</div>
       <div class="sources">
         <span class="src-chip">GA4</span>
         <span class="src-chip">GA4 Ecommerce</span>
@@ -430,7 +435,7 @@
       </div>
       <div class="date-meta">
         <span class="date-eyebrow">Date range</span>
-        <span class="date-value" id="date-value">1 Mar &ndash; 10 May 2026</span>
+        <span class="date-value" id="date-value">1 Mar &ndash; 17 May 2026</span>
       </div>
       <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M2 4l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -446,7 +451,7 @@
     <div class="date-popover" id="date-popover" role="dialog" aria-label="Select date range">
       <aside class="presets">
         <div class="preset-header">Quick select</div>
-        <button class="preset-item active" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">Mar 1 &ndash; May 10</span></button>
+        <button class="preset-item active" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">Mar 1 &ndash; May 17</span></button>
         <button class="preset-item" data-preset="yesterday" type="button"><span class="preset-radio"></span>Yesterday</button>
         <button class="preset-item" data-preset="7" type="button"><span class="preset-radio"></span>Last 7 days</button>
         <button class="preset-item" data-preset="14" type="button"><span class="preset-radio"></span>Last 14 days</button>
@@ -494,7 +499,7 @@
 
   <div class="filter-indicator">
     <span class="bar"></span>
-    <span id="filter-indicator">Showing all data &middot; 1 Mar &ndash; 10 May 2026</span>
+    <span id="filter-indicator">Showing all data &middot; 1 Mar &ndash; 17 May 2026</span>
   </div>
 
   <!-- ===================== TABS ===================== -->
@@ -520,48 +525,48 @@
     <div class="kpi-grid cols-9">
       <div class="kpi hero" id="kpi-total-rev">
         <div class="label">Total revenue</div>
-        <div class="value"><span class="cur">$</span>86,673</div>
-        <div class="delta"><span class="date-range-label">71 days</span> &middot; 90 bookings</div>
+        <div class="value"><span class="cur">$</span>100,960</div>
+        <div class="delta"><span class="date-range-label">78 days</span> &middot; 105 bookings</div>
       </div>
       <div class="kpi" id="kpi-total-bkg">
         <div class="label">Total bookings</div>
-        <div class="value">90</div>
+        <div class="value">105</div>
         <div class="delta">GA4 ecommerce purchases</div>
       </div>
       <div class="kpi hero" id="kpi-paid-rev">
         <div class="label">Paid media revenue</div>
-        <div class="value"><span class="cur">$</span>71,505</div>
+        <div class="value"><span class="cur">$</span>83,292</div>
         <div class="delta"><span class="up">Driving 82.5% of revenue</span></div>
       </div>
       <div class="kpi" id="kpi-paid-bkg">
         <div class="label">Paid bookings</div>
-        <div class="value">74</div>
+        <div class="value">86</div>
         <div class="delta"><span class="up">82.3% of all bookings</span></div>
       </div>
       <div class="kpi" id="kpi-paid-spend">
         <div class="label">Total paid spend</div>
-        <div class="value"><span class="cur">$</span>14,071</div>
-        <div class="delta">Meta $4,128 &middot; Google $9,943</div>
+        <div class="value"><span class="cur">$</span>15,744</div>
+        <div class="delta">Meta $4,679 &middot; Google $11,065</div>
       </div>
       <div class="kpi hero" id="kpi-roas">
         <div class="label">Blended ROAS</div>
-        <div class="value">5.1<span class="unit">x</span></div>
+        <div class="value">5.3<span class="unit">x</span></div>
         <div class="delta"><span class="up">Growth-phase return</span></div>
       </div>
       <div class="kpi" id="kpi-cpb">
         <div class="label">Cost per booking</div>
-        <div class="value"><span class="cur">$</span>190</div>
+        <div class="value"><span class="cur">$</span>183</div>
         <div class="delta">Paid spend / paid bookings</div>
       </div>
       <div class="kpi" id="kpi-avg-val">
         <div class="label">Avg booking value</div>
-        <div class="value"><span class="cur">$</span>966</div>
+        <div class="value"><span class="cur">$</span>969</div>
         <div class="delta">Luxury market positioning</div>
       </div>
       <div class="kpi" id="kpi-cvr">
         <div class="label">Website conversion rate</div>
-        <div class="value">0.41<span class="unit">%</span></div>
-        <div class="delta">90 bookings / 21,759 sessions</div>
+        <div class="value">0.45<span class="unit">%</span></div>
+        <div class="delta">105 bookings / 23,540 sessions</div>
       </div>
     </div>
 
@@ -586,10 +591,10 @@
         <div class="card-sub">Site-wide totals &middot; full period &middot; channel-group breakdown ranked by sessions</div></div></div>
 
       <div class="traffic-totals" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;padding:14px 16px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;">
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Users</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="16876" data-fmt="int">16,876</div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="21759" data-fmt="int">21,759</div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Engaged sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="12338" data-fmt="int">12,338</div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Avg time/session</div><div style="font-size:22px;font-weight:700;color:var(--ink);">39s</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Users</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="18132" data-fmt="int">18,132</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="23540" data-fmt="int">23,540</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Engaged sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="13618" data-fmt="int">13,618</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Avg time/session</div><div style="font-size:22px;font-weight:700;color:var(--ink);">40s</div></div>
       </div>
 
       <div class="table-wrap">
@@ -603,15 +608,15 @@
             <th class="num">Views/session</th>
           </tr></thead>
           <tbody>
-            <tr><td class="name">Referral</td><td class="num" data-base="3898" data-fmt="int">3,898</td><td class="num" data-base="3787" data-fmt="int">3,787</td><td class="num" data-base="5424" data-fmt="int">5,424</td><td class="num" data-base="3983" data-fmt="int">3,983</td><td class="num">73.4%</td><td class="num">1m 01s</td><td class="num">1.39</td><td class="num"><span class="pill good">26.6%</span></td><td class="num">2.30</td></tr>
-            <tr><td class="name">Unassigned</td><td class="num" data-base="3510" data-fmt="int">3,510</td><td class="num" data-base="3399" data-fmt="int">3,399</td><td class="num" data-base="3646" data-fmt="int">3,646</td><td class="num" data-base="1044" data-fmt="int">1,044</td><td class="num">28.6%</td><td class="num">13s</td><td class="num">1.04</td><td class="num"><span class="pill danger">71.4%</span></td><td class="num">1.42</td></tr>
-            <tr><td class="name">Direct</td><td class="num" data-base="2542" data-fmt="int">2,542</td><td class="num" data-base="2502" data-fmt="int">2,502</td><td class="num" data-base="3147" data-fmt="int">3,147</td><td class="num" data-base="2038" data-fmt="int">2,038</td><td class="num">64.8%</td><td class="num">42s</td><td class="num">1.24</td><td class="num"><span class="pill warn">35.2%</span></td><td class="num">2.36</td></tr>
-            <tr><td class="name">Organic Search</td><td class="num" data-base="2298" data-fmt="int">2,298</td><td class="num" data-base="1940" data-fmt="int">1,940</td><td class="num" data-base="3419" data-fmt="int">3,419</td><td class="num" data-base="2464" data-fmt="int">2,464</td><td class="num">72.1%</td><td class="num">52s</td><td class="num">1.49</td><td class="num"><span class="pill good">27.9%</span></td><td class="num">2.60</td></tr>
-            <tr><td class="name">Paid Search</td><td class="num" data-base="2141" data-fmt="int">2,141</td><td class="num" data-base="1965" data-fmt="int">1,965</td><td class="num" data-base="2473" data-fmt="int">2,473</td><td class="num" data-base="1697" data-fmt="int">1,697</td><td class="num">68.6%</td><td class="num">35s</td><td class="num">1.16</td><td class="num"><span class="pill warn">31.4%</span></td><td class="num">2.42</td></tr>
-            <tr><td class="name">Organic Social</td><td class="num" data-base="1945" data-fmt="int">1,945</td><td class="num" data-base="1932" data-fmt="int">1,932</td><td class="num" data-base="1993" data-fmt="int">1,993</td><td class="num" data-base="186" data-fmt="int">186</td><td class="num">9.3%</td><td class="num">1s</td><td class="num">1.02</td><td class="num"><span class="pill danger">90.7%</span></td><td class="num">1.10</td></tr>
-            <tr><td class="name">Cross-network</td><td class="num" data-base="1100" data-fmt="int">1,100</td><td class="num" data-base="933" data-fmt="int">933</td><td class="num" data-base="1429" data-fmt="int">1,429</td><td class="num" data-base="960" data-fmt="int">960</td><td class="num">67.2%</td><td class="num">42s</td><td class="num">1.30</td><td class="num"><span class="pill warn">32.8%</span></td><td class="num">2.46</td></tr>
-            <tr><td class="name">Email</td><td class="num" data-base="35" data-fmt="int">35</td><td class="num" data-base="24" data-fmt="int">24</td><td class="num" data-base="52" data-fmt="int">52</td><td class="num" data-base="25" data-fmt="int">25</td><td class="num">48.1%</td><td class="num">32s</td><td class="num">1.49</td><td class="num"><span class="pill danger">51.9%</span></td><td class="num">1.96</td></tr>
-            <tr><td class="name">Paid Social</td><td class="num" data-base="9" data-fmt="int">9</td><td class="num" data-base="9" data-fmt="int">9</td><td class="num" data-base="10" data-fmt="int">10</td><td class="num" data-base="4" data-fmt="int">4</td><td class="num">40.0%</td><td class="num">22s</td><td class="num">1.11</td><td class="num"><span class="pill danger">60.0%</span></td><td class="num">1.10</td></tr>
+            <tr><td class="name">Referral</td><td class="num" data-base="4288" data-fmt="int">4,288</td><td class="num" data-base="4162" data-fmt="int">4,162</td><td class="num" data-base="5975" data-fmt="int">5,975</td><td class="num" data-base="4406" data-fmt="int">4,406</td><td class="num">73.7%</td><td class="num">1m 03s</td><td class="num">1.39</td><td class="num"><span class="pill warn">26.3%</span></td><td class="num">2.34</td></tr>
+            <tr><td class="name">Unassigned</td><td class="num" data-base="3738" data-fmt="int">3,738</td><td class="num" data-base="3620" data-fmt="int">3,620</td><td class="num" data-base="3924" data-fmt="int">3,924</td><td class="num" data-base="1177" data-fmt="int">1,177</td><td class="num">30.0%</td><td class="num">13s</td><td class="num">1.05</td><td class="num"><span class="pill danger">70.0%</span></td><td class="num">1.43</td></tr>
+            <tr><td class="name">Direct</td><td class="num" data-base="2729" data-fmt="int">2,729</td><td class="num" data-base="2684" data-fmt="int">2,684</td><td class="num" data-base="3378" data-fmt="int">3,378</td><td class="num" data-base="2185" data-fmt="int">2,185</td><td class="num">64.7%</td><td class="num">42s</td><td class="num">1.24</td><td class="num"><span class="pill warn">35.3%</span></td><td class="num">2.36</td></tr>
+            <tr><td class="name">Organic Search</td><td class="num" data-base="2492" data-fmt="int">2,492</td><td class="num" data-base="2120" data-fmt="int">2,120</td><td class="num" data-base="3750" data-fmt="int">3,750</td><td class="num" data-base="2671" data-fmt="int">2,671</td><td class="num">71.2%</td><td class="num">51s</td><td class="num">1.50</td><td class="num"><span class="pill warn">28.8%</span></td><td class="num">2.58</td></tr>
+            <tr><td class="name">Paid Search</td><td class="num" data-base="2304" data-fmt="int">2,304</td><td class="num" data-base="2111" data-fmt="int">2,111</td><td class="num" data-base="2682" data-fmt="int">2,682</td><td class="num" data-base="1849" data-fmt="int">1,849</td><td class="num">68.9%</td><td class="num">34s</td><td class="num">1.16</td><td class="num"><span class="pill warn">31.1%</span></td><td class="num">2.41</td></tr>
+            <tr><td class="name">Organic Social</td><td class="num" data-base="1948" data-fmt="int">1,948</td><td class="num" data-base="1935" data-fmt="int">1,935</td><td class="num" data-base="1999" data-fmt="int">1,999</td><td class="num" data-base="189" data-fmt="int">189</td><td class="num">9.5%</td><td class="num">1s</td><td class="num">1.03</td><td class="num"><span class="pill danger">90.5%</span></td><td class="num">1.10</td></tr>
+            <tr><td class="name">Cross-network</td><td class="num" data-base="1247" data-fmt="int">1,247</td><td class="num" data-base="1066" data-fmt="int">1,066</td><td class="num" data-base="1615" data-fmt="int">1,615</td><td class="num" data-base="1103" data-fmt="int">1,103</td><td class="num">68.3%</td><td class="num">42s</td><td class="num">1.30</td><td class="num"><span class="pill warn">31.7%</span></td><td class="num">2.46</td></tr>
+            <tr><td class="name">Email</td><td class="num" data-base="36" data-fmt="int">36</td><td class="num" data-base="25" data-fmt="int">25</td><td class="num" data-base="55" data-fmt="int">55</td><td class="num" data-base="28" data-fmt="int">28</td><td class="num">50.9%</td><td class="num">31s</td><td class="num">1.53</td><td class="num"><span class="pill danger">49.1%</span></td><td class="num">1.96</td></tr>
+            <tr><td class="name">Paid Social</td><td class="num" data-base="10" data-fmt="int">10</td><td class="num" data-base="10" data-fmt="int">10</td><td class="num" data-base="11" data-fmt="int">11</td><td class="num" data-base="4" data-fmt="int">4</td><td class="num">36.4%</td><td class="num">20s</td><td class="num">1.10</td><td class="num"><span class="pill danger">63.6%</span></td><td class="num">1.09</td></tr>
             <tr><td class="name">Paid Other</td><td class="num" data-base="2" data-fmt="int">2</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="4" data-fmt="int">4</td><td class="num" data-base="2" data-fmt="int">2</td><td class="num">50.0%</td><td class="num">17s</td><td class="num">2.00</td><td class="num"><span class="pill danger">50.0%</span></td><td class="num">1.00</td></tr>
           </tbody>
         </table>
@@ -673,10 +678,10 @@
 
     <div class="section-label">Google Ads &middot; high-intent demand capture</div>
     <div class="kpi-grid cols-4">
-      <div class="kpi hero" id="kpi-g-spend"><div class="label">Spend</div><div class="value"><span class="cur">$</span>9,943</div><div class="delta"><span class="g-period">71 days</span> &middot; USD</div></div>
-      <div class="kpi" id="kpi-g-bookings"><div class="label">Bookings</div><div class="value">44</div><div class="delta"><span class="up">Re-attributed</span></div></div>
-      <div class="kpi" id="kpi-g-revenue"><div class="label">Revenue</div><div class="value"><span class="cur">$</span>42,188</div><div class="delta"><span class="up"><span class="g-roas-text">4.2x</span> ROAS</span></div></div>
-      <div class="kpi" id="kpi-g-clicks"><div class="label">Clicks</div><div class="value">22,793</div><div class="delta"><span class="g-clicks-meta">CTR 3.79% &middot; CPC $0.44</span></div></div>
+      <div class="kpi hero" id="kpi-g-spend"><div class="label">Spend</div><div class="value"><span class="cur">$</span>11,065</div><div class="delta"><span class="g-period">78 days</span> &middot; USD</div></div>
+      <div class="kpi" id="kpi-g-bookings"><div class="label">Bookings</div><div class="value">51</div><div class="delta"><span class="up">Re-attributed</span></div></div>
+      <div class="kpi" id="kpi-g-revenue"><div class="label">Revenue</div><div class="value"><span class="cur">$</span>49,142</div><div class="delta"><span class="up"><span class="g-roas-text">4.4x</span> ROAS</span></div></div>
+      <div class="kpi" id="kpi-g-clicks"><div class="label">Clicks</div><div class="value">24,650</div><div class="delta"><span class="g-clicks-meta">CTR 3.64% &middot; CPC $0.45</span></div></div>
     </div>
 
     <div class="grid-2">
@@ -686,9 +691,9 @@
           <table class="data">
             <thead><tr><th>Campaign</th><th>Type</th><th class="num">Spend</th><th class="num">Bookings</th><th class="num">Revenue</th></tr></thead>
             <tbody>
-              <tr><td class="name">SEM_METT Singapore</td><td>Search (Brand)</td><td class="num" data-base="6174" data-fmt="eur">$6,174</td><td class="num" data-base="15" data-fmt="int">15</td><td class="num" data-base="14331" data-fmt="eur">$14,331</td></tr>
-              <tr><td class="name">PMAX_METT Singapore</td><td>Performance Max</td><td class="num" data-base="3666" data-fmt="eur">$3,666</td><td class="num" data-base="27" data-fmt="int">27</td><td class="num" data-base="26615" data-fmt="eur">$26,615</td></tr>
-              <tr><td class="name">SEM_Weddings</td><td>Search (Generic)</td><td class="num" data-base="104" data-fmt="eur">$104</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="0" data-fmt="eur">$0</td></tr>
+              <tr><td class="name">SEM_METT Singapore</td><td>Search (Brand)</td><td class="num" data-base="6871" data-fmt="eur">$6,871</td><td class="num" data-base="17" data-fmt="int">17</td><td class="num" data-base="16693" data-fmt="eur">$16,693</td></tr>
+              <tr><td class="name">PMAX_METT Singapore</td><td>Performance Max</td><td class="num" data-base="4080" data-fmt="eur">$4,080</td><td class="num" data-base="31" data-fmt="int">31</td><td class="num" data-base="31002" data-fmt="eur">$31,002</td></tr>
+              <tr><td class="name">SEM_Weddings</td><td>Search (Generic)</td><td class="num" data-base="116" data-fmt="eur">$116</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="0" data-fmt="eur">$0</td></tr>
             </tbody>
           </table>
         </div>
@@ -701,10 +706,10 @@
 
     <div class="section-label">Meta Ads &middot; demand generation &amp; assisted booking</div>
     <div class="kpi-grid cols-4">
-      <div class="kpi hero" id="kpi-m-spend"><div class="label">Spend</div><div class="value"><span class="cur">$</span>4,128</div><div class="delta"><span class="m-period">71 days</span> &middot; USD</div></div>
-      <div class="kpi" id="kpi-m-bookings"><div class="label">Bookings</div><div class="value">30</div><div class="delta"><span class="up">Re-attributed</span></div></div>
-      <div class="kpi" id="kpi-m-revenue"><div class="label">Revenue</div><div class="value"><span class="cur">$</span>29,317</div><div class="delta"><span class="up"><span class="m-roas-text">7.1x</span> ROAS</span></div></div>
-      <div class="kpi" id="kpi-m-lpv"><div class="label">Landing page views</div><div class="value">41,235</div><div class="delta"><span class="m-lpv-meta">CTR 1.37% &middot; CPC $0.10</span></div></div>
+      <div class="kpi hero" id="kpi-m-spend"><div class="label">Spend</div><div class="value"><span class="cur">$</span>4,679</div><div class="delta"><span class="m-period">78 days</span> &middot; USD</div></div>
+      <div class="kpi" id="kpi-m-bookings"><div class="label">Bookings</div><div class="value">35</div><div class="delta"><span class="up">Re-attributed</span></div></div>
+      <div class="kpi" id="kpi-m-revenue"><div class="label">Revenue</div><div class="value"><span class="cur">$</span>34,150</div><div class="delta"><span class="up"><span class="m-roas-text">7.3x</span> ROAS</span></div></div>
+      <div class="kpi" id="kpi-m-lpv"><div class="label">Landing page views</div><div class="value">44,294</div><div class="delta"><span class="m-lpv-meta">CTR 1.36% &middot; CPC $0.11</span></div></div>
     </div>
 
     <div class="card">
@@ -737,11 +742,11 @@
     </div>
 
     <div class="kpi-grid cols-6">
-      <div class="kpi hero"><div class="label">Total offer revenue</div><div class="value"><span class="cur">$</span>52,788</div><div class="delta">60.9% of total</div></div>
-      <div class="kpi"><div class="label">Offer bookings</div><div class="value">55</div><div class="delta">61.1% of bookings</div></div>
+      <div class="kpi hero"><div class="label">Total offer revenue</div><div class="value"><span class="cur">$</span>61,488</div><div class="delta">60.9% of total</div></div>
+      <div class="kpi"><div class="label">Offer bookings</div><div class="value">63</div><div class="delta">60.0% of bookings</div></div>
       <div class="kpi"><div class="label">Offer ROAS</div><div class="value">12.5<span class="unit">x</span></div><div class="delta"><span class="up">Strong return</span></div></div>
-      <div class="kpi"><div class="label">Cost per offer bkg</div><div class="value"><span class="cur">$</span>77</div><div class="delta">Efficient acquisition</div></div>
-      <div class="kpi"><div class="label">Best offer</div><div class="value" style="font-size: 18px;">Plan Ahead</div><div class="delta">$19,229 &middot; 20 bkg</div></div>
+      <div class="kpi"><div class="label">Cost per offer bkg</div><div class="value"><span class="cur">$</span>78</div><div class="delta">Efficient acquisition</div></div>
+      <div class="kpi"><div class="label">Best offer</div><div class="value" style="font-size: 18px;">Plan Ahead</div><div class="delta">$22,399 &middot; 23 bkg</div></div>
       <div class="kpi"><div class="label">Contribution %</div><div class="value">60.9<span class="unit">%</span></div><div class="delta">Of total revenue</div></div>
     </div>
 
@@ -753,12 +758,12 @@
             <tr><th>Offer</th><th>Channel</th><th class="num">Spend</th><th class="num">Revenue</th><th class="num">Bookings</th><th class="num">ROAS</th><th class="num">CPB</th><th>Landing page</th></tr>
           </thead>
           <tbody>
-            <tr><td class="name">Plan Ahead Your Stay</td><td>Google PMAX + Meta</td><td class="num" data-base="2594" data-fmt="eur">$2,594</td><td class="num" data-base="19229" data-fmt="eur">$19,229</td><td class="num" data-base="20" data-fmt="int">20</td><td class="num"><span class="pill good">7.4x</span></td><td class="num">$130</td><td>/singapore/offers/plan-ahead-your-stay-at-mett-singapore/</td></tr>
-            <tr><td class="name">Staycation The METT Way</td><td>Meta Ads (Locals/RTG)</td><td class="num" data-base="531" data-fmt="eur">$531</td><td class="num" data-base="13313" data-fmt="eur">$13,313</td><td class="num" data-base="14" data-fmt="int">14</td><td class="num"><span class="pill good">25.1x</span></td><td class="num">$38</td><td>/singapore/offers/staycation-the-mett-way-2/</td></tr>
-            <tr><td class="name">Stay Longer On Us</td><td>Meta + Email</td><td class="num" data-base="377" data-fmt="eur">$377</td><td class="num" data-base="9060" data-fmt="eur">$9,060</td><td class="num" data-base="9" data-fmt="int">9</td><td class="num"><span class="pill good">24.0x</span></td><td class="num">$42</td><td>/singapore/offers/stay-longer-on-us/</td></tr>
-            <tr><td class="name">The Longevity Suite (Wellness)</td><td>Meta + Organic</td><td class="num" data-base="448" data-fmt="eur">$448</td><td class="num" data-base="7950" data-fmt="eur">$7,950</td><td class="num" data-base="8" data-fmt="int">8</td><td class="num"><span class="pill good">17.7x</span></td><td class="num">$56</td><td>/singapore/the-longevity-suite/</td></tr>
-            <tr><td class="name">CNY + Weddings (Seasonal)</td><td>Meta Ads</td><td class="num" data-base="259" data-fmt="eur">$259</td><td class="num" data-base="3236" data-fmt="eur">$3,236</td><td class="num" data-base="4" data-fmt="int">4</td><td class="num"><span class="pill good">12.5x</span></td><td class="num">$65</td><td>/singapore/events/</td></tr>
-            <tr class="tot-row"><td colspan="2">Total offers</td><td class="num">$4,209</td><td class="num">$52,788</td><td class="num">55</td><td class="num">12.5x</td><td class="num">$77</td><td>&mdash;</td></tr>
+            <tr><td class="name">Plan Ahead Your Stay</td><td>Google PMAX + Meta</td><td class="num" data-base="3022" data-fmt="eur">$3,022</td><td class="num" data-base="22399" data-fmt="eur">$22,399</td><td class="num" data-base="23" data-fmt="int">23</td><td class="num"><span class="pill good">7.4x</span></td><td class="num">$131</td><td>/singapore/offers/plan-ahead-your-stay-at-mett-singapore/</td></tr>
+            <tr><td class="name">Staycation The METT Way</td><td>Meta Ads (Locals/RTG)</td><td class="num" data-base="619" data-fmt="eur">$619</td><td class="num" data-base="15507" data-fmt="eur">$15,507</td><td class="num" data-base="16" data-fmt="int">16</td><td class="num"><span class="pill good">25.1x</span></td><td class="num">$39</td><td>/singapore/offers/staycation-the-mett-way-2/</td></tr>
+            <tr><td class="name">Stay Longer On Us</td><td>Meta + Email</td><td class="num" data-base="439" data-fmt="eur">$439</td><td class="num" data-base="10553" data-fmt="eur">$10,553</td><td class="num" data-base="10" data-fmt="int">10</td><td class="num"><span class="pill good">24.0x</span></td><td class="num">$44</td><td>/singapore/offers/stay-longer-on-us/</td></tr>
+            <tr><td class="name">The Longevity Suite (Wellness)</td><td>Meta + Organic</td><td class="num" data-base="522" data-fmt="eur">$522</td><td class="num" data-base="9260" data-fmt="eur">$9,260</td><td class="num" data-base="9" data-fmt="int">9</td><td class="num"><span class="pill good">17.7x</span></td><td class="num">$58</td><td>/singapore/the-longevity-suite/</td></tr>
+            <tr><td class="name">CNY + Weddings (Seasonal)</td><td>Meta Ads</td><td class="num" data-base="302" data-fmt="eur">$302</td><td class="num" data-base="3769" data-fmt="eur">$3,769</td><td class="num" data-base="5" data-fmt="int">5</td><td class="num"><span class="pill good">12.5x</span></td><td class="num">$60</td><td>/singapore/events/</td></tr>
+            <tr class="tot-row"><td colspan="2">Total offers</td><td class="num">$4,904</td><td class="num">$61,488</td><td class="num">63</td><td class="num">12.5x</td><td class="num">$78</td><td>&mdash;</td></tr>
           </tbody>
         </table>
       </div>
@@ -787,12 +792,12 @@
       <h2>Attribution &amp; paid influence</h2>
     </div>
     <div class="kpi-grid cols-6">
-      <div class="kpi" id="kpi-attr-direct"><div class="label">Direct paid revenue</div><div class="value"><span class="cur">$</span>17,227</div><div class="delta">UTM-tagged paid sessions</div><div class="kpi-note">Bookings where the visitor clicked a Meta or Google ad and converted in the same session. GA4 sees the paid UTM tag and credits it directly.</div></div>
-      <div class="kpi" id="kpi-attr-chain"><div class="label">Chain referral (paid)</div><div class="value"><span class="cur">$</span>36,080</div><div class="delta">Reassigned from referral</div><div class="kpi-note">Visitors that arrived from <code>metthotelsandresorts.com</code> (the chain site) — most were originally driven there by paid ads. GA4 logs these as "referral", so we reassign them to paid.</div></div>
-      <div class="kpi" id="kpi-attr-unassigned"><div class="label">Direct/unassigned (paid)</div><div class="value"><span class="cur">$</span>7,333</div><div class="delta">Ad-driven direct &amp; unassigned</div><div class="kpi-note">Visitors who saw an ad earlier, then came back later by typing the URL or via an untagged link. GA4 buckets them as "direct" or "unassigned", but the ad started the journey.</div></div>
-      <div class="kpi hero" id="kpi-attr-paidrev"><div class="label">Paid influenced revenue</div><div class="value"><span class="cur">$</span>60,640</div><div class="delta"><span class="up">82.5% of total</span></div></div>
-      <div class="kpi hero" id="kpi-attr-paidbkg"><div class="label">Paid influenced bookings</div><div class="value">58</div><div class="delta"><span class="up">82.3% of bookings</span></div></div>
-      <div class="kpi" id="kpi-attr-roas"><div class="label">True blended ROAS</div><div class="value">5.0<span class="unit">x</span></div>
+      <div class="kpi" id="kpi-attr-direct"><div class="label">Direct paid revenue</div><div class="value"><span class="cur">$</span>20,067</div><div class="delta">UTM-tagged paid sessions</div><div class="kpi-note">Bookings where the visitor clicked a Meta or Google ad and converted in the same session. GA4 sees the paid UTM tag and credits it directly.</div></div>
+      <div class="kpi" id="kpi-attr-chain"><div class="label">Chain referral (paid)</div><div class="value"><span class="cur">$</span>42,027</div><div class="delta">Reassigned from referral</div><div class="kpi-note">Visitors that arrived from <code>metthotelsandresorts.com</code> (the chain site) — most were originally driven there by paid ads. GA4 logs these as "referral", so we reassign them to paid.</div></div>
+      <div class="kpi" id="kpi-attr-unassigned"><div class="label">Direct/unassigned (paid)</div><div class="value"><span class="cur">$</span>8,542</div><div class="delta">Ad-driven direct &amp; unassigned</div><div class="kpi-note">Visitors who saw an ad earlier, then came back later by typing the URL or via an untagged link. GA4 buckets them as "direct" or "unassigned", but the ad started the journey.</div></div>
+      <div class="kpi hero" id="kpi-attr-paidrev"><div class="label">Paid influenced revenue</div><div class="value"><span class="cur">$</span>83,292</div><div class="delta"><span class="up">82.5% of total</span></div></div>
+      <div class="kpi hero" id="kpi-attr-paidbkg"><div class="label">Paid influenced bookings</div><div class="value">86</div><div class="delta"><span class="up">82.3% of bookings</span></div></div>
+      <div class="kpi" id="kpi-attr-roas"><div class="label">True blended ROAS</div><div class="value">5.3<span class="unit">x</span></div>
         <div class="delta"><span class="up">Growth-phase return</span></div></div>
     </div>
 
@@ -806,35 +811,35 @@
       <div class="paths-grid">
         <div class="path-row">
           <div class="path-chain"><span class="path-node google">Google PMAX</span><span class="path-arrow">&rarr;</span><span class="path-node direct">mett&hellip;.com</span><span class="path-arrow">&rarr;</span><span class="path-node convert">Booking</span></div>
-          <div class="path-val">$22,435</div>
-          <div class="path-pct">52 bookings &middot; 32.7%</div>
+          <div class="path-val">$26,133</div>
+          <div class="path-pct">60 bookings &middot; 32.7%</div>
         </div>
         <div class="path-row">
           <div class="path-chain"><span class="path-node meta">Meta Ads</span><span class="path-arrow">&rarr;</span><span class="path-node direct">mett&hellip;.com</span><span class="path-arrow">&rarr;</span><span class="path-node convert">Booking</span></div>
-          <div class="path-val">$18,356</div>
-          <div class="path-pct">43 bookings &middot; 26.7%</div>
+          <div class="path-val">$21,382</div>
+          <div class="path-pct">50 bookings &middot; 26.7%</div>
         </div>
         <div class="path-row">
           <div class="path-chain"><span class="path-node google">Google PMAX</span><span class="path-arrow">&rarr;</span><span class="path-node convert">Booking</span></div>
-          <div class="path-val">$11,217</div>
-          <div class="path-pct">24 bookings &middot; 16.4%</div>
+          <div class="path-val">$13,066</div>
+          <div class="path-pct">28 bookings &middot; 16.4%</div>
         </div>
         <div class="path-row">
           <div class="path-chain"><span class="path-node meta">Meta via Triptease</span><span class="path-arrow">&rarr;</span><span class="path-node convert">Booking</span></div>
-          <div class="path-val">$4,499</div>
-          <div class="path-pct">11 bookings &middot; 6.6%</div>
+          <div class="path-val">$5,241</div>
+          <div class="path-pct">13 bookings &middot; 6.6%</div>
         </div>
         <div class="path-row">
           <div class="path-chain"><span class="path-node google">Google SEM</span><span class="path-arrow">&rarr;</span><span class="path-node convert">Booking</span></div>
-          <div class="path-val">$3,480</div>
-          <div class="path-pct">9 bookings &middot; 5.0%</div>
+          <div class="path-val">$4,054</div>
+          <div class="path-pct">10 bookings &middot; 5.0%</div>
         </div>
       </div>
     </div>
 
     <div class="insight">
       <div class="insight-mark">&ldquo;</div>
-      <p>We do not evaluate each channel in isolation. <em>Paid media is measured across the full booking journey, including sessions that GA4 misclassifies as Referral or Direct after the booking engine redirect.</em> The <code>metthotelsandresorts.com</code> referral alone carries $38,580 of booking revenue that is overwhelmingly paid-originated &mdash; reassigning it correctly moves paid's share from 0.3% to <strong>82.5%</strong>.</p>
+      <p>We do not evaluate each channel in isolation. <em>Paid media is measured across the full booking journey, including sessions that GA4 misclassifies as Referral or Direct after the booking engine redirect.</em> The <code>metthotelsandresorts.com</code> referral alone carries $44,940 of booking revenue that is overwhelmingly paid-originated &mdash; reassigning it correctly moves paid's share from 0.3% to <strong>82.5%</strong>.</p>
     </div>
   </section>
 
@@ -881,150 +886,18 @@
         <table class="data">
           <thead><tr><th>Country</th><th>City</th><th class="num">Users</th><th class="num">Sessions</th><th class="num">Engagement</th><th class="num">Avg time/session</th><th class="num">Bounce rate</th><th class="num">Bookings</th><th class="num">Revenue</th><th class="num">CVR</th></tr></thead>
           <tbody>
-              <tr>
-                <td class="name">Singapore</td>
-                <td>Singapore</td>
-                <td class="num" data-base="7442" data-fmt="int">7,442</td>
-                <td class="num" data-base="10198" data-fmt="int">10,198</td>
-                <td class="num">64.3%</td>
-                <td class="num">40s</td>
-                <td class="num"><span class="pill warn">35.7%</span></td>
-                <td class="num" data-base="25" data-fmt="int">25</td>
-                <td class="num" data-base="14727.29" data-fmt="eur">$14,727</td>
-                <td class="num"><span class="pill danger">0.25%</span></td>
-              </tr>
-              <tr>
-                <td class="name">Australia</td>
-                <td>Perth</td>
-                <td class="num" data-base="347" data-fmt="int">347</td>
-                <td class="num" data-base="425" data-fmt="int">425</td>
-                <td class="num">75.5%</td>
-                <td class="num">1m 09s</td>
-                <td class="num"><span class="pill good">24.5%</span></td>
-                <td class="num" data-base="9" data-fmt="int">9</td>
-                <td class="num" data-base="10010.22" data-fmt="eur">$10,010</td>
-                <td class="num"><span class="pill good">2.12%</span></td>
-              </tr>
-              <tr>
-                <td class="name">Australia</td>
-                <td>Sydney</td>
-                <td class="num" data-base="386" data-fmt="int">386</td>
-                <td class="num" data-base="498" data-fmt="int">498</td>
-                <td class="num">69.7%</td>
-                <td class="num">59s</td>
-                <td class="num"><span class="pill warn">30.3%</span></td>
-                <td class="num" data-base="4" data-fmt="int">4</td>
-                <td class="num" data-base="6509.0" data-fmt="eur">$6,509</td>
-                <td class="num"><span class="pill warn">0.80%</span></td>
-              </tr>
-              <tr>
-                <td class="name">Hong Kong</td>
-                <td>Hong Kong</td>
-                <td class="num" data-base="339" data-fmt="int">339</td>
-                <td class="num" data-base="518" data-fmt="int">518</td>
-                <td class="num">49.8%</td>
-                <td class="num">35s</td>
-                <td class="num"><span class="pill danger">50.2%</span></td>
-                <td class="num" data-base="3" data-fmt="int">3</td>
-                <td class="num" data-base="2194.25" data-fmt="eur">$2,194</td>
-                <td class="num"><span class="pill warn">0.58%</span></td>
-              </tr>
-              <tr>
-                <td class="name">France</td>
-                <td>Paris</td>
-                <td class="num" data-base="340" data-fmt="int">340</td>
-                <td class="num" data-base="357" data-fmt="int">357</td>
-                <td class="num">23.5%</td>
-                <td class="num">7s</td>
-                <td class="num"><span class="pill danger">76.5%</span></td>
-                <td class="num" data-base="2" data-fmt="int">2</td>
-                <td class="num" data-base="3451.8" data-fmt="eur">$3,452</td>
-                <td class="num"><span class="pill warn">0.56%</span></td>
-              </tr>
-              <tr>
-                <td class="name">Australia</td>
-                <td>Melbourne</td>
-                <td class="num" data-base="471" data-fmt="int">471</td>
-                <td class="num" data-base="575" data-fmt="int">575</td>
-                <td class="num">68.9%</td>
-                <td class="num">56s</td>
-                <td class="num"><span class="pill warn">31.1%</span></td>
-                <td class="num" data-base="2" data-fmt="int">2</td>
-                <td class="num" data-base="1665.1" data-fmt="eur">$1,665</td>
-                <td class="num"><span class="pill danger">0.35%</span></td>
-              </tr>
-              <tr>
-                <td class="name">United Kingdom</td>
-                <td>London</td>
-                <td class="num" data-base="253" data-fmt="int">253</td>
-                <td class="num" data-base="301" data-fmt="int">301</td>
-                <td class="num">72.4%</td>
-                <td class="num">38s</td>
-                <td class="num"><span class="pill warn">27.6%</span></td>
-                <td class="num" data-base="1" data-fmt="int">1</td>
-                <td class="num" data-base="498.5" data-fmt="eur">$498</td>
-                <td class="num"><span class="pill danger">0.33%</span></td>
-              </tr>
-              <tr>
-                <td class="name">United Arab Emirates</td>
-                <td>Dubai</td>
-                <td class="num" data-base="425" data-fmt="int">425</td>
-                <td class="num" data-base="469" data-fmt="int">469</td>
-                <td class="num">17.9%</td>
-                <td class="num">9s</td>
-                <td class="num"><span class="pill danger">82.1%</span></td>
-                <td class="num" data-base="0" data-fmt="int">0</td>
-                <td class="num" data-base="0.0" data-fmt="eur">$0</td>
-                <td class="num"><span class="pill danger">0.00%</span></td>
-              </tr>
-              <tr>
-                <td class="name">Malaysia</td>
-                <td>Kuala Lumpur</td>
-                <td class="num" data-base="394" data-fmt="int">394</td>
-                <td class="num" data-base="424" data-fmt="int">424</td>
-                <td class="num">30.0%</td>
-                <td class="num">16s</td>
-                <td class="num"><span class="pill danger">70.0%</span></td>
-                <td class="num" data-base="0" data-fmt="int">0</td>
-                <td class="num" data-base="0.0" data-fmt="eur">$0</td>
-                <td class="num"><span class="pill danger">0.00%</span></td>
-              </tr>
-              <tr>
-                <td class="name">France</td>
-                <td>(not set)</td>
-                <td class="num" data-base="240" data-fmt="int">240</td>
-                <td class="num" data-base="244" data-fmt="int">244</td>
-                <td class="num">15.2%</td>
-                <td class="num">3s</td>
-                <td class="num"><span class="pill danger">84.8%</span></td>
-                <td class="num" data-base="0" data-fmt="int">0</td>
-                <td class="num" data-base="0.0" data-fmt="eur">$0</td>
-                <td class="num"><span class="pill danger">0.00%</span></td>
-              </tr>
-              <tr>
-                <td class="name">United Arab Emirates</td>
-                <td>Abu Dhabi</td>
-                <td class="num" data-base="187" data-fmt="int">187</td>
-                <td class="num" data-base="196" data-fmt="int">196</td>
-                <td class="num">12.2%</td>
-                <td class="num">4s</td>
-                <td class="num"><span class="pill danger">87.8%</span></td>
-                <td class="num" data-base="0" data-fmt="int">0</td>
-                <td class="num" data-base="0.0" data-fmt="eur">$0</td>
-                <td class="num"><span class="pill danger">0.00%</span></td>
-              </tr>
-              <tr>
-                <td class="name">Australia</td>
-                <td>Brisbane</td>
-                <td class="num" data-base="168" data-fmt="int">168</td>
-                <td class="num" data-base="205" data-fmt="int">205</td>
-                <td class="num">68.8%</td>
-                <td class="num">54s</td>
-                <td class="num"><span class="pill warn">31.2%</span></td>
-                <td class="num" data-base="0" data-fmt="int">0</td>
-                <td class="num" data-base="0.0" data-fmt="eur">$0</td>
-                <td class="num"><span class="pill danger">0.00%</span></td>
-              </tr>
+              <tr><td class="name">Singapore</td><td>Singapore</td><td class="num" data-base="8142" data-fmt="int">8,142</td><td class="num" data-base="11186" data-fmt="int">11,186</td><td class="num">64.7%</td><td class="num">41s</td><td class="num"><span class="pill warn">35.3%</span></td><td class="num" data-base="33" data-fmt="int">33</td><td class="num" data-base="18096.72" data-fmt="eur">$18,097</td><td class="num"><span class="pill danger">0.30%</span></td></tr>
+              <tr><td class="name">Australia</td><td>Perth</td><td class="num" data-base="386" data-fmt="int">386</td><td class="num" data-base="479" data-fmt="int">479</td><td class="num">75.8%</td><td class="num">1m 09s</td><td class="num"><span class="pill good">24.2%</span></td><td class="num" data-base="11" data-fmt="int">11</td><td class="num" data-base="15313.44" data-fmt="eur">$15,313</td><td class="num"><span class="pill good">2.30%</span></td></tr>
+              <tr><td class="name">Australia</td><td>Sydney</td><td class="num" data-base="422" data-fmt="int">422</td><td class="num" data-base="546" data-fmt="int">546</td><td class="num">69.0%</td><td class="num">1m 00s</td><td class="num"><span class="pill warn">30.9%</span></td><td class="num" data-base="5" data-fmt="int">5</td><td class="num" data-base="7277.81" data-fmt="eur">$7,278</td><td class="num"><span class="pill warn">0.92%</span></td></tr>
+              <tr><td class="name">Australia</td><td>Melbourne</td><td class="num" data-base="499" data-fmt="int">499</td><td class="num" data-base="614" data-fmt="int">614</td><td class="num">69.7%</td><td class="num">57s</td><td class="num"><span class="pill warn">30.3%</span></td><td class="num" data-base="4" data-fmt="int">4</td><td class="num" data-base="3971.53" data-fmt="eur">$3,972</td><td class="num"><span class="pill warn">0.65%</span></td></tr>
+              <tr><td class="name">Hong Kong</td><td>Hong Kong</td><td class="num" data-base="366" data-fmt="int">366</td><td class="num" data-base="554" data-fmt="int">554</td><td class="num">51.1%</td><td class="num">37s</td><td class="num"><span class="pill danger">48.9%</span></td><td class="num" data-base="3" data-fmt="int">3</td><td class="num" data-base="2194.25" data-fmt="eur">$2,194</td><td class="num"><span class="pill warn">0.54%</span></td></tr>
+              <tr><td class="name">France</td><td>Paris</td><td class="num" data-base="342" data-fmt="int">342</td><td class="num" data-base="359" data-fmt="int">359</td><td class="num">23.7%</td><td class="num">7s</td><td class="num"><span class="pill danger">76.3%</span></td><td class="num" data-base="2" data-fmt="int">2</td><td class="num" data-base="3451.8" data-fmt="eur">$3,452</td><td class="num"><span class="pill warn">0.56%</span></td></tr>
+              <tr><td class="name">Malaysia</td><td>Kuala Lumpur</td><td class="num" data-base="428" data-fmt="int">428</td><td class="num" data-base="460" data-fmt="int">460</td><td class="num">32.0%</td><td class="num">17s</td><td class="num"><span class="pill danger">68.0%</span></td><td class="num" data-base="1" data-fmt="int">1</td><td class="num" data-base="1098.3" data-fmt="eur">$1,098</td><td class="num"><span class="pill danger">0.22%</span></td></tr>
+              <tr><td class="name">United Kingdom</td><td>London</td><td class="num" data-base="269" data-fmt="int">269</td><td class="num" data-base="322" data-fmt="int">322</td><td class="num">72.7%</td><td class="num">39s</td><td class="num"><span class="pill warn">27.3%</span></td><td class="num" data-base="1" data-fmt="int">1</td><td class="num" data-base="498.5" data-fmt="eur">$498</td><td class="num"><span class="pill danger">0.31%</span></td></tr>
+              <tr><td class="name">United Arab Emirates</td><td>Dubai</td><td class="num" data-base="429" data-fmt="int">429</td><td class="num" data-base="480" data-fmt="int">480</td><td class="num">18.5%</td><td class="num">9s</td><td class="num"><span class="pill danger">81.5%</span></td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="0.0" data-fmt="eur">$0</td><td class="num"><span class="pill danger">0.00%</span></td></tr>
+              <tr><td class="name">France</td><td>(not set)</td><td class="num" data-base="245" data-fmt="int">245</td><td class="num" data-base="250" data-fmt="int">250</td><td class="num">16.0%</td><td class="num">5s</td><td class="num"><span class="pill danger">84.0%</span></td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="0.0" data-fmt="eur">$0</td><td class="num"><span class="pill danger">0.00%</span></td></tr>
+              <tr><td class="name">United Arab Emirates</td><td>Abu Dhabi</td><td class="num" data-base="190" data-fmt="int">190</td><td class="num" data-base="199" data-fmt="int">199</td><td class="num">13.1%</td><td class="num">5s</td><td class="num"><span class="pill danger">86.9%</span></td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="0.0" data-fmt="eur">$0</td><td class="num"><span class="pill danger">0.00%</span></td></tr>
+              <tr><td class="name">Australia</td><td>Brisbane</td><td class="num" data-base="181" data-fmt="int">181</td><td class="num" data-base="218" data-fmt="int">218</td><td class="num">70.2%</td><td class="num">54s</td><td class="num"><span class="pill warn">29.8%</span></td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="0.0" data-fmt="eur">$0</td><td class="num"><span class="pill danger">0.00%</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -1049,26 +922,26 @@
       <div class="card-head"><div><h3>Market efficiency</h3><div class="card-sub">Revenue, investment, efficiency by country</div></div></div>
 
       <div class="traffic-totals" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;padding:14px 16px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;">
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="16914" data-fmt="int">16,914</div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Paid spend</div><div style="font-size:22px;font-weight:700;color:var(--ink);"><span style="font-size:14px;">$</span><span data-base="10449" data-fmt="int">10,449</span></div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Revenue</div><div style="font-size:22px;font-weight:700;color:var(--ink);"><span style="font-size:14px;">$</span><span data-base="59958" data-fmt="int">59,958</span></div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Bookings</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="65" data-fmt="int">65</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="18299" data-fmt="int">18,299</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Paid spend</div><div style="font-size:22px;font-weight:700;color:var(--ink);"><span style="font-size:14px;">$</span><span data-base="12172" data-fmt="int">12,172</span></div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Revenue</div><div style="font-size:22px;font-weight:700;color:var(--ink);"><span style="font-size:14px;">$</span><span data-base="69841" data-fmt="int">69,841</span></div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Bookings</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="77" data-fmt="int">77</div></div>
       </div>
 
       <div class="table-wrap">
         <table class="data">
           <thead><tr><th>Country</th><th class="num">Sessions</th><th class="num">Paid spend</th><th class="num">Revenue</th><th class="num">Bookings</th><th class="num">ROAS</th><th>Priority</th></tr></thead>
           <tbody>
-            <tr><td class="name">Australia</td><td class="num" data-base="2244" data-fmt="int">2,244</td><td class="num" data-base="1386.29" data-fmt="eur">$1,386</td><td class="num" data-base="21531" data-fmt="eur">$21,531</td><td class="num" data-base="18" data-fmt="int">18</td><td class="num"><span class="pill good">15.5x</span></td><td><span class="pill good">Scale</span></td></tr>
-            <tr><td class="name">Singapore</td><td class="num" data-base="9833" data-fmt="int">9,833</td><td class="num" data-base="6074.73" data-fmt="eur">$6,075</td><td class="num" data-base="14327" data-fmt="eur">$14,327</td><td class="num" data-base="22" data-fmt="int">22</td><td class="num"><span class="pill warn">2.4x</span></td><td><span class="pill warn">Maintain</span></td></tr>
-            <tr><td class="name">Malaysia</td><td class="num" data-base="1213" data-fmt="int">1,213</td><td class="num" data-base="749.6" data-fmt="eur">$750</td><td class="num" data-base="5153" data-fmt="eur">$5,153</td><td class="num" data-base="5" data-fmt="int">5</td><td class="num"><span class="pill good">6.9x</span></td><td><span class="pill warn">Maintain</span></td></tr>
-            <tr><td class="name">France</td><td class="num" data-base="1957" data-fmt="int">1,957</td><td class="num" data-base="1209.27" data-fmt="eur">$1,209</td><td class="num" data-base="4828" data-fmt="eur">$4,828</td><td class="num" data-base="4" data-fmt="int">4</td><td class="num"><span class="pill warn">4.0x</span></td><td><span class="pill warn">Maintain</span></td></tr>
-            <tr><td class="name">Switzerland</td><td class="num" data-base="208" data-fmt="int">208</td><td class="num" data-base="128.21" data-fmt="eur">$128</td><td class="num" data-base="3549" data-fmt="eur">$3,549</td><td class="num" data-base="4" data-fmt="int">4</td><td class="num"><span class="pill good">27.7x</span></td><td><span class="pill warn">Maintain</span></td></tr>
-            <tr><td class="name">Indonesia</td><td class="num" data-base="375" data-fmt="int">375</td><td class="num" data-base="231.65" data-fmt="eur">$232</td><td class="num" data-base="3168" data-fmt="eur">$3,168</td><td class="num" data-base="5" data-fmt="int">5</td><td class="num"><span class="pill good">13.7x</span></td><td><span class="pill warn">Maintain</span></td></tr>
-            <tr><td class="name">Hong Kong</td><td class="num" data-base="586" data-fmt="int">586</td><td class="num" data-base="362.05" data-fmt="eur">$362</td><td class="num" data-base="2587" data-fmt="eur">$2,587</td><td class="num" data-base="4" data-fmt="int">4</td><td class="num"><span class="pill good">7.1x</span></td><td><span class="pill warn">Maintain</span></td></tr>
-            <tr><td class="name">Germany</td><td class="num" data-base="216" data-fmt="int">216</td><td class="num" data-base="133.31" data-fmt="eur">$133</td><td class="num" data-base="2152" data-fmt="eur">$2,152</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num"><span class="pill good">16.1x</span></td><td><span class="pill warn">Watch</span></td></tr>
-            <tr><td class="name">Philippines</td><td class="num" data-base="142" data-fmt="int">142</td><td class="num" data-base="87.41" data-fmt="eur">$87</td><td class="num" data-base="1757" data-fmt="eur">$1,757</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num"><span class="pill good">20.1x</span></td><td><span class="pill warn">Watch</span></td></tr>
-            <tr><td class="name">New Zealand</td><td class="num" data-base="140" data-fmt="int">140</td><td class="num" data-base="86.69" data-fmt="eur">$87</td><td class="num" data-base="906" data-fmt="eur">$906</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num"><span class="pill good">10.5x</span></td><td><span class="pill warn">Watch</span></td></tr>
+            <tr><td class="name">Australia</td><td class="num" data-base="2428" data-fmt="int">2,428</td><td class="num" data-base="1614.8" data-fmt="eur">$1,615</td><td class="num" data-base="25080" data-fmt="eur">$25,080</td><td class="num" data-base="21" data-fmt="int">21</td><td class="num"><span class="pill good">15.5x</span></td><td><span class="pill good">Scale</span></td></tr>
+            <tr><td class="name">Singapore</td><td class="num" data-base="10638" data-fmt="int">10,638</td><td class="num" data-base="7076.08" data-fmt="eur">$7,076</td><td class="num" data-base="16689" data-fmt="eur">$16,689</td><td class="num" data-base="26" data-fmt="int">26</td><td class="num"><span class="pill warn">2.4x</span></td><td><span class="pill warn">Maintain</span></td></tr>
+            <tr><td class="name">Malaysia</td><td class="num" data-base="1312" data-fmt="int">1,312</td><td class="num" data-base="873.16" data-fmt="eur">$873</td><td class="num" data-base="6002" data-fmt="eur">$6,002</td><td class="num" data-base="6" data-fmt="int">6</td><td class="num"><span class="pill good">6.9x</span></td><td><span class="pill warn">Maintain</span></td></tr>
+            <tr><td class="name">France</td><td class="num" data-base="2117" data-fmt="int">2,117</td><td class="num" data-base="1408.6" data-fmt="eur">$1,409</td><td class="num" data-base="5624" data-fmt="eur">$5,624</td><td class="num" data-base="5" data-fmt="int">5</td><td class="num"><span class="pill warn">4.0x</span></td><td><span class="pill warn">Maintain</span></td></tr>
+            <tr><td class="name">Switzerland</td><td class="num" data-base="225" data-fmt="int">225</td><td class="num" data-base="149.34" data-fmt="eur">$149</td><td class="num" data-base="4134" data-fmt="eur">$4,134</td><td class="num" data-base="5" data-fmt="int">5</td><td class="num"><span class="pill good">27.7x</span></td><td><span class="pill warn">Maintain</span></td></tr>
+            <tr><td class="name">Indonesia</td><td class="num" data-base="406" data-fmt="int">406</td><td class="num" data-base="269.83" data-fmt="eur">$270</td><td class="num" data-base="3690" data-fmt="eur">$3,690</td><td class="num" data-base="6" data-fmt="int">6</td><td class="num"><span class="pill good">13.7x</span></td><td><span class="pill warn">Maintain</span></td></tr>
+            <tr><td class="name">Hong Kong</td><td class="num" data-base="634" data-fmt="int">634</td><td class="num" data-base="421.73" data-fmt="eur">$422</td><td class="num" data-base="3013" data-fmt="eur">$3,013</td><td class="num" data-base="5" data-fmt="int">5</td><td class="num"><span class="pill good">7.1x</span></td><td><span class="pill warn">Maintain</span></td></tr>
+            <tr><td class="name">Germany</td><td class="num" data-base="234" data-fmt="int">234</td><td class="num" data-base="155.28" data-fmt="eur">$155</td><td class="num" data-base="2507" data-fmt="eur">$2,507</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num"><span class="pill good">16.1x</span></td><td><span class="pill warn">Watch</span></td></tr>
+            <tr><td class="name">Philippines</td><td class="num" data-base="154" data-fmt="int">154</td><td class="num" data-base="101.82" data-fmt="eur">$102</td><td class="num" data-base="2047" data-fmt="eur">$2,047</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num"><span class="pill good">20.1x</span></td><td><span class="pill warn">Watch</span></td></tr>
+            <tr><td class="name">New Zealand</td><td class="num" data-base="151" data-fmt="int">151</td><td class="num" data-base="100.98" data-fmt="eur">$101</td><td class="num" data-base="1055" data-fmt="eur">$1,055</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num"><span class="pill good">10.5x</span></td><td><span class="pill warn">Watch</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -1091,7 +964,7 @@
       <div class="kpi hero"><div class="label">Top revenue creative</div><div class="value" style="font-size: 17px;">Carousel - Rooms</div><div class="delta">$737 spend &middot; 2,829 clicks</div></div>
       <div class="kpi"><div class="label">Best CTR creative</div><div class="value" style="font-size: 17px;">Reels 22 Mar (Locals)</div><div class="delta">4.35% &middot; 21,158 impr</div></div>
       <div class="kpi"><div class="label">Highest volume</div><div class="value" style="font-size: 17px;">Reels - Now Open</div><div class="delta">1,456,266 impressions</div></div>
-      <div class="kpi"><div class="label">Active creatives</div><div class="value">33</div><div class="delta">Meta &middot; 71 days</div></div>
+      <div class="kpi"><div class="label">Active creatives</div><div class="value">34</div><div class="delta">Meta &middot; 78 days</div></div>
     </div>
 
     <div class="section-label">Top performing creatives &middot; ranked by attributed revenue</div>
@@ -1139,18 +1012,18 @@
 (function() {
   'use strict';
 
-  // ===== DAILY DATA — REAL Supermetrics pulls, Mar 1 - May 10, 2026 (71 days) =====
-  var dates = ['2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-11','2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-18','2026-04-19','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10'];
+  // ===== DAILY DATA — REAL Supermetrics pulls, Mar 1 - May 17, 2026 (78 days) =====
+  var dates = ['2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-11','2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-18','2026-04-19','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17'];
   var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function makeDateLabel(d) {
     var p = d.split('-'); return parseInt(p[2], 10) + ' ' + monthNames[parseInt(p[1], 10) - 1];
   }
 
-  var ga4Revenue  = [0,0,0,2635.92,0,0,0,1537.62,588.38,2974.04,0,0,1537.62,1460.74,0,0,0,0,593.08,4561.08,0,1092.81,0,4545.39,378.13,0,327.14,296.54,1200.68,1490.55,1411.32,0,0,889.62,1186.16,802.15,939.05,1882.80,999.45,4222.96,980.62,498.50,2080.49,1825.53,721.74,5493.85,0,4062.53,0,499.73,2617.88,249.86,4848.21,270.65,1519.58,815.36,2651.61,2486.86,0,0,4326.52,0,2294.66,0,0,541.30,3028.17,951.21,0,721.74,5632.71];
-  var ga4Bookings = [0,0,0,1,0,0,0,1,1,3,0,0,1,2,0,0,0,0,1,5,0,2,0,5,1,0,1,1,3,1,2,0,0,1,2,1,2,1,1,3,1,1,3,1,1,3,0,2,0,1,3,1,4,1,1,2,3,1,0,0,3,0,4,0,0,1,4,3,0,1,3];
-  var ga4Sessions = [127,197,229,366,270,278,274,296,297,320,300,277,269,259,257,255,188,238,273,308,254,257,275,336,311,289,371,643,545,527,563,204,275,262,262,308,329,286,317,294,643,532,534,517,521,499,397,287,279,277,299,259,247,333,272,226,202,275,281,292,236,127,159,201,263,235,276,269,241,171,223];
-  var metaSpendArr   = [23.73,20.99,15.66,60.71,49.01,49.14,52.90,52.22,48.85,46.52,46.96,50.39,48.87,49.04,54.42,49.46,51.43,47.30,49.33,47.41,52.76,50.42,49.92,49.68,74.46,74.94,79.41,90.94,75.14,69.36,61.57,0,51.61,58.82,59.66,61.35,57.27,79.69,87.38,93.48,109.27,84.80,59.59,58.23,54.95,52.42,39.52,58.41,61.61,57.82,57.65,53.94,64.97,93.14,85.63,95.97,93.24,79.55,102.20,70.08,16.65,0,0,0,28.67,72.03,70.89,69.57,78.29,81.93,84.92];
-  var googleSpendArr = [0,0,34.77,258.06,197.21,170.76,149.82,180.33,166.36,146.28,167.82,156.09,184.33,137.97,186.57,136.46,143.40,166.46,178.58,129.41,138.39,141.86,157.91,160.42,140.26,93.47,243.89,148.15,162.03,121.08,164.26,0,130.99,154.42,145.46,181.21,160.69,137.02,150.54,136.21,166.64,143.01,163.97,169.50,149.04,181.68,175.48,170.09,170.23,180.34,120.24,62.38,45.52,58.99,47.50,114.51,142.32,131.40,128.91,173.53,128.68,0,153.93,151.04,146.20,163.53,172.30,183.27,123.54,129.13,137.21];
+  var ga4Revenue  = [0,0,0,2635.92,0,0,0,1537.62,588.38,2974.04,0,0,1537.62,1460.74,0,0,0,0,593.08,4561.08,0,1092.81,0,4545.39,378.13,0,327.14,296.54,1200.68,1490.55,1411.32,0,0,889.62,1186.16,802.15,939.05,1882.80,999.45,4222.96,980.62,498.50,2080.49,1825.53,721.74,5493.85,0,4062.53,0,499.73,2617.88,249.86,4848.21,270.65,1519.58,815.36,2651.61,2486.86,0,0,4326.52,0,2294.66,0,0,541.30,3028.17,951.21,0,721.74,5632.71,1731.78,651.13,4581.48,3232.14,2647.69,0,1443.48];
+  var ga4Bookings = [0,0,0,1,0,0,0,1,1,3,0,0,1,2,0,0,0,0,1,5,0,2,0,5,1,0,1,1,3,1,2,0,0,1,2,1,2,1,1,3,1,1,3,1,1,3,0,2,0,1,3,1,4,1,1,2,3,1,0,0,3,0,4,0,0,1,4,3,0,1,3,2,2,5,1,3,0,2];
+  var ga4Sessions = [127,197,229,366,270,278,274,296,297,320,300,277,269,259,257,255,188,238,273,308,254,257,275,336,311,289,371,643,545,527,563,204,275,262,262,308,329,286,317,294,643,532,534,517,521,499,397,287,279,277,299,259,247,333,272,226,202,275,281,292,236,127,159,201,263,235,276,269,241,171,223,243,243,255,273,286,229,252];
+  var metaSpendArr   = [23.73,20.99,15.66,60.71,49.01,49.14,52.90,52.22,48.85,46.52,46.96,50.39,48.87,49.04,54.42,49.46,51.43,47.30,49.33,47.41,52.76,50.42,49.92,49.68,74.46,74.94,79.41,90.94,75.14,69.36,61.57,0,51.61,58.82,59.66,61.35,57.27,79.69,87.38,93.48,109.27,84.80,59.59,58.23,54.95,52.42,39.52,58.41,61.61,57.82,57.65,53.94,64.97,93.14,85.63,95.97,93.24,79.55,102.20,70.08,16.65,0,0,0,28.67,72.03,70.89,69.57,78.29,81.93,84.92,78.64,75.35,75.39,79.65,75.51,85.69,81.10];
+  var googleSpendArr = [0,0,34.77,258.06,197.21,170.76,149.82,180.33,166.36,146.28,167.82,156.09,184.33,137.97,186.57,136.46,143.40,166.46,178.58,129.41,138.39,141.86,157.91,160.42,140.26,93.47,243.89,148.15,162.03,121.08,164.26,0,130.99,154.42,145.46,181.21,160.69,137.02,150.54,136.21,166.64,143.01,163.97,169.50,149.04,181.68,175.48,170.09,170.23,180.34,120.24,62.38,45.52,58.99,47.50,114.51,142.32,131.40,128.91,173.53,128.68,0,153.93,151.04,146.20,163.53,172.30,183.27,123.54,129.13,137.21,175.87,120.13,153.01,189.04,147.56,165.47,170.87];
   var paidSpendArr = metaSpendArr.map(function(m, i) { return Math.round((m + googleSpendArr[i]) * 100) / 100; });
 
   var C = {
@@ -1170,12 +1043,12 @@
   function fmtEur(v) { return '$' + Math.round(v).toLocaleString('en-GB'); }
   function fmtK(v) { return v >= 1000 ? '$' + Math.round(v / 1000) + 'k' : '$' + Math.round(v); }
 
-  // ===== BASELINES — full Mar 1 to May 10 (71 days) =====
+  // ===== BASELINES — full Mar 1 to May 17 (78 days) =====
   // Re-attributed paid: 82.5% of total revenue, 82.3% of bookings (per the corrected attribution model)
   var BASELINE = {
-    totalRevenue: 86673, totalBookings: 90,
-    paidRevenue: 71505, paidBookings: 74,
-    paidSpend: 14071.19
+    totalRevenue: 100960, totalBookings: 105,
+    paidRevenue: 83292, paidBookings: 86,
+    paidSpend: 15744.47
   };
 
   // ===== FILTER STATE — defaults to full data range (dynamic from dates array) =====
@@ -1535,7 +1408,7 @@
       data: {
         labels: ['Paid \u00B7 Google', 'Paid \u00B7 Meta', 'Direct', 'Organic Search', 'Other'],
         datasets: [{
-          data: [Math.round(42188 * m), Math.round(29317 * m), Math.round(3267 * m), Math.round(441 * m), Math.round(11460 * m)],
+          data: [Math.round(49142 * m), Math.round(34150 * m), Math.round(3805 * m), Math.round(514 * m), Math.round(13349 * m)],
           backgroundColor: [C.navy, C.navyLight, C.gold, C.sand, C.slate], borderRadius: 1
         }]
       },
@@ -1553,7 +1426,7 @@
       type: 'doughnut',
       data: {
         labels: ['PMAX', 'SEM (Brand)', 'SEM (Weddings)'],
-        datasets: [{ data: [3666, 6174, 104], backgroundColor: [C.navy, C.navyLight, C.gold], borderColor: '#fff', borderWidth: 2 }]
+        datasets: [{ data: [4080, 6871, 116], backgroundColor: [C.navy, C.navyLight, C.gold], borderColor: '#fff', borderWidth: 2 }]
       },
       options: {
         responsive: true, maintainAspectRatio: false, cutout: '60%',
@@ -1743,7 +1616,7 @@
       type: 'doughnut',
       data: {
         labels: ['Mobile', 'Desktop', 'Tablet'],
-        datasets: [{ data: [sm(15377), sm(6121), sm(225)], backgroundColor: [C.navy, C.gold, C.sand], borderColor: '#fff', borderWidth: 2 }]
+        datasets: [{ data: [sm(16435), sm(6745), sm(251)], backgroundColor: [C.navy, C.gold, C.sand], borderColor: '#fff', borderWidth: 2 }]
       },
       options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10 } } } }
     }));
@@ -1753,7 +1626,7 @@
       type: 'doughnut',
       data: {
         labels: ['New users', 'Returning'],
-        datasets: [{ data: [sm(16539), sm(2377)], backgroundColor: [C.navy, C.gold], borderColor: '#fff', borderWidth: 2 }]
+        datasets: [{ data: [sm(17786), sm(2621)], backgroundColor: [C.navy, C.gold], borderColor: '#fff', borderWidth: 2 }]
       },
       options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10 } } } }
     }));
@@ -1761,14 +1634,14 @@
 
   // ===== CREATIVE CARDS (metrics-forward, no image loading) =====
   var creatives = [
-    { ad_id: '120242817088290118', fmt: 'Carousel', offer: 'Rooms', name: 'Carousel - Rooms - Apr 2026 (Tourists)', spend: 736.78, impr: 118131, clicks: 2829, ctr: '2.39%', image: 'https://scontent-fra5-1.cdninstagram.com/v/t51.71878-15/670021687_1232917915331203_9109366977281966238_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=a945WQnqap8Q7kNvwHD260z&_nc_oc=AdreNt3ZQMDfAs5xUGDFxDvpfFBJHk-S0TOzPldY0alX_JDQVkNA4L1XAL2JkQW90jQ&_nc_zt=23&_nc_ht=scontent-fra5-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=jB-T7L1X_-T_gL6suYSvJQ&oh=00_Af50nby413mKBYd1OnRtwH0YghDfffiHxnJA6PHzwHIyTg&oe=6A0A4CB6' },
-    { ad_id: '120241340410610118', fmt: 'Reel', offer: 'Brand Launch', name: 'Reels - Now Open - Mar 2026 (Tourists)', spend: 634.55, impr: 1456266, clicks: 16304, ctr: '1.12%', image: 'https://scontent-fra5-1.xx.fbcdn.net/v/t15.5256-10/645585045_932280312628257_3749853238949749969_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=a7ce7f&_nc_ohc=qwwA2I51CfIQ7kNvwGrJVAb&_nc_oc=AdpboncIKZR4zj6BVNAviqwis6_Ql-W7fMGKf0k7UFlo7T4vCvnpZYMiynKkc-PKuw0&_nc_zt=23&_nc_ht=scontent-fra5-1.xx&edm=AJfPMC4EAAAA&_nc_gid=GvRJYzTDWfC3OnLTdwzPyg&_nc_tpa=Q5bMBQEcOdcGZnE_TH7GYJ3FoO99Tww7oreM-KwZ3ErH3ThF3Iw_NWQlp8lhujoZRIXYldYu4ACxm4-i&oh=00_Af5fM02BNLjuJpV3pGaz4y7wJaJU2mxew3EERVqkFoOtLg&oe=6A0A6FB5' },
-    { ad_id: '120242297735230118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Tourists Mar)', spend: 367.37, impr: 169672, clicks: 2759, ctr: '1.63%', image: 'https://scontent-fra5-1.xx.fbcdn.net/v/t15.5256-10/658774898_3386431044839169_8524238424438048374_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=_XncB4Dp5fIQ7kNvwFfN9yG&_nc_oc=AdqlUL2GCruvFOyOBJT9J15mzC8sI-UHEYJpjjaBKrBqyXMaiPP38_9eqU9LnAEKr4A&_nc_zt=23&_nc_ht=scontent-fra5-1.xx&edm=AJfPMC4EAAAA&_nc_gid=Ft-HtmSURDnGV3Axybcwpw&_nc_tpa=Q5bMBQHX6IsFd3rXKlCc4JYR2iYvGo7BroRIO5Gb10p8qEw7A-WI5CZGhvUQYRrolgQxiW3LOAJNr3f7&oh=00_Af5zWmtHYj31n3Rqwyb7jQ7-kbaIQf_pKpPbnyyX0vHyOA&oe=6A0A9769' },
-    { ad_id: '120242817088340118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Tourists Apr)', spend: 299.13, impr: 47779, clicks: 1765, ctr: '3.69%', image: 'https://scontent-fra5-1.xx.fbcdn.net/v/t15.5256-10/658774898_3386431044839169_8524238424438048374_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=x6vA_TOURPcQ7kNvwEXx7B_&_nc_oc=AdoBrDX3xn0pgDNntIXf-S0LzfUmgKWOCoba7gM8zEGVcYwgNdOARv-73pFcz-HcLFI&_nc_zt=23&_nc_ht=scontent-fra5-1.xx&edm=AJfPMC4EAAAA&_nc_gid=HtPv2RguEHKqXU-ZqNqFxg&_nc_tpa=Q5bMBQGVxzmoIc_P6NwhzLRmBsbhaoqamJKGR3uxNZaRQC3rADvPeyIxLGc_aQefsuVYitXrf-i0Wikl&oh=00_Af68pCDyk4vT6FKZ0cbDQaZ0pddO974OTlPvUW9Smq5W8g&oe=6A0A5F29' },
-    { ad_id: '120244702194750118', fmt: 'Carousel', offer: 'Rooms', name: 'Carousel - Rooms - May 2026 (Tourists)', spend: 219.44, impr: 119804, clicks: 1385, ctr: '1.16%', image: 'https://scontent-fra5-1.cdninstagram.com/v/t51.71878-15/670021687_1232917915331203_9109366977281966238_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=a945WQnqap8Q7kNvwHD260z&_nc_oc=AdreNt3ZQMDfAs5xUGDFxDvpfFBJHk-S0TOzPldY0alX_JDQVkNA4L1XAL2JkQW90jQ&_nc_zt=23&_nc_ht=scontent-fra5-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=jB-T7L1X_-T_gL6suYSvJQ&oh=00_Af50nby413mKBYd1OnRtwH0YghDfffiHxnJA6PHzwHIyTg&oe=6A0A4CB6' },
-    { ad_id: '120243958163970118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Locals RTG)', spend: 199.82, impr: 21158, clicks: 921, ctr: '4.35%', image: 'https://scontent-fra5-1.xx.fbcdn.net/v/t15.5256-10/658774898_3386431044839169_8524238424438048374_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=x6vA_TOURPcQ7kNvwEXx7B_&_nc_oc=AdoBrDX3xn0pgDNntIXf-S0LzfUmgKWOCoba7gM8zEGVcYwgNdOARv-73pFcz-HcLFI&_nc_zt=23&_nc_ht=scontent-fra5-1.xx&edm=AJfPMC4EAAAA&_nc_gid=23qq321zOeqS22aJPUWqdA&_nc_tpa=Q5bMBQHx6eimC64V1Yf46D9YxD0YsTE36sj4BxlO6x1XS4mTew9rcWyO0xFmWbwPgbN1lKaaTTptQ9nO&oh=00_Af7NHJN9DZCZaxz7OAvDLgg_l0qb2exA4pOy8Q_R1_rUNg&oe=6A0A5F29' },
-    { ad_id: '120241340410620118', fmt: 'Reel', offer: 'Brand', name: 'Reel - 25 Jan (Page Growth Mar)', spend: 198.91, impr: 529896, clicks: 5973, ctr: '1.13%', image: 'https://scontent-fra3-2.xx.fbcdn.net/v/t15.5256-10/646696820_934356649048854_7605039213773296545_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=a7ce7f&_nc_ohc=f2JpCDtxHu0Q7kNvwFXKliM&_nc_oc=Adrftm_PsAb43TziDLHlUlb3AY3oK1wxFuzfsUo0oRPKGPHtXYkzKrfQWfKJ-Kx8WFU&_nc_zt=23&_nc_ht=scontent-fra3-2.xx&edm=AJfPMC4EAAAA&_nc_gid=QQZhkFxA1adZBU-IaAxD5w&_nc_tpa=Q5bMBQGgAPuG9O9gbdQrl5rP8JpR6lQXgM1llArrL-81qqmnehnN2fTcFERY8zFfYnV4sna4ElBi2mYk&oh=00_Af7hRHE4_tdO2qm6QNj8XNEqpcpw6mpKZZ5IfKjOUO_BvQ&oe=6A0A3E2C' },
-    { ad_id: '120242817088310118', fmt: 'Reel', offer: 'Brand', name: 'Reel - 25 Jan (Page Growth Apr)', spend: 197.66, impr: 45102, clicks: 1259, ctr: '2.79%', image: 'https://scontent-fra3-2.xx.fbcdn.net/v/t15.5256-10/646696820_934356649048854_7605039213773296545_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=a7ce7f&_nc_ohc=f2JpCDtxHu0Q7kNvwFXKliM&_nc_oc=Adrftm_PsAb43TziDLHlUlb3AY3oK1wxFuzfsUo0oRPKGPHtXYkzKrfQWfKJ-Kx8WFU&_nc_zt=23&_nc_ht=scontent-fra3-2.xx&edm=AJfPMC4EAAAA&_nc_gid=QQZhkFxA1adZBU-IaAxD5w&_nc_tpa=Q5bMBQGgAPuG9O9gbdQrl5rP8JpR6lQXgM1llArrL-81qqmnehnN2fTcFERY8zFfYnV4sna4ElBi2mYk&oh=00_Af7hRHE4_tdO2qm6QNj8XNEqpcpw6mpKZZ5IfKjOUO_BvQ&oe=6A0A3E2C' },
+    { ad_id: '120242817088290118', fmt: 'Carousel', offer: 'Rooms', name: 'Carousel - Rooms - Apr 2026 (Tourists)', spend: 736.78, impr: 118131, clicks: 2829, ctr: '2.39%', image: 'https://scontent-fra5-1.cdninstagram.com/v/t51.71878-15/670021687_1232917915331203_9109366977281966238_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=VXft_iu27A0Q7kNvwFJtOFB&_nc_oc=AdqTc1nODGxyVk0uqI41V6F-lBhMJB4Lkru6Qf2_VPGtvQTe19eqSDlq86-EVJhp39o&_nc_zt=23&_nc_ht=scontent-fra5-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=sMmtLkeFOb8fcIZPH27bXA&oh=00_Af7bbvamWBa1iyCaq5hLhkrzkl1oLEhVcMDdDmYlEw6yKA&oe=6A126DF6' },
+    { ad_id: '120241340410610118', fmt: 'Reel', offer: 'Brand Launch', name: 'Reels - Now Open - Mar 2026 (Tourists)', spend: 634.55, impr: 1456266, clicks: 16304, ctr: '1.12%', image: 'https://scontent-fra5-1.xx.fbcdn.net/v/t15.5256-10/645585045_932280312628257_3749853238949749969_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=a7ce7f&_nc_ohc=YdVakc-ior0Q7kNvwFFggcd&_nc_oc=AdrW5Ohy4wBpsUIjh_U8D2Nv-jZ75y7XI30e9KEyutMlIeXYFhLYrhxFCJ0bQABk9VM&_nc_zt=23&_nc_ht=scontent-fra5-1.xx&edm=AJfPMC4EAAAA&_nc_gid=frIvCG8Ds2vfN8T0utP_VQ&_nc_tpa=Q5bMBQH1D_UuGWmvxW4ZgYd_fBXZxYDvF_mxWBZ1zJw4qabEuxHgGEe6O4t8gsrrLDYOVQeATuUG6XPV&oh=00_Af4jPmJFWocotBD1lb9wFlyjfTI1lKAkTRKXKVrklRa4aQ&oe=6A1290F5' },
+    { ad_id: '120244702194750118', fmt: 'Carousel', offer: 'Rooms', name: 'Carousel - Rooms - May 2026 (Tourists)', spend: 537.91, impr: 306741, clicks: 3264, ctr: '1.06%', image: 'https://scontent-fra5-1.cdninstagram.com/v/t51.71878-15/670021687_1232917915331203_9109366977281966238_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=VXft_iu27A0Q7kNvwFJtOFB&_nc_oc=AdqTc1nODGxyVk0uqI41V6F-lBhMJB4Lkru6Qf2_VPGtvQTe19eqSDlq86-EVJhp39o&_nc_zt=23&_nc_ht=scontent-fra5-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=sMmtLkeFOb8fcIZPH27bXA&oh=00_Af7bbvamWBa1iyCaq5hLhkrzkl1oLEhVcMDdDmYlEw6yKA&oe=6A126DF6' },
+    { ad_id: '120242297735230118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Tourists Mar)', spend: 367.37, impr: 169672, clicks: 2759, ctr: '1.63%', image: 'https://scontent-fra5-1.xx.fbcdn.net/v/t15.5256-10/658774898_3386431044839169_8524238424438048374_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=RgSYqovHKwIQ7kNvwF4HBVd&_nc_oc=AdqQzqw4qsNEFetCOMxR5DvC_m3GvKbmXSzliRuje_8lRt1SZEeBx1-Hn2XKevl3KDc&_nc_zt=23&_nc_ht=scontent-fra5-1.xx&edm=AJfPMC4EAAAA&_nc_gid=FsfBCkPL2iO1f4Me2-9tiw&_nc_tpa=Q5bMBQEqYLdjAqEJXzpii0E9yrGtHVKKhAa5YIZro1UQx-srcP6X3MzC5Jlxl8Ov9OM3940L2KArCM2s&oh=00_Af72YdcvqRJ2O0Jl-AmtYsduJ7FEL0t1JPbpiPxvHf1FEA&oe=6A128069' },
+    { ad_id: '120242817088340118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Tourists Apr)', spend: 299.13, impr: 47779, clicks: 1765, ctr: '3.69%', image: 'https://scontent-fra5-1.xx.fbcdn.net/v/t15.5256-10/658774898_3386431044839169_8524238424438048374_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=RgSYqovHKwIQ7kNvwF4HBVd&_nc_oc=AdqQzqw4qsNEFetCOMxR5DvC_m3GvKbmXSzliRuje_8lRt1SZEeBx1-Hn2XKevl3KDc&_nc_zt=23&_nc_ht=scontent-fra5-1.xx&edm=AJfPMC4EAAAA&_nc_gid=cgX5uFpro59mZA2oYJ1Xaw&_nc_tpa=Q5bMBQHw0R7gBCY6klcMCKWBbkV8jMV1YCAVKgxhN-PYmAGE0TAppvTgSt89cc1hW7g6MW15F8Tav0dR&oh=00_Af4UBqkoP38RSJaSNf1YxtG4sYt0OSHbJhB3JJEMl1dX3w&oe=6A128069' },
+    { ad_id: '120243958163970118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Locals RTG)', spend: 199.82, impr: 21158, clicks: 921, ctr: '4.35%', image: 'https://scontent-fra5-1.xx.fbcdn.net/v/t15.5256-10/658774898_3386431044839169_8524238424438048374_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5fad0e&_nc_ohc=RgSYqovHKwIQ7kNvwF4HBVd&_nc_oc=AdqQzqw4qsNEFetCOMxR5DvC_m3GvKbmXSzliRuje_8lRt1SZEeBx1-Hn2XKevl3KDc&_nc_zt=23&_nc_ht=scontent-fra5-1.xx&edm=AJfPMC4EAAAA&_nc_gid=1i3wQl4-XrOx7PV8A-GI7A&_nc_tpa=Q5bMBQHA3_I7FM0Eevo4qXcT1SM7NT2mjzsuVRNUMrG4meRjRhVv25q3CBUj1LcU_AMi-u2ZiGRQBg7O&oh=00_Af7DhyOKLtfHLenFQaKGIPhzm5fvO-B9kXh8m_CVqs6wBQ&oe=6A128069' },
+    { ad_id: '120241340410620118', fmt: 'Reel', offer: 'Brand', name: 'Reel - 25 Jan (Page Growth Mar)', spend: 198.91, impr: 529896, clicks: 5973, ctr: '1.13%', image: 'https://scontent-fra3-2.xx.fbcdn.net/v/t15.5256-10/646696820_934356649048854_7605039213773296545_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=a7ce7f&_nc_ohc=vA7JGtVNmZwQ7kNvwFUqEjT&_nc_oc=AdqTWXeOvJ5DZW6JZSbpvKlm6XsCzfx1OCJrq6OhnG09OIe33UPs1G_wj06smdsO1mM&_nc_zt=23&_nc_ht=scontent-fra3-2.xx&edm=AJfPMC4EAAAA&_nc_gid=3OQ31F0pp0_7_aJmsup8cg&_nc_tpa=Q5bMBQGXIw5Jr0r3rqfz8MmFPwQdrFMz67iEqRlRKdw2kjNzhjsAKppDSwUQLlDPr8xWsedX6DGMk-VO&oh=00_Af4uAYEG7LRlLrucikUDBQpc4KrPA_wtlWawwb7JPcksrQ&oe=6A1297AC' },
+    { ad_id: '120242817088310118', fmt: 'Reel', offer: 'Brand', name: 'Reel - 25 Jan (Page Growth Apr)', spend: 197.66, impr: 45102, clicks: 1259, ctr: '2.79%', image: 'https://scontent-fra3-2.xx.fbcdn.net/v/t15.5256-10/646696820_934356649048854_7605039213773296545_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=a7ce7f&_nc_ohc=vA7JGtVNmZwQ7kNvwFUqEjT&_nc_oc=AdqTWXeOvJ5DZW6JZSbpvKlm6XsCzfx1OCJrq6OhnG09OIe33UPs1G_wj06smdsO1mM&_nc_zt=23&_nc_ht=scontent-fra3-2.xx&edm=AJfPMC4EAAAA&_nc_gid=3OQ31F0pp0_7_aJmsup8cg&_nc_tpa=Q5bMBQGXIw5Jr0r3rqfz8MmFPwQdrFMz67iEqRlRKdw2kjNzhjsAKppDSwUQLlDPr8xWsedX6DGMk-VO&oh=00_Af4uAYEG7LRlLrucikUDBQpc4KrPA_wtlWawwb7JPcksrQ&oe=6A1297AC' },
   ];
 
   function buildCreatives() {
@@ -1788,12 +1661,35 @@
         ctr: c.ctr  // ratio metric — held constant
       };
     });
-    // Re-sort by scaled spend (descending), hide zero-spend
     scaled = scaled.filter(function(c) { return c.spend > 0; });
     scaled.sort(function(a, b) { return b.spend - a.spend; });
 
     function fmtNum(v) { return Math.round(v).toLocaleString('en-GB'); }
     function fmtMoney(v) { return Math.round(v).toLocaleString('en-GB'); }
+
+    // Offer-to-icon map (Unicode glyphs; visually distinctive without external assets)
+    var offerIcon = {
+      'Rooms': '\u2302',           // ⌂ house
+      'Brand Launch': '\u2728',     // ✨ sparkles
+      'Brand': '\u2728',
+      'Staycation': '\u26F1',       // ⛱ umbrella
+      'Wellness': '\u2698',         // ⚖ flower stand-in
+      'Weddings': '\u2661',         // ♡ heart outline
+      'CNY': '\u2740',              // ❀ floret
+      'Suites': '\u272A'            // ✪ star
+    };
+    // Distinctive gradient per offer
+    var offerGradient = {
+      'Rooms':        'linear-gradient(135deg, #1A2B5C 0%, #2B4080 50%, #C8967E 100%)',
+      'Brand Launch': 'linear-gradient(135deg, #1A2B5C 0%, #DCAB89 60%, #F2D9C4 100%)',
+      'Brand':        'linear-gradient(135deg, #1A2B5C 0%, #DCAB89 60%, #F2D9C4 100%)',
+      'Staycation':   'linear-gradient(135deg, #2B4080 0%, #C8967E 50%, #DCAB89 100%)',
+      'Wellness':     'linear-gradient(135deg, #1A2B5C 0%, #4D6FB8 50%, #C8967E 100%)',
+      'Weddings':     'linear-gradient(135deg, #1A2B5C 0%, #C8967E 60%, #F2D9C4 100%)',
+      'CNY':          'linear-gradient(135deg, #8B1E1E 0%, #C8967E 50%, #DCAB89 100%)',
+      'Suites':       'linear-gradient(135deg, #0D1A3E 0%, #1A2B5C 50%, #C8967E 100%)'
+    };
+    var defaultGradient = 'linear-gradient(135deg, #1A2B5C 0%, #2B4080 50%, #C8967E 100%)';
 
     grid.innerHTML = '';
     for (var i = 0; i < scaled.length; i++) {
@@ -1804,25 +1700,36 @@
       var card = document.createElement('div');
       card.className = 'creative';
 
-      // Image (full-bleed, with fallback)
-      var img = document.createElement('img');
-      img.className = 'creative-img';
-      img.src = c.image || '';
-      img.alt = c.name;
-      img.loading = 'lazy';
-      img.referrerPolicy = 'no-referrer';
-      img.onerror = function() {
-        // Replace with fail overlay safely; only if still attached
-        try {
-          var parent = this.parentNode;
-          if (!parent) return;
-          var fail = document.createElement('div');
-          fail.className = 'creative-fail';
-          fail.textContent = 'Preview unavailable';
-          parent.replaceChild(fail, this);
-        } catch (e) { /* swallow */ }
-      };
-      card.appendChild(img);
+      // BASE LAYER — visually-rich placeholder ALWAYS present.
+      // Uses a gradient background + offer icon + offer name centered.
+      var base = document.createElement('div');
+      base.className = 'creative-base';
+      base.style.background = offerGradient[c.offer] || defaultGradient;
+      var icon = offerIcon[c.offer] || '\u25C7';
+      base.innerHTML =
+        '<div class="creative-base-icon">' + icon + '</div>' +
+        '<div class="creative-base-offer">' + c.offer + '</div>' +
+        '<div class="creative-base-fmt">' + (isVideo ? 'VIDEO' : 'IMAGE') + '</div>';
+      card.appendChild(base);
+
+      // ENHANCEMENT LAYER — actual FB/IG image. Starts at opacity:0; fades in if it loads.
+      // If image fails (403 / expired), it stays invisible and base layer shows through.
+      if (c.image) {
+        var img = document.createElement('img');
+        img.className = 'creative-img';
+        img.alt = c.name;
+        img.loading = 'lazy';
+        img.referrerPolicy = 'no-referrer';
+        img.style.opacity = '0';
+        img.style.transition = 'opacity 0.3s ease';
+        img.onload = function() { this.style.opacity = '1'; };
+        img.onerror = function() {
+          // Just hide silently; base placeholder is already showing
+          this.style.display = 'none';
+        };
+        img.src = c.image;
+        card.appendChild(img);
+      }
 
       // Rank badge
       var rankEl = document.createElement('div');
