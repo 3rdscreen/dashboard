@@ -587,14 +587,16 @@ function renderDashboard(start, end){
 // Initial render: full MTD range
 renderDashboard('2026-05-01','2026-05-24');
 
-// ── Calendar date picker ──
+// ── Calendar date picker (cross-browser: event delegation, no hover re-render) ──
 (function(){
   const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
   const MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const MIN=new Date(2026,4,1);    // May 1 2026 — campaigns started
-  const TODAY=new Date(2026,4,24); // report through May 24
-  let vy=2026, vm=4, ps=null, pe=null, hov=null;
+  // Use plain day-number keys (UTC midnight ms) to avoid timezone/closure issues
+  const MIN_MS = Date.UTC(2026,4,1);    // May 1 2026
+  const TODAY_MS = Date.UTC(2026,4,24); // report through May 24
+  let vy=2026, vm=4;
+  let psMs=null, peMs=null, hovMs=null;   // selected start/end + hover preview, as UTC ms
 
   const pop=document.getElementById('calPop');
   const trigger=document.getElementById('periodTrigger');
@@ -607,86 +609,129 @@ renderDashboard('2026-05-01','2026-05-24');
   const sumEl=document.getElementById('calSum');
   const labelEl=document.getElementById('periodLabel');
 
-  const same=(a,b)=>a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
-  const before=(a,b)=>a.getTime()<b.getTime();
-  const inR=(d,a,b)=>{if(!a||!b)return false;const t=d.getTime();return t>=Math.min(a,b)&&t<=Math.max(a,b);};
+  const dayMs=(y,m,d)=>Date.UTC(y,m,d);
+  const fmtMs=ms=>{const d=new Date(ms);return `${MS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;};
+  const fmtShort=ms=>{const d=new Date(ms);return `${MS[d.getUTCMonth()]} ${d.getUTCDate()}`;};
+  const iso=ms=>{const d=new Date(ms);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;};
 
-  function render(){
+  // Build the grid ONCE per month view. Day cells carry data-ms; classes are painted separately.
+  function buildGrid(){
     monthEl.textContent=MONTHS[vm]+' '+vy;
     prevB.disabled=(vy<2026||(vy===2026&&vm<=4));
-    nextB.disabled=(vy>TODAY.getFullYear()||(vy===TODAY.getFullYear()&&vm>=TODAY.getMonth()));
+    nextB.disabled=(vy>2026||(vy===2026&&vm>=4)); // data only exists in May 2026
     grid.innerHTML='';
     DOW.forEach(d=>{const e=document.createElement('div');e.className='cal-dow';e.textContent=d;grid.appendChild(e);});
-    const first=new Date(vy,vm,1);
-    let sd=first.getDay(); // 0=Sunday — Sun-first grid
-    for(let i=0;i<sd;i++){const e=document.createElement('div');e.className='cal-day muted';grid.appendChild(e);}
-    const dim=new Date(vy,vm+1,0).getDate();
+    const firstDow=new Date(Date.UTC(vy,vm,1)).getUTCDay(); // 0=Sun
+    for(let i=0;i<firstDow;i++){const e=document.createElement('div');e.className='cal-day muted';grid.appendChild(e);}
+    const dim=new Date(Date.UTC(vy,vm+1,0)).getUTCDate();
     for(let day=1;day<=dim;day++){
-      const date=new Date(vy,vm,day);
-      const b=document.createElement('button');b.type='button';b.className='cal-day';b.textContent=day;
-      const dow=date.getDay(); // for row-edge rounding
-      const fut=date.getTime()>TODAY.getTime(), pst=date.getTime()<MIN.getTime();
-      if(fut||pst){b.classList.add(fut?'future':'muted');b.disabled=true;}
-      else{
-        if(same(date,TODAY))b.classList.add('today');
-        if(ps&&pe){
-          if(same(date,ps)&&same(date,pe))b.classList.add('single');
-          else if(same(date,ps))b.classList.add('start');
-          else if(same(date,pe))b.classList.add('end');
-          else if(inR(date,ps,pe)){b.classList.add('in');if(dow===0)b.classList.add('row-start');if(dow===6)b.classList.add('row-end');}
-        }else if(ps&&!pe){
-          if(same(date,ps))b.classList.add('single');
-          else if(hov){
-            if(same(date,hov))b.classList.add(before(date,ps)?'start':'end');
-            else if(inR(date,ps,hov))b.classList.add('hov');
-          }
-        }
-        b.addEventListener('mouseenter',()=>{if(ps&&!pe&&!same(date,ps)){hov=date;render();}});
-        b.addEventListener('click',ev=>{
-          ev.stopPropagation();
-          if(!ps||(ps&&pe)){ps=date;pe=null;hov=null;
-            sumEl.innerHTML=`<strong>${MS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}</strong> → pick end`;
-            applyB.disabled=true;
-          }else{
-            if(before(date,ps)){pe=ps;ps=date;}else pe=date;
-            hov=null;
-            const ds=`${MS[ps.getMonth()]} ${ps.getDate()}`, de=`${MS[pe.getMonth()]} ${pe.getDate()}, ${pe.getFullYear()}`;
-            const days=Math.round((pe-ps)/864e5)+1;
-            sumEl.innerHTML=`<strong>${ds} → ${de}</strong> · ${days} day${days>1?'s':''}`;
-            applyB.disabled=false;
-          }
-          render();
-        });
+      const ms=dayMs(vy,vm,day);
+      const b=document.createElement('button');
+      b.type='button';
+      b.textContent=day;
+      const future=ms>TODAY_MS, past=ms<MIN_MS;
+      if(future||past){
+        b.className='cal-day '+(future?'future':'muted');
+        b.disabled=true;
+      }else{
+        b.className='cal-day';
+        b.setAttribute('data-ms',String(ms));   // selectable
       }
       grid.appendChild(b);
     }
+    paint();
   }
+
+  // Paint selection/hover classes onto existing day buttons WITHOUT rebuilding the grid.
+  function paint(){
+    const lo = (psMs!=null&&peMs!=null)?Math.min(psMs,peMs):null;
+    const hi = (psMs!=null&&peMs!=null)?Math.max(psMs,peMs):null;
+    const cells=grid.querySelectorAll('button[data-ms]');
+    cells.forEach(b=>{
+      const ms=Number(b.getAttribute('data-ms'));
+      const d=new Date(ms);
+      b.classList.remove('today','start','end','single','in','hov','row-start','row-end');
+      if(ms===TODAY_MS) b.classList.add('today');
+      if(psMs!=null&&peMs!=null){
+        if(lo===hi&&ms===lo) b.classList.add('single');
+        else if(ms===lo) b.classList.add('start');
+        else if(ms===hi) b.classList.add('end');
+        else if(ms>lo&&ms<hi){b.classList.add('in');if(d.getUTCDay()===0)b.classList.add('row-start');if(d.getUTCDay()===6)b.classList.add('row-end');}
+      }else if(psMs!=null&&peMs==null){
+        if(ms===psMs) b.classList.add('single');
+        else if(hovMs!=null){
+          const a=Math.min(psMs,hovMs), z=Math.max(psMs,hovMs);
+          if(ms===hovMs) b.classList.add(hovMs<psMs?'start':'end');
+          else if(ms>a&&ms<z) b.classList.add('hov');
+        }
+      }
+    });
+  }
+
+  function pick(ms){
+    if(psMs==null || (psMs!=null&&peMs!=null)){
+      // start a new selection
+      psMs=ms; peMs=null; hovMs=null;
+      sumEl.innerHTML=`<strong>${fmtMs(ms)}</strong> → pick end`;
+      applyB.disabled=true;
+    }else{
+      // set the end
+      peMs=ms; hovMs=null;
+      const lo=Math.min(psMs,peMs), hi=Math.max(psMs,peMs);
+      const days=Math.round((hi-lo)/864e5)+1;
+      sumEl.innerHTML=`<strong>${fmtShort(lo)} → ${fmtMs(hi)}</strong> · ${days} day${days>1?'s':''}`;
+      applyB.disabled=false;
+    }
+    paint();
+  }
+
   function place(){
     const r=trigger.getBoundingClientRect();
-    const w=pop.offsetWidth||360, h=pop.offsetHeight||400;
+    const w=pop.offsetWidth||360, h=pop.offsetHeight||420;
     let left=r.left, top=r.bottom+10;
-    // clamp to viewport
     if(left+w>window.innerWidth-12) left=window.innerWidth-w-12;
     if(left<12) left=12;
     if(top+h>window.innerHeight-12) top=Math.max(12, r.top-h-10);
     pop.style.left=left+'px';
     pop.style.top=top+'px';
   }
-  function open(){if(!ps){vy=2026;vm=4;}else{vy=ps.getFullYear();vm=ps.getMonth();}hov=null;pop.classList.add('open');render();place();}
+  function open(){
+    if(psMs!=null){const d=new Date(psMs);vy=d.getUTCFullYear();vm=d.getUTCMonth();}else{vy=2026;vm=4;}
+    hovMs=null;
+    pop.classList.add('open');
+    buildGrid();
+    place();
+  }
   function close(){pop.classList.remove('open');}
 
+  // Event delegation on the grid — one listener, survives any rebuild.
+  grid.addEventListener('click',e=>{
+    e.stopPropagation();
+    const b=e.target.closest('button[data-ms]');
+    if(!b||b.disabled) return;
+    pick(Number(b.getAttribute('data-ms')));
+  });
+  // Hover preview via delegation — only repaints classes, never rebuilds.
+  grid.addEventListener('mouseover',e=>{
+    const b=e.target.closest('button[data-ms]');
+    if(!b) return;
+    if(psMs!=null&&peMs==null){
+      const ms=Number(b.getAttribute('data-ms'));
+      if(ms!==hovMs){hovMs=ms;paint();}
+    }
+  });
+  grid.addEventListener('mouseleave',()=>{ if(psMs!=null&&peMs==null&&hovMs!=null){hovMs=null;paint();} });
+
   trigger.addEventListener('click',e=>{e.stopPropagation();pop.classList.contains('open')?close():open();});
-  prevB.addEventListener('click',e=>{e.stopPropagation();if(vm===0){vm=11;vy--;}else vm--;render();});
-  nextB.addEventListener('click',e=>{e.stopPropagation();if(vm===11){vm=0;vy++;}else vm++;render();});
-  cancelB.addEventListener('click',e=>{e.stopPropagation();ps=null;pe=null;applyB.disabled=true;sumEl.innerHTML='<strong>Select start date</strong>';close();});
+  prevB.addEventListener('click',e=>{e.stopPropagation();if(prevB.disabled)return;if(vm===0){vm=11;vy--;}else vm--;buildGrid();});
+  nextB.addEventListener('click',e=>{e.stopPropagation();if(nextB.disabled)return;if(vm===11){vm=0;vy++;}else vm++;buildGrid();});
+  cancelB.addEventListener('click',e=>{e.stopPropagation();psMs=null;peMs=null;hovMs=null;applyB.disabled=true;sumEl.innerHTML='<strong>Select start date</strong>';paint();close();});
   applyB.addEventListener('click',e=>{
     e.stopPropagation();
-    if(ps&&pe){
-      const ds=`${MS[ps.getMonth()]} ${ps.getDate()}`, de=`${MS[pe.getMonth()]} ${pe.getDate()}, ${pe.getFullYear()}`;
-      labelEl.textContent=`${ds} – ${de}`;
-      // Re-render ALL dashboard data for the selected range
-      const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-      renderDashboard(iso(ps), iso(pe));
+    if(psMs!=null&&peMs!=null){
+      const lo=Math.min(psMs,peMs), hi=Math.max(psMs,peMs);
+      labelEl.textContent=`${fmtShort(lo)} – ${fmtMs(hi)}`;
+      renderDashboard(iso(lo), iso(hi));
       close();
     }
   });
