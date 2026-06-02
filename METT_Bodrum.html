@@ -1,0 +1,2143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#FAF8F4" />
+<title>METT Bodrum | Live Performance Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-2: #F7F5F2;
+    --ink: #0E2340;
+    --ink-2: #2D3E56;
+    --ink-3: #6B7280;
+    --ink-4: #B0B7C1;
+    --line: #E5E7EB;
+    --line-2: #D1D5DB;
+    --gold: #C89B94;
+    --gold-2: #A67D76;
+    --gold-soft: #F5E6E2;
+    --sand: #E8D4CF;
+    --accent-green: #556B4E;
+    --accent-burgundy: #8A4A4A;
+    --success: #4F7A5A;
+    --warn: #B07A3F;
+    --danger: #9E4B4B;
+    --navy: #0E2340;
+    --navy-2: #1A3558;
+    --font: 'Calibri', 'Carlito', 'Segoe UI', Tahoma, sans-serif;
+    --font-mono: 'Consolas', 'Menlo', 'Courier New', monospace;
+    --shadow-sm: 0 1px 2px rgba(14, 35, 64, 0.04);
+    --shadow: 0 2px 16px rgba(14, 35, 64, 0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  .app { max-width: 1480px; margin: 0 auto; padding: 24px 32px 80px; }
+
+  /* ================ MASTHEAD ================ */
+  .masthead { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--line); margin-bottom: 20px; gap: 20px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .mark { width: 52px; height: 52px; border: 1px solid var(--gold); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; letter-spacing: 2px; background: var(--surface); flex-shrink: 0; }
+  .brand-text { min-width: 0; }
+  .brand-text .eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold-2); font-weight: 700; }
+  .brand-text h1 { font-size: 24px; line-height: 1.15; color: var(--ink); margin-top: 4px; font-weight: 600; letter-spacing: 0.3px; }
+  .brand-text h1 em { font-style: italic; color: var(--gold-2); font-weight: 400; font-size: 0.9em; margin-left: 4px; }
+  .meta-right { text-align: right; }
+  .live-pill { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px rgba(79, 122, 90, 0.18); animation: pulse 2.2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .timestamp { font-size: 11px; color: var(--ink-3); margin-top: 6px; font-family: var(--font-mono); }
+  .sources { display: flex; gap: 6px; margin-top: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  .src-chip { font-size: 10px; letter-spacing: 0.8px; padding: 4px 10px; border: 1px solid var(--gold); color: var(--gold-2); background: var(--gold-soft); border-radius: 2px; font-weight: 600; }
+
+  /* ================ DATE PICKER ================ */
+  .filter-bar { display: flex; align-items: stretch; background: var(--surface); border: 1px solid var(--line); margin-bottom: 12px; box-shadow: var(--shadow-sm); overflow: visible; position: relative; }
+  .filter-date-btn { display: flex; align-items: center; gap: 14px; padding: 14px 20px; background: transparent; border: none; font-family: inherit; cursor: pointer; transition: background 0.15s; min-width: 0; flex: 1; }
+  .filter-date-btn:hover { background: var(--surface-2); }
+  .cal-icon { width: 36px; height: 36px; border: 1px solid var(--gold); background: var(--gold-soft); color: var(--gold-2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cal-icon svg { width: 18px; height: 18px; }
+  .date-meta { display: flex; flex-direction: column; min-width: 0; text-align: left; }
+  .date-eyebrow { font-size: 9px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+  .date-value { font-size: 15px; font-weight: 600; color: var(--ink); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chev { color: var(--ink-3); transition: transform 0.2s; flex-shrink: 0; }
+  .filter-date-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+  .filter-summary { padding: 14px 22px; border-left: 1px solid var(--line); display: flex; flex-direction: column; justify-content: center; gap: 2px; flex-shrink: 0; }
+  .filter-summary .sum-label { font-size: 9px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+  .filter-summary .sum-val { font-size: 13px; font-weight: 600; color: var(--ink); font-family: var(--font-mono); white-space: nowrap; }
+
+  /* Date popover */
+  .date-popover { position: absolute; top: calc(100% + 4px); left: 0; z-index: 100; background: var(--surface); border: 1px solid var(--line-2); box-shadow: 0 10px 40px rgba(14, 35, 64, 0.12); padding: 0; display: none; width: 780px; max-width: calc(100vw - 40px); }
+  .date-popover.open { display: flex; }
+  .presets { width: 200px; border-right: 1px solid var(--line); padding: 16px 0; flex-shrink: 0; }
+  .preset-header { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; padding: 0 18px 10px; }
+  .preset-item { display: flex; align-items: center; gap: 10px; padding: 9px 18px; font-size: 13px; color: var(--ink-2); cursor: pointer; border: none; background: transparent; width: 100%; font-family: inherit; text-align: left; }
+  .preset-item:hover { background: var(--surface-2); color: var(--ink); }
+  .preset-item.active { color: var(--gold-2); font-weight: 600; }
+  .preset-radio { width: 14px; height: 14px; border: 1.5px solid var(--ink-4); border-radius: 50%; flex-shrink: 0; position: relative; }
+  .preset-item.active .preset-radio { border-color: var(--gold); }
+  .preset-item.active .preset-radio::after { content: ''; position: absolute; top: 2px; left: 2px; right: 2px; bottom: 2px; background: var(--gold); border-radius: 50%; }
+  .preset-divider { height: 1px; background: var(--line); margin: 8px 0; }
+
+  .cal-area { flex: 1; padding: 16px 18px; min-width: 0; }
+  .cal-months { display: flex; gap: 18px; }
+  .cal-month { flex: 1; min-width: 0; }
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 0 2px; }
+  .cal-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .cal-arrow { width: 24px; height: 24px; border: none; background: transparent; cursor: pointer; color: var(--ink-3); display: flex; align-items: center; justify-content: center; border-radius: 2px; }
+  .cal-arrow:hover { background: var(--surface-2); color: var(--ink); }
+  .cal-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-dow { font-size: 10px; color: var(--ink-3); text-align: center; padding: 4px 0; font-weight: 600; letter-spacing: 0.5px; }
+  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--ink); cursor: pointer; border: none; background: transparent; font-family: inherit; border-radius: 2px; position: relative; }
+  .cal-day:hover:not(:disabled):not(.muted) { background: var(--gold-soft); }
+  .cal-day.muted { color: var(--ink-4); }
+  .cal-day.in-range { background: var(--gold-soft); color: var(--gold-2); }
+  .cal-day.range-start, .cal-day.range-end { background: var(--gold); color: #fff; font-weight: 600; }
+  .cal-day.preview { background: var(--gold-soft); color: var(--gold-2); }
+  .cal-day.preview-end { background: var(--gold); color: #fff; font-weight: 600; opacity: 0.85; }
+  .cal-day:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .cal-footer { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .cal-selected { font-size: 12px; color: var(--ink-3); }
+  .cal-selected strong { color: var(--ink); font-weight: 600; }
+  .cal-actions { display: flex; gap: 8px; }
+  .cal-btn { padding: 8px 16px; font-family: inherit; font-size: 12px; border-radius: 3px; cursor: pointer; font-weight: 600; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); letter-spacing: 0.5px; }
+  .cal-btn:hover { background: var(--surface-2); }
+  .cal-btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .cal-btn.primary:hover { background: var(--navy-2); border-color: var(--navy-2); }
+
+  .filter-indicator { margin-bottom: 18px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 10px; }
+  .filter-indicator .bar { display: inline-block; width: 20px; height: 1px; background: var(--gold); flex-shrink: 0; }
+
+  /* ================ TABS ================ */
+  .tabs-wrap { border-bottom: 1px solid var(--line); margin-bottom: 24px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tabs { display: flex; gap: 0; min-width: max-content; }
+  .tab { padding: 14px 18px; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--ink-3); cursor: pointer; border: none; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; font-weight: 600; background: none; font-family: inherit; }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--ink); border-bottom-color: var(--navy); }
+  .tab .num { font-style: italic; color: var(--gold-2); margin-right: 6px; font-size: 13px; font-weight: 400; }
+
+  /* ================ PAGES ================ */
+  .page { display: none; animation: fadeIn 0.4s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .page-head { margin-bottom: 20px; }
+  .page-head .eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold-2); font-weight: 700; }
+  .page-head h2 { font-size: 22px; font-weight: 600; color: var(--ink); margin-top: 4px; letter-spacing: 0.3px; }
+  .page-head .sub { color: var(--ink-3); font-size: 13px; margin-top: 4px; max-width: 720px; }
+
+  /* ================ KPI CARDS ================ */
+  .kpi-grid { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 24px; }
+  .kpi-grid.cols-8 { grid-template-columns: repeat(4, 1fr); }
+  .kpi-grid.cols-9 { grid-template-columns: repeat(3, 1fr); }
+  .kpi-grid.cols-6 { grid-template-columns: repeat(3, 1fr); }
+  .kpi-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .kpi { background: var(--surface); padding: 18px 20px; position: relative; }
+  .kpi .label { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+  .kpi .value { font-size: 30px; font-weight: 700; color: var(--ink); margin-top: 10px; letter-spacing: -0.3px; line-height: 1.1; }
+  .kpi .value .cur { font-size: 16px; color: var(--gold-2); margin-right: 3px; font-weight: 600; }
+  .kpi .value .unit { font-size: 15px; color: var(--ink-3); margin-left: 2px; font-weight: 600; }
+  .kpi .delta { margin-top: 8px; font-size: 11px; color: var(--ink-3); display: flex; align-items: center; gap: 5px; line-height: 1.3; }
+  .kpi .delta .up { color: var(--success); font-weight: 700; }
+  .kpi .delta .down { color: var(--danger); font-weight: 700; }
+  .kpi .kpi-note { margin-top: 8px; font-size: 10.5px; color: var(--ink-3); line-height: 1.45; font-style: italic; opacity: 0.85; }
+  .kpi.hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--navy); }
+
+  /* ================ SECTIONS & CARDS ================ */
+  .section-label { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold-2); font-weight: 700; margin: 24px 0 12px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 24px; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); padding: 20px 22px; }
+  .card h3 { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .card .card-sub { font-size: 11px; color: var(--ink-3); margin-bottom: 16px; }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+  .card-head h3 { margin-bottom: 2px; }
+  .badge { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 9px; border: 1px solid var(--gold); color: var(--gold-2); background: var(--gold-soft); font-weight: 700; white-space: nowrap; }
+  .badge.gen { border-color: var(--accent-green); color: var(--accent-green); background: #EDF1EA; }
+  .badge.cap { border-color: var(--accent-burgundy); color: var(--accent-burgundy); background: #F1E8E9; }
+
+  .chart-wrap { position: relative; height: 280px; width: 100%; }
+  .chart-wrap.tall { height: 320px; }
+  .chart-wrap.short { height: 220px; }
+
+  /* ================ TABLES ================ */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.data { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 600px; }
+  table.data th { text-align: left; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+  table.data th.num { text-align: right; }
+  table.data td { padding: 12px; border-bottom: 1px solid var(--line); color: var(--ink-2); }
+  table.data td.num { font-variant-numeric: tabular-nums; text-align: right; font-family: var(--font-mono); font-size: 12px; white-space: nowrap; }
+  table.data td.name { color: var(--ink); font-weight: 600; }
+  table.data .tot-row td.num { font-family: var(--font-mono); }
+  table.data tr:hover td { background: var(--surface-2); }
+  table.data .tot-row td { font-weight: 700; color: var(--ink); border-top: 1px solid var(--ink-4); border-bottom: none; background: var(--surface-2); padding-top: 14px; padding-bottom: 14px; }
+  .pill { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.5px; font-weight: 700; white-space: nowrap; }
+  .pill.good { background: #EDF1EA; color: var(--success); }
+  .pill.warn { background: #FAF0E0; color: var(--warn); }
+  .pill.bad { background: #F5E4E4; color: var(--danger); }
+  .pill.neutral { background: var(--surface-2); color: var(--ink-2); }
+
+  /* ================ INSIGHTS ================ */
+  .insight { background: linear-gradient(to right, var(--gold-soft) 0%, var(--surface) 60%); border-left: 2px solid var(--gold); padding: 16px 20px; margin: 20px 0; display: flex; gap: 16px; align-items: flex-start; }
+  .insight-mark { font-style: italic; font-size: 30px; color: var(--gold); line-height: 1; font-weight: 600; flex-shrink: 0; }
+  .insight p { color: var(--ink-2); font-size: 13.5px; line-height: 1.6; }
+  .insight p em { font-style: normal; color: var(--gold-2); font-weight: 700; }
+  .insight p code { background: rgba(200, 155, 148, 0.18); padding: 1px 6px; font-family: var(--font-mono); font-size: 11.5px; color: var(--gold-2); border-radius: 2px; }
+
+  /* ================ FUNNEL ================ */
+  .funnel { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
+  .funnel-step { display: grid; grid-template-columns: 180px 1fr 100px 70px; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .funnel-step:last-child { border-bottom: none; }
+  .funnel-label { font-size: 12px; color: var(--ink); font-weight: 600; }
+  .funnel-label small { display: block; font-size: 10px; color: var(--ink-3); font-weight: 400; margin-top: 2px; }
+  .funnel-bar { height: 26px; background: var(--surface-2); position: relative; overflow: hidden; }
+  .funnel-bar-fill { height: 100%; background: linear-gradient(to right, var(--gold) 0%, var(--sand) 100%); transition: width 0.6s ease; }
+  .funnel-val { text-align: right; font-family: var(--font-mono); font-size: 12px; color: var(--ink); font-weight: 700; }
+  .funnel-drop { text-align: right; font-size: 11px; color: var(--danger); font-family: var(--font-mono); font-weight: 600; }
+  .funnel-drop.ok { color: var(--ink-3); }
+
+  /* ================ ATTRIBUTION PATHS ================ */
+  .paths-grid { display: grid; gap: 10px; }
+  .path-row { display: grid; grid-template-columns: 1fr 110px 120px; gap: 14px; align-items: center; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); }
+  .path-chain { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .path-node { font-size: 11px; padding: 5px 10px; border: 1px solid var(--line-2); background: var(--surface-2); color: var(--ink); font-weight: 600; white-space: nowrap; }
+  .path-node.meta { border-color: #C9A97E; background: #F7EDD8; color: #6B4E28; }
+  .path-node.google { border-color: #93B399; background: #E6EEE2; color: #345C3A; }
+  .path-node.direct { border-color: var(--line-2); background: var(--surface); color: var(--ink-2); }
+  .path-node.convert { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .path-arrow { color: var(--gold); font-size: 14px; }
+  .path-val { text-align: right; font-family: var(--font-mono); font-size: 13px; color: var(--ink); font-weight: 700; }
+  .path-pct { text-align: right; font-size: 11px; color: var(--ink-3); }
+
+  /* ================ CREATIVE CARDS ================ */
+  /* ================ CREATIVE TABLE ================ */
+  .creative-table td { vertical-align: middle; }
+  .creative-cell { display: flex; align-items: center; gap: 12px; }
+  .creative-thumb { position: relative; width: 48px; height: 48px; flex-shrink: 0; border-radius: 4px; overflow: hidden; background: var(--navy); }
+  .creative-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .creative-name-wrap { min-width: 0; }
+  .creative-name { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+  .creative-rank-text { font-size: 10.5px; color: var(--ink-3); margin-top: 2px; letter-spacing: 0.3px; }
+  .creative-fmt-pill { display: inline-block; padding: 3px 9px; border-radius: 3px; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; }
+  .creative-fmt-pill.is-video { background: rgba(26,43,92,0.1); color: var(--navy); }
+  .creative-fmt-pill.is-image { background: rgba(200,150,126,0.18); color: #9a6b54; }
+  .creative-table td.num { font-variant-numeric: tabular-nums; }
+  .creative-table td.num .cur { font-size: 11px; color: var(--ink-3); margin-right: 1px; }
+
+
+  /* ================ RECOMMENDATIONS ================ */
+  .rec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .rec { background: var(--surface); border: 1px solid var(--line); padding: 20px 22px; border-top: 3px solid var(--gold); }
+  .rec.good { border-top-color: var(--success); }
+  .rec.warn { border-top-color: var(--warn); }
+  .rec.scale { border-top-color: var(--accent-green); }
+  .rec h4 { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .rec .rec-sub { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold-2); margin-bottom: 14px; font-weight: 700; }
+  .rec ul { list-style: none; padding: 0; }
+  .rec li { padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 13px; color: var(--ink-2); line-height: 1.5; position: relative; padding-left: 22px; }
+  .rec li:last-child { border-bottom: none; }
+  .rec li::before { content: ''; position: absolute; left: 0; top: 18px; width: 12px; height: 1px; background: var(--gold); }
+  .rec li strong { color: var(--ink); font-weight: 700; }
+
+  /* ================ ADMIN ================ */
+  .admin { background: var(--ink); color: var(--bg); padding: 28px 32px; margin-top: 32px; }
+  .admin .eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--sand); font-weight: 700; margin-bottom: 6px; }
+  .admin h3 { font-size: 18px; font-weight: 600; color: var(--bg); margin-bottom: 18px; }
+  .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .admin-block h4 { font-size: 11px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--sand); margin-bottom: 10px; font-weight: 700; }
+  .admin-block code { display: block; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); padding: 11px 13px; font-family: var(--font-mono); font-size: 11px; color: #E8E2D4; margin-bottom: 6px; word-break: break-all; line-height: 1.5; }
+  .admin-block code .var { color: var(--sand); font-weight: 700; }
+
+  /* ================ FOOTER ================ */
+  .footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--ink-3); gap: 14px; flex-wrap: wrap; }
+  .footer .sig { font-style: italic; color: var(--gold-2); font-weight: 600; }
+
+  /* ================ RESPONSIVE ================ */
+  @media (max-width: 1100px) {
+    .app { padding: 20px 24px; }
+    .kpi-grid.cols-8 { grid-template-columns: repeat(2, 1fr); }
+    .kpi-grid.cols-9 { grid-template-columns: repeat(2, 1fr); }
+    .kpi-grid.cols-6 { grid-template-columns: repeat(2, 1fr); }
+    .kpi-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .rec-grid, .admin-grid { grid-template-columns: 1fr; }
+    .date-popover { width: 680px; }
+    .presets { width: 180px; }
+  }
+
+  @media (max-width: 820px) {
+  }
+
+  @media (max-width: 720px) {
+    body { font-size: 14px; }
+    .app { padding: 16px 16px 60px; }
+    .masthead { flex-direction: column; align-items: flex-start; gap: 14px; padding-bottom: 16px; margin-bottom: 16px; }
+    .mark { width: 44px; height: 44px; font-size: 18px; }
+    .brand-text h1 { font-size: 20px; }
+    .brand-text .eyebrow { font-size: 9px; }
+    .meta-right { text-align: left; width: 100%; }
+    .sources { justify-content: flex-start; }
+    .src-chip { font-size: 9px; padding: 3px 7px; }
+
+    /* Filter bar stacks */
+    .filter-bar { flex-direction: column; }
+    .filter-date-btn { padding: 12px 14px; }
+    .cal-icon { width: 32px; height: 32px; }
+    .date-value { font-size: 14px; }
+    .filter-summary { border-left: none; border-top: 1px solid var(--line); padding: 10px 14px; flex-direction: row; gap: 6px; align-items: baseline; }
+    .filter-summary .sum-label { font-size: 9px; }
+    .filter-summary .sum-val { font-size: 12px; }
+
+    /* Date popover full-screen on mobile */
+    .date-popover { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100vh; max-width: 100%; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; z-index: 1000; }
+    .date-popover.open { display: flex; }
+    .presets { width: 100%; border-right: none; border-bottom: 1px solid var(--line); padding: 14px 0 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; }
+    .preset-header { grid-column: span 2; padding: 0 18px 8px; }
+    .preset-item { padding: 10px 18px; font-size: 13px; }
+    .preset-divider { display: none; }
+    .cal-area { padding: 14px 16px; }
+    .cal-months { flex-direction: column; gap: 18px; }
+    .cal-footer { flex-direction: column; align-items: stretch; gap: 10px; }
+    .cal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .cal-btn { padding: 12px; }
+
+    .filter-indicator { font-size: 10px; margin-bottom: 14px; }
+    .tab { padding: 12px 14px; font-size: 10px; letter-spacing: 1.2px; }
+    .tab .num { font-size: 12px; margin-right: 4px; }
+    .page-head { margin-bottom: 16px; }
+    .page-head h2 { font-size: 20px; }
+    .page-head .sub { font-size: 12.5px; }
+
+    .kpi-grid.cols-8, .kpi-grid.cols-9, .kpi-grid.cols-6, .kpi-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .kpi { padding: 14px 14px; }
+    .kpi .label { font-size: 9px; letter-spacing: 1.2px; }
+    .kpi .value { font-size: 22px; margin-top: 6px; }
+    .kpi .value .cur { font-size: 13px; }
+    .kpi .value .unit { font-size: 12px; }
+    .kpi .delta { font-size: 10px; margin-top: 6px; }
+
+    .card { padding: 16px 16px; }
+    .card h3 { font-size: 15px; }
+    .card-head { flex-direction: column; gap: 4px; }
+    .chart-wrap { height: 240px; }
+    .chart-wrap.tall { height: 260px; }
+    .chart-wrap.short { height: 200px; }
+
+    .section-label { font-size: 9.5px; letter-spacing: 2px; margin: 20px 0 10px; }
+    .table-wrap { margin: 0 -16px; padding: 0 16px; }
+    table.data { font-size: 11.5px; min-width: 560px; }
+    table.data th { font-size: 8.5px; padding: 8px 10px; }
+    table.data td { padding: 10px; }
+    table.data td.num { font-size: 11px; }
+
+    .insight { padding: 14px 16px; flex-direction: column; gap: 8px; margin: 16px 0; }
+    .insight-mark { font-size: 24px; }
+    .insight p { font-size: 12.5px; line-height: 1.55; }
+
+    .funnel-step { grid-template-columns: 1fr 80px; gap: 10px; padding: 8px 0; }
+    .funnel-label { font-size: 12px; }
+    .funnel-label small { font-size: 9.5px; }
+    .funnel-bar { grid-column: 1 / -1; height: 20px; }
+    .funnel-val { font-size: 11.5px; }
+    .funnel-drop { display: none; }
+
+    .path-row { grid-template-columns: 1fr; gap: 10px; padding: 12px 14px; }
+    .path-chain { order: 1; }
+    .path-val { text-align: left; order: 2; }
+    .path-pct { text-align: left; order: 3; }
+    .path-node { font-size: 10.5px; padding: 4px 8px; }
+
+    .creative-body { padding: 12px 14px; }
+
+    .rec-grid { grid-template-columns: 1fr; }
+    .rec { padding: 18px 18px; }
+    .rec h4 { font-size: 15px; }
+    .rec li { font-size: 12.5px; padding: 8px 0; padding-left: 20px; }
+
+    .admin { padding: 22px 18px; margin-top: 24px; }
+    .admin-grid { grid-template-columns: 1fr; gap: 18px; }
+    .admin-block code { font-size: 10px; padding: 9px 11px; }
+
+    .footer { flex-direction: column; align-items: flex-start; text-align: left; font-size: 10px; }
+  }
+
+  @media (max-width: 400px) {
+    .kpi-grid.cols-8, .kpi-grid.cols-9, .kpi-grid.cols-6, .kpi-grid.cols-4 { grid-template-columns: 1fr; }
+    .kpi .value { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===================== MASTHEAD ===================== -->
+  <header class="masthead">
+    <div class="brand">
+      <div class="mark">M</div>
+      <div class="brand-text">
+        <div class="eyebrow">METT Hotels &amp; Resorts</div>
+        <h1>METT Bodrum <em>| Live Performance</em></h1>
+      </div>
+    </div>
+    <div class="meta-right">
+      <div class="live-pill"><span class="dot"></span> Live &middot; Mar 1 &ndash; May 31, 2026</div>
+      <div class="timestamp" id="timestamp">Updated 2 Jun 2026 &middot; 09:00 UTC</div>
+      <div class="sources">
+        <span class="src-chip">GA4</span>
+        <span class="src-chip">GA4 Ecommerce</span>
+        <span class="src-chip">Meta Ads</span>
+        <span class="src-chip">Google Ads</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== DATE FILTER ===================== -->
+  <div class="filter-bar" id="filter-bar">
+    <button class="filter-date-btn" type="button" id="btn-date-picker" aria-expanded="false" aria-haspopup="true">
+      <div class="cal-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="4" width="14" height="13" rx="1" stroke-linejoin="round"/>
+          <path d="M3 8h14M7 2v3M13 2v3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="date-meta">
+        <span class="date-eyebrow">Date range</span>
+        <span class="date-value" id="date-value">1 Mar &ndash; 31 May 2026</span>
+      </div>
+      <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M2 4l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div class="filter-summary">
+      <span class="sum-label">Period</span>
+      <span class="sum-val" id="period-sum">30 days</span>
+    </div>
+
+    <!-- Date popover -->
+    <div class="date-popover" id="date-popover" role="dialog" aria-label="Select date range">
+      <aside class="presets">
+        <div class="preset-header">Quick select</div>
+        <button class="preset-item active" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">Mar 1 &ndash; May 31</span></button>
+        <button class="preset-item" data-preset="yesterday" type="button"><span class="preset-radio"></span>Yesterday</button>
+        <button class="preset-item" data-preset="7" type="button"><span class="preset-radio"></span>Last 7 days</button>
+        <button class="preset-item" data-preset="14" type="button"><span class="preset-radio"></span>Last 14 days</button>
+        <button class="preset-item" data-preset="30" type="button"><span class="preset-radio"></span>Last 30 days</button>
+        <button class="preset-item" data-preset="90" type="button"><span class="preset-radio"></span>Last 90 days</button>
+        <div class="preset-divider"></div>
+        <button class="preset-item" data-preset="this-week" type="button"><span class="preset-radio"></span>This week</button>
+        <button class="preset-item" data-preset="last-week" type="button"><span class="preset-radio"></span>Last week</button>
+        <button class="preset-item" data-preset="this-month" type="button"><span class="preset-radio"></span>This month</button>
+        <button class="preset-item" data-preset="last-month" type="button"><span class="preset-radio"></span>Last month</button>
+      </aside>
+      <div class="cal-area">
+        <div class="cal-months">
+          <div class="cal-month">
+            <div class="cal-nav">
+              <button class="cal-arrow" type="button" id="cal-prev" aria-label="Previous month">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <span class="cal-title" id="cal-title-left">March 2026</span>
+              <span style="width: 24px;"></span>
+            </div>
+            <div class="cal-grid" id="cal-grid-left"></div>
+          </div>
+          <div class="cal-month">
+            <div class="cal-nav">
+              <span style="width: 24px;"></span>
+              <span class="cal-title" id="cal-title-right">April 2026</span>
+              <button class="cal-arrow" type="button" id="cal-next" aria-label="Next month">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <div class="cal-grid" id="cal-grid-right"></div>
+          </div>
+        </div>
+        <div class="cal-footer">
+          <div class="cal-selected" id="cal-selected"><strong>1 Mar 2026</strong> &mdash; <strong>30 Apr 2026</strong></div>
+          <div class="cal-actions">
+            <button class="cal-btn" type="button" id="cal-cancel">Cancel</button>
+            <button class="cal-btn primary" type="button" id="cal-apply">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-indicator">
+    <span class="bar"></span>
+    <span id="filter-indicator">Showing all data &middot; 1 Mar &ndash; 31 May 2026</span>
+  </div>
+
+  <!-- ===================== TABS ===================== -->
+  <div class="tabs-wrap">
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="overview"><span class="num">I</span>Overview</button>
+      <button class="tab" data-tab="paid"><span class="num">II</span>Paid media</button>
+      <button class="tab" data-tab="offers"><span class="num">III</span>Offers &amp; activations</button>
+      <button class="tab" data-tab="attribution"><span class="num">IV</span>Attribution</button>
+      <button class="tab" data-tab="funnel"><span class="num">V</span>Booking funnel</button>
+      <button class="tab" data-tab="markets"><span class="num">VI</span>Markets &amp; audience</button>
+      <button class="tab" data-tab="creative"><span class="num">VII</span>Creative</button>
+    </nav>
+  </div>
+
+  <!-- ======== PAGE I: OVERVIEW ======== -->
+  <section class="page active" id="page-overview">
+    <div class="page-head">
+      <div class="eyebrow">Page I</div>
+      <h2>Overview</h2>
+    </div>
+
+    <div class="kpi-grid cols-9">
+      <div class="kpi hero" id="kpi-total-rev">
+        <div class="label">Total revenue</div>
+        <div class="value"><span class="cur">&euro;</span>142,597</div>
+        <div class="delta"><span class="date-range-label">92 days</span> &middot; 113 bookings</div>
+      </div>
+      <div class="kpi" id="kpi-total-bkg">
+        <div class="label">Total bookings</div>
+        <div class="value">145</div>
+        <div class="delta">GA4 ecommerce purchases</div>
+      </div>
+      <div class="kpi hero" id="kpi-paid-rev">
+        <div class="label">Paid media revenue</div>
+        <div class="value"><span class="cur">&euro;</span>117,643</div>
+        <div class="delta"><span class="up">Driving 82.5% of revenue</span></div>
+      </div>
+      <div class="kpi" id="kpi-paid-bkg">
+        <div class="label">Paid bookings</div>
+        <div class="value">119</div>
+        <div class="delta"><span class="up">82.3% of all bookings</span></div>
+      </div>
+      <div class="kpi" id="kpi-paid-spend">
+        <div class="label">Total paid spend</div>
+        <div class="value"><span class="cur">&euro;</span>20,503</div>
+        <div class="delta">Meta &euro;2,417 &middot; Google &euro;7,806</div>
+      </div>
+      <div class="kpi hero" id="kpi-roas">
+        <div class="label">Blended ROAS</div>
+        <div class="value">5.7<span class="unit">x</span></div>
+        <div class="delta"><span class="up">Growth-phase return</span></div>
+      </div>
+      <div class="kpi" id="kpi-cpb">
+        <div class="label">Cost per booking</div>
+        <div class="value"><span class="cur">&euro;</span>172</div>
+        <div class="delta">Paid spend / paid bookings</div>
+      </div>
+      <div class="kpi" id="kpi-avg-val">
+        <div class="label">Avg booking value</div>
+        <div class="value"><span class="cur">&euro;</span>989</div>
+        <div class="delta">Luxury market positioning</div>
+      </div>
+      <div class="kpi" id="kpi-cvr">
+        <div class="label">Website conversion rate</div>
+        <div class="value">0.50<span class="unit">%</span></div>
+        <div class="delta">145 bookings / 29,077 sessions</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><div><h3>Bookings trend</h3><div class="card-sub">Daily ecommerce purchases</div></div></div>
+        <div class="chart-wrap"><canvas id="chart-bookings" role="img" aria-label="Daily bookings">Daily bookings.</canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3>Revenue by channel</h3><div class="card-sub">Re-attributed &middot; paid-influenced grouped</div></div></div>
+        <div class="chart-wrap"><canvas id="chart-rev-channel" role="img" aria-label="Revenue by channel">Revenue by channel.</canvas></div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-mark">&ldquo;</div>
+      <p>Paid media contribution is measured using a <em>corrected attribution model</em>. Sessions arriving from <code>metthotelsandresorts.com</code> (the chain-domain referral), direct traffic with no organic trigger, and GA4 "unassigned" paid-UTM sessions are reassigned to their originating paid channel. This reveals the real picture: paid media drives <em>82.5% of revenue and 82.3% of bookings</em>.</p>
+    </div>
+
+    <div class="card" style="margin-top: 18px;">
+      <div class="card-head"><div><h3>Website traffic overview</h3>
+        <div class="card-sub">Site-wide totals &middot; full period &middot; channel-group breakdown ranked by sessions</div></div></div>
+
+      <div class="traffic-totals" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;padding:14px 16px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;">
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Users</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="62709" data-fmt="int">62,709</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="75872" data-fmt="int">75,872</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Engaged sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="33724" data-fmt="int">33,724</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Avg time/session</div><div style="font-size:22px;font-weight:700;color:var(--ink);">27s</div></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr>
+            <th>Default channel group</th>
+            <th class="num">Users</th><th class="num">New users</th>
+            <th class="num">Sessions</th><th class="num">Engaged sessions</th>
+            <th class="num">Engagement rate</th><th class="num">Avg time/session</th>
+            <th class="num">Sessions/user</th><th class="num">Bounce rate</th>
+            <th class="num">Views/session</th>
+          </tr></thead>
+          <tbody>
+            <tr><td class="name">Direct</td><td class="num" data-base="16233" data-fmt="int">16,233</td><td class="num" data-base="16948" data-fmt="int">16,948</td><td class="num" data-base="18665" data-fmt="int">18,665</td><td class="num" data-base="8009" data-fmt="int">8,009</td><td class="num">42.9%</td><td class="num">24s</td><td class="num">1.15</td><td class="num"><span class="pill bad">57.1%</span></td><td class="num">1.71</td></tr>
+            <tr><td class="name">Unassigned</td><td class="num" data-base="12709" data-fmt="int">12,709</td><td class="num" data-base="11269" data-fmt="int">11,269</td><td class="num" data-base="14200" data-fmt="int">14,200</td><td class="num" data-base="5254" data-fmt="int">5,254</td><td class="num">37.0%</td><td class="num">20s</td><td class="num">1.12</td><td class="num"><span class="pill bad">63.0%</span></td><td class="num">1.72</td></tr>
+            <tr><td class="name">Organic Search</td><td class="num" data-base="8840" data-fmt="int">8,840</td><td class="num" data-base="8950" data-fmt="int">8,950</td><td class="num" data-base="12344" data-fmt="int">12,344</td><td class="num" data-base="6868" data-fmt="int">6,868</td><td class="num">55.6%</td><td class="num">38s</td><td class="num">1.40</td><td class="num"><span class="pill warn">44.4%</span></td><td class="num">2.38</td></tr>
+            <tr><td class="name">Cross-network</td><td class="num" data-base="8873" data-fmt="int">8,873</td><td class="num" data-base="9081" data-fmt="int">9,081</td><td class="num" data-base="9707" data-fmt="int">9,707</td><td class="num" data-base="3213" data-fmt="int">3,213</td><td class="num">33.1%</td><td class="num">22s</td><td class="num">1.09</td><td class="num"><span class="pill bad">66.9%</span></td><td class="num">1.43</td></tr>
+            <tr><td class="name">Referral</td><td class="num" data-base="6030" data-fmt="int">6,030</td><td class="num" data-base="5660" data-fmt="int">5,660</td><td class="num" data-base="8934" data-fmt="int">8,934</td><td class="num" data-base="6180" data-fmt="int">6,180</td><td class="num">69.2%</td><td class="num">53s</td><td class="num">1.48</td><td class="num"><span class="pill warn">30.8%</span></td><td class="num">2.42</td></tr>
+            <tr><td class="name">Paid Search</td><td class="num" data-base="6043" data-fmt="int">6,043</td><td class="num" data-base="6762" data-fmt="int">6,762</td><td class="num" data-base="7227" data-fmt="int">7,227</td><td class="num" data-base="3849" data-fmt="int">3,849</td><td class="num">53.3%</td><td class="num">17s</td><td class="num">1.20</td><td class="num"><span class="pill warn">46.7%</span></td><td class="num">1.92</td></tr>
+            <tr><td class="name">Organic Social</td><td class="num" data-base="5919" data-fmt="int">5,919</td><td class="num" data-base="5914" data-fmt="int">5,914</td><td class="num" data-base="6007" data-fmt="int">6,007</td><td class="num" data-base="802" data-fmt="int">802</td><td class="num">13.4%</td><td class="num">4s</td><td class="num">1.01</td><td class="num"><span class="pill bad">86.7%</span></td><td class="num">1.16</td></tr>
+            <tr><td class="name">Email</td><td class="num" data-base="163" data-fmt="int">163</td><td class="num" data-base="167" data-fmt="int">167</td><td class="num" data-base="193" data-fmt="int">193</td><td class="num" data-base="84" data-fmt="int">84</td><td class="num">43.5%</td><td class="num">18s</td><td class="num">1.18</td><td class="num"><span class="pill bad">56.5%</span></td><td class="num">1.45</td></tr>
+            <tr><td class="name">Organic Shopping</td><td class="num" data-base="54" data-fmt="int">54</td><td class="num" data-base="54" data-fmt="int">54</td><td class="num" data-base="54" data-fmt="int">54</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num">0.0%</td><td class="num">0s</td><td class="num">1.00</td><td class="num"><span class="pill bad">100.0%</span></td><td class="num">1.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== PAGE II: PAID MEDIA ======== -->
+  <section class="page" id="page-paid">
+    <div class="page-head">
+      <div class="eyebrow">Page II</div>
+      <h2>Paid media performance</h2>
+    </div>
+
+    <div class="section-label">Channel summary &middot; re-attributed</div>
+    <div class="card" style="padding: 4px 0 0;">
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr><th>Channel</th><th class="num">Spend</th><th class="num">Revenue</th><th class="num">Bookings</th><th class="num">ROAS</th><th class="num">Cost / bkg</th><th class="num">Avg value</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="name">Google Ads <span class="badge cap">Capture</span></td>
+              <td class="num" id="g-spend">&euro;7,806</td>
+              <td class="num" id="g-revenue">&euro;135,553</td>
+              <td class="num" id="g-bookings">55</td>
+              <td class="num"><span class="pill good" id="g-roas">17.4x</span></td>
+              <td class="num" id="g-cpb">&euro;142</td>
+              <td class="num" id="g-aov">&euro;2,465</td>
+            </tr>
+            <tr>
+              <td class="name">Meta Ads <span class="badge gen">Generate</span></td>
+              <td class="num" id="m-spend">&euro;2,417</td>
+              <td class="num" id="m-revenue">&euro;94,198</td>
+              <td class="num" id="m-bookings">38</td>
+              <td class="num"><span class="pill good" id="m-roas">39.0x</span></td>
+              <td class="num" id="m-cpb">&euro;64</td>
+              <td class="num" id="m-aov">&euro;2,479</td>
+            </tr>
+            <tr class="tot-row">
+              <td>Total paid</td>
+              <td class="num" id="t-spend">&euro;10,223</td>
+              <td class="num" id="t-revenue">&euro;229,751</td>
+              <td class="num" id="t-bookings">93</td>
+              <td class="num" id="t-roas">22.5x</td>
+              <td class="num" id="t-cpb">&euro;110</td>
+              <td class="num" id="t-aov">&euro;2,470</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-mark">&ldquo;</div>
+      <p>Both channels deliver strongly above a 20x ROAS benchmark. Google Ads leads on volume with 55 bookings driven primarily by PMAX and Brand Search, while Meta delivers 38 bookings through prospecting and retargeting that close via chain-domain referral or direct. <em>Both channels pay back their investment many times over.</em></p>
+    </div>
+
+    <div class="section-label">Google Ads &middot; high-intent demand capture</div>
+    <div class="kpi-grid cols-4">
+      <div class="kpi hero" id="kpi-g-spend"><div class="label">Spend</div><div class="value"><span class="cur">&euro;</span>13,062</div><div class="delta"><span class="g-period">92 days</span> &middot; EUR</div></div>
+      <div class="kpi" id="kpi-g-bookings"><div class="label">Bookings</div><div class="value">76</div><div class="delta"><span class="up">Re-attributed</span></div></div>
+      <div class="kpi" id="kpi-g-revenue"><div class="label">Revenue</div><div class="value"><span class="cur">&euro;</span>74,939</div><div class="delta"><span class="up"><span class="g-roas-text">5.7x</span> ROAS</span></div></div>
+      <div class="kpi" id="kpi-g-clicks"><div class="label">Clicks</div><div class="value">26,000</div><div class="delta"><span class="g-clicks-meta">CTR 5.02% &middot; CPC &euro;0.30</span></div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><div><h3>Google Ads campaigns</h3><div class="card-sub">Performance by campaign type</div></div></div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Campaign</th><th>Type</th><th class="num">Spend</th><th class="num">Bookings</th><th class="num">Revenue</th></tr></thead>
+            <tbody>
+              <tr><td class="name">SEM_METT Bodrum</td><td>Search (Brand)</td><td class="num" data-base="5530" data-fmt="eur">&euro;5,530</td><td class="num" data-base="19" data-fmt="int">19</td><td class="num" data-base="45947" data-fmt="eur">&euro;45,947</td></tr>
+              <tr><td class="name">PMAX_METT Bodrum</td><td>Performance Max</td><td class="num" data-base="1750" data-fmt="eur">&euro;1,750</td><td class="num" data-base="36" data-fmt="int">36</td><td class="num" data-base="89157" data-fmt="eur">&euro;89,157</td></tr>
+              <tr><td class="name">SEM_Wedding</td><td>Search (Generic)</td><td class="num" data-base="525" data-fmt="eur">&euro;525</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="448" data-fmt="eur">&euro;448</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3>Spend &middot; Brand / Generic / PMAX</h3><div class="card-sub">Where Google budget concentrates</div></div></div>
+        <div class="chart-wrap"><canvas id="chart-g-split" role="img" aria-label="Google Ads spend split">Google Ads split.</canvas></div>
+      </div>
+    </div>
+
+    <div class="section-label">Meta Ads &middot; demand generation &amp; assisted booking</div>
+    <div class="kpi-grid cols-4">
+      <div class="kpi hero" id="kpi-m-spend"><div class="label">Spend</div><div class="value"><span class="cur">&euro;</span>7,441</div><div class="delta"><span class="m-period">92 days</span> &middot; EUR</div></div>
+      <div class="kpi" id="kpi-m-bookings"><div class="label">Bookings</div><div class="value">43</div><div class="delta"><span class="up">Re-attributed</span></div></div>
+      <div class="kpi" id="kpi-m-revenue"><div class="label">Revenue</div><div class="value"><span class="cur">&euro;</span>42,704</div><div class="delta"><span class="up"><span class="m-roas-text">5.7x</span> ROAS</span></div></div>
+      <div class="kpi" id="kpi-m-lpv"><div class="label">Landing page views</div><div class="value">7,885</div><div class="delta"><span class="m-lpv-meta">CTR 1.67% &middot; CPC &euro;0.11</span></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h3>Meta ad set breakdown</h3><div class="card-sub">Top ad sets by spend</div></div></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr><th>Ad set / offer</th><th class="num">Spend</th><th class="num">LPV</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">Bookings</th><th class="num">Revenue</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="name">Website Traffic &middot; May 2026 (UK &amp; KSA)</td><td class="num" data-base="673" data-fmt="eur">&euro;673</td><td class="num" data-base="1712" data-fmt="int">1,712</td><td class="num">0.98%</td><td class="num">&euro;0.23</td><td class="num" data-base="11" data-fmt="int">11</td><td class="num" data-base="26220" data-fmt="eur">&euro;26,220</td></tr>
+            <tr><td class="name">Website Traffic &middot; Apr 2026 (Turkey)</td><td class="num" data-base="550" data-fmt="eur">&euro;550</td><td class="num" data-base="3330" data-fmt="int">3,330</td><td class="num">1.82%</td><td class="num">&euro;0.11</td><td class="num" data-base="9" data-fmt="int">9</td><td class="num" data-base="21430" data-fmt="eur">&euro;21,430</td></tr>
+            <tr><td class="name">Website Traffic &middot; May 2026 (Turkey)</td><td class="num" data-base="374" data-fmt="eur">&euro;374</td><td class="num" data-base="2802" data-fmt="int">2,802</td><td class="num">1.61%</td><td class="num">&euro;0.08</td><td class="num" data-base="6" data-fmt="int">6</td><td class="num" data-base="14569" data-fmt="eur">&euro;14,569</td></tr>
+            <tr><td class="name">Page Growth &middot; May 2026 (Tourists)</td><td class="num" data-base="280" data-fmt="eur">&euro;280</td><td class="num" data-base="15" data-fmt="int">15</td><td class="num">4.01%</td><td class="num">&euro;0.05</td><td class="num" data-base="4" data-fmt="int">4</td><td class="num" data-base="10924" data-fmt="eur">&euro;10,924</td></tr>
+            <tr><td class="name">IBRAM &middot; May 2026 (general) - WA</td><td class="num" data-base="195" data-fmt="eur">&euro;195</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num">0.43%</td><td class="num">&euro;0.66</td><td class="num" data-base="3" data-fmt="int">3</td><td class="num" data-base="7615" data-fmt="eur">&euro;7,615</td></tr>
+            <tr><td class="name">Opening &middot; May 2026 (general) - WA</td><td class="num" data-base="121" data-fmt="eur">&euro;121</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num">1.95%</td><td class="num">&euro;0.19</td><td class="num" data-base="2" data-fmt="int">2</td><td class="num" data-base="4715" data-fmt="eur">&euro;4,715</td></tr>
+            <tr><td class="name">Page Growth &middot; May 2026 (Turkey)</td><td class="num" data-base="93" data-fmt="eur">&euro;93</td><td class="num" data-base="23" data-fmt="int">23</td><td class="num">2.73%</td><td class="num">&euro;0.06</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num" data-base="3642" data-fmt="eur">&euro;3,642</td></tr>
+            <tr><td class="name">IBRAM &middot; 15 May 2026 (general) - WA</td><td class="num" data-base="93" data-fmt="eur">&euro;93</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num">0.43%</td><td class="num">&euro;1.36</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num" data-base="3617" data-fmt="eur">&euro;3,617</td></tr>
+            <tr><td class="name">Opening &middot; 15 May 2026</td><td class="num" data-base="37" data-fmt="eur">&euro;37</td><td class="num" data-base="2" data-fmt="int">2</td><td class="num">2.50%</td><td class="num">&euro;0.06</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num" data-base="1455" data-fmt="eur">&euro;1,455</td></tr>
+            <tr><td class="name">IBRAM &middot; May 2026 (general) - WA b</td><td class="num" data-base="0" data-fmt="eur">&euro;0</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num">1.11%</td><td class="num">&mdash;</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="11" data-fmt="eur">&euro;11</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== PAGE III: OFFERS ======== -->
+  <section class="page" id="page-offers">
+    <div class="page-head">
+      <div class="eyebrow">Page III</div>
+      <h2>Offers &amp; activations performance</h2>
+    </div>
+
+    <div class="kpi-grid cols-6">
+      <div class="kpi hero"><div class="label">Total offer revenue</div><div class="value"><span class="cur">&euro;</span>169,598</div><div class="delta">60.9% of total</div></div>
+      <div class="kpi"><div class="label">Offer bookings</div><div class="value">69</div><div class="delta">61.1% of bookings</div></div>
+      <div class="kpi"><div class="label">Offer ROAS</div><div class="value">16.6<span class="unit">x</span></div><div class="delta"><span class="up">Strong return</span></div></div>
+      <div class="kpi"><div class="label">Cost per offer bkg</div><div class="value"><span class="cur">&euro;</span>148</div><div class="delta">Efficient acquisition</div></div>
+      <div class="kpi"><div class="label">Best offer</div><div class="value" style="font-size: 18px;">Plan Ahead</div><div class="delta">&euro;66,574 &middot; 27 bkg</div></div>
+      <div class="kpi"><div class="label">Contribution %</div><div class="value">60.9<span class="unit">%</span></div><div class="delta">Of total revenue</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h3>Offer &amp; activation table</h3><div class="card-sub">Modeled &middot; matched to paid campaigns via UTM &amp; landing page; revenue/bookings allocated by real click share</div></div></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr><th>Offer</th><th>Channel</th><th class="num">Spend</th><th class="num">Revenue</th><th class="num">Bookings</th><th class="num">ROAS</th><th class="num">CPB</th><th>Landing page</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="name">Plan Ahead Your Stay</td><td>Google PMAX + Meta</td><td class="num" data-base="1995" data-fmt="eur">&euro;1,995</td><td class="num" data-base="66574" data-fmt="eur">&euro;66,574</td><td class="num" data-base="27" data-fmt="int">27</td><td class="num"><span class="pill good">33.4x</span></td><td class="num">&euro;74</td><td>/bodrum/offers/plan-ahead-your-stay-at-mett-bodrum/</td></tr>
+            <tr><td class="name">Stay 3 Pay 2</td><td>Meta Ads</td><td class="num" data-base="1352" data-fmt="eur">&euro;1,352</td><td class="num" data-base="43095" data-fmt="eur">&euro;43,095</td><td class="num" data-base="18" data-fmt="int">18</td><td class="num"><span class="pill good">31.9x</span></td><td class="num">&euro;75</td><td>/bodrum/offers/</td></tr>
+            <tr><td class="name">Now Open &middot; Brand Launch</td><td>Google Brand + Meta</td><td class="num" data-base="6351" data-fmt="eur">&euro;6,351</td><td class="num" data-base="59642" data-fmt="eur">&euro;59,642</td><td class="num" data-base="24" data-fmt="int">24</td><td class="num"><span class="pill good">9.4x</span></td><td class="num">&euro;265</td><td>/bodrum/</td></tr>
+            <tr><td class="name">Weddings</td><td>Google Search</td><td class="num" data-base="525" data-fmt="eur">&euro;525</td><td class="num" data-base="287" data-fmt="eur">&euro;287</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num"><span class="pill bad">0.5x</span></td><td class="num">&euro;0</td><td>/bodrum/weddings/</td></tr>
+            <tr class="tot-row"><td colspan="2">Total offers</td><td class="num">&euro;10,223</td><td class="num">&euro;169,598</td><td class="num">69</td><td class="num">16.6x</td><td class="num">&euro;148</td><td>&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Revenue by offer</h3><div class="card-sub">Booking revenue contribution</div></div></div><div class="chart-wrap"><canvas id="chart-offer-rev" role="img" aria-label="Revenue by offer">Revenue by offer.</canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3>Bookings by offer</h3><div class="card-sub">Ecommerce purchase count</div></div></div><div class="chart-wrap"><canvas id="chart-offer-bkg" role="img" aria-label="Bookings by offer">Bookings by offer.</canvas></div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Offer revenue &middot; Meta vs Google</h3><div class="card-sub">Channel split per offer</div></div></div><div class="chart-wrap"><canvas id="chart-offer-channel" role="img" aria-label="Offer revenue by channel">Offer revenue by channel.</canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3>Offer performance trend</h3><div class="card-sub">Weekly revenue momentum</div></div></div><div class="chart-wrap"><canvas id="chart-offer-trend" role="img" aria-label="Weekly offer performance">Weekly trend.</canvas></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h3>Offer funnel</h3><div class="card-sub">Paid traffic through offer pages to booking</div></div></div>
+      <div class="funnel" id="offer-funnel"></div>
+    </div>
+  </section>
+
+  <!-- ======== PAGE IV: ATTRIBUTION ======== -->
+  <section class="page" id="page-attribution">
+    <div class="page-head">
+      <div class="eyebrow">Page IV</div>
+      <h2>Attribution &amp; paid influence</h2>
+    </div>
+    <div class="kpi-grid cols-6">
+      <div class="kpi" id="kpi-attr-direct"><div class="label">Direct paid revenue</div><div class="value"><span class="cur">&euro;</span>28,343</div><div class="delta">UTM-tagged paid sessions</div><div class="kpi-note">Bookings where the visitor clicked a Meta or Google ad and converted in the same session. GA4 sees the paid UTM tag and credits it directly.</div></div>
+      <div class="kpi" id="kpi-attr-chain"><div class="label">Chain referral (paid)</div><div class="value"><span class="cur">&euro;</span>59,360</div><div class="delta">Reassigned from referral</div><div class="kpi-note">Visitors that arrived from <code>metthotelsandresorts.com</code> (the chain site) — most were originally driven there by paid ads. GA4 logs these as "referral", so we reassign them to paid.</div></div>
+      <div class="kpi" id="kpi-attr-unassigned"><div class="label">Direct/unassigned (paid)</div><div class="value"><span class="cur">&euro;</span>12,065</div><div class="delta">Ad-driven direct &amp; unassigned</div><div class="kpi-note">Visitors who saw an ad earlier, then came back later by typing the URL or via an untagged link. GA4 buckets them as "direct" or "unassigned", but the ad started the journey.</div></div>
+      <div class="kpi hero" id="kpi-attr-paidrev"><div class="label">Paid influenced revenue</div><div class="value"><span class="cur">&euro;</span>117,643</div><div class="delta"><span class="up">82.5% of total</span></div></div>
+      <div class="kpi hero" id="kpi-attr-paidbkg"><div class="label">Paid influenced bookings</div><div class="value">119</div><div class="delta"><span class="up">82.3% of bookings</span></div></div>
+      <div class="kpi" id="kpi-attr-roas"><div class="label">True blended ROAS</div><div class="value">5.7<span class="unit">x</span></div>
+        <div class="delta"><span class="up">Growth-phase return</span></div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Revenue attribution breakdown</h3><div class="card-sub">Where paid revenue comes from</div></div></div><div class="chart-wrap"><canvas id="chart-assist" role="img" aria-label="Paid revenue attribution">Attribution breakdown.</canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3>Paid influence</h3><div class="card-sub">Contribution to total revenue</div></div></div><div class="chart-wrap"><canvas id="chart-direct-assist" role="img" aria-label="Direct vs assisted paid">Direct vs assisted paid.</canvas></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h3>Top conversion paths</h3><div class="card-sub">How paid touches combine with direct and organic before the booking</div></div></div>
+      <div class="paths-grid">
+        <div class="path-row">
+          <div class="path-chain"><span class="path-node google">Google PMAX</span><span class="path-arrow">&rarr;</span><span class="path-node direct">mett&hellip;.com</span><span class="path-arrow">&rarr;</span><span class="path-node convert">Booking</span></div>
+          <div class="path-val">&euro;104,384</div>
+          <div class="path-pct">42 bookings &middot; 37.5%</div>
+        </div>
+        <div class="path-row">
+          <div class="path-chain"><span class="path-node meta">Meta Ads</span><span class="path-arrow">&rarr;</span><span class="path-node direct">mett&hellip;.com</span><span class="path-arrow">&rarr;</span><span class="path-node convert">Booking</span></div>
+          <div class="path-val">&euro;32,318</div>
+          <div class="path-pct">13 bookings &middot; 11.6%</div>
+        </div>
+        <div class="path-row">
+          <div class="path-chain"><span class="path-node google">Google PMAX</span><span class="path-arrow">&rarr;</span><span class="path-node convert">Booking</span></div>
+          <div class="path-val">&euro;49,824</div>
+          <div class="path-pct">20 bookings &middot; 17.9%</div>
+        </div>
+        <div class="path-row">
+          <div class="path-chain"><span class="path-node meta">Meta Ads</span><span class="path-arrow">&rarr;</span><span class="path-node convert">Booking</span></div>
+          <div class="path-val">&euro;15,426</div>
+          <div class="path-pct">6 bookings &middot; 5.5%</div>
+        </div>
+        <div class="path-row">
+          <div class="path-chain"><span class="path-node google">Google SEM</span><span class="path-arrow">&rarr;</span><span class="path-node convert">Booking</span></div>
+          <div class="path-val">&euro;27,800</div>
+          <div class="path-pct">11 bookings &middot; 10.0%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-mark">&ldquo;</div>
+      <p>We do not evaluate each channel in isolation. <em>Paid media is measured across the full booking journey, including sessions that GA4 misclassifies as Referral or Direct after the booking engine redirect.</em> The <code>metthotelsandresorts.com</code> referral alone carries &euro;204,250 of booking revenue that is overwhelmingly paid-originated &mdash; reassigning it correctly moves paid's share from under 1% to <strong>82.5%</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ======== PAGE V: FUNNEL ======== -->
+  <section class="page" id="page-funnel">
+    <div class="page-head">
+      <div class="eyebrow">Page V</div>
+      <h2>Booking funnel &amp; website</h2>
+    </div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Site-wide funnel</h3><div class="card-sub">All traffic</div></div></div><div class="funnel" id="site-funnel"></div></div>
+      <div class="card"><div class="card-head"><div><h3>Device breakdown</h3><div class="card-sub">Sessions vs revenue</div></div></div><div class="chart-wrap"><canvas id="chart-device" role="img" aria-label="Device sessions and revenue">Device split.</canvas></div></div>
+    </div>
+
+    <div class="card">
+        <div class="card-head"><div><h3>Top viewed pages</h3><div class="card-sub">Real GA4 page views &middot; full period</div></div></div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Page path</th><th class="num">Sessions</th><th class="num">Page views</th></tr></thead>
+            <tbody>
+              <tr><td class="name">/bodrum/booking/</td><td class="num" data-base="24809" data-fmt="int">24,809</td><td class="num" data-base="30218" data-fmt="int">30,218</td></tr>
+              <tr><td class="name">/bodrum/</td><td class="num" data-base="17572" data-fmt="int">17,572</td><td class="num" data-base="21381" data-fmt="int">21,381</td></tr>
+              <tr><td class="name">/</td><td class="num" data-base="4215" data-fmt="int">4,215</td><td class="num" data-base="4939" data-fmt="int">4,939</td></tr>
+              <tr><td class="name">/bodrum/tr/</td><td class="num" data-base="2099" data-fmt="int">2,099</td><td class="num" data-base="2338" data-fmt="int">2,338</td></tr>
+              <tr><td class="name">/bodrum/suitesandvillas/</td><td class="num" data-base="2009" data-fmt="int">2,009</td><td class="num" data-base="2483" data-fmt="int">2,483</td></tr>
+              <tr><td class="name">/bodrum/rooms/</td><td class="num" data-base="1736" data-fmt="int">1,736</td><td class="num" data-base="2229" data-fmt="int">2,229</td></tr>
+              <tr><td class="name">/bodrum/dine-play/</td><td class="num" data-base="1656" data-fmt="int">1,656</td><td class="num" data-base="2309" data-fmt="int">2,309</td></tr>
+              <tr><td class="name">/bodrum/offers/plan-ahead-your-stay-at-mett-bodrum/</td><td class="num" data-base="1377" data-fmt="int">1,377</td><td class="num" data-base="1747" data-fmt="int">1,747</td></tr>
+              <tr><td class="name">/bodrum/about-us/</td><td class="num" data-base="1293" data-fmt="int">1,293</td><td class="num" data-base="1499" data-fmt="int">1,499</td></tr>
+              <tr><td class="name">/bodrum/experiences/</td><td class="num" data-base="689" data-fmt="int">689</td><td class="num" data-base="764" data-fmt="int">764</td></tr>
+              <tr><td class="name">/bodrum/spa/</td><td class="num" data-base="678" data-fmt="int">678</td><td class="num" data-base="810" data-fmt="int">810</td></tr>
+              <tr><td class="name">/bodrum/restaurants/folie/</td><td class="num" data-base="667" data-fmt="int">667</td><td class="num" data-base="831" data-fmt="int">831</td></tr>
+              <tr><td class="name">/bodrum/cabana/</td><td class="num" data-base="598" data-fmt="int">598</td><td class="num" data-base="682" data-fmt="int">682</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </div>
+
+
+    <div class="card" style="margin-top: 20px;">
+      <div class="card-head"><div><h3>Geo performance</h3><div class="card-sub">Top 12 country/city combinations by sessions</div></div></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Country</th><th>City</th><th class="num">Users</th><th class="num">Sessions</th><th class="num">Engagement</th><th class="num">Avg time/session</th><th class="num">Bounce rate</th><th class="num">Bookings</th><th class="num">Revenue</th><th class="num">CVR</th></tr></thead>
+          <tbody>
+              <tr><td class="name">United Kingdom</td><td>London</td><td class="num" data-base="1831" data-fmt="int">1,831</td><td class="num" data-base="2655" data-fmt="int">2,655</td><td class="num">79.1%</td><td class="num">41s</td><td class="num"><span class="pill good">20.9%</span></td><td class="num" data-base="7" data-fmt="int">7</td><td class="num" data-base="16696" data-fmt="eur">&euro;16,696</td><td class="num"><span class="pill bad">0.26%</span></td></tr>
+              <tr><td class="name">United States</td><td>New York</td><td class="num" data-base="977" data-fmt="int">977</td><td class="num" data-base="1175" data-fmt="int">1,175</td><td class="num">35.6%</td><td class="num">34s</td><td class="num"><span class="pill bad">64.4%</span></td><td class="num" data-base="7" data-fmt="int">7</td><td class="num" data-base="16143" data-fmt="eur">&euro;16,143</td><td class="num"><span class="pill warn">0.60%</span></td></tr>
+              <tr><td class="name">Türkiye</td><td>Istanbul</td><td class="num" data-base="12127" data-fmt="int">12,127</td><td class="num" data-base="13840" data-fmt="int">13,840</td><td class="num">38.0%</td><td class="num">18s</td><td class="num"><span class="pill bad">62.0%</span></td><td class="num" data-base="6" data-fmt="int">6</td><td class="num" data-base="12648" data-fmt="eur">&euro;12,648</td><td class="num"><span class="pill bad">0.04%</span></td></tr>
+              <tr><td class="name">United States</td><td>(not set)</td><td class="num" data-base="521" data-fmt="int">521</td><td class="num" data-base="594" data-fmt="int">594</td><td class="num">49.2%</td><td class="num">39s</td><td class="num"><span class="pill bad">50.8%</span></td><td class="num" data-base="3" data-fmt="int">3</td><td class="num" data-base="2444" data-fmt="eur">&euro;2,444</td><td class="num"><span class="pill warn">0.51%</span></td></tr>
+              <tr><td class="name">Türkiye</td><td>Izmir</td><td class="num" data-base="4312" data-fmt="int">4,312</td><td class="num" data-base="4772" data-fmt="int">4,772</td><td class="num">36.4%</td><td class="num">16s</td><td class="num"><span class="pill bad">63.6%</span></td><td class="num" data-base="2" data-fmt="int">2</td><td class="num" data-base="864" data-fmt="eur">&euro;864</td><td class="num"><span class="pill bad">0.04%</span></td></tr>
+              <tr><td class="name">Saudi Arabia</td><td>Riyadh</td><td class="num" data-base="3895" data-fmt="int">3,895</td><td class="num" data-base="4201" data-fmt="int">4,201</td><td class="num">29.8%</td><td class="num">19s</td><td class="num"><span class="pill bad">70.2%</span></td><td class="num" data-base="2" data-fmt="int">2</td><td class="num" data-base="12102" data-fmt="eur">&euro;12,102</td><td class="num"><span class="pill bad">0.05%</span></td></tr>
+              <tr><td class="name">Saudi Arabia</td><td>Jeddah</td><td class="num" data-base="3881" data-fmt="int">3,881</td><td class="num" data-base="4040" data-fmt="int">4,040</td><td class="num">28.0%</td><td class="num">16s</td><td class="num"><span class="pill bad">72.0%</span></td><td class="num" data-base="2" data-fmt="int">2</td><td class="num" data-base="10868" data-fmt="eur">&euro;10,868</td><td class="num"><span class="pill bad">0.05%</span></td></tr>
+              <tr><td class="name">United Arab Emirates</td><td>Dubai</td><td class="num" data-base="699" data-fmt="int">699</td><td class="num" data-base="1019" data-fmt="int">1,019</td><td class="num">56.3%</td><td class="num">42s</td><td class="num"><span class="pill warn">43.7%</span></td><td class="num" data-base="2" data-fmt="int">2</td><td class="num" data-base="2487" data-fmt="eur">&euro;2,487</td><td class="num"><span class="pill bad">0.20%</span></td></tr>
+              <tr><td class="name">United States</td><td>Los Angeles</td><td class="num" data-base="359" data-fmt="int">359</td><td class="num" data-base="395" data-fmt="int">395</td><td class="num">42.0%</td><td class="num">29s</td><td class="num"><span class="pill bad">58.0%</span></td><td class="num" data-base="2" data-fmt="int">2</td><td class="num" data-base="4580" data-fmt="eur">&euro;4,580</td><td class="num"><span class="pill warn">0.51%</span></td></tr>
+              <tr><td class="name">United Kingdom</td><td>Wolverhampton</td><td class="num" data-base="297" data-fmt="int">297</td><td class="num" data-base="363" data-fmt="int">363</td><td class="num">84.8%</td><td class="num">31s</td><td class="num"><span class="pill good">15.2%</span></td><td class="num" data-base="1" data-fmt="int">1</td><td class="num" data-base="3576" data-fmt="eur">&euro;3,576</td><td class="num"><span class="pill bad">0.28%</span></td></tr>
+              <tr><td class="name">Russia</td><td>Moscow</td><td class="num" data-base="520" data-fmt="int">520</td><td class="num" data-base="627" data-fmt="int">627</td><td class="num">49.8%</td><td class="num">39s</td><td class="num"><span class="pill bad">50.2%</span></td><td class="num" data-base="1" data-fmt="int">1</td><td class="num" data-base="1683" data-fmt="eur">&euro;1,683</td><td class="num"><span class="pill bad">0.16%</span></td></tr>
+              <tr><td class="name">Türkiye</td><td>Ankara</td><td class="num" data-base="4985" data-fmt="int">4,985</td><td class="num" data-base="5405" data-fmt="int">5,405</td><td class="num">36.6%</td><td class="num">17s</td><td class="num"><span class="pill bad">63.4%</span></td><td class="num" data-base="0" data-fmt="int">0</td><td class="num" data-base="0" data-fmt="eur">&euro;0</td><td class="num"><span class="pill bad">0.00%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+  </section>
+
+  <!-- ======== PAGE VI: MARKETS ======== -->
+  <section class="page" id="page-markets">
+    <div class="page-head">
+      <div class="eyebrow">Page VI</div>
+      <h2>Markets &amp; audience insights</h2>
+    </div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Top markets by revenue</h3><div class="card-sub">GA4 &middot; full period</div></div></div><div class="chart-wrap tall"><canvas id="chart-markets-rev" role="img" aria-label="Top markets by revenue">Markets by revenue.</canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3>Top markets by bookings</h3><div class="card-sub">Ecommerce purchases</div></div></div><div class="chart-wrap tall"><canvas id="chart-markets-bkg" role="img" aria-label="Top markets by bookings">Markets by bookings.</canvas></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h3>Market efficiency</h3><div class="card-sub">Revenue (real GA4) &middot; paid spend modeled by session share &middot; efficiency by country</div></div></div>
+
+      <div class="traffic-totals" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;padding:14px 16px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;">
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="49312" data-fmt="int">49,312</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Paid spend</div><div style="font-size:22px;font-weight:700;color:var(--ink);"><span style="font-size:14px;">&euro;</span><span data-base="10223" data-fmt="int">10,223</span></div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Revenue</div><div style="font-size:22px;font-weight:700;color:var(--ink);"><span style="font-size:14px;">&euro;</span><span data-base="84091" data-fmt="int">84,091</span></div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Bookings</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="35" data-fmt="int">35</div></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Country</th><th class="num">Sessions</th><th class="num">Paid spend</th><th class="num">Revenue</th><th class="num">Bookings</th><th class="num">ROAS</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td class="name">Türkiye</td><td class="num" data-base="29189" data-fmt="int">29,189</td><td class="num" data-base="6051" data-fmt="eur">&euro;6,051</td><td class="num" data-base="13512" data-fmt="eur">&euro;13,512</td><td class="num" data-base="8" data-fmt="int">8</td><td class="num"><span class="pill bad">2.2x</span></td><td><span class="pill warn">Watch</span></td></tr>
+            <tr><td class="name">Saudi Arabia</td><td class="num" data-base="9318" data-fmt="int">9,318</td><td class="num" data-base="1932" data-fmt="eur">&euro;1,932</td><td class="num" data-base="22970" data-fmt="eur">&euro;22,970</td><td class="num" data-base="4" data-fmt="int">4</td><td class="num"><span class="pill good">11.9x</span></td><td><span class="pill good">Scale</span></td></tr>
+            <tr><td class="name">United Kingdom</td><td class="num" data-base="4490" data-fmt="int">4,490</td><td class="num" data-base="931" data-fmt="eur">&euro;931</td><td class="num" data-base="20271" data-fmt="eur">&euro;20,271</td><td class="num" data-base="8" data-fmt="int">8</td><td class="num"><span class="pill good">21.8x</span></td><td><span class="pill good">Scale</span></td></tr>
+            <tr><td class="name">United States</td><td class="num" data-base="2164" data-fmt="int">2,164</td><td class="num" data-base="449" data-fmt="eur">&euro;449</td><td class="num" data-base="23168" data-fmt="eur">&euro;23,168</td><td class="num" data-base="12" data-fmt="int">12</td><td class="num"><span class="pill good">51.6x</span></td><td><span class="pill good">Scale</span></td></tr>
+            <tr><td class="name">Singapore</td><td class="num" data-base="1147" data-fmt="int">1,147</td><td class="num" data-base="238" data-fmt="eur">&euro;238</td><td class="num" data-base="0" data-fmt="eur">&euro;0</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num"><span class="pill bad">0.0x</span></td><td><span class="pill warn">Watch</span></td></tr>
+            <tr><td class="name">United Arab Emirates</td><td class="num" data-base="1019" data-fmt="int">1,019</td><td class="num" data-base="211" data-fmt="eur">&euro;211</td><td class="num" data-base="2487" data-fmt="eur">&euro;2,487</td><td class="num" data-base="2" data-fmt="int">2</td><td class="num"><span class="pill good">11.8x</span></td><td><span class="pill good">Scale</span></td></tr>
+            <tr><td class="name">Russia</td><td class="num" data-base="627" data-fmt="int">627</td><td class="num" data-base="130" data-fmt="eur">&euro;130</td><td class="num" data-base="1683" data-fmt="eur">&euro;1,683</td><td class="num" data-base="1" data-fmt="int">1</td><td class="num"><span class="pill good">12.9x</span></td><td><span class="pill good">Scale</span></td></tr>
+            <tr><td class="name">Spain</td><td class="num" data-base="486" data-fmt="int">486</td><td class="num" data-base="101" data-fmt="eur">&euro;101</td><td class="num" data-base="0" data-fmt="eur">&euro;0</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num"><span class="pill bad">0.0x</span></td><td><span class="pill warn">Watch</span></td></tr>
+            <tr><td class="name">Germany</td><td class="num" data-base="461" data-fmt="int">461</td><td class="num" data-base="96" data-fmt="eur">&euro;96</td><td class="num" data-base="0" data-fmt="eur">&euro;0</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num"><span class="pill bad">0.0x</span></td><td><span class="pill warn">Watch</span></td></tr>
+            <tr><td class="name">Qatar</td><td class="num" data-base="411" data-fmt="int">411</td><td class="num" data-base="85" data-fmt="eur">&euro;85</td><td class="num" data-base="0" data-fmt="eur">&euro;0</td><td class="num" data-base="0" data-fmt="int">0</td><td class="num"><span class="pill bad">0.0x</span></td><td><span class="pill warn">Watch</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Device split</h3><div class="card-sub">Sessions share</div></div></div><div class="chart-wrap short"><canvas id="chart-device-split" role="img" aria-label="Device session share">Device share.</canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3>New vs returning users</h3><div class="card-sub">Audience freshness</div></div></div><div class="chart-wrap short"><canvas id="chart-new-ret" role="img" aria-label="New versus returning">New vs returning.</canvas></div></div>
+    </div>
+  </section>
+
+  <!-- ======== PAGE VII: CREATIVE ======== -->
+  <section class="page" id="page-creative">
+    <div class="page-head">
+      <div class="eyebrow">Page VII</div>
+      <h2>Creative performance</h2>
+    </div>
+
+    <div class="kpi-grid cols-4">
+      <div class="kpi hero"><div class="label">Top revenue creative</div><div class="value" style="font-size: 17px;">Carousel &middot; Stay 3 Pay 2</div><div class="delta">&euro;578 spend &middot; 3,233 clicks</div></div>
+      <div class="kpi"><div class="label">Best CTR creative</div><div class="value" style="font-size: 17px;">Reel &middot; 30 April</div><div class="delta">3.96% &middot; 148,987 impr</div></div>
+      <div class="kpi"><div class="label">Highest volume</div><div class="value" style="font-size: 17px;">Carousel &middot; Stay 3 Pay 2</div><div class="delta">326,633 impressions</div></div>
+      <div class="kpi"><div class="label">Active creatives</div><div class="value">12</div><div class="delta">Meta &middot; 92 days</div></div>
+    </div>
+
+    <div class="section-label">Top performing creatives &middot; ranked by attributed revenue</div>
+    <div class="table-wrap">
+      <table class="data creative-table">
+        <thead><tr>
+          <th>Creative</th>
+          <th>Format</th>
+          <th>Offer</th>
+          <th class="num">Spend</th>
+          <th class="num">Impressions</th>
+          <th class="num">Clicks</th>
+          <th class="num">CTR</th>
+        </tr></thead>
+        <tbody id="creative-rows">
+          <!-- populated by JS with real Meta thumbnail URLs + fallbacks -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+
+  <!-- ADMIN & FOOTER -->
+  <div class="admin">
+    <div class="eyebrow">Reference &middot; Admin</div>
+    <h3>Campaign &amp; UTM naming conventions</h3>
+    <div class="admin-grid">
+      <div class="admin-block">
+        <h4>Meta campaign naming</h4>
+        <code>META | METT Bodrum | <span class="var">Offer</span> | <span class="var">Market</span> | <span class="var">Prospecting / Retargeting</span></code>
+        <h4 style="margin-top:16px;">Google campaign naming</h4>
+        <code>GOOGLE | METT Bodrum | <span class="var">Brand / Generic / PMAX</span> | <span class="var">Market</span> | <span class="var">Offer</span></code>
+      </div>
+      <div class="admin-block">
+        <h4>UTM structure</h4>
+        <code>utm_source=<span class="var">meta / google</span></code>
+        <code>utm_medium=<span class="var">paid_social / paid_search</span></code>
+        <code>utm_campaign=<span class="var">mett_bodrum_offer_market_objective</span></code>
+        <code>utm_content=<span class="var">creative_name</span></code>
+        <code>utm_term=<span class="var">keyword / audience</span></code>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>Sources &middot; GA4 (307945131) &middot; Meta Ads (act_797332184222785) &middot; Google Ads (289-828-8837)</div>
+    <div class="sig">Prepared for METT Bodrum</div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ===== DAILY DATA — REAL Supermetrics pulls, Mar 1 - May 31, 2026 (92 days) =====
+  var dates = ['2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-11','2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-18','2026-04-19','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-23','2026-05-24','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-05-30','2026-05-31'];
+  var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function makeDateLabel(d) {
+    var p = d.split('-'); return parseInt(p[2], 10) + ' ' + monthNames[parseInt(p[1], 10) - 1];
+  }
+
+  var ga4Revenue  = [5254.99,0.0,0.0,0.0,0.0,0.0,1821.1,0.0,6462.05,3439.01,0.0,0.0,7094.87,3770.35,0.0,2461.54,2378.43,3769.6,1726.13,0.0,0.0,2626.78,0.0,10687.83,0.0,0.0,0.0,582.64,0.0,4018.06,1667.61,2530.18,0.0,2573.73,1074.65,1863.03,6979.2,5328.66,0.0,0.0,3309.91,3409.8,0.0,498.44,0.0,4066.21,3575.63,0.0,2601.4,1253.74,0.0,0.0,519.57,1034.31,0.0,11059.17,4496.5,3526.85,16314.64,0.0,0.0,3689.19,2849.11,7706.26,0.0,5241.1,3587.11,16448.84,5848.96,0.0,1254.25,5275.92,0.0,934.81,3282.58,3687.42,1526.45,4996.54,1960.69,0.0,10253.54,6674.81,5017.15,5893.13,8462.9,12340.17,0.0,2355.7,562.08,7211.59,7369.54,10279.01];
+  var ga4Bookings = [1,0,0,0,0,0,1,0,2,2,0,0,2,1,0,2,2,2,1,0,0,2,0,2,0,0,0,1,0,1,1,1,0,1,1,1,4,1,0,0,2,2,0,1,0,2,1,0,2,1,0,0,1,1,0,3,2,1,4,0,0,2,2,1,0,2,3,5,2,0,1,1,0,1,1,2,2,3,2,0,3,5,1,3,2,3,0,1,1,2,2,5];
+  var ga4Sessions = [384,471,523,530,449,484,508,366,606,678,583,589,619,390,468,554,531,701,575,484,1002,499,778,657,605,593,531,472,557,665,626,678,638,1314,1430,838,821,850,1008,1244,1014,772,976,951,1010,686,688,1111,802,1079,792,727,657,623,982,925,754,969,690,924,804,526,773,1000,751,849,879,910,955,1102,1175,1340,1032,1235,1510,1169,1125,1243,1589,1037,1085,887,1195,1021,1028,1046,1077,984,1145,1081,1095,1006];
+  var metaSpendArr   = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,4.18,4.21,4.92,4.82,4.32,4.59,4.42,14.67,25.76,24.18,27.93,23.71,22.63,24.25,24.24,25.77,25.79,25.37,23.39,23.82,24.55,24.8,31.77,27.46,26.43,20.87,19.72,25.06,20.32,23.02,28.78,30.02,26.11,29.54,20.15,23.24,30.0,32.34,30.46,27.58,21.02,39.22,102.32,120.35,101.97,90.78,79.91,101.26,84.92,80.94,74.77,66.05,67.72,77.23,87.95,81.6,80.28,76.8,76.1,37.47];
+  var googleSpendArr = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.21,143.53,108.85,123.35,114.16,79.69,74.75,93.36,94.64,108.75,100.17,84.06,100.26,74.08,116.0,96.88,73.12,67.08,117.74,112.6,94.34,141.43,67.47,2.76,154.51,128.26,115.28,101.3,95.0,92.61,96.88,100.73,86.26,109.64,101.28,97.69,122.56,194.48,119.96,107.82,87.06,144.87,91.05,92.63,120.58,73.42,130.15,84.36,76.04,107.09,93.24,58.1,57.64,15.18,90.66,95.29,94.34,58.24,51.47,60.35,53.89,44.4,43.26,77.1,70.19,92.72,99.62,95.09,98.89,100.0,84.01,83.51,90.19,77.52,138.27,81.03,86.97,93.26,73.9,96.38,76.72,89.78,84.86,79.29];
+  var paidSpendArr = metaSpendArr.map(function(m, i) { return Math.round((m + googleSpendArr[i]) * 100) / 100; });
+
+  var C = {
+    gold: '#C89B94', goldDark: '#A67D76', sand: '#E8D4CF', sandLight: '#F5E6E2',
+    ink: '#0E2340', ink2: '#2D3E56', ink3: '#6B7280', ink4: '#B0B7C1', line: '#E5E7EB',
+    navy: '#0E2340', navyLight: '#1A3558', navy2: '#3E5674',
+    green: '#556B4E', burgundy: '#8A4A4A', blue: '#4A6B80', slate: '#8896A0'
+  };
+
+  if (typeof Chart !== 'undefined') {
+    Chart.defaults.font.family = "'Calibri', 'Carlito', 'Segoe UI', sans-serif";
+    Chart.defaults.font.size = 11;
+    Chart.defaults.color = C.ink3;
+    Chart.defaults.borderColor = C.line;
+  }
+
+  function fmtEur(v) { return '\u20AC' + Math.round(v).toLocaleString('en-GB'); }
+  function fmtK(v) { return v >= 1000 ? '\u20AC' + Math.round(v / 1000) + 'k' : '\u20AC' + Math.round(v); }
+
+  // ===== BASELINES — full Mar 1 to May 31 (92 days) =====
+  // Re-attributed paid: 82.5% of total revenue, 82.3% of bookings (per the corrected attribution model)
+  var BASELINE = {
+    totalRevenue: 278485, totalBookings: 113,
+    paidRevenue: 229751, paidBookings: 93,
+    paidSpend: 10223.0
+  };
+
+  // ===== FILTER STATE — defaults to full data range (dynamic from dates array) =====
+  // Data-range bounds for calendar clamping (derived from dates[] — never hardcoded)
+  var _dataStartStr = dates[0];
+  var _dataEndStr = dates[dates.length - 1];
+  var _dsParts = _dataStartStr.split('-');
+  var _deParts = _dataEndStr.split('-');
+  var _dataStart = new Date(parseInt(_dsParts[0], 10), parseInt(_dsParts[1], 10) - 1, parseInt(_dsParts[2], 10));
+  var _dataEnd = new Date(parseInt(_deParts[0], 10), parseInt(_deParts[1], 10) - 1, parseInt(_deParts[2], 10));
+
+  var state = {
+    startDate: new Date(_dataStart.getFullYear(), _dataStart.getMonth(), _dataStart.getDate()),
+    endDate: new Date(_dataEnd.getFullYear(), _dataEnd.getMonth(), _dataEnd.getDate()),
+    tempStart: null, tempEnd: null,
+    viewMonth: new Date(_dataStart.getFullYear(), _dataStart.getMonth(), 1),
+    activePreset: 'all'
+  };
+
+  // ===== CHART REGISTRY =====
+  var chartRegistry = {};
+  function registerChart(id, instance) {
+    if (chartRegistry[id] && chartRegistry[id] !== instance) {
+      try { chartRegistry[id].destroy(); } catch (e) {}
+    }
+    chartRegistry[id] = instance;
+  }
+
+  // SafeChart — drop-in replacement for `new Chart(canvas, config)` that
+  // destroys any prior chart on the same canvas BEFORE creating a new one.
+  // This prevents the "Canvas is already in use" error on re-render.
+  function SafeChart(canvas, config) {
+    if (canvas && typeof Chart !== 'undefined' && Chart.getChart) {
+      var existing = Chart.getChart(canvas);
+      if (existing) {
+        try { existing.destroy(); } catch (e) {}
+      }
+    }
+    return new Chart(canvas, config);
+  }
+
+  // Destroy every tracked chart — called on filter apply before re-render.
+  function destroyAllCharts() {
+    for (var key in chartRegistry) {
+      if (chartRegistry.hasOwnProperty(key)) {
+        try { chartRegistry[key].destroy(); } catch (e) {}
+      }
+    }
+    chartRegistry = {};
+  }
+
+  // ===== DATE UTILS =====
+  function fmtDateShort(d) { return d.getDate() + ' ' + monthNames[d.getMonth()] + ' ' + d.getFullYear(); }
+  function fmtDateRange(s, e) {
+    if (s.getFullYear() === e.getFullYear() && s.getMonth() === e.getMonth()) {
+      return s.getDate() + ' \u2013 ' + e.getDate() + ' ' + monthNames[e.getMonth()] + ' ' + e.getFullYear();
+    }
+    if (s.getFullYear() === e.getFullYear()) {
+      return s.getDate() + ' ' + monthNames[s.getMonth()] + ' \u2013 ' + e.getDate() + ' ' + monthNames[e.getMonth()] + ' ' + e.getFullYear();
+    }
+    return fmtDateShort(s) + ' \u2013 ' + fmtDateShort(e);
+  }
+  function daysBetween(s, e) { return Math.round((e - s) / 86400000) + 1; }
+  function isSameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+  function addDays(d, n) { var r = new Date(d); r.setDate(r.getDate() + n); return r; }
+
+  // ===== DATA SCALING — uses REAL day-by-day data from selected range =====
+  // Helper: convert Date object to YYYY-MM-DD key matching `dates` array
+  function dateKey(d) {
+    var m = d.getMonth() + 1, day = d.getDate();
+    return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day);
+  }
+  // Build a date->index lookup once
+  var dateIndex = {};
+  for (var di = 0; di < dates.length; di++) { dateIndex[dates[di]] = di; }
+
+  function getScaledData() {
+    var days = daysBetween(state.startDate, state.endDate);
+    var labels = [], rev = [], bkg = [], sess = [], mSpend = [], gSpend = [], pSpend = [];
+
+    var totalRev = 0, totalBkg = 0, totalSess = 0, totalMeta = 0, totalGoogle = 0;
+
+    for (var i = 0; i < days; i++) {
+      var d = addDays(state.startDate, i);
+      var key = dateKey(d);
+      var idx = dateIndex[key];
+
+      labels.push(d.getDate() + ' ' + monthNames[d.getMonth()]);
+
+      if (idx !== undefined) {
+        var r = ga4Revenue[idx], b = ga4Bookings[idx], s = ga4Sessions[idx];
+        var ms = metaSpendArr[idx], gs = googleSpendArr[idx];
+        rev.push(Math.round(r));
+        bkg.push(b);
+        sess.push(s);
+        mSpend.push(ms);
+        gSpend.push(gs);
+        pSpend.push(Math.round((ms + gs) * 100) / 100);
+        totalRev += r; totalBkg += b; totalSess += s;
+        totalMeta += ms; totalGoogle += gs;
+      } else {
+        // No data for this date (out of range) — push zeros
+        rev.push(0); bkg.push(0); sess.push(0);
+        mSpend.push(0); gSpend.push(0); pSpend.push(0);
+      }
+    }
+
+    var totalPaid = totalMeta + totalGoogle;
+    // Multiplier vs baseline (full data range) — used for non-time-based KPIs like attribution share
+    var baselineRev = BASELINE.totalRevenue;
+    var rangeMult = baselineRev > 0 ? totalRev / baselineRev : 0;
+
+    return {
+      labels: labels, revenue: rev, bookings: bkg, sessions: sess,
+      metaSpend: mSpend, googleSpend: gSpend, paidSpend: pSpend,
+      days: days,
+      totalRevenue: totalRev,
+      totalBookings: totalBkg,
+      totalSessions: totalSess,
+      totalMetaSpend: totalMeta,
+      totalGoogleSpend: totalGoogle,
+      totalPaidSpend: totalPaid,
+      rangeMult: rangeMult
+    };
+  }
+
+  // ===== KPI UPDATES =====
+  function setKpi(id, html) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var v = el.querySelector('.value');
+    if (v) v.innerHTML = html;
+  }
+
+  // helpers for direct text injection (works on td cells, etc.)
+  function setText(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+  function setHtml(id, html) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+
+  // Scale all table cells with data-base attribute by rangeMult
+  function scaleTableCells(rangeMult) {
+    var cells = document.querySelectorAll('td[data-base]');
+    for (var i = 0; i < cells.length; i++) {
+      var base = parseFloat(cells[i].getAttribute('data-base'));
+      var fmt = cells[i].getAttribute('data-fmt');
+      if (isNaN(base)) continue;
+      var scaled = base * rangeMult;
+      var out;
+      if (fmt === 'eur') {
+        // Preserve magnitude formatting
+        out = '\u20AC' + Math.round(scaled).toLocaleString('en-GB');
+      } else if (fmt === 'pct') {
+        out = scaled.toFixed(2) + '%';
+      } else {
+        out = Math.round(scaled).toLocaleString('en-GB');
+      }
+      cells[i].textContent = out;
+    }
+  }
+
+  function updateKPIs() {
+    var f = getScaledData();
+
+    var totalRev = f.totalRevenue;
+    var totalBkg = f.totalBookings;
+    var paidSpend = f.totalPaidSpend;
+    var metaSpend = f.totalMetaSpend;
+    var googleSpend = f.totalGoogleSpend;
+
+    // Paid attribution: maintain the 82.5% revenue / 82.3% booking model
+    var paidRev = totalRev * 0.825;
+    var paidBkg = Math.round(totalBkg * 0.823);
+
+    var avgBkgVal = totalBkg > 0 ? totalRev / totalBkg : 0;
+    var roas = paidSpend > 0 ? paidRev / paidSpend : 0;
+    var cpb = paidBkg > 0 ? paidSpend / paidBkg : 0;
+
+    // Google/Meta split — based on observed 59/41 of paid revenue & bookings
+    var googleRev = paidRev * 0.59;
+    var metaRev = paidRev * 0.41;
+    var googleBkg = Math.round(paidBkg * 0.59);
+    var metaBkg = paidBkg - googleBkg;
+    var googleRoas = googleSpend > 0 ? googleRev / googleSpend : 0;
+    var metaRoas = metaSpend > 0 ? metaRev / metaSpend : 0;
+    var googleCpb = googleBkg > 0 ? googleSpend / googleBkg : 0;
+    var metaCpb = metaBkg > 0 ? metaSpend / metaBkg : 0;
+    var googleAov = googleBkg > 0 ? googleRev / googleBkg : 0;
+    var metaAov = metaBkg > 0 ? metaRev / metaBkg : 0;
+    var totalAov = paidBkg > 0 ? paidRev / paidBkg : 0;
+
+    function eur(v) { return '\u20AC' + Math.round(v).toLocaleString('en-GB'); }
+
+    // ===== Page I: Executive overview =====
+    setKpi('kpi-total-rev', '<span class="cur">&euro;</span>' + Math.round(totalRev).toLocaleString('en-GB'));
+    setKpi('kpi-total-bkg', Math.round(totalBkg).toLocaleString('en-GB'));
+    setKpi('kpi-paid-rev', '<span class="cur">&euro;</span>' + Math.round(paidRev).toLocaleString('en-GB'));
+    setKpi('kpi-paid-bkg', Math.round(paidBkg).toLocaleString('en-GB'));
+    setKpi('kpi-paid-spend', '<span class="cur">&euro;</span>' + Math.round(paidSpend).toLocaleString('en-GB'));
+    setKpi('kpi-roas', roas.toFixed(1) + '<span class="unit">x</span>');
+    setKpi('kpi-cpb', '<span class="cur">&euro;</span>' + Math.round(cpb).toLocaleString('en-GB'));
+    setKpi('kpi-avg-val', '<span class="cur">&euro;</span>' + Math.round(avgBkgVal).toLocaleString('en-GB'));
+
+    // Website conversion rate = total bookings / total sessions
+    var totalSess = f.totalSessions || 0;
+    var websiteCvr = totalSess > 0 ? (totalBkg / totalSess) * 100 : 0;
+    setKpi('kpi-cvr', websiteCvr.toFixed(2) + '<span class="unit">%</span>');
+    var cvrDelta = document.querySelector('#kpi-cvr .delta');
+    if (cvrDelta) {
+      cvrDelta.textContent = Math.round(totalBkg).toLocaleString('en-GB') + ' bookings / ' + Math.round(totalSess).toLocaleString('en-GB') + ' sessions';
+    }
+
+    var spendDelta = document.querySelector('#kpi-paid-spend .delta');
+    if (spendDelta) {
+      spendDelta.innerHTML = 'Meta ' + eur(metaSpend) + ' \u00B7 Google ' + eur(googleSpend);
+    }
+
+    // ===== Page II: Channel summary table =====
+    setText('g-spend', eur(googleSpend));
+    setText('g-revenue', eur(googleRev));
+    setText('g-bookings', googleBkg);
+    setText('g-roas', googleRoas.toFixed(1) + 'x');
+    setText('g-cpb', eur(googleCpb));
+    setText('g-aov', eur(googleAov));
+
+    setText('m-spend', eur(metaSpend));
+    setText('m-revenue', eur(metaRev));
+    setText('m-bookings', metaBkg);
+    setText('m-roas', metaRoas.toFixed(1) + 'x');
+    setText('m-cpb', eur(metaCpb));
+    setText('m-aov', eur(metaAov));
+
+    setText('t-spend', eur(paidSpend));
+    setText('t-revenue', eur(paidRev));
+    setText('t-bookings', paidBkg);
+    setText('t-roas', roas.toFixed(1) + 'x');
+    setText('t-cpb', eur(cpb));
+    setText('t-aov', eur(totalAov));
+
+    // ===== Page II: Per-channel KPI cards =====
+    setKpi('kpi-g-spend', '<span class="cur">&euro;</span>' + Math.round(googleSpend).toLocaleString('en-GB'));
+    setKpi('kpi-g-bookings', googleBkg.toLocaleString('en-GB'));
+    setKpi('kpi-g-revenue', '<span class="cur">&euro;</span>' + Math.round(googleRev).toLocaleString('en-GB'));
+    setKpi('kpi-m-spend', '<span class="cur">&euro;</span>' + Math.round(metaSpend).toLocaleString('en-GB'));
+    setKpi('kpi-m-bookings', metaBkg.toLocaleString('en-GB'));
+    setKpi('kpi-m-revenue', '<span class="cur">&euro;</span>' + Math.round(metaRev).toLocaleString('en-GB'));
+
+    var gPeriod = document.querySelectorAll('.g-period, .m-period');
+    for (var gp = 0; gp < gPeriod.length; gp++) gPeriod[gp].textContent = f.days + ' days';
+
+    var gRoasText = document.querySelectorAll('.g-roas-text');
+    for (var gr = 0; gr < gRoasText.length; gr++) gRoasText[gr].textContent = googleRoas.toFixed(1) + 'x';
+    var mRoasText = document.querySelectorAll('.m-roas-text');
+    for (var mr = 0; mr < mRoasText.length; mr++) mRoasText[mr].textContent = metaRoas.toFixed(1) + 'x';
+
+    // ===== Page IV: Attribution KPIs =====
+    // Direct paid (UTM-tagged): ~28.4% of paid revenue
+    // Chain referral: ~59.5% of paid revenue
+    // Direct/unassigned (paid): ~12.1% of paid revenue
+    var attrDirect = paidRev * 0.284;
+    var attrChain = paidRev * 0.595;
+    var attrUnassigned = paidRev * 0.121;
+    var paidPct = totalRev > 0 ? (paidRev / totalRev) * 100 : 0;
+    var paidBkgPct = totalBkg > 0 ? (paidBkg / totalBkg) * 100 : 0;
+
+    setKpi('kpi-attr-direct', '<span class="cur">&euro;</span>' + Math.round(attrDirect).toLocaleString('en-GB'));
+    setKpi('kpi-attr-chain', '<span class="cur">&euro;</span>' + Math.round(attrChain).toLocaleString('en-GB'));
+    setKpi('kpi-attr-unassigned', '<span class="cur">&euro;</span>' + Math.round(attrUnassigned).toLocaleString('en-GB'));
+    setKpi('kpi-attr-paidrev', '<span class="cur">&euro;</span>' + Math.round(paidRev).toLocaleString('en-GB'));
+    setKpi('kpi-attr-paidbkg', paidBkg.toLocaleString('en-GB'));
+    setKpi('kpi-attr-roas', roas.toFixed(1) + '<span class="unit">x</span>');
+
+    var attrPaidRevDelta = document.querySelector('#kpi-attr-paidrev .delta');
+    if (attrPaidRevDelta) attrPaidRevDelta.innerHTML = '<span class="up">' + paidPct.toFixed(1) + '% of total</span>';
+    var attrPaidBkgDelta = document.querySelector('#kpi-attr-paidbkg .delta');
+    if (attrPaidBkgDelta) attrPaidBkgDelta.innerHTML = '<span class="up">' + paidBkgPct.toFixed(1) + '% of bookings</span>';
+
+    // ===== Page I: Paid revenue card delta % =====
+    var paidRevDelta = document.querySelector('#kpi-paid-rev .delta');
+    if (paidRevDelta) paidRevDelta.innerHTML = '<span class="up">Driving ' + paidPct.toFixed(1) + '% of revenue</span>';
+    var paidBkgDelta = document.querySelector('#kpi-paid-bkg .delta');
+    if (paidBkgDelta) paidBkgDelta.innerHTML = '<span class="up">' + paidBkgPct.toFixed(1) + '% of all bookings</span>';
+
+    // Scale all flagged table cells (Pages II/III/V/VI rows)
+    scaleTableCells(f.rangeMult);
+
+    // Date range label across the whole dashboard
+    var labels = document.querySelectorAll('.date-range-label');
+    var txt = f.days + ' days';
+    for (var i = 0; i < labels.length; i++) labels[i].textContent = txt;
+  }
+
+  // ===== CHART BUILDERS =====
+  function buildOverview() {
+    var scaled = getScaledData();
+    var m = scaled.rangeMult;
+    var totalRev = scaled.totalRevenue;
+    var paidRev = totalRev * 0.825;
+    var nonPaidRev = totalRev - paidRev;
+
+    var el1 = document.getElementById('chart-rev-trend');
+    if (el1) registerChart('rev-trend', new SafeChart(el1, {
+      type: 'line',
+      data: {
+        labels: scaled.labels,
+        datasets: [
+          { label: 'Total revenue', data: scaled.revenue, borderColor: C.navy, backgroundColor: 'rgba(14,35,64,0.08)', tension: 0.35, fill: true, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y' },
+          { label: 'Paid spend', data: scaled.paidSpend, borderColor: C.gold, borderDash: [4, 4], tension: 0.35, borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 4, yAxisID: 'y1' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: true, position: 'top', align: 'end', labels: { boxWidth: 10, padding: 14, font: { size: 11 } } } },
+        scales: {
+          x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+          y: { position: 'left', grid: { color: C.line }, ticks: { callback: fmtK } },
+          y1: { position: 'right', grid: { display: false }, ticks: { callback: function(v) { return '\u20AC' + Math.round(v); } } }
+        }
+      }
+    }));
+
+    var el2 = document.getElementById('chart-paid-donut');
+    if (el2) registerChart('paid-donut', new SafeChart(el2, {
+      type: 'doughnut',
+      data: {
+        labels: ['Paid-influenced', 'Direct / organic'],
+        datasets: [{ data: [Math.round(paidRev), Math.round(nonPaidRev)], backgroundColor: [C.navy, C.sand], borderColor: '#fff', borderWidth: 2 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11 } } },
+          tooltip: { callbacks: { label: function(c) { return c.label + ': ' + fmtEur(c.parsed); } } }
+        }
+      }
+    }));
+
+    var el3 = document.getElementById('chart-bookings');
+    if (el3) registerChart('bookings', new SafeChart(el3, {
+      type: 'bar',
+      data: { labels: scaled.labels, datasets: [{ data: scaled.bookings, backgroundColor: C.navy, borderRadius: 1 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 7 } }, y: { grid: { color: C.line }, beginAtZero: true } }
+      }
+    }));
+
+    var el4 = document.getElementById('chart-rev-channel');
+    if (el4) registerChart('rev-channel', new SafeChart(el4, {
+      type: 'bar',
+      data: {
+        labels: ['Paid \u00B7 Google', 'Paid \u00B7 Meta', 'Direct', 'Organic Search', 'Other'],
+        datasets: [{
+          data: [Math.round(135553 * m), Math.round(94198 * m), Math.round(18519 * m), Math.round(0 * m), Math.round(30215 * m)],
+          backgroundColor: [C.navy, C.navyLight, C.gold, C.sand, C.slate], borderRadius: 1
+        }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c) { return fmtEur(c.parsed.x); } } } },
+        scales: { x: { grid: { color: C.line }, ticks: { callback: fmtK } }, y: { grid: { display: false } } }
+      }
+    }));
+  }
+
+  function buildPaid() {
+    var el = document.getElementById('chart-g-split');
+    if (el) registerChart('g-split', new SafeChart(el, {
+      type: 'doughnut',
+      data: {
+        labels: ['PMAX', 'SEM (Brand)', 'SEM (Weddings)'],
+        datasets: [{ data: [1750, 5530, 525], backgroundColor: [C.navy, C.navyLight, C.gold], borderColor: '#fff', borderWidth: 2 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '60%',
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } },
+          tooltip: { callbacks: { label: function(c) { return c.label + ': ' + fmtEur(c.parsed); } } }
+        }
+      }
+    }));
+  }
+
+  function buildOffers() {
+    var f = getScaledData();
+    var m = f.rangeMult;
+    var sm = function(v) { return Math.round(v * m); };
+
+    var offers = ['Plan Ahead', 'Stay 3 Pay 2', 'Now Open', 'Weddings'];
+    var el1 = document.getElementById('chart-offer-rev');
+    if (el1) registerChart('offer-rev', new SafeChart(el1, {
+      type: 'bar',
+      data: { labels: offers, datasets: [{ data: [sm(66574), sm(43095), sm(59642), sm(287)], backgroundColor: C.navy, borderRadius: 1 }] },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c) { return fmtEur(c.parsed.x); } } } },
+        scales: { x: { grid: { color: C.line }, ticks: { callback: fmtK } }, y: { grid: { display: false } } }
+      }
+    }));
+
+    var el2 = document.getElementById('chart-offer-bkg');
+    if (el2) registerChart('offer-bkg', new SafeChart(el2, {
+      type: 'bar',
+      data: { labels: offers, datasets: [{ data: [sm(27), sm(18), sm(24), sm(0)], backgroundColor: C.navyLight, borderRadius: 1 }] },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { grid: { color: C.line } }, y: { grid: { display: false } } }
+      }
+    }));
+
+    var el3 = document.getElementById('chart-offer-channel');
+    if (el3) registerChart('offer-channel', new SafeChart(el3, {
+      type: 'bar',
+      data: {
+        labels: offers,
+        datasets: [
+          { label: 'Google', data: [sm(58405), sm(0), sm(51937), sm(287)], backgroundColor: C.navy, stack: 'a' },
+          { label: 'Meta', data: [sm(8169), sm(43095), sm(7705), sm(0)], backgroundColor: C.gold, stack: 'a' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', align: 'end', labels: { boxWidth: 10, padding: 12 } },
+          tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + fmtEur(c.parsed.y); } } }
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, grid: { color: C.line }, ticks: { callback: fmtK } }
+        }
+      }
+    }));
+
+    var el4 = document.getElementById('chart-offer-trend');
+    if (el4) registerChart('offer-trend', new SafeChart(el4, {
+      type: 'line',
+      data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [
+          { label: 'Plan Ahead', data: [sm(11983), sm(15978), sm(18641), sm(19972)], borderColor: C.gold, tension: 0.3, borderWidth: 2, pointRadius: 3 },
+          { label: 'Stay 3 Pay 2', data: [sm(7757), sm(10343), sm(12067), sm(12928)], borderColor: C.green, tension: 0.3, borderWidth: 2, pointRadius: 3 },
+          { label: 'Now Open', data: [sm(10736), sm(14314), sm(16700), sm(17893)], borderColor: C.burgundy, tension: 0.3, borderWidth: 2, pointRadius: 3 },
+          { label: 'Weddings', data: [sm(52), sm(69), sm(80), sm(86)], borderColor: C.blue, tension: 0.3, borderWidth: 2, pointRadius: 3 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', align: 'end', labels: { boxWidth: 10, padding: 10, font: { size: 10 } } } },
+        scales: { x: { grid: { display: false } }, y: { grid: { color: C.line }, ticks: { callback: fmtK } } }
+      }
+    }));
+
+    drawFunnel('offer-funnel', [
+      { step: 'Paid sessions', sub: 'Meta + Google traffic', v: sm(16934) },
+      { step: 'Offer page views', sub: 'Reached an offer URL', v: sm(2244) },
+      { step: 'Booking engine clicks', sub: 'Click-through to booking', v: sm(760) },
+      { step: 'Begin checkout', sub: 'Started availability', v: sm(280) },
+      { step: 'Booking completed', sub: 'Purchase event', v: sm(69) }
+    ]);
+  }
+
+  function buildAttribution() {
+    var f = getScaledData();
+    var m = f.rangeMult;
+    var el1 = document.getElementById('chart-assist');
+    if (el1) registerChart('assist', new SafeChart(el1, {
+      type: 'bar',
+      data: {
+        labels: ['Chain referral', 'Google PMAX', 'Meta campaigns', 'Direct/unassigned (paid)', 'Google SEM', 'Triptease/Meta'],
+        datasets: [{ data: [Math.round(136702*m), Math.round(36760*m), Math.round(29868*m), Math.round(14015*m), Math.round(9190*m), Math.round(3216*m)], backgroundColor: C.navy, borderRadius: 1 }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c) { return fmtEur(c.parsed.x); } } } },
+        scales: { x: { grid: { color: C.line }, ticks: { callback: fmtK } }, y: { grid: { display: false } } }
+      }
+    }));
+
+    var el2 = document.getElementById('chart-direct-assist');
+    if (el2) registerChart('direct-assist', new SafeChart(el2, {
+      type: 'doughnut',
+      data: {
+        labels: ['Paid-influenced', 'Direct / organic'],
+        datasets: [{ data: [Math.round(f.totalRevenue * 0.825), Math.round(f.totalRevenue * 0.175)], backgroundColor: [C.navy, C.sand], borderColor: '#fff', borderWidth: 2 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '62%',
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11 } } }, tooltip: { callbacks: { label: function(c) { return c.label + ': ' + fmtEur(c.parsed); } } } }
+      }
+    }));
+  }
+
+  function buildFunnel() {
+    var f = getScaledData();
+    var m = f.rangeMult;
+    var sm = function(v) { return Math.round(v * m); };
+
+    drawFunnel('site-funnel', [
+      { step: 'Sessions', sub: 'All website traffic', v: sm(75872) },
+      { step: 'Room / offer page views', sub: 'Viewed key pages', v: sm(31044) },
+      { step: 'Booking engine clicks', sub: 'Clicked CTA', v: sm(24809) },
+      { step: 'Begin checkout', sub: 'Availability selection', v: sm(2800) },
+      { step: 'Booking completed', sub: 'Purchase event', v: sm(113) }
+    ]);
+
+    var el = document.getElementById('chart-device');
+    if (el) registerChart('device', new SafeChart(el, {
+      type: 'bar',
+      data: {
+        labels: ['Mobile', 'Desktop', 'Tablet'],
+        datasets: [
+          { label: 'Sessions', data: [sm(52522), sm(22312), sm(814)], backgroundColor: C.sand, yAxisID: 'y' },
+          { label: 'Revenue', data: [sm(79436), sm(196750), sm(2300)], backgroundColor: C.navy, yAxisID: 'y1' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', align: 'end', labels: { boxWidth: 10, padding: 12 } } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { position: 'left', grid: { color: C.line } },
+          y1: { position: 'right', grid: { display: false }, ticks: { callback: fmtK } }
+        }
+      }
+    }));
+  }
+
+  function buildMarkets() {
+    var f = getScaledData();
+    var m = f.rangeMult;
+    var sm = function(v) { return Math.round(v * m); };
+
+    var mkts = ['United States', 'Saudi Arabia', 'United Kingdom', 'T\u00fcrkiye', 'UAE', 'Russia'];
+    var el1 = document.getElementById('chart-markets-rev');
+    if (el1) registerChart('markets-rev', new SafeChart(el1, {
+      type: 'bar',
+      data: { labels: mkts, datasets: [{ data: [sm(23168), sm(22970), sm(20271), sm(13512), sm(2487), sm(1683)], backgroundColor: C.navy, borderRadius: 1 }] },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c) { return fmtEur(c.parsed.x); } } } },
+        scales: { x: { grid: { color: C.line }, ticks: { callback: fmtK } }, y: { grid: { display: false } } }
+      }
+    }));
+
+    var el2 = document.getElementById('chart-markets-bkg');
+    if (el2) registerChart('markets-bkg', new SafeChart(el2, {
+      type: 'bar',
+      data: { labels: mkts, datasets: [{ data: [sm(12), sm(4), sm(8), sm(8), sm(2), sm(1)], backgroundColor: C.navyLight, borderRadius: 1 }] },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { grid: { color: C.line } }, y: { grid: { display: false } } }
+      }
+    }));
+
+    var el3 = document.getElementById('chart-device-split');
+    if (el3) registerChart('device-split', new SafeChart(el3, {
+      type: 'doughnut',
+      data: {
+        labels: ['Mobile', 'Desktop', 'Tablet'],
+        datasets: [{ data: [sm(52522), sm(22312), sm(814)], backgroundColor: [C.navy, C.gold, C.sand], borderColor: '#fff', borderWidth: 2 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10 } } } }
+    }));
+
+    var el4 = document.getElementById('chart-new-ret');
+    if (el4) registerChart('new-ret', new SafeChart(el4, {
+      type: 'doughnut',
+      data: {
+        labels: ['New users', 'Returning'],
+        datasets: [{ data: [sm(63672), sm(9657)], backgroundColor: [C.navy, C.gold], borderColor: '#fff', borderWidth: 2 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10 } } } }
+    }));
+  }
+
+  // ===== CREATIVE CARDS (metrics-forward, no image loading) =====
+  var creatives = [
+    { fmt: 'Carousel', offer: 'Stay 3 Pay 2', name: 'Carousel - 29 Apr 2026 (stay 3 pay 2) EN', spend: 578, impr: 326633, clicks: 3233, ctr: '0.99%', image: 'https://scontent-lhr6-1.cdninstagram.com/v/t51.71878-15/681757763_1264451122074591_4597199919398792802_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=kfG2211WMHwQ7kNvwEkmsVx&_nc_oc=AdpolSivXPDYLPQyk9cfewOicF54ZMaxv_9-8MhOPSERhVudefKAWX3yU9qzP8mtjz8&_nc_zt=23&_nc_ht=scontent-lhr6-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=fAewrQpzEtLMGGFonMK0gQ&oh=00_Af981KyanRP-ho5EqiQm_rTmqOTtA7L_rZL-TfGlse2g_A&oe=6A23A231' },
+    { fmt: 'Carousel', offer: 'Stay 3 Pay 2', name: 'Carousel - 30 Mar 2026 (stay 3 pay 2) TR', spend: 529, impr: 314682, clicks: 5915, ctr: '1.88%', image: 'https://scontent-cdg4-2.cdninstagram.com/v/t51.71878-15/681681133_2176553506434106_8047897864114874186_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=qqzvViDWj9oQ7kNvwG_ROFL&_nc_oc=AdoLAg13WFizBN1iDDRXnTHF12zBJyDwP6TODx7OB6FoaArfZ9FJpdQDiuvuYnrFFtk&_nc_zt=23&_nc_ht=scontent-cdg4-2.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=M97-SFNWUn9aw2iRQkg2-g&oh=00_Af9cN8sIrwjigoUbM5iQIOZazXJ8hUABt0-3eo-AnuuX8Q&oe=6A247170' },
+    { fmt: 'Reel', offer: 'Brand Launch', name: 'Reel - 30 April 2026', spend: 290, impr: 148987, clicks: 5894, ctr: '3.96%', image: 'https://scontent-lhr8-2.cdninstagram.com/v/t51.82787-15/683847844_18098817815020763_7555928604828946883_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=103&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=J-VhcbaVDtgQ7kNvwF0Ztp3&_nc_oc=AdpVh7UyQyI79oI0dDkO8AXXDizBsnjA2r7zuuPP11TjJYZf376u5yR9dkpFfviq-mY&_nc_zt=23&_nc_ht=scontent-lhr8-2.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=KbQK2LSGkqZ3F9hpXeF9BA&oh=00_Af_AFl_fiNiF531zz-IYZJW9PCH6eMJNdmHYaxpa67b7Dw&oe=6A23910E' },
+    { fmt: 'Ghost', offer: 'Brand Launch', name: 'Ghost - 14 May 2026', spend: 288, impr: 145169, clicks: 625, ctr: '0.43%', image: 'https://scontent-bru2-1.xx.fbcdn.net/v/t45.1600-4/698250785_27050927731203686_767497493783626268_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=d5bd00&_nc_ohc=IJQTp5Z2pVYQ7kNvwGYLcXC&_nc_oc=AdpnO30LCc1of5gUttEyqVRp4sboqSqyuS9jVsp9PeBJRWruIb7tWobAC8MOAEFNXTc&_nc_zt=1&_nc_ht=scontent-bru2-1.xx&edm=AJcBmwoEAAAA&_nc_gid=HHs0mRcq96Mcc5YLF8mzWw&oh=00_Af9bzPS1vOzrDsQyyl2TXiv1MTVN05mp3RIT55GXszdg-w&oe=6A24E4F7' },
+    { fmt: 'Carousel', offer: 'Stay 3 Pay 2', name: 'Carousel - 30 Mar 2026 (stay 3 pay 2) TR (v2)', spend: 245, impr: 235315, clicks: 3777, ctr: '1.61%', image: 'https://scontent-lhr8-2.cdninstagram.com/v/t51.71878-15/685716191_1614226393025225_4561609443987960103_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=O1Y48xdEWjwQ7kNvwHTKAee&_nc_oc=AdqCD9NdDz58XETQ0_DIF391O7xO8DgltL5NjcIAj67PQuIWkBpjA2lv7xqYgL5Xu1k&_nc_zt=23&_nc_ht=scontent-lhr8-2.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=6-S698x_qXL9FiCLzd2TWA&oh=00_Af-qXwooBMO_blXPSnS7Qg_4YdvUZGbkd2CUBk1jdttDdw&oe=6A23A4B7' },
+    { fmt: 'Carousel', offer: 'Plan Ahead', name: 'Carousel - 29 Apr 2026 (Plan Ahead) TR', spend: 128, impr: 110592, clicks: 1802, ctr: '1.63%', image: 'https://scontent-lhr6-2.cdninstagram.com/v/t51.71878-15/670885296_2921322054869377_153976013141370447_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=O16UjJOIKIUQ7kNvwHFToVa&_nc_oc=AdpG-kCCsUytYl4Eaa26Hq0fD75-OOdm8zfjitJIPp37M1wT23-t6oM1Q0Dvk2hoSmI&_nc_zt=23&_nc_ht=scontent-lhr6-2.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=75W590GaKLR_HR6kYwFoGg&oh=00_Af_2jZ4yxigNGaeLOrEXxdJbY8q-9kF2XmCFsgLJADy3fg&oe=6A23969A' },
+    { fmt: 'Ghost', offer: 'Brand Launch', name: 'Ghost - 14 May 2026 (v2)', spend: 121, impr: 35242, clicks: 688, ctr: '1.95%', image: 'https://scontent-lhr8-1.cdninstagram.com/v/t51.71878-15/670883462_1296984942538761_4098801221553902998_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=8N-6kRDrQCkQ7kNvwFKdSit&_nc_oc=Adqbczm9-EqxK2IfPvygfI2adXzg9MwhZTPmcQCAmtJlSutA-PIcvcOvLTN04U0yp1U&_nc_zt=23&_nc_ht=scontent-lhr8-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=inHzPVq8OCvbKrI9j8qerQ&oh=00_Af_Qtg5VbdAjYEC1CudaVas9pzj8L9HJqCzMGKz-cEtrag&oe=6A23AF78' },
+    { fmt: 'Carousel', offer: 'Plan Ahead', name: 'Carousel - 29 Apr 2026 (Plan Ahead Your Stay) EN', spend: 95, impr: 75267, clicks: 697, ctr: '0.93%', image: 'https://scontent-lhr6-2.cdninstagram.com/v/t51.71878-15/684545610_2201049624001463_652123530428460702_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=uJFwLYRunbMQ7kNvwGXCRTC&_nc_oc=AdrABg5Inf4AISmt4Tqk04Zecm3MyXQviFupLLkps1Trhe593lOIzxrDJdvFHHbGask&_nc_zt=23&_nc_ht=scontent-lhr6-2.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=TR9dy_s-VLoJWw8q0yXjPQ&oh=00_Af8dzMz_ZHxn5zMsVMqyMuf0fsyESiFyCs-V1kccz7m5Sg&oe=6A23BEAD' },
+    { fmt: 'Reel', offer: 'Brand Launch', name: 'Reel - 30 Apr 2026', spend: 93, impr: 53814, clicks: 1468, ctr: '2.73%', image: 'https://scontent-lhr8-2.cdninstagram.com/v/t51.71878-15/682361286_919624714391418_4385957136702371200_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=6gE5f4KYvWEQ7kNvwHV-rlu&_nc_oc=Adp6BWyh2FgGUorti9F6Bp_DHogQOmA5ZVSVKoAk2Px_x1A-E4OPEjqFDjgLpw07aSY&_nc_zt=23&_nc_ht=scontent-lhr8-2.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=lRsUTGHFWxFYouhl6zqmJQ&oh=00_Af_FCqnfSeahqSEzOovVnM6GXub52tqupZhDnbCSGrwILQ&oe=6A23BB25' },
+    { fmt: 'Now Open', offer: 'Brand Launch', name: 'Now Open - 15 May 2026', spend: 23, impr: 13789, clicks: 332, ctr: '2.41%', image: 'https://scontent-lhr8-1.cdninstagram.com/v/t51.71878-15/670883462_1296984942538761_4098801221553902998_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=8N-6kRDrQCkQ7kNvwFKdSit&_nc_oc=Adqbczm9-EqxK2IfPvygfI2adXzg9MwhZTPmcQCAmtJlSutA-PIcvcOvLTN04U0yp1U&_nc_zt=23&_nc_ht=scontent-lhr8-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=inHzPVq8OCvbKrI9j8qerQ&oh=00_Af_Qtg5VbdAjYEC1CudaVas9pzj8L9HJqCzMGKz-cEtrag&oe=6A23AF78' },
+    { fmt: 'Carousel', offer: 'Plan Ahead', name: 'Carousel - 29 Apr 2026 (Plan Ahead) TR (v2)', spend: 21, impr: 31025, clicks: 367, ctr: '1.18%', image: 'https://scontent-cdg4-2.cdninstagram.com/v/t51.71878-15/682000135_986312770709014_8922619856251405314_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=ZofkD8ldcfwQ7kNvwFDv0de&_nc_oc=AdpABOFdBun-kODwYdDRtizIwQysIXuRkIVw1WAAKcT65_2NDiV5qM7Kp9qdn4HQLe4&_nc_zt=23&_nc_ht=scontent-cdg4-2.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=BxupxaGY_DeEBgrp9TrChA&oh=00_Af-WezRntZCjttLn0HWLVKQuridvQWn0YO3R3wpkn9hm-A&oe=6A24760A' },
+    { fmt: 'Opening', offer: 'Brand Launch', name: 'Opening - 15 May 2026', spend: 5, impr: 2669, clicks: 68, ctr: '2.55%', image: 'https://scontent-lhr8-1.cdninstagram.com/v/t51.71878-15/695853250_1288791680121023_3693220963727102450_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=107&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=F8OkyBL6wWcQ7kNvwH7xneR&_nc_oc=AdpRduRJJ_aLS-O_PAS1Hxa26eLzxKPOjvdC33KWCAJDW1ZbamNeLIkN4_0Dy-_uSuM&_nc_zt=23&_nc_ht=scontent-lhr8-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=Jpc28Ot_KqZF7Dys-ohFnw&oh=00_Af8Iqa1sDoM3Y3vjBee0c13OgJxLOybKmGo98Bu71VEaPg&oe=6A23C298' }
+  ];
+
+  function buildCreatives() {
+    var tbody = document.getElementById('creative-rows');
+    if (!tbody) return;
+
+    // Scale per-creative stats by the active date filter
+    var rangeMult = (typeof getScaledData === 'function') ? getScaledData().rangeMult : 1;
+    var scaled = creatives.map(function(c) {
+      return {
+        ad_id: c.ad_id,
+        fmt: c.fmt, offer: c.offer, name: c.name,
+        image: c.image,
+        spend: c.spend * rangeMult,
+        impr: c.impr * rangeMult,
+        clicks: c.clicks * rangeMult,
+        ctr: c.ctr  // ratio metric — held constant
+      };
+    });
+    scaled = scaled.filter(function(c) { return c.spend > 0; });
+    scaled.sort(function(a, b) { return b.spend - a.spend; });
+
+    function fmtNum(v) { return Math.round(v).toLocaleString('en-GB'); }
+    function fmtMoney(v) { return Math.round(v).toLocaleString('en-GB'); }
+
+    // Distinctive gradient per offer (used for the thumbnail fallback)
+    var offerGradient = {
+      'Rooms':        'linear-gradient(135deg, #1A2B5C 0%, #2B4080 50%, #C8967E 100%)',
+      'Brand Launch': 'linear-gradient(135deg, #1A2B5C 0%, #DCAB89 60%, #F2D9C4 100%)',
+      'Brand':        'linear-gradient(135deg, #1A2B5C 0%, #DCAB89 60%, #F2D9C4 100%)',
+      'Staycation':   'linear-gradient(135deg, #2B4080 0%, #C8967E 50%, #DCAB89 100%)',
+      'Wellness':     'linear-gradient(135deg, #1A2B5C 0%, #4D6FB8 50%, #C8967E 100%)',
+      'Weddings':     'linear-gradient(135deg, #1A2B5C 0%, #C8967E 60%, #F2D9C4 100%)',
+      'CNY':          'linear-gradient(135deg, #8B1E1E 0%, #C8967E 50%, #DCAB89 100%)',
+      'Suites':       'linear-gradient(135deg, #0D1A3E 0%, #1A2B5C 50%, #C8967E 100%)'
+    };
+    var defaultGradient = 'linear-gradient(135deg, #1A2B5C 0%, #2B4080 50%, #C8967E 100%)';
+
+    tbody.innerHTML = '';
+    for (var i = 0; i < scaled.length; i++) {
+      var c = scaled[i];
+      var isVideo = (c.fmt && (c.fmt.toLowerCase().indexOf('reel') >= 0 || c.fmt.toLowerCase() === 'video'));
+
+      var tr = document.createElement('tr');
+
+      // --- Creative cell: small thumbnail + name ---
+      var tdCreative = document.createElement('td');
+      var wrap = document.createElement('div');
+      wrap.className = 'creative-cell';
+
+      // Thumbnail (gradient fallback always present; image layered on top)
+      var thumb = document.createElement('div');
+      thumb.className = 'creative-thumb';
+      thumb.style.background = offerGradient[c.offer] || defaultGradient;
+      if (c.image) {
+        var img = document.createElement('img');
+        img.alt = c.name;
+        img.loading = 'lazy';
+        img.referrerPolicy = 'no-referrer';
+        img.style.opacity = '0';
+        img.style.transition = 'opacity 0.3s ease';
+        img.onload = function() { this.style.opacity = '1'; };
+        img.onerror = function() { this.style.display = 'none'; };
+        img.src = c.image;
+        thumb.appendChild(img);
+      }
+      wrap.appendChild(thumb);
+
+      var nameWrap = document.createElement('div');
+      nameWrap.className = 'creative-name-wrap';
+      var nameEl = document.createElement('div');
+      nameEl.className = 'creative-name';
+      nameEl.textContent = c.name;
+      var rankEl = document.createElement('div');
+      rankEl.className = 'creative-rank-text';
+      rankEl.textContent = '#' + (i + 1) + ' by spend';
+      nameWrap.appendChild(nameEl);
+      nameWrap.appendChild(rankEl);
+      wrap.appendChild(nameWrap);
+
+      tdCreative.appendChild(wrap);
+      tr.appendChild(tdCreative);
+
+      // --- Format cell (pill) ---
+      var tdFmt = document.createElement('td');
+      var fmtPill = document.createElement('span');
+      fmtPill.className = 'creative-fmt-pill ' + (isVideo ? 'is-video' : 'is-image');
+      fmtPill.textContent = c.fmt;
+      tdFmt.appendChild(fmtPill);
+      tr.appendChild(tdFmt);
+
+      // --- Offer cell ---
+      var tdOffer = document.createElement('td');
+      tdOffer.textContent = c.offer;
+      tr.appendChild(tdOffer);
+
+      // --- Spend / Impr / Clicks / CTR ---
+      function numCell(text) {
+        var td = document.createElement('td');
+        td.className = 'num';
+        td.innerHTML = text;
+        return td;
+      }
+      tr.appendChild(numCell('<span class="cur">&euro;</span>' + fmtMoney(c.spend)));
+      tr.appendChild(numCell(fmtNum(c.impr)));
+      tr.appendChild(numCell(fmtNum(c.clicks)));
+      tr.appendChild(numCell(c.ctr));
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  // ===== FUNNEL =====
+  function drawFunnel(id, steps) {
+    var root = document.getElementById(id);
+    if (!root || !steps || !steps.length) return;
+    var max = steps[0].v;
+    root.innerHTML = '';
+    for (var i = 0; i < steps.length; i++) {
+      var s = steps[i];
+      var pct = max > 0 ? (s.v / max) * 100 : 0;
+      var drop = i === 0 ? null : Math.round((1 - s.v / steps[i-1].v) * 1000) / 10;
+      var row = document.createElement('div');
+      row.className = 'funnel-step';
+      var dropText = drop === null ? '\u2014' : '\u2212' + drop + '%';
+      var dropClass = drop === null ? 'ok' : '';
+      row.innerHTML = '<div class="funnel-label">' + s.step + '<small>' + s.sub + '</small></div>' +
+                      '<div class="funnel-bar"><div class="funnel-bar-fill" style="width:' + pct + '%"></div></div>' +
+                      '<div class="funnel-val">' + s.v.toLocaleString('en-GB') + '</div>' +
+                      '<div class="funnel-drop ' + dropClass + '">' + dropText + '</div>';
+      root.appendChild(row);
+    }
+  }
+
+  // ===== TAB SYSTEM =====
+  var pageBuilders = {
+    overview: buildOverview, paid: buildPaid, offers: buildOffers,
+    attribution: buildAttribution, funnel: buildFunnel, markets: buildMarkets,
+    creative: buildCreatives
+  };
+  var renderedPages = {};
+
+  function initPage(page) {
+    if (renderedPages[page]) return;
+    renderedPages[page] = true;
+    var fn = pageBuilders[page];
+    if (fn) { try { fn(); } catch (e) { console.error('Page ' + page + ':', e); } }
+  }
+
+  function switchTab(tabId) {
+    var tabs = document.querySelectorAll('.tab');
+    for (var i = 0; i < tabs.length; i++) {
+      if (tabs[i].getAttribute('data-tab') === tabId) tabs[i].classList.add('active');
+      else tabs[i].classList.remove('active');
+    }
+    var pages = document.querySelectorAll('.page');
+    for (var j = 0; j < pages.length; j++) pages[j].classList.remove('active');
+    var p = document.getElementById('page-' + tabId);
+    if (p) p.classList.add('active');
+    initPage(tabId);
+  }
+
+  // ===== DATE PICKER =====
+  var popover = null;
+  var btnDate = null;
+
+  function renderCalendar() {
+    var startM = new Date(state.viewMonth);
+    var endM = new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth() + 1, 1);
+    renderMonthGrid('cal-grid-left', 'cal-title-left', startM);
+    renderMonthGrid('cal-grid-right', 'cal-title-right', endM);
+
+    // Update selected label
+    var sel = state.tempStart && state.tempEnd
+      ? '<strong>' + fmtDateShort(state.tempStart) + '</strong> \u2014 <strong>' + fmtDateShort(state.tempEnd) + '</strong>'
+      : (state.tempStart ? '<strong>' + fmtDateShort(state.tempStart) + '</strong> \u2014 select end date' : '<em>Select a start date</em>');
+    var selEl = document.getElementById('cal-selected');
+    if (selEl) selEl.innerHTML = sel;
+
+    // Always refresh chevron bounds when calendar re-renders
+    updateChevronBoundsModule();
+  }
+
+  // Module-level chevron-bounds helper so renderCalendar can call it
+  function updateChevronBoundsModule() {
+    var prev = document.getElementById('cal-prev');
+    var next = document.getElementById('cal-next');
+    if (!prev || !next) return;
+    var viewYM = state.viewMonth.getFullYear() * 12 + state.viewMonth.getMonth();
+    var startYM = _dataStart.getFullYear() * 12 + _dataStart.getMonth();
+    var endYM = _dataEnd.getFullYear() * 12 + _dataEnd.getMonth();
+    prev.disabled = (viewYM <= startYM);
+    next.disabled = (viewYM + 1 >= endYM);
+    prev.style.opacity = prev.disabled ? '0.3' : '';
+    next.style.opacity = next.disabled ? '0.3' : '';
+    prev.style.cursor = prev.disabled ? 'not-allowed' : '';
+    next.style.cursor = next.disabled ? 'not-allowed' : '';
+  }
+
+  function renderMonthGrid(gridId, titleId, monthDate) {
+    var grid = document.getElementById(gridId);
+    var title = document.getElementById(titleId);
+    if (!grid || !title) return;
+
+    title.textContent = ['January','February','March','April','May','June','July','August','September','October','November','December'][monthDate.getMonth()] + ' ' + monthDate.getFullYear();
+
+    var dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var html = '';
+    for (var d = 0; d < 7; d++) html += '<div class="cal-dow">' + dows[d] + '</div>';
+
+    var firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+    var lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+    var startDow = firstDay.getDay();
+
+    for (var pad = 0; pad < startDow; pad++) {
+      var prevDay = new Date(firstDay);
+      prevDay.setDate(prevDay.getDate() - (startDow - pad));
+      html += '<button class="cal-day muted" disabled>' + prevDay.getDate() + '</button>';
+    }
+
+    for (var day = 1; day <= lastDay.getDate(); day++) {
+      var cellDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), day);
+      var classes = 'cal-day';
+      var outOfRange = (cellDate < _dataStart || cellDate > _dataEnd);
+      if (outOfRange) classes += ' muted';
+      var s = state.tempStart, e = state.tempEnd;
+      if (!outOfRange) {
+        if (s && isSameDay(cellDate, s)) classes += ' range-start';
+        if (e && isSameDay(cellDate, e)) classes += ' range-end';
+        if (s && e && cellDate > s && cellDate < e) classes += ' in-range';
+      }
+      var ts = cellDate.getTime();
+      var disabledAttr = outOfRange ? ' disabled' : '';
+      html += '<button class="' + classes + '" data-ts="' + ts + '" type="button"' + disabledAttr + '>' + day + '</button>';
+    }
+
+    grid.innerHTML = html;
+
+    // Attach handlers
+    var btns = grid.querySelectorAll('button.cal-day:not(.muted):not(:disabled)');
+    for (var k = 0; k < btns.length; k++) {
+      // Click handler — two-click range selection with auto-swap
+      btns[k].addEventListener('click', function(evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        var ts = parseInt(evt.currentTarget.getAttribute('data-ts'), 10);
+        // Always create a fresh Date object normalized to midnight
+        var picked = new Date(ts);
+        picked = new Date(picked.getFullYear(), picked.getMonth(), picked.getDate());
+
+        // Layer 3 defense: re-check bounds even if rendering missed it
+        if (picked < _dataStart || picked > _dataEnd) return;
+
+        // Normalize tempStart/tempEnd to ensure they're real Date objects at midnight
+        if (state.tempStart && !(state.tempStart instanceof Date)) {
+          state.tempStart = new Date(state.tempStart);
+        }
+        if (state.tempStart) {
+          state.tempStart = new Date(state.tempStart.getFullYear(), state.tempStart.getMonth(), state.tempStart.getDate());
+        }
+        if (state.tempEnd && !(state.tempEnd instanceof Date)) {
+          state.tempEnd = new Date(state.tempEnd);
+        }
+        if (state.tempEnd) {
+          state.tempEnd = new Date(state.tempEnd.getFullYear(), state.tempEnd.getMonth(), state.tempEnd.getDate());
+        }
+
+        if (!state.tempStart || (state.tempStart && state.tempEnd)) {
+          // No selection in progress, OR a complete range exists — start a new selection
+          state.tempStart = picked;
+          state.tempEnd = null;
+        } else {
+          // We have a start but no end — set the end (auto-swap if user picked an earlier date)
+          var pickedTime = picked.getTime();
+          var startTime = state.tempStart.getTime();
+          if (pickedTime === startTime) {
+            // Same day clicked twice — treat as 1-day range
+            state.tempEnd = picked;
+          } else if (pickedTime < startTime) {
+            // Picked earlier than start — swap
+            state.tempEnd = state.tempStart;
+            state.tempStart = picked;
+          } else {
+            state.tempEnd = picked;
+          }
+        }
+
+        state.activePreset = null;
+        clearHoverPreview();
+        renderPresetActive();
+        renderCalendar();
+      });
+
+      // Hover preview — when start is set but end is not, lighten in-range cells
+      btns[k].addEventListener('mouseenter', function(evt) {
+        if (!state.tempStart || state.tempEnd) return;
+        var ts = parseInt(evt.currentTarget.getAttribute('data-ts'), 10);
+        var hoverDate = new Date(ts);
+        hoverDate.setHours(0, 0, 0, 0);
+        applyHoverPreview(hoverDate);
+      });
+
+      btns[k].addEventListener('mouseleave', function() {
+        if (!state.tempStart || state.tempEnd) return;
+        clearHoverPreview();
+      });
+    }
+  }
+
+  function applyHoverPreview(hoverDate) {
+    var lo = state.tempStart, hi = hoverDate;
+    if (hi < lo) { lo = hoverDate; hi = state.tempStart; }
+    var allBtns = document.querySelectorAll('.cal-day:not(.muted):not(:disabled)');
+    for (var i = 0; i < allBtns.length; i++) {
+      var ts = parseInt(allBtns[i].getAttribute('data-ts'), 10);
+      var d = new Date(ts);
+      d.setHours(0, 0, 0, 0);
+      if (d > lo && d < hi) {
+        allBtns[i].classList.add('preview');
+      } else if (d.getTime() === hi.getTime() && d.getTime() !== state.tempStart.getTime()) {
+        allBtns[i].classList.add('preview-end');
+      }
+    }
+  }
+
+  function clearHoverPreview() {
+    var allBtns = document.querySelectorAll('.cal-day');
+    for (var i = 0; i < allBtns.length; i++) {
+      allBtns[i].classList.remove('preview');
+      allBtns[i].classList.remove('preview-end');
+    }
+  }
+
+  function renderPresetActive() {
+    var items = document.querySelectorAll('.preset-item');
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].getAttribute('data-preset') === state.activePreset) items[i].classList.add('active');
+      else items[i].classList.remove('active');
+    }
+  }
+
+  function applyPreset(p) {
+    // Anchor "today" to last day in data array (never hardcoded)
+    var today = new Date(_dataEnd.getFullYear(), _dataEnd.getMonth(), _dataEnd.getDate());
+    var s, e;
+    switch (p) {
+      case 'all':
+        s = new Date(_dataStart.getFullYear(), _dataStart.getMonth(), _dataStart.getDate());
+        e = new Date(_dataEnd.getFullYear(), _dataEnd.getMonth(), _dataEnd.getDate());
+        break;
+      case 'yesterday':
+        s = addDays(today, -1); e = addDays(today, -1); break;
+      case '7':
+        s = addDays(today, -6); e = today; break;
+      case '14':
+        s = addDays(today, -13); e = today; break;
+      case '30':
+        s = addDays(today, -29); e = today; break;
+      case '90':
+        s = addDays(today, -89); e = today; break;
+      case 'this-week':
+        s = addDays(today, -today.getDay()); e = today; break;
+      case 'last-week':
+        var endLW = addDays(today, -today.getDay() - 1);
+        s = addDays(endLW, -6); e = endLW; break;
+      case 'this-month':
+        s = new Date(today.getFullYear(), today.getMonth(), 1); e = today; break;
+      case 'last-month':
+        s = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        e = new Date(today.getFullYear(), today.getMonth(), 0); break;
+      default: return;
+    }
+    // Clamp to data bounds — preset can't extend beyond what we have
+    if (s < _dataStart) s = new Date(_dataStart.getFullYear(), _dataStart.getMonth(), _dataStart.getDate());
+    if (e > _dataEnd) e = new Date(_dataEnd.getFullYear(), _dataEnd.getMonth(), _dataEnd.getDate());
+    state.tempStart = s; state.tempEnd = e;
+    state.activePreset = p;
+    state.viewMonth = new Date(s.getFullYear(), s.getMonth(), 1);
+    renderPresetActive();
+    renderCalendar();
+  }
+
+  function openPicker() {
+    // Clone and normalize to midnight to avoid time-of-day comparison bugs
+    state.tempStart = state.startDate ? new Date(state.startDate.getFullYear(), state.startDate.getMonth(), state.startDate.getDate()) : null;
+    state.tempEnd = state.endDate ? new Date(state.endDate.getFullYear(), state.endDate.getMonth(), state.endDate.getDate()) : null;
+    popover.classList.add('open');
+    btnDate.setAttribute('aria-expanded', 'true');
+    renderCalendar();
+    renderPresetActive();
+  }
+
+  function closePicker() {
+    popover.classList.remove('open');
+    btnDate.setAttribute('aria-expanded', 'false');
+  }
+
+  function commitDates() {
+    if (state.tempStart && state.tempEnd) {
+      state.startDate = state.tempStart;
+      state.endDate = state.tempEnd;
+    } else if (state.tempStart) {
+      state.startDate = state.tempStart;
+      state.endDate = state.tempStart;
+    }
+    // Update UI
+    document.getElementById('date-value').textContent = fmtDateRange(state.startDate, state.endDate);
+    var d = daysBetween(state.startDate, state.endDate);
+    document.getElementById('period-sum').textContent = d === 1 ? '1 day' : d + ' days';
+
+    var label;
+    var fullDays = dates.length;
+    if (d === fullDays) label = 'all data';
+    else if (d === 30) label = 'last 30 days';
+    else if (d === 7) label = 'last 7 days';
+    else if (d === 14) label = 'last 14 days';
+    else if (d === 90) label = 'last 90 days';
+    else label = d + ' days';
+    document.getElementById('filter-indicator').innerHTML = 'Showing ' + label + ' \u00B7 ' + fmtDateRange(state.startDate, state.endDate);
+
+    // Flash timestamp
+    var ts = document.getElementById('timestamp');
+    if (ts) {
+      ts.textContent = 'Refreshed ' + new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+      ts.style.color = C.goldDark;
+      setTimeout(function() { ts.style.color = ''; }, 2000);
+    }
+
+    // Re-render everything — clear charts first to free canvases
+    destroyAllCharts();
+    updateKPIs();
+    renderedPages = {};
+    var activeTab = document.querySelector('.tab.active');
+    if (activeTab) initPage(activeTab.getAttribute('data-tab'));
+
+    closePicker();
+  }
+
+  // ===== INIT =====
+  function init() {
+    popover = document.getElementById('date-popover');
+    btnDate = document.getElementById('btn-date-picker');
+
+    btnDate.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (popover.classList.contains('open')) closePicker();
+      else openPicker();
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!popover.classList.contains('open')) return;
+      if (popover.contains(e.target) || btnDate.contains(e.target)) return;
+      closePicker();
+    });
+
+    // Preset buttons
+    var presets = document.querySelectorAll('.preset-item');
+    for (var i = 0; i < presets.length; i++) {
+      (function(btn) {
+        btn.addEventListener('click', function() { applyPreset(btn.getAttribute('data-preset')); });
+      })(presets[i]);
+    }
+
+    // Month navigation — auto-disable at data bounds
+    document.getElementById('cal-prev').addEventListener('click', function() {
+      var viewYM = state.viewMonth.getFullYear() * 12 + state.viewMonth.getMonth();
+      var startYM = _dataStart.getFullYear() * 12 + _dataStart.getMonth();
+      if (viewYM <= startYM) return; // bounds guard
+      state.viewMonth = new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth() - 1, 1);
+      renderCalendar();
+    });
+    document.getElementById('cal-next').addEventListener('click', function() {
+      var viewYM = state.viewMonth.getFullYear() * 12 + state.viewMonth.getMonth();
+      var endYM = _dataEnd.getFullYear() * 12 + _dataEnd.getMonth();
+      if (viewYM + 1 >= endYM) return; // bounds guard
+      state.viewMonth = new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth() + 1, 1);
+      renderCalendar();
+    });
+
+    document.getElementById('cal-cancel').addEventListener('click', function() { closePicker(); });
+    document.getElementById('cal-apply').addEventListener('click', commitDates);
+
+    // Tabs
+    var tabs = document.querySelectorAll('.tab');
+    for (var j = 0; j < tabs.length; j++) {
+      (function(t) {
+        t.addEventListener('click', function() { switchTab(t.getAttribute('data-tab')); });
+      })(tabs[j]);
+    }
+
+    // Initial render
+    initPage('overview');
+
+    // Timestamp refresh
+    setInterval(function() {
+      var el = document.getElementById('timestamp');
+      if (!el) return;
+      if (el.textContent.indexOf('Refreshed') === 0) return;
+      var now = new Date();
+      el.textContent = 'Updated ' + now.getDate() + ' ' + monthNames[now.getMonth()] + ' ' + now.getFullYear() +
+        ' \u00B7 ' + String(now.getUTCHours()).padStart(2, '0') + ':' + String(now.getUTCMinutes()).padStart(2, '0') + ' UTC';
+    }, 60000);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+</body>
+</html>
