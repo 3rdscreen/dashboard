@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#FAF8F4" />
+<title>METT Marbella | Live Performance Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #F7F5F2; --ink: #0E2340; --ink-2: #2D3E56;
+    --ink-3: #6B7280; --ink-4: #B0B7C1; --line: #E5E7EB; --line-2: #D1D5DB; --gold: #C89B94;
+    --gold-2: #A67D76; --gold-soft: #F5E6E2; --sand: #E8D4CF; --accent-green: #556B4E;
+    --accent-burgundy: #8A4A4A; --success: #4F7A5A; --warn: #B07A3F; --danger: #9E4B4B;
+    --navy: #0E2340; --navy-2: #1A3558; --font: 'Calibri','Carlito','Segoe UI',Tahoma,sans-serif;
+    --font-mono: 'Consolas','Menlo','Courier New',monospace; --shadow-sm: 0 1px 2px rgba(14,35,64,.04); --shadow: 0 2px 16px rgba(14,35,64,.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  .app { max-width: 1480px; margin: 0 auto; padding: 24px 32px 80px; }
+  .masthead { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--line); margin-bottom: 20px; gap: 20px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .mark { width: 52px; height: 52px; border: 1px solid var(--gold); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; letter-spacing: 2px; background: var(--surface); flex-shrink: 0; }
+  .brand-text { min-width: 0; }
+  .brand-text .eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold-2); font-weight: 700; }
+  .brand-text h1 { font-size: 24px; line-height: 1.15; color: var(--ink); margin-top: 4px; font-weight: 600; letter-spacing: .3px; }
+  .brand-text h1 em { font-style: italic; color: var(--gold-2); font-weight: 400; font-size: .9em; margin-left: 4px; }
+  .meta-right { text-align: right; }
+  .live-pill { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px rgba(79,122,90,.18); animation: pulse 2.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+  .timestamp { font-size: 11px; color: var(--ink-3); margin-top: 6px; font-family: var(--font-mono); }
+  .sources { display: flex; gap: 6px; margin-top: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  .src-chip { font-size: 10px; letter-spacing: .8px; padding: 4px 10px; border: 1px solid var(--gold); color: var(--gold-2); background: var(--gold-soft); border-radius: 2px; font-weight: 600; }
+  .filter-bar { display: flex; align-items: stretch; background: var(--surface); border: 1px solid var(--line); margin-bottom: 12px; box-shadow: var(--shadow-sm); position: relative; }
+  .filter-date-btn { display: flex; align-items: center; gap: 14px; padding: 14px 20px; background: transparent; border: none; font-family: inherit; cursor: pointer; flex: 1; }
+  .filter-date-btn:hover { background: var(--surface-2); }
+  .cal-icon { width: 36px; height: 36px; border: 1px solid var(--gold); background: var(--gold-soft); color: var(--gold-2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cal-icon svg { width: 18px; height: 18px; }
+  .date-meta { display: flex; flex-direction: column; min-width: 0; text-align: left; }
+  .date-eyebrow { font-size: 9px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+  .date-value { font-size: 15px; font-weight: 600; color: var(--ink); margin-top: 2px; white-space: nowrap; }
+  .chev { color: var(--ink-3); transition: transform .2s; flex-shrink: 0; }
+  .filter-date-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .filter-summary { padding: 14px 22px; border-left: 1px solid var(--line); display: flex; flex-direction: column; justify-content: center; gap: 2px; flex-shrink: 0; }
+  .filter-summary .sum-label { font-size: 9px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+  .filter-summary .sum-val { font-size: 13px; font-weight: 600; color: var(--ink); font-family: var(--font-mono); white-space: nowrap; }
+  .date-popover { position: absolute; top: calc(100% + 4px); left: 0; z-index: 100; background: var(--surface); border: 1px solid var(--line-2); box-shadow: 0 10px 40px rgba(14,35,64,.12); display: none; width: 780px; max-width: calc(100vw - 40px); }
+  .date-popover.open { display: flex; }
+  .presets { width: 200px; border-right: 1px solid var(--line); padding: 16px 0; flex-shrink: 0; }
+  .preset-header { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; padding: 0 18px 10px; }
+  .preset-item { display: flex; align-items: center; gap: 10px; padding: 9px 18px; font-size: 13px; color: var(--ink-2); cursor: pointer; border: none; background: transparent; width: 100%; font-family: inherit; text-align: left; }
+  .preset-item:hover { background: var(--surface-2); color: var(--ink); }
+  .preset-item.active { color: var(--gold-2); font-weight: 600; }
+  .preset-radio { width: 14px; height: 14px; border: 1.5px solid var(--ink-4); border-radius: 50%; flex-shrink: 0; position: relative; }
+  .preset-item.active .preset-radio { border-color: var(--gold); }
+  .preset-item.active .preset-radio::after { content:''; position:absolute; top:2px; left:2px; right:2px; bottom:2px; background: var(--gold); border-radius:50%; }
+  .preset-divider { height: 1px; background: var(--line); margin: 8px 0; }
+  .cal-area { flex: 1; padding: 16px 18px; min-width: 0; }
+  .cal-months { display: flex; gap: 18px; }
+  .cal-month { flex: 1; min-width: 0; }
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 0 2px; }
+  .cal-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .cal-arrow { width: 24px; height: 24px; border: none; background: transparent; cursor: pointer; color: var(--ink-3); display: flex; align-items: center; justify-content: center; }
+  .cal-arrow:hover { background: var(--surface-2); color: var(--ink); }
+  .cal-arrow:disabled { opacity: .3; cursor: not-allowed; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+  .cal-dow { font-size: 10px; color: var(--ink-3); text-align: center; padding: 4px 0; font-weight: 600; }
+  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--ink); cursor: pointer; border: none; background: transparent; font-family: inherit; position: relative; }
+  .cal-day:hover:not(:disabled):not(.muted) { background: var(--gold-soft); }
+  .cal-day.muted { color: var(--ink-4); }
+  .cal-day.in-range { background: var(--gold-soft); color: var(--gold-2); }
+  .cal-day.range-start, .cal-day.range-end { background: var(--gold); color: #fff; font-weight: 600; }
+  .cal-day.preview { background: var(--gold-soft); color: var(--gold-2); }
+  .cal-day.preview-end { background: var(--gold); color: #fff; font-weight: 600; opacity: .85; }
+  .cal-day:disabled { opacity: .3; cursor: not-allowed; }
+  .cal-footer { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .cal-selected { font-size: 12px; color: var(--ink-3); }
+  .cal-selected strong { color: var(--ink); font-weight: 600; }
+  .cal-actions { display: flex; gap: 8px; }
+  .cal-btn { padding: 8px 16px; font-family: inherit; font-size: 12px; border-radius: 3px; cursor: pointer; font-weight: 600; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); }
+  .cal-btn:hover { background: var(--surface-2); }
+  .cal-btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .filter-indicator { margin-bottom: 18px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 10px; }
+  .filter-indicator .bar { display: inline-block; width: 20px; height: 1px; background: var(--gold); flex-shrink: 0; }
+  .tabs-wrap { border-bottom: 1px solid var(--line); margin-bottom: 24px; overflow-x: auto; scrollbar-width: none; }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tabs { display: flex; min-width: max-content; }
+  .tab { padding: 14px 18px; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--ink-3); cursor: pointer; border: none; border-bottom: 2px solid transparent; transition: all .2s; white-space: nowrap; font-weight: 600; background: none; font-family: inherit; }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--ink); border-bottom-color: var(--navy); }
+  .tab .num { font-style: italic; color: var(--gold-2); margin-right: 6px; font-size: 13px; font-weight: 400; }
+  .page { display: none; animation: fadeIn .4s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+  .page-head { margin-bottom: 20px; }
+  .page-head .eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold-2); font-weight: 700; }
+  .page-head h2 { font-size: 22px; font-weight: 600; color: var(--ink); margin-top: 4px; }
+  .page-head .sub { color: var(--ink-3); font-size: 13px; margin-top: 4px; max-width: 720px; }
+  .kpi-grid { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 24px; }
+  .kpi-grid.cols-9 { grid-template-columns: repeat(3,1fr); }
+  .kpi-grid.cols-6 { grid-template-columns: repeat(3,1fr); }
+  .kpi-grid.cols-4 { grid-template-columns: repeat(4,1fr); }
+  .kpi { background: var(--surface); padding: 18px 20px; position: relative; }
+  .kpi .label { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+  .kpi .value { font-size: 30px; font-weight: 700; color: var(--ink); margin-top: 10px; letter-spacing: -.3px; line-height: 1.1; }
+  .kpi .value .cur { font-size: 16px; color: var(--gold-2); margin-right: 3px; font-weight: 600; }
+  .kpi .value .unit { font-size: 15px; color: var(--ink-3); margin-left: 2px; font-weight: 600; }
+  .kpi .delta { margin-top: 8px; font-size: 11px; color: var(--ink-3); display: flex; align-items: center; gap: 5px; line-height: 1.3; }
+  .kpi .delta .up { color: var(--success); font-weight: 700; }
+  .kpi .delta .modeled { color: var(--warn); font-weight: 700; }
+  .kpi.hero::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: var(--navy); }
+  .section-label { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold-2); font-weight: 700; margin: 24px 0 12px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content:''; flex:1; height:1px; background: var(--line); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  .card { background: var(--surface); border: 1px solid var(--line); padding: 20px 22px; }
+  .card h3 { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .card .card-sub { font-size: 11px; color: var(--ink-3); margin-bottom: 16px; }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+  .card-head h3 { margin-bottom: 2px; }
+  .badge { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 9px; border: 1px solid var(--gold); color: var(--gold-2); background: var(--gold-soft); font-weight: 700; white-space: nowrap; }
+  .badge.gen { border-color: var(--accent-green); color: var(--accent-green); background: #EDF1EA; }
+  .badge.cap { border-color: var(--accent-burgundy); color: var(--accent-burgundy); background: #F1E8E9; }
+  .badge.modeled { border-color: var(--warn); color: var(--warn); background: #FAF0E0; }
+  .chart-wrap { position: relative; height: 280px; width: 100%; }
+  .chart-wrap.tall { height: 320px; }
+  .table-wrap { overflow-x: auto; }
+  table.data { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 600px; }
+  table.data th { text-align: left; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+  table.data th.num { text-align: right; }
+  table.data td { padding: 12px; border-bottom: 1px solid var(--line); color: var(--ink-2); }
+  table.data td.num { font-variant-numeric: tabular-nums; text-align: right; font-family: var(--font-mono); font-size: 12px; white-space: nowrap; }
+  table.data td.name { color: var(--ink); font-weight: 600; }
+  table.data tr:hover td { background: var(--surface-2); }
+  table.data .tot-row td { font-weight: 700; color: var(--ink); border-top: 1px solid var(--ink-4); border-bottom: none; background: var(--surface-2); padding-top: 14px; padding-bottom: 14px; }
+  .pill { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 2px; letter-spacing: .5px; font-weight: 700; white-space: nowrap; }
+  .pill.good { background: #EDF1EA; color: var(--success); }
+  .pill.warn { background: #FAF0E0; color: var(--warn); }
+  .pill.bad { background: #F5E4E4; color: var(--danger); }
+  .insight { background: linear-gradient(to right, var(--gold-soft) 0%, var(--surface) 60%); border-left: 2px solid var(--gold); padding: 16px 20px; margin: 20px 0; display: flex; gap: 16px; align-items: flex-start; }
+  .insight-mark { font-style: italic; font-size: 30px; color: var(--gold); line-height: 1; font-weight: 600; flex-shrink: 0; }
+  .insight p { color: var(--ink-2); font-size: 13.5px; line-height: 1.6; }
+  .insight p em { font-style: normal; color: var(--gold-2); font-weight: 700; }
+  .insight p code { background: rgba(200,155,148,.18); padding: 1px 6px; font-family: var(--font-mono); font-size: 11.5px; color: var(--gold-2); border-radius: 2px; }
+  .funnel { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
+  .funnel-step { display: grid; grid-template-columns: 180px 1fr 100px 70px; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .funnel-step:last-child { border-bottom: none; }
+  .funnel-label { font-size: 12px; color: var(--ink); font-weight: 600; }
+  .funnel-label small { display: block; font-size: 10px; color: var(--ink-3); font-weight: 400; margin-top: 2px; }
+  .funnel-bar { height: 26px; background: var(--surface-2); position: relative; overflow: hidden; }
+  .funnel-bar-fill { height: 100%; background: linear-gradient(to right, var(--gold) 0%, var(--sand) 100%); transition: width .6s ease; }
+  .funnel-val { text-align: right; font-family: var(--font-mono); font-size: 12px; color: var(--ink); font-weight: 700; }
+  .funnel-drop { text-align: right; font-size: 11px; color: var(--danger); font-family: var(--font-mono); font-weight: 600; }
+  .funnel-drop.ok { color: var(--ink-3); }
+  .paths-grid { display: grid; gap: 10px; }
+  .path-row { display: grid; grid-template-columns: 1fr 110px 120px; gap: 14px; align-items: center; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); }
+  .path-chain { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .path-node { font-size: 11px; padding: 5px 10px; border: 1px solid var(--line-2); background: var(--surface-2); color: var(--ink); font-weight: 600; white-space: nowrap; }
+  .path-node.meta { border-color: #C9A97E; background: #F7EDD8; color: #6B4E28; }
+  .path-node.google { border-color: #93B399; background: #E6EEE2; color: #345C3A; }
+  .path-node.convert { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .path-arrow { color: var(--gold); font-size: 14px; }
+  .path-val { text-align: right; font-family: var(--font-mono); font-size: 13px; color: var(--ink); font-weight: 700; }
+  .path-pct { text-align: right; font-size: 11px; color: var(--ink-3); }
+  .creative-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .admin { background: var(--ink); color: var(--bg); padding: 28px 32px; margin-top: 32px; }
+  .admin .eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--sand); font-weight: 700; margin-bottom: 6px; }
+  .admin h3 { font-size: 18px; font-weight: 600; color: var(--bg); margin-bottom: 18px; }
+  .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .admin-block h4 { font-size: 11px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--sand); margin-bottom: 10px; font-weight: 700; }
+  .admin-block code { display: block; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); padding: 11px 13px; font-family: var(--font-mono); font-size: 11px; color: #E8E2D4; margin-bottom: 6px; word-break: break-all; line-height: 1.5; }
+  .admin-block code .var { color: var(--sand); font-weight: 700; }
+  .footer { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--ink-3); gap: 14px; flex-wrap: wrap; }
+  .footer .sig { font-style: italic; color: var(--gold-2); font-weight: 600; }
+  .mono-cell { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); }
+  .creative-cell { display: flex; align-items: center; gap: 11px; }
+  .creative-cell .cc-name { font-weight: 700; color: var(--ink); line-height: 1.25; }
+  .creative-cell .cc-sub { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .badge.vid { border-color: var(--line); color: var(--ink-2); background: var(--surface-2); }
+  @media (max-width: 1100px) { .app{padding:20px 24px} .kpi-grid.cols-9,.kpi-grid.cols-6,.kpi-grid.cols-4{grid-template-columns:repeat(2,1fr)} .grid-2{grid-template-columns:1fr} .admin-grid{grid-template-columns:1fr} .creative-grid{grid-template-columns:repeat(2,1fr)} .date-popover{width:680px} }
+  @media (max-width: 720px) { .app{padding:16px 16px 60px} .masthead{flex-direction:column;align-items:flex-start} .meta-right{text-align:left;width:100%} .sources{justify-content:flex-start} .filter-bar{flex-direction:column} .kpi-grid.cols-9,.kpi-grid.cols-6,.kpi-grid.cols-4{grid-template-columns:repeat(2,1fr)} .funnel-step{grid-template-columns:1fr 80px} .funnel-bar{grid-column:1/-1} .funnel-drop{display:none} .path-row{grid-template-columns:1fr} .creative-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="masthead">
+    <div class="brand"><div class="mark">M</div><div class="brand-text"><div class="eyebrow">METT Hotels &amp; Resorts</div><h1>METT Marbella <em>| Live Performance</em></h1></div></div>
+    <div class="meta-right"><div class="live-pill"><span class="dot"></span> Live &middot; Mar 1 &ndash; May 31, 2026</div><div class="timestamp" id="timestamp">Updated 03 Jun 2026 &middot; 06:00 UTC</div><div class="sources"><span class="src-chip">GA4 &middot; /marbella</span><span class="src-chip">Meta Ads</span><span class="src-chip">Google Ads</span></div></div>
+  </header>
+  <div class="filter-bar" id="filter-bar">
+    <button class="filter-date-btn" type="button" id="btn-date-picker" aria-expanded="false" aria-haspopup="true">
+      <div class="cal-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="1" stroke-linejoin="round"/><path d="M3 8h14M7 2v3M13 2v3" stroke-linecap="round"/></svg></div>
+      <div class="date-meta"><span class="date-eyebrow">Date range</span><span class="date-value" id="date-value">1 Mar &ndash; 31 May 2026</span></div>
+      <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 4l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="filter-summary"><span class="sum-label">Period</span><span class="sum-val" id="period-sum">92 days</span></div>
+    <div class="date-popover" id="date-popover" role="dialog" aria-label="Select date range">
+      <aside class="presets">
+        <div class="preset-header">Quick select</div>
+        <button class="preset-item active" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">Mar 1 &ndash; May 31</span></button>
+        <button class="preset-item" data-preset="yesterday" type="button"><span class="preset-radio"></span>Yesterday</button>
+        <button class="preset-item" data-preset="7" type="button"><span class="preset-radio"></span>Last 7 days</button>
+        <button class="preset-item" data-preset="14" type="button"><span class="preset-radio"></span>Last 14 days</button>
+        <button class="preset-item" data-preset="30" type="button"><span class="preset-radio"></span>Last 30 days</button>
+        <button class="preset-item" data-preset="90" type="button"><span class="preset-radio"></span>Last 90 days</button>
+        <div class="preset-divider"></div>
+        <button class="preset-item" data-preset="this-week" type="button"><span class="preset-radio"></span>This week</button>
+        <button class="preset-item" data-preset="last-week" type="button"><span class="preset-radio"></span>Last week</button>
+        <button class="preset-item" data-preset="this-month" type="button"><span class="preset-radio"></span>This month</button>
+        <button class="preset-item" data-preset="last-month" type="button"><span class="preset-radio"></span>Last month</button>
+      </aside>
+      <div class="cal-area">
+        <div class="cal-months">
+          <div class="cal-month"><div class="cal-nav"><button class="cal-arrow" type="button" id="cal-prev" aria-label="Previous month"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="cal-title" id="cal-title-left">March 2026</span><span style="width:24px;"></span></div><div class="cal-grid" id="cal-grid-left"></div></div>
+          <div class="cal-month"><div class="cal-nav"><span style="width:24px;"></span><span class="cal-title" id="cal-title-right">April 2026</span><button class="cal-arrow" type="button" id="cal-next" aria-label="Next month"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div class="cal-grid" id="cal-grid-right"></div></div>
+        </div>
+        <div class="cal-footer"><div class="cal-selected" id="cal-selected"><strong>1 Mar 2026</strong> &mdash; <strong>31 May 2026</strong></div><div class="cal-actions"><button class="cal-btn" type="button" id="cal-cancel">Cancel</button><button class="cal-btn primary" type="button" id="cal-apply">Apply</button></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="filter-indicator"><span class="bar"></span><span id="filter-indicator">Showing all data &middot; 1 Mar &ndash; 31 May 2026</span></div>
+  <div class="tabs-wrap"><nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="overview"><span class="num">I</span>Overview</button>
+      <button class="tab" data-tab="paid"><span class="num">II</span>Paid media</button>
+      <button class="tab" data-tab="offers"><span class="num">III</span>Offers &amp; activations</button>
+      <button class="tab" data-tab="attribution"><span class="num">IV</span>Channel mix</button>
+      <button class="tab" data-tab="funnel"><span class="num">V</span>Website funnel</button>
+      <button class="tab" data-tab="markets"><span class="num">VI</span>Markets &amp; audience</button>
+      <button class="tab" data-tab="creative"><span class="num">VII</span>Creative</button>
+  </nav></div>
+
+  <section class="page active" id="page-overview">
+    <div class="page-head"><div class="eyebrow">Page I</div><h2>Overview</h2></div>
+    <div class="kpi-grid cols-9">
+<div class="kpi hero" id="kpi-total-rev"><div class="label">Total revenue</div><div class="value"><span class="cur">€</span>952,033</div><div class="delta">GA4 ecommerce &middot; measured</div></div>
+<div class="kpi hero" id="kpi-total-bkg"><div class="label">Total bookings</div><div class="value">462</div><div class="delta">measured</div></div>
+<div class="kpi hero" id="kpi-total-spend"><div class="label">Total paid spend</div><div class="value"><span class="cur">€</span>30,909</div><div class="delta"><span class="date-range-label">92 days</span> &middot; Meta + Google</div></div>
+<div class="kpi" id="kpi-roas"><div class="label">Blended ROAS</div><div class="value">30.8<span class="unit">×</span></div><div class="delta">rev ÷ total spend</div></div>
+<div class="kpi" id="kpi-aov"><div class="label">Avg order value</div><div class="value"><span class="cur">€</span>2,061</div><div class="delta">measured</div></div>
+<div class="kpi" id="kpi-sessions"><div class="label">Website sessions</div><div class="value">67,504</div><div class="delta">49,083 users &middot; /marbella</div></div>
+<div class="kpi" id="kpi-cvr"><div class="label">Website CVR</div><div class="value">0.68<span class="unit">%</span></div><div class="delta">462 / 67,504</div></div>
+<div class="kpi" id="kpi-ctr"><div class="label">Blended CTR</div><div class="value">2.45<span class="unit">%</span></div><div class="delta">Clicks / impressions</div></div>
+<div class="kpi" id="kpi-engrate"><div class="label">Engagement rate</div><div class="value">77.8<span class="unit">%</span></div><div class="delta">Engaged / sessions</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Daily revenue &amp; bookings</h3><div class="card-sub">GA4 ecommerce &middot; reconciles to €952,032.60 / 462</div></div></div><div class="chart-wrap"><canvas id="chart-rev-trend"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3>Sessions by channel</h3><div class="card-sub">/marbella &middot; GA4 default channel grouping</div></div></div><div class="chart-wrap"><canvas id="chart-channel"></canvas></div></div>
+    </div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>METT Marbella generated <em>€952,033 revenue from 462 bookings</em> on €30,909 paid spend &mdash; a blended <em>30.8× ROAS</em> at a €2,061 AOV. GA4 last-click credits paid channels with near-zero revenue (bookings complete on the shared SynXis engine and credit Referral/Unassigned/Direct), so paid-specific revenue is <em>modeled</em>, not measured. Spend, sessions, clicks and channel mix are all measured live.</p></div>
+    <div class="card" style="margin-top:18px;"><div class="card-head"><div><h3>Website traffic overview</h3><div class="card-sub">/marbella &middot; full period &middot; channel-group breakdown ranked by sessions</div></div></div>
+      <div class="traffic-totals" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;padding:14px 16px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;">
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Users</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="49083" data-fmt="int" data-scale="sess">49,083</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="67504" data-fmt="int" data-scale="sess">67,504</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Engaged sessions</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="52526" data-fmt="int" data-scale="sess">52,526</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Avg time/session</div><div style="font-size:22px;font-weight:700;color:var(--ink);">48s</div></div>
+      </div>
+      <div class="table-wrap"><table class="data"><thead><tr><th>Default channel group</th><th class="num">Users</th><th class="num">New users</th><th class="num">Sessions</th><th class="num">Engaged sessions</th><th class="num">Engagement rate</th><th class="num">Avg time/session</th><th class="num">Sessions/user</th><th class="num">Bounce rate</th><th class="num">Views/session</th></tr></thead><tbody>
+        <tr><td class="name">Organic Search</td><td class="num" data-base="9854" data-fmt="int" data-scale="sess">9,854</td><td class="num" data-base="8793" data-fmt="int" data-scale="sess">8,793</td><td class="num" data-base="14621" data-fmt="int" data-scale="sess">14,621</td><td class="num" data-base="11517" data-fmt="int" data-scale="sess">11,517</td><td class="num">78.8%</td><td class="num">52s</td><td class="num">1.48</td><td class="num"><span class="pill good">21.2%</span></td><td class="num">3.15</td></tr>
+        <tr><td class="name">Direct</td><td class="num" data-base="11183" data-fmt="int" data-scale="sess">11,183</td><td class="num" data-base="10986" data-fmt="int" data-scale="sess">10,986</td><td class="num" data-base="14369" data-fmt="int" data-scale="sess">14,369</td><td class="num" data-base="10871" data-fmt="int" data-scale="sess">10,871</td><td class="num">75.7%</td><td class="num">49s</td><td class="num">1.28</td><td class="num"><span class="pill good">24.3%</span></td><td class="num">2.72</td></tr>
+        <tr><td class="name">Unassigned</td><td class="num" data-base="8652" data-fmt="int" data-scale="sess">8,652</td><td class="num" data-base="7861" data-fmt="int" data-scale="sess">7,861</td><td class="num" data-base="11238" data-fmt="int" data-scale="sess">11,238</td><td class="num" data-base="9735" data-fmt="int" data-scale="sess">9,735</td><td class="num">86.6%</td><td class="num">55s</td><td class="num">1.30</td><td class="num"><span class="pill good">13.4%</span></td><td class="num">2.92</td></tr>
+        <tr><td class="name">Referral</td><td class="num" data-base="7603" data-fmt="int" data-scale="sess">7,603</td><td class="num" data-base="6881" data-fmt="int" data-scale="sess">6,881</td><td class="num" data-base="11040" data-fmt="int" data-scale="sess">11,040</td><td class="num" data-base="8584" data-fmt="int" data-scale="sess">8,584</td><td class="num">77.8%</td><td class="num">1m 06s</td><td class="num">1.45</td><td class="num"><span class="pill good">22.3%</span></td><td class="num">2.78</td></tr>
+        <tr><td class="name">Paid Search</td><td class="num" data-base="5226" data-fmt="int" data-scale="sess">5,226</td><td class="num" data-base="4828" data-fmt="int" data-scale="sess">4,828</td><td class="num" data-base="5991" data-fmt="int" data-scale="sess">5,991</td><td class="num" data-base="4485" data-fmt="int" data-scale="sess">4,485</td><td class="num">74.9%</td><td class="num">34s</td><td class="num">1.15</td><td class="num"><span class="pill warn">25.1%</span></td><td class="num">2.76</td></tr>
+        <tr><td class="name">Organic Social</td><td class="num" data-base="4262" data-fmt="int" data-scale="sess">4,262</td><td class="num" data-base="4143" data-fmt="int" data-scale="sess">4,143</td><td class="num" data-base="4605" data-fmt="int" data-scale="sess">4,605</td><td class="num" data-base="3217" data-fmt="int" data-scale="sess">3,217</td><td class="num">69.9%</td><td class="num">24s</td><td class="num">1.08</td><td class="num"><span class="pill warn">30.1%</span></td><td class="num">2.28</td></tr>
+        <tr><td class="name">Cross-network</td><td class="num" data-base="3418" data-fmt="int" data-scale="sess">3,418</td><td class="num" data-base="3076" data-fmt="int" data-scale="sess">3,076</td><td class="num" data-base="4200" data-fmt="int" data-scale="sess">4,200</td><td class="num" data-base="3059" data-fmt="int" data-scale="sess">3,059</td><td class="num">72.8%</td><td class="num">33s</td><td class="num">1.23</td><td class="num"><span class="pill warn">27.2%</span></td><td class="num">2.55</td></tr>
+        <tr><td class="name">Paid Social</td><td class="num" data-base="1817" data-fmt="int" data-scale="sess">1,817</td><td class="num" data-base="1817" data-fmt="int" data-scale="sess">1,817</td><td class="num" data-base="1846" data-fmt="int" data-scale="sess">1,846</td><td class="num" data-base="1369" data-fmt="int" data-scale="sess">1,369</td><td class="num">74.2%</td><td class="num">2s</td><td class="num">1.02</td><td class="num"><span class="pill warn">25.8%</span></td><td class="num">1.81</td></tr>
+        <tr><td class="name">Email</td><td class="num" data-base="179" data-fmt="int" data-scale="sess">179</td><td class="num" data-base="146" data-fmt="int" data-scale="sess">146</td><td class="num" data-base="293" data-fmt="int" data-scale="sess">293</td><td class="num" data-base="204" data-fmt="int" data-scale="sess">204</td><td class="num">69.6%</td><td class="num">1m 13s</td><td class="num">1.64</td><td class="num"><span class="pill warn">30.4%</span></td><td class="num">2.77</td></tr>
+        <tr><td class="name">Paid Other</td><td class="num" data-base="4" data-fmt="int" data-scale="sess">4</td><td class="num" data-base="3" data-fmt="int" data-scale="sess">3</td><td class="num" data-base="5" data-fmt="int" data-scale="sess">5</td><td class="num" data-base="4" data-fmt="int" data-scale="sess">4</td><td class="num">80.0%</td><td class="num">46s</td><td class="num">1.25</td><td class="num"><span class="pill good">20.0%</span></td><td class="num">2.20</td></tr>
+      </tbody></table></div></div>
+  </section>
+
+  <section class="page" id="page-paid">
+    <div class="page-head"><div class="eyebrow">Page II</div><h2>Paid media performance</h2></div>
+    <div class="section-label">Channel summary</div>
+    <div class="card" style="padding:4px 0 0;"><div class="table-wrap"><table class="data"><thead><tr><th>Channel</th><th class="num">Spend</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">Share</th></tr></thead><tbody>
+        <tr><td class="name">Google Ads <span class="badge cap">Capture</span></td><td class="num" data-base="18054.95" data-fmt="eur" data-scale="google">€18,055</td><td class="num" data-base="449425" data-fmt="int" data-scale="google">449,425</td><td class="num" data-base="40877" data-fmt="int" data-scale="google">40,877</td><td class="num">9.10%</td><td class="num">€0.44</td><td class="num">58%</td></tr>
+        <tr><td class="name">Meta Ads <span class="badge gen">Generate</span></td><td class="num" data-base="12854.11" data-fmt="eur" data-scale="meta">€12,854</td><td class="num" data-base="6485000" data-fmt="int" data-scale="meta">6,485,000</td><td class="num" data-base="124888" data-fmt="int" data-scale="meta">124,888</td><td class="num">1.93%</td><td class="num">€0.10</td><td class="num">42%</td></tr>
+        <tr class="tot-row"><td>Total paid</td><td class="num" data-base="30909.06" data-fmt="eur" data-scale="paid">€30,909</td><td class="num" data-base="6934425" data-fmt="int" data-scale="paid">6,934,425</td><td class="num" data-base="165765" data-fmt="int" data-scale="paid">165,765</td><td class="num">2.39%</td><td class="num">€0.19</td><td class="num">100%</td></tr>
+      </tbody></table></div></div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Spend splits Google €18,055 (58%) on high-intent Search + PMax, Meta €12,854 (42%) on reach-led prospecting. Google captures intent at €0.44 CPC; Meta drives volume at €0.10 CPC across 6.5M impressions. <em>Both run efficiently for their funnel role.</em></p></div>
+    <div class="section-label">Google Ads &middot; demand capture</div>
+    <div class="kpi-grid cols-4">
+<div class="kpi hero" id="kpi-g-spend"><div class="label">Spend</div><div class="value"><span class="cur">€</span>18,055</div><div class="delta">92 days &middot; EUR</div></div>
+<div class="kpi" id="kpi-g-impr"><div class="label">Impressions</div><div class="value">449,425</div><div class="delta">Search + PMax</div></div>
+<div class="kpi" id="kpi-g-clicks"><div class="label">Clicks</div><div class="value">40,877</div><div class="delta"><span class="up">CTR 9.10%</span></div></div>
+<div class="kpi" id="kpi-g-cpc"><div class="label">CPC</div><div class="value"><span class="cur">€</span>0.44</div><div class="delta">Cost / click</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Google Ads campaigns</h3><div class="card-sub">Spend / impr / clicks measured &middot; bookings &amp; revenue modeled <span class="badge modeled">Modeled</span></div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Campaign</th><th>Type</th><th class="num">Spend</th><th class="num">Impr.</th><th class="num">Clicks</th><th class="num">Bkg*</th><th class="num">Rev*</th></tr></thead><tbody>
+        <tr><td class="name">PMAX_METT Marbella</td><td>Performance Max</td><td class="num" data-base="9444.46" data-fmt="eur" data-scale="google">€9,444</td><td class="num" data-base="302497" data-fmt="int" data-scale="google">302,497</td><td class="num" data-base="14341" data-fmt="int" data-scale="google">14,341</td><td class="num">23</td><td class="num">€47,124</td></tr>
+        <tr><td class="name">SEM_METT Marbella</td><td>Search</td><td class="num" data-base="7695.77" data-fmt="eur" data-scale="google">€7,696</td><td class="num" data-base="85602" data-fmt="int" data-scale="google">85,602</td><td class="num" data-base="11575" data-fmt="int" data-scale="google">11,575</td><td class="num">19</td><td class="num">€38,395</td></tr>
+        <tr><td class="name">SEM &ndash; Azure Marbella</td><td>Search</td><td class="num" data-base="789.02" data-fmt="eur" data-scale="google">€789</td><td class="num" data-base="5731" data-fmt="int" data-scale="google">5,731</td><td class="num" data-base="737" data-fmt="int" data-scale="google">737</td><td class="num">2</td><td class="num">€3,937</td></tr>
+        <tr><td class="name">YT &ndash; METT Marbella</td><td>Video</td><td class="num" data-base="89.98" data-fmt="eur" data-scale="google">€90</td><td class="num" data-base="33672" data-fmt="int" data-scale="google">33,672</td><td class="num" data-base="42" data-fmt="int" data-scale="google">42</td><td class="num">0</td><td class="num">€451</td></tr>
+        <tr><td class="name">PMAX_METT Marbella_GCC</td><td>Performance Max</td><td class="num" data-base="35.72" data-fmt="eur" data-scale="google">€36</td><td class="num" data-base="7153" data-fmt="int" data-scale="google">7,153</td><td class="num" data-base="182" data-fmt="int" data-scale="google">182</td><td class="num">0</td><td class="num">€180</td></tr>
+      </tbody></table></div></div>
+      <div class="card"><div class="card-head"><div><h3>Spend &middot; Search / PMax</h3><div class="card-sub">Where Google budget concentrates</div></div></div><div class="chart-wrap"><canvas id="chart-g-split"></canvas></div></div>
+    </div>
+    <div class="section-label">Meta Ads &middot; demand generation</div>
+    <div class="kpi-grid cols-4">
+<div class="kpi hero" id="kpi-m-spend"><div class="label">Spend</div><div class="value"><span class="cur">€</span>12,854</div><div class="delta">92 days &middot; EUR</div></div>
+<div class="kpi" id="kpi-m-impr"><div class="label">Impressions</div><div class="value">6,485,000</div><div class="delta">Reach-led delivery</div></div>
+<div class="kpi" id="kpi-m-clicks"><div class="label">Clicks</div><div class="value">124,888</div><div class="delta"><span class="up">CTR 1.93%</span></div></div>
+<div class="kpi" id="kpi-m-lpv"><div class="label">Landing page views</div><div class="value">35,944</div><div class="delta">CPC €0.10</div></div>
+    </div>
+    <div class="card"><div class="card-head"><div><h3>Meta ad set breakdown</h3><div class="card-sub">Top ad sets by spend &middot; bookings/revenue channel-level only (&mdash;)</div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Ad set / offer</th><th class="num">Spend</th><th class="num">LPV</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">Bkg</th><th class="num">Rev</th></tr></thead><tbody>
+        <tr><td class="name">Website Traffic - May 2026 (Worldwide)</td><td class="num" data-base="1499.84" data-fmt="eur" data-scale="meta">€1,500</td><td class="num" data-base="8881" data-fmt="int" data-scale="meta">8,881</td><td class="num">2.16%</td><td class="num">€0.10</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Page Growth - April 2026 (General)</td><td class="num" data-base="1499.47" data-fmt="eur" data-scale="meta">€1,499</td><td class="num" data-base="56" data-fmt="int" data-scale="meta">56</td><td class="num">1.80%</td><td class="num">€0.15</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Website Traffic - Apr 2026 (Worldwide)</td><td class="num" data-base="1399.87" data-fmt="eur" data-scale="meta">€1,400</td><td class="num" data-base="8203" data-fmt="int" data-scale="meta">8,203</td><td class="num">1.75%</td><td class="num">€0.08</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Website Traffic - Mar 2026 (Worldwide)</td><td class="num" data-base="1199.92" data-fmt="eur" data-scale="meta">€1,200</td><td class="num" data-base="5494" data-fmt="int" data-scale="meta">5,494</td><td class="num">1.10%</td><td class="num">€0.12</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Page Growth - May 2026 (General)</td><td class="num" data-base="1049.19" data-fmt="eur" data-scale="meta">€1,049</td><td class="num" data-base="37" data-fmt="int" data-scale="meta">37</td><td class="num">2.06%</td><td class="num">€0.13</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Website Traffic - May 2026 (USA &amp; UK)</td><td class="num" data-base="999.57" data-fmt="eur" data-scale="meta">€1,000</td><td class="num" data-base="4011" data-fmt="int" data-scale="meta">4,011</td><td class="num">3.14%</td><td class="num">€0.19</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Website Traffic - Apr 2026 (USA &amp; UK)</td><td class="num" data-base="899.62" data-fmt="eur" data-scale="meta">€900</td><td class="num" data-base="3582" data-fmt="int" data-scale="meta">3,582</td><td class="num">3.91%</td><td class="num">€0.17</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Website Traffic - Mar 2026 (USA &amp; UK)</td><td class="num" data-base="699.75" data-fmt="eur" data-scale="meta">€700</td><td class="num" data-base="2364" data-fmt="int" data-scale="meta">2,364</td><td class="num">3.10%</td><td class="num">€0.23</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Page Growth - May 2026 (Worldwide)</td><td class="num" data-base="599.81" data-fmt="eur" data-scale="meta">€600</td><td class="num" data-base="26" data-fmt="int" data-scale="meta">26</td><td class="num">1.78%</td><td class="num">€0.11</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Page Growth - Apr 2026 (Worldwide)</td><td class="num" data-base="599.79" data-fmt="eur" data-scale="meta">€600</td><td class="num" data-base="20" data-fmt="int" data-scale="meta">20</td><td class="num">0.99%</td><td class="num">€0.12</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Page Growth - Mar 2026 (Worldwide)</td><td class="num" data-base="498.83" data-fmt="eur" data-scale="meta">€499</td><td class="num" data-base="86" data-fmt="int" data-scale="meta">86</td><td class="num">2.06%</td><td class="num">€0.18</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Post boosts (22 items)</td><td class="num" data-base="309" data-fmt="eur" data-scale="meta">€309</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+      </tbody></table></div></div>
+  </section>
+
+  <section class="page" id="page-offers">
+    <div class="page-head"><div class="eyebrow">Page III</div><h2>Offers &amp; activations <span class="badge modeled">Modeled</span></h2></div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Marbella's three primary offers show real landing-page demand but null per-offer purchases (bookings credit the shared engine). Revenue/bookings are <em>modeled</em> by landing-page session share, so ROAS is uniform &mdash; treat as directional.</p></div>
+    <div class="card"><div class="card-head"><div><h3>Offer &amp; activation table</h3><div class="card-sub">Real offer URLs &middot; session-share allocation</div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Offer</th><th>Channel</th><th class="num">Sessions</th><th class="num">Spend*</th><th class="num">Revenue*</th><th class="num">Bkg*</th><th class="num">ROAS*</th><th>Landing page</th></tr></thead><tbody>
+        <tr><td class="name">Find Your Way Back Home (Opening)</td><td>Meta + PMAX</td><td class="num">801</td><td class="num">€14,496</td><td class="num">€72,333</td><td class="num">35</td><td class="num"><span class="pill good">5.0×</span></td><td><span class="mono-cell">/marbella/offers/find-your-way-back-home-opening-offer</span></td></tr>
+        <tr><td class="name">Plan Ahead &amp; Save</td><td>Google PMAX + Meta</td><td class="num">492</td><td class="num">€8,902</td><td class="num">€44,418</td><td class="num">22</td><td class="num"><span class="pill good">5.0×</span></td><td><span class="mono-cell">/marbella/offers/plan-ahead-save</span></td></tr>
+        <tr><td class="name">Suite METT</td><td>Meta + Organic</td><td class="num">416</td><td class="num">€7,511</td><td class="num">€37,478</td><td class="num">18</td><td class="num"><span class="pill good">5.0×</span></td><td><span class="mono-cell">/marbella/offers/suite-mett</span></td></tr>
+      </tbody></table></div></div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Offer session share</h3><div class="card-sub">Landing-page sessions</div></div></div><div class="chart-wrap"><canvas id="chart-offer-share"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3>Activation funnel</h3><div class="card-sub">Meta delivery to landing-page views</div></div></div><div class="funnel" id="offer-funnel"></div></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-attribution">
+    <div class="page-head"><div class="eyebrow">Page IV</div><h2>Channel mix &amp; traffic sources</h2></div>
+    <div class="kpi-grid cols-6">
+<div class="kpi" id="kpi-paid-sess"><div class="label">Paid sessions</div><div class="value">12,042</div><div class="delta">Paid Search/Social + Cross-net</div></div>
+<div class="kpi" id="kpi-org-sess"><div class="label">Organic sessions</div><div class="value">19,226</div><div class="delta">Search + Social</div></div>
+<div class="kpi" id="kpi-dir-sess"><div class="label">Direct sessions</div><div class="value">14,369</div><div class="delta">no referrer</div></div>
+<div class="kpi hero" id="kpi-paid-share"><div class="label">Paid share</div><div class="value">16.2<span class="unit">%</span></div><div class="delta">of attributed sessions</div></div>
+<div class="kpi hero" id="kpi-top-channel"><div class="label">Top channel</div><div class="value" style="font-size:18px;">Organic Search</div><div class="delta">14,621 sessions</div></div>
+<div class="kpi" id="kpi-ref-sess"><div class="label">Referral / other</div><div class="value">11,338</div><div class="delta">referral + email + unassigned</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Sessions by channel group</h3><div class="card-sub">/marbella &middot; all sources</div></div></div><div class="chart-wrap"><canvas id="chart-assist"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3>Paid vs organic vs direct</h3><div class="card-sub">Share of channel-attributed sessions</div></div></div><div class="chart-wrap"><canvas id="chart-direct-assist"></canvas></div></div>
+    </div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Marbella earns most traffic organically &mdash; Organic Search and Direct together drive 28,990 sessions, a sign of strong brand pull. Paid channels contribute <strong>12,042 channel-attributed sessions (16.2%)</strong>. Paid clicks (165,765) far exceed GA4 paid sessions because cross-domain hops to the booking engine and consent drop-off lose attribution &mdash; the same effect that prevents property-level paid-revenue tracking.</p></div>
+  </section>
+
+  <section class="page" id="page-funnel">
+    <div class="page-head"><div class="eyebrow">Page V</div><h2>Website funnel &amp; engagement</h2></div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div><h3>Engagement funnel</h3><div class="card-sub">/marbella &middot; sessions to booking-page entries</div></div></div><div class="funnel" id="site-funnel"></div></div>
+      <div class="card"><div class="card-head"><div><h3>Daily sessions</h3><div class="card-sub">/marbella &middot; sessions per day</div></div></div><div class="chart-wrap"><canvas id="chart-sessions"></canvas></div></div>
+    </div>
+    <div class="card"><div class="card-head"><div><h3>Top viewed pages</h3><div class="card-sub">Real GA4 page views &middot; /marbella</div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Page path</th><th class="num">Sessions</th><th class="num">Page views</th></tr></thead><tbody>
+        <tr><td class="name"><span class="mono-cell">/&hellip;/booking-engine/rooms</span></td><td class="num" data-base="20944" data-fmt="int" data-scale="sess">20,944</td><td class="num" data-base="36686" data-fmt="int" data-scale="sess">36,686</td></tr>
+        <tr><td class="name"><span class="mono-cell">/marbella/</span></td><td class="num" data-base="20095" data-fmt="int" data-scale="sess">20,095</td><td class="num" data-base="25410" data-fmt="int" data-scale="sess">25,410</td></tr>
+        <tr><td class="name"><span class="mono-cell">/marbella/booking/</span></td><td class="num" data-base="13110" data-fmt="int" data-scale="sess">13,110</td><td class="num" data-base="18809" data-fmt="int" data-scale="sess">18,809</td></tr>
+        <tr><td class="name"><span class="mono-cell">/marbella/dine-play/</span></td><td class="num" data-base="3686" data-fmt="int" data-scale="sess">3,686</td><td class="num" data-base="5536" data-fmt="int" data-scale="sess">5,536</td></tr>
+        <tr><td class="name"><span class="mono-cell">/marbella/rooms/</span></td><td class="num" data-base="2307" data-fmt="int" data-scale="sess">2,307</td><td class="num" data-base="2888" data-fmt="int" data-scale="sess">2,888</td></tr>
+        <tr><td class="name"><span class="mono-cell">/slc/ymh/</span></td><td class="num" data-base="1766" data-fmt="int" data-scale="sess">1,766</td><td class="num" data-base="2321" data-fmt="int" data-scale="sess">2,321</td></tr>
+        <tr><td class="name"><span class="mono-cell">/marbella/about-us/</span></td><td class="num" data-base="1643" data-fmt="int" data-scale="sess">1,643</td><td class="num" data-base="1856" data-fmt="int" data-scale="sess">1,856</td></tr>
+        <tr><td class="name"><span class="mono-cell">/marbella/restaurants/azure-beach-marbella/</span></td><td class="num" data-base="1570" data-fmt="int" data-scale="sess">1,570</td><td class="num" data-base="2289" data-fmt="int" data-scale="sess">2,289</td></tr>
+        <tr><td class="name"><span class="mono-cell">/marbella/moi_spa/</span></td><td class="num" data-base="1341" data-fmt="int" data-scale="sess">1,341</td><td class="num" data-base="1600" data-fmt="int" data-scale="sess">1,600</td></tr>
+        <tr><td class="name"><span class="mono-cell">/marbella/offers/plan-ahead-save/</span></td><td class="num" data-base="1278" data-fmt="int" data-scale="sess">1,278</td><td class="num" data-base="2555" data-fmt="int" data-scale="sess">2,555</td></tr>
+      </tbody></table></div></div>
+    <div class="card" style="margin-top:20px;"><div class="card-head"><div><h3>Geo performance</h3><div class="card-sub">Top markets by bookings &middot; per-city revenue measured</div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Country</th><th>City</th><th class="num">Users</th><th class="num">Sessions</th><th class="num">Bounce</th><th class="num">Bookings</th><th class="num">Revenue</th><th class="num">CVR</th></tr></thead><tbody>
+        <tr><td class="name">Ireland</td><td>Dublin</td><td class="num" data-base="2067" data-fmt="int" data-scale="sess">2,067</td><td class="num" data-base="2416" data-fmt="int" data-scale="sess">2,416</td><td class="num"><span class="pill good">15.2%</span></td><td class="num">23</td><td class="num">€52,114</td><td class="num"><span class="pill warn">0.95%</span></td></tr>
+        <tr><td class="name">Saudi Arabia</td><td>Riyadh</td><td class="num" data-base="462" data-fmt="int" data-scale="sess">462</td><td class="num" data-base="560" data-fmt="int" data-scale="sess">560</td><td class="num"><span class="pill warn">25.4%</span></td><td class="num">10</td><td class="num">€29,182</td><td class="num"><span class="pill good">1.79%</span></td></tr>
+        <tr><td class="name">United Kingdom</td><td>London</td><td class="num" data-base="3350" data-fmt="int" data-scale="sess">3,350</td><td class="num" data-base="4207" data-fmt="int" data-scale="sess">4,207</td><td class="num"><span class="pill good">20.1%</span></td><td class="num">12</td><td class="num">€27,803</td><td class="num"><span class="pill bad">0.29%</span></td></tr>
+        <tr><td class="name">Saudi Arabia</td><td>Jeddah</td><td class="num" data-base="403" data-fmt="int" data-scale="sess">403</td><td class="num" data-base="477" data-fmt="int" data-scale="sess">477</td><td class="num"><span class="pill good">20.8%</span></td><td class="num">7</td><td class="num">€22,765</td><td class="num"><span class="pill warn">1.47%</span></td></tr>
+        <tr><td class="name">Netherlands</td><td>Amsterdam</td><td class="num" data-base="592" data-fmt="int" data-scale="sess">592</td><td class="num" data-base="797" data-fmt="int" data-scale="sess">797</td><td class="num"><span class="pill good">16.9%</span></td><td class="num">13</td><td class="num">€18,186</td><td class="num"><span class="pill good">1.63%</span></td></tr>
+        <tr><td class="name">United States</td><td>New York</td><td class="num" data-base="329" data-fmt="int" data-scale="sess">329</td><td class="num" data-base="484" data-fmt="int" data-scale="sess">484</td><td class="num"><span class="pill good">23.5%</span></td><td class="num">7</td><td class="num">€17,784</td><td class="num"><span class="pill warn">1.45%</span></td></tr>
+        <tr><td class="name">Switzerland</td><td>Zurich</td><td class="num" data-base="286" data-fmt="int" data-scale="sess">286</td><td class="num" data-base="386" data-fmt="int" data-scale="sess">386</td><td class="num"><span class="pill good">15.3%</span></td><td class="num">5</td><td class="num">€12,714</td><td class="num"><span class="pill warn">1.30%</span></td></tr>
+        <tr><td class="name">Netherlands</td><td>Eindhoven</td><td class="num" data-base="380" data-fmt="int" data-scale="sess">380</td><td class="num" data-base="468" data-fmt="int" data-scale="sess">468</td><td class="num"><span class="pill good">17.9%</span></td><td class="num">3</td><td class="num">€12,544</td><td class="num"><span class="pill warn">0.64%</span></td></tr>
+        <tr><td class="name">Netherlands</td><td>The Hague</td><td class="num" data-base="305" data-fmt="int" data-scale="sess">305</td><td class="num" data-base="378" data-fmt="int" data-scale="sess">378</td><td class="num"><span class="pill good">18.8%</span></td><td class="num">6</td><td class="num">€10,625</td><td class="num"><span class="pill good">1.59%</span></td></tr>
+        <tr><td class="name">Belgium</td><td>Antwerp</td><td class="num" data-base="356" data-fmt="int" data-scale="sess">356</td><td class="num" data-base="431" data-fmt="int" data-scale="sess">431</td><td class="num"><span class="pill good">18.3%</span></td><td class="num">2</td><td class="num">€10,267</td><td class="num"><span class="pill bad">0.46%</span></td></tr>
+        <tr><td class="name">Spain</td><td>Madrid</td><td class="num" data-base="1462" data-fmt="int" data-scale="sess">1,462</td><td class="num" data-base="1795" data-fmt="int" data-scale="sess">1,795</td><td class="num"><span class="pill good">22.0%</span></td><td class="num">5</td><td class="num">€9,914</td><td class="num"><span class="pill bad">0.28%</span></td></tr>
+        <tr><td class="name">Austria</td><td>Vienna</td><td class="num" data-base="488" data-fmt="int" data-scale="sess">488</td><td class="num" data-base="592" data-fmt="int" data-scale="sess">592</td><td class="num"><span class="pill good">15.9%</span></td><td class="num">7</td><td class="num">€6,836</td><td class="num"><span class="pill warn">1.18%</span></td></tr>
+      </tbody></table></div></div>
+  </section>
+
+  <section class="page" id="page-markets">
+    <div class="page-head"><div class="eyebrow">Page VI</div><h2>Markets &amp; audience</h2><div class="sub">Where demand originates &middot; GA4 country &amp; engagement data for /marbella, 1 Mar &ndash; 31 May 2026.</div></div>
+    <div class="kpi-grid cols-4">
+<div class="kpi hero" id="kpi-top-market"><div class="label">Top market &middot; sessions</div><div class="value" style="font-size:20px;">Spain</div><div class="delta">16,094 sessions</div></div>
+<div class="kpi hero" id="kpi-rev-market"><div class="label">Highest revenue market</div><div class="value" style="font-size:20px;">United States</div><div class="delta">&euro;102,200 measured</div></div>
+<div class="kpi" id="kpi-intl"><div class="label">International share</div><div class="value">76.2<span class="unit">%</span></div><div class="delta">non-domestic sessions</div></div>
+<div class="kpi" id="kpi-avgdur"><div class="label">Avg time / session</div><div class="value">48<span class="unit">s</span></div><div class="delta">site-wide engagement</div></div>
+    </div>
+    <div class="card"><div class="card-head"><div><h3>Top markets by engagement &amp; revenue</h3><div class="card-sub">GA4 country dimension &middot; sessions, engagement &amp; measured ecommerce revenue</div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Country</th><th class="num">Users</th><th class="num">Sessions</th><th class="num">Engagement</th><th class="num">Avg time/session</th><th class="num">Bounce</th><th class="num">Bookings</th><th class="num">Revenue</th><th class="num">CVR</th></tr></thead><tbody>
+        <tr><td class="name">Spain</td><td class="num" data-base="10715" data-fmt="int" data-scale="sess">10,715</td><td class="num" data-base="16094" data-fmt="int" data-scale="sess">16,094</td><td class="num">68.9%</td><td class="num">42s</td><td class="num"><span class="pill warn">31.1%</span></td><td class="num">30</td><td class="num">€58,373</td><td class="num"><span class="pill bad">0.19%</span></td></tr>
+        <tr><td class="name">United Kingdom</td><td class="num" data-base="10258" data-fmt="int" data-scale="sess">10,258</td><td class="num" data-base="13907" data-fmt="int" data-scale="sess">13,907</td><td class="num">80.4%</td><td class="num">45s</td><td class="num"><span class="pill good">19.6%</span></td><td class="num">55</td><td class="num">€101,849</td><td class="num"><span class="pill bad">0.40%</span></td></tr>
+        <tr><td class="name">United States</td><td class="num" data-base="3607" data-fmt="int" data-scale="sess">3,607</td><td class="num" data-base="4704" data-fmt="int" data-scale="sess">4,704</td><td class="num">77.8%</td><td class="num">42s</td><td class="num"><span class="pill good">22.1%</span></td><td class="num">52</td><td class="num">€102,200</td><td class="num"><span class="pill warn">1.11%</span></td></tr>
+        <tr><td class="name">Germany</td><td class="num" data-base="3559" data-fmt="int" data-scale="sess">3,559</td><td class="num" data-base="4530" data-fmt="int" data-scale="sess">4,530</td><td class="num">83.6%</td><td class="num">57s</td><td class="num"><span class="pill good">16.4%</span></td><td class="num">36</td><td class="num">€62,970</td><td class="num"><span class="pill warn">0.79%</span></td></tr>
+        <tr><td class="name">Ireland</td><td class="num" data-base="3189" data-fmt="int" data-scale="sess">3,189</td><td class="num" data-base="3768" data-fmt="int" data-scale="sess">3,768</td><td class="num">86.3%</td><td class="num">40s</td><td class="num"><span class="pill good">13.8%</span></td><td class="num">28</td><td class="num">€61,723</td><td class="num"><span class="pill warn">0.74%</span></td></tr>
+        <tr><td class="name">Netherlands</td><td class="num" data-base="2113" data-fmt="int" data-scale="sess">2,113</td><td class="num" data-base="2971" data-fmt="int" data-scale="sess">2,971</td><td class="num">82.8%</td><td class="num">58s</td><td class="num"><span class="pill good">17.2%</span></td><td class="num">50</td><td class="num">€97,693</td><td class="num"><span class="pill good">1.68%</span></td></tr>
+        <tr><td class="name">France</td><td class="num" data-base="2008" data-fmt="int" data-scale="sess">2,008</td><td class="num" data-base="2497" data-fmt="int" data-scale="sess">2,497</td><td class="num">81.5%</td><td class="num">47s</td><td class="num"><span class="pill good">18.5%</span></td><td class="num">10</td><td class="num">€17,968</td><td class="num"><span class="pill bad">0.40%</span></td></tr>
+        <tr><td class="name">Belgium</td><td class="num" data-base="1607" data-fmt="int" data-scale="sess">1,607</td><td class="num" data-base="2274" data-fmt="int" data-scale="sess">2,274</td><td class="num">83.6%</td><td class="num">1m 05s</td><td class="num"><span class="pill good">16.4%</span></td><td class="num">20</td><td class="num">€48,489</td><td class="num"><span class="pill warn">0.88%</span></td></tr>
+        <tr><td class="name">Switzerland</td><td class="num" data-base="1274" data-fmt="int" data-scale="sess">1,274</td><td class="num" data-base="1870" data-fmt="int" data-scale="sess">1,870</td><td class="num">85.2%</td><td class="num">1m 12s</td><td class="num"><span class="pill good">14.8%</span></td><td class="num">28</td><td class="num">€68,624</td><td class="num"><span class="pill warn">1.50%</span></td></tr>
+        <tr><td class="name">Serbia</td><td class="num" data-base="1151" data-fmt="int" data-scale="sess">1,151</td><td class="num" data-base="1335" data-fmt="int" data-scale="sess">1,335</td><td class="num">65.2%</td><td class="num">34s</td><td class="num"><span class="pill warn">34.8%</span></td><td class="num">1</td><td class="num">€4,090</td><td class="num"><span class="pill bad">0.07%</span></td></tr>
+        <tr><td class="name">Saudi Arabia</td><td class="num" data-base="993" data-fmt="int" data-scale="sess">993</td><td class="num" data-base="1241" data-fmt="int" data-scale="sess">1,241</td><td class="num">75.0%</td><td class="num">52s</td><td class="num"><span class="pill good">25.0%</span></td><td class="num">22</td><td class="num">€59,135</td><td class="num"><span class="pill good">1.77%</span></td></tr>
+        <tr><td class="name">Austria</td><td class="num" data-base="814" data-fmt="int" data-scale="sess">814</td><td class="num" data-base="1070" data-fmt="int" data-scale="sess">1,070</td><td class="num">82.8%</td><td class="num">1m 02s</td><td class="num"><span class="pill good">17.2%</span></td><td class="num">11</td><td class="num">€15,100</td><td class="num"><span class="pill warn">1.03%</span></td></tr>
+        <tr><td class="name">Sweden</td><td class="num" data-base="623" data-fmt="int" data-scale="sess">623</td><td class="num" data-base="982" data-fmt="int" data-scale="sess">982</td><td class="num">74.4%</td><td class="num">1m 03s</td><td class="num"><span class="pill warn">25.6%</span></td><td class="num">11</td><td class="num">€24,127</td><td class="num"><span class="pill warn">1.12%</span></td></tr>
+        <tr><td class="name">United Arab Emirates</td><td class="num" data-base="767" data-fmt="int" data-scale="sess">767</td><td class="num" data-base="945" data-fmt="int" data-scale="sess">945</td><td class="num">78.2%</td><td class="num">26s</td><td class="num"><span class="pill good">21.8%</span></td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Italy</td><td class="num" data-base="638" data-fmt="int" data-scale="sess">638</td><td class="num" data-base="877" data-fmt="int" data-scale="sess">877</td><td class="num">79.1%</td><td class="num">50s</td><td class="num"><span class="pill good">20.9%</span></td><td class="num">7</td><td class="num">€12,135</td><td class="num"><span class="pill warn">0.80%</span></td></tr>
+      </tbody></table></div></div>
+    <div class="grid-2" style="margin-top:18px;">
+      <div class="card"><div class="card-head"><div><h3>Revenue by market</h3><div class="card-sub">Measured GA4 ecommerce &middot; top 8 countries</div></div></div><div class="chart-wrap"><canvas id="chart-markets"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><h3>Market efficiency</h3><div class="card-sub">Paid spend allocated by session share <span class="badge modeled">Modeled</span></div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Country</th><th class="num">Sessions</th><th class="num">Sess. share</th><th class="num">Spend*</th><th class="num">Bkg</th><th class="num">CPA*</th><th class="num">ROAS*</th></tr></thead><tbody>
+        <tr><td class="name">Spain</td><td class="num" data-base="16094" data-fmt="int" data-scale="sess">16,094</td><td class="num">23.8%</td><td class="num" data-base="7369.20" data-fmt="eur" data-scale="paid">€7,369</td><td class="num">30</td><td class="num">€246</td><td class="num">7.9×</td></tr>
+        <tr><td class="name">United Kingdom</td><td class="num" data-base="13907" data-fmt="int" data-scale="sess">13,907</td><td class="num">20.6%</td><td class="num" data-base="6367.80" data-fmt="eur" data-scale="paid">€6,368</td><td class="num">55</td><td class="num">€116</td><td class="num">16.0×</td></tr>
+        <tr><td class="name">United States</td><td class="num" data-base="4704" data-fmt="int" data-scale="sess">4,704</td><td class="num">7.0%</td><td class="num" data-base="2153.89" data-fmt="eur" data-scale="paid">€2,154</td><td class="num">52</td><td class="num">€41</td><td class="num">47.4×</td></tr>
+        <tr><td class="name">Germany</td><td class="num" data-base="4530" data-fmt="int" data-scale="sess">4,530</td><td class="num">6.7%</td><td class="num" data-base="2074.22" data-fmt="eur" data-scale="paid">€2,074</td><td class="num">36</td><td class="num">€58</td><td class="num">30.4×</td></tr>
+        <tr><td class="name">Ireland</td><td class="num" data-base="3768" data-fmt="int" data-scale="sess">3,768</td><td class="num">5.6%</td><td class="num" data-base="1725.31" data-fmt="eur" data-scale="paid">€1,725</td><td class="num">28</td><td class="num">€62</td><td class="num">35.8×</td></tr>
+        <tr><td class="name">Netherlands</td><td class="num" data-base="2971" data-fmt="int" data-scale="sess">2,971</td><td class="num">4.4%</td><td class="num" data-base="1360.38" data-fmt="eur" data-scale="paid">€1,360</td><td class="num">50</td><td class="num">€27</td><td class="num">71.8×</td></tr>
+        <tr><td class="name">France</td><td class="num" data-base="2497" data-fmt="int" data-scale="sess">2,497</td><td class="num">3.7%</td><td class="num" data-base="1143.34" data-fmt="eur" data-scale="paid">€1,143</td><td class="num">10</td><td class="num">€114</td><td class="num">15.7×</td></tr>
+        <tr><td class="name">Belgium</td><td class="num" data-base="2274" data-fmt="int" data-scale="sess">2,274</td><td class="num">3.4%</td><td class="num" data-base="1041.23" data-fmt="eur" data-scale="paid">€1,041</td><td class="num">20</td><td class="num">€52</td><td class="num">46.6×</td></tr>
+        <tr><td class="name">Switzerland</td><td class="num" data-base="1870" data-fmt="int" data-scale="sess">1,870</td><td class="num">2.8%</td><td class="num" data-base="856.24" data-fmt="eur" data-scale="paid">€856</td><td class="num">28</td><td class="num">€31</td><td class="num">80.1×</td></tr>
+        <tr><td class="name">Serbia</td><td class="num" data-base="1335" data-fmt="int" data-scale="sess">1,335</td><td class="num">2.0%</td><td class="num" data-base="611.28" data-fmt="eur" data-scale="paid">€611</td><td class="num">1</td><td class="num">€611</td><td class="num">6.7×</td></tr>
+        <tr><td class="name">Saudi Arabia</td><td class="num" data-base="1241" data-fmt="int" data-scale="sess">1,241</td><td class="num">1.8%</td><td class="num" data-base="568.24" data-fmt="eur" data-scale="paid">€568</td><td class="num">22</td><td class="num">€26</td><td class="num">104.1×</td></tr>
+        <tr><td class="name">Austria</td><td class="num" data-base="1070" data-fmt="int" data-scale="sess">1,070</td><td class="num">1.6%</td><td class="num" data-base="489.94" data-fmt="eur" data-scale="paid">€490</td><td class="num">11</td><td class="num">€45</td><td class="num">30.8×</td></tr>
+        <tr><td class="name">Sweden</td><td class="num" data-base="982" data-fmt="int" data-scale="sess">982</td><td class="num">1.5%</td><td class="num" data-base="449.64" data-fmt="eur" data-scale="paid">€450</td><td class="num">11</td><td class="num">€41</td><td class="num">53.7×</td></tr>
+        <tr><td class="name">United Arab Emirates</td><td class="num" data-base="945" data-fmt="int" data-scale="sess">945</td><td class="num">1.4%</td><td class="num" data-base="432.70" data-fmt="eur" data-scale="paid">€433</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name">Italy</td><td class="num" data-base="877" data-fmt="int" data-scale="sess">877</td><td class="num">1.3%</td><td class="num" data-base="401.57" data-fmt="eur" data-scale="paid">€402</td><td class="num">7</td><td class="num">€57</td><td class="num">30.2×</td></tr>
+      </tbody></table></div></div>
+    </div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Spain leads on volume (16,094 sessions) but the <em>US, UK and Netherlands convert into the most revenue</em> &mdash; together &euro;301,742 of measured ecommerce. Gulf markets (Riyadh, Jeddah) and Ireland punch far above their session weight on revenue per visit. Spend allocation and CPA are <em>modeled</em> from session share, since property-level paid revenue isn't trackable through the shared booking engine.</p></div>
+  </section>
+
+  <section class="page" id="page-creative">
+    <div class="page-head"><div class="eyebrow">Page VII</div><h2>Creative performance</h2><div class="sub">Top Meta creatives by spend in the selected period &middot; spend, impressions &amp; CTR recompute live as you change the date range.</div></div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Carousels carry Marbella's paid-social spend: the <em>One More Night</em>, <em>Plan Ahead</em> and <em>Suite METT</em> carousels are the three biggest investments of the period. Reels and ghost (text-only) ads fill the always-on layer. Cards re-rank by spend for whatever window you select, and creatives with no spend in that window drop out.</p></div>
+    <div class="card-sub" style="margin:0 0 12px;font-size:11px;color:var(--ink-3);letter-spacing:.5px;">Showing top creatives &middot; spend / impressions / CTR measured live &middot; thumbnails from Meta</div>
+    <div class="creative-grid" id="creative-grid"></div>
+  </section>
+
+  <section class="admin">
+    <div class="eyebrow">Methodology &amp; data sources</div>
+    <h3>How this dashboard is built</h3>
+    <div class="admin-grid">
+      <div class="admin-block">
+        <h4>Live data connections</h4>
+        <code><span class="var">GA4</span> property 327114117 &middot; /marbella</code>
+        <code><span class="var">Meta Ads</span> act_1205759304496215 &middot; METT - Marbella</code>
+        <code><span class="var">Google Ads</span> 8964815527 &middot; METT Marbella</code>
+        <code><span class="var">Period</span> 2026-03-01 &rarr; 2026-05-31 &middot; 92 days &middot; EUR</code>
+      </div>
+      <div class="admin-block">
+        <h4>Measured vs modeled</h4>
+        <code><span class="var">Measured</span> revenue, bookings, sessions, spend, impressions, clicks, geo &amp; channel mix</code>
+        <code><span class="var">Modeled</span> per-offer &amp; per-market paid revenue / ROAS / CPA (session-share allocation)</code>
+        <code><span class="var">Why</span> bookings complete on the shared SynXis engine &mdash; GA4 last-click credits Referral/Direct, not the paid channel</code>
+        <code><span class="var">Reconciles</span> daily revenue sums to &euro;952,032.60 / 462 bookings exactly</code>
+      </div>
+    </div>
+  </section>
+  <div class="footer">
+    <div>METT Marbella &middot; Live Performance Dashboard &middot; data 1 Mar &ndash; 31 May 2026</div>
+    <div class="sig">Prepared for METT Hotels &amp; Resorts</div>
+  </div>
+</div>
+
+<script>
+/* ============ METT MARBELLA — LIVE DATA (Supermetrics, 1 Mar – 31 May 2026) ============ */
+const DATES = ["2026-03-01", "2026-03-02", "2026-03-03", "2026-03-04", "2026-03-05", "2026-03-06", "2026-03-07", "2026-03-08", "2026-03-09", "2026-03-10", "2026-03-11", "2026-03-12", "2026-03-13", "2026-03-14", "2026-03-15", "2026-03-16", "2026-03-17", "2026-03-18", "2026-03-19", "2026-03-20", "2026-03-21", "2026-03-22", "2026-03-23", "2026-03-24", "2026-03-25", "2026-03-26", "2026-03-27", "2026-03-28", "2026-03-29", "2026-03-30", "2026-03-31", "2026-04-01", "2026-04-02", "2026-04-03", "2026-04-04", "2026-04-05", "2026-04-06", "2026-04-07", "2026-04-08", "2026-04-09", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-25", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01", "2026-05-02", "2026-05-03", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30", "2026-05-31"];
+const REV   = [7749.76,0,3446.34,23271.24,8782.59,11991.09,1418.78,7606.29,5585.2,15994.49,7770.86,14286.28,648.22,7851.41,12890.74,13779.61,12944.57,7657.18,447.9,1465.38,7187.86,4163.76,14687.15,4235.96,7946.18,10106.68,594.01,3354.0,19652.33,17182.21,13360.96,21801.0,5032.03,21457.79,8728.75,20799.08,1055.96,4672.24,5869.19,2604.73,7075.14,9708.37,8369.08,10843.71,2300.61,8715.71,16422.05,2093.14,20210.33,4967.31,13376.09,12418.68,5337.38,9513.65,3621.74,6750.56,10367.19,5209.78,1764.82,7334.87,19240.66,10674.33,13182.07,7576.05,9297.11,2273.55,2498.53,15276.31,11108.36,17998.54,12687.01,18849.33,11177.75,9098.81,24739.47,14978.36,11834.39,25615.33,9691.54,19535.13,11136.43,3149.2,6843.49,10427.83,24582.16,13121.52,12741.49,13925.4,16015.25,15440.45,22719.42,8117.32];
+const BKG   = [6,0,1,13,5,4,1,6,3,9,5,4,1,4,7,8,6,4,1,2,3,2,6,3,6,6,1,3,9,6,8,12,3,9,4,10,1,2,3,1,4,5,4,7,2,5,2,2,8,3,8,3,2,5,3,4,6,3,1,4,8,5,5,3,5,1,2,4,4,4,8,3,7,3,13,10,9,7,5,8,6,2,5,6,11,10,7,5,8,5,9,5];
+const SESS  = [247,279,369,522,510,504,445,615,604,598,565,546,426,459,557,716,687,699,665,543,529,570,665,672,615,677,533,596,761,691,639,569,728,606,591,716,766,667,669,778,743,558,783,832,1003,859,1271,835,811,866,948,840,710,777,633,554,737,799,841,667,675,553,575,695,829,833,706,764,680,546,857,889,826,749,993,954,694,899,973,908,976,1160,1034,904,1090,1271,1151,1222,1172,1067,1053,716];
+const META  = [0,0,0,28.06,105.67,96.36,104.45,109.44,98.14,99.48,100.88,97.69,98.35,103.41,106.99,95.21,106.89,101.75,100.15,99.72,110.55,116.56,101.32,101.82,101.31,98.86,87.56,90.11,95.96,87.41,69.65,1.16,115.75,81.01,91.28,96.14,86.07,88.26,90.44,101.44,117.15,160.36,145.84,131.68,128.91,151.37,221.11,202.51,166.92,174.83,165.67,196.69,253.39,215.74,222.74,229.66,235.88,217.67,215.11,206.8,31.48,125.46,141.31,147.51,137.93,141.11,138.56,150.83,152.04,187.53,173.08,152.01,200.58,194.28,205.36,155.98,144.76,145.15,150.44,177.55,216.93,201.85,224.12,241.63,219.94,213.54,233.32,236.69,255.28,238.2,238.87,55.46];
+const GOOG  = [0,0,0,89.07,102.65,86.56,143.99,93.32,111.29,73.39,83.07,147.05,91.38,113.05,142.27,126.42,132.23,103.42,105.33,86.36,96.41,109.76,96.2,100.02,70.77,107.33,98.17,93.04,116.7,42.62,42.91,24.96,314.44,159.34,184.11,175.51,181.3,185.33,148.02,185.71,153.31,124.79,216.77,176.7,183.0,270.53,302.76,297.9,297.76,283.38,328.27,352.23,244.76,211.37,193.86,282.79,329.74,288.78,267.27,236.71,204.26,85.49,391.0,276.9,222.55,273.35,254.49,236.97,297.72,181.96,358.37,232.0,226.56,238.82,297.61,234.84,221.35,298.72,302.76,316.24,311.29,289.86,277.42,274.4,425.69,283.48,280.32,293.54,286.06,258.78,250.27,265.69];
+const N = DATES.length;
+
+/* canonical full-period totals (reconciled to validated report) */
+const BASE = {
+  rev:952032.60, bkg:462, spend:30909.06, meta:12854.11, google:18054.95,
+  sessions:67504, users:49083, engaged:52526,
+  gImpr:449425, gClicks:40877, mImpr:6485000, mClicks:124888, mLPV:35944,
+  ctr:2.39, engRate:77.8,
+  paidSess:12042, orgSess:19226, dirSess:14369, refSess:11338, paidShare:16.2
+};
+
+/* chart reference distributions (full period) */
+const CHANNELS = [["Organic Search",14621],["Direct",14369],["Unassigned",11238],["Referral",11040],["Paid Search",5991],["Organic Social",4605],["Cross-network",4200],["Paid Social",1846],["Email",293],["Paid Other",5]];
+const GSPLIT = [["PMax",9480.18],["Search",8484.79],["Video",89.98]];
+const OFFERS = [["Find Your Way Back Home",801],["Plan Ahead & Save",492],["Suite METT",416]];
+const MARKETS = {labels:["Spain", "United Kingdom", "United States", "Germany", "Ireland", "Netherlands", "France", "Belgium"], sessions:[16094,13907,4704,4530,3768,2971,2497,2274], revenue:[58373,101849,102200,62970,61723,97693,17968,48489]};
+
+const CREATIVES = [
+  {name:"One More Night",fmt:"Carousel",offer:"One More Night",thumb:"https://scontent-ams2-1.cdninstagram.com/v/t51.71878-15/645703522_4327466734236754_6576803159415250283_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&_nc_ohc=wMlMebaR7JIQ7kNvwEQoEzS&_nc_zt=23&_nc_ht=scontent-ams2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&oh=00_Af-W_xRfN1xqP3P86kwRXNQ27LFRLHNQLFFSWm_tOCHMTg&oe=6A24FEC1",spend:[0,0,0,21.53,85.01,79.56,84.44,87.59,80.62,81.54,82.62,79.05,80.43,84.46,87.7,74.4,71.3,66.89,66.03,65.77,74.23,78.48,68.54,66.14,66.44,66.93,69.35,69.61,70.26,64.76,55.88,1.16,84.64,63.44,72.76,76.29,67.63,66.87,65.91,63.95,42.48,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],imp:[0,0,0,10752,47612,47502,40838,41345,38152,34526,37798,37320,38870,35569,35582,32140,30288,29312,30417,30758,35171,41808,43551,44401,43982,43829,48011,46961,41051,39932,34629,210,50225,31392,37404,45846,42503,45639,46845,42205,27701,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],clk:[0,0,0,87,634,578,595,649,534,509,535,498,524,558,547,487,443,430,400,399,506,596,469,521,486,484,533,603,525,507,415,7,591,411,478,644,555,532,612,484,323,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+  {name:"Plan Ahead",fmt:"Carousel",offer:"Plan Ahead",thumb:"https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/684820826_968455909066161_9039079369414511966_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=111&ccb=7-5&_nc_sid=18de74&_nc_ohc=Vfh7LbTodL8Q7kNvwGo4QSJ&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&oh=00_Af90HTWIXiFSHMEiFxC0D17yDCjfGf02Z9_HBMLRO4fuRw&oe=6A233EC2",spend:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2.09,1.27,33.78,41.47,29.01,52.33,46.8,38.38,29.91,32.58,32.85,48.38,51.31,59.75,50.47,66.51,82.89,74.63,68.42,49.89,0,15.5,25.06,27.94,52.87,37.56,31.84,32.85,28.55,30.69,33.57,47.17,73.72,55.21,52.13,37.68,31.69,30.14,29.81,43.35,43.57,31.99,19.08,40.32,45.27,52.0,62.89,58.31,61.76,60.03,62.4,0],imp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2186,1059,22917,35562,22614,29927,18072,14685,9614,17694,21172,36992,30836,28653,20374,38794,38318,31850,28039,16852,0,4931,7632,17905,21660,14972,6485,11199,11208,20814,20629,29942,32472,24164,16491,9233,5644,5676,5083,11520,10793,9765,8203,16357,19050,22691,25958,25505,30659,30602,30641,0],clk:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,36,23,395,612,389,605,461,349,241,369,408,597,574,602,431,744,878,704,645,388,0,99,208,310,514,305,208,218,238,342,364,555,661,508,438,272,196,188,193,322,331,255,190,379,472,531,586,581,616,556,623,0]},
+  {name:"Suite METT",fmt:"Carousel",offer:"Suite METT",thumb:"https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/703335497_2041130450120112_7029409429041629532_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&_nc_ohc=psh86MvPhbUQ7kNvwGRLsu9&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&oh=00_Af-H1V2NRx1eOqgor1y7ZiNsNCATAlU-zer8msteOECKZA&oe=6A233EFB",spend:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30.29,75.63,36.13,23.58,34.08,11.64,19.9,28.41,34.68,34.19,35.14,31.13,62.17,47.13,63.4,48.32,40.28,33.46,39.14,53.49,0,62.62,53.24,54.99,22.45,40.68,40.23,45.0,41.25,57.46,47.74,25.09,9.23,10.42,32.34,35.99,47.95,48.23,44.26,31.73,30.31,23.23,5.58,4.74,0,0,0,0,0,0,0,0],imp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18116,45257,13995,3885,11014,1729,9925,13146,18039,11971,9525,5073,19500,13699,18158,8024,6536,7919,7584,12262,0,19709,21812,16477,10926,12936,17701,14489,13991,16358,14794,4618,1686,1966,14893,13525,19411,18883,19898,12929,12808,8134,998,893,0,0,0,0,0,0,0,0],clk:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,287,1012,394,168,399,67,335,456,575,441,358,219,588,454,601,331,241,313,275,486,0,585,615,476,275,377,555,531,448,487,429,156,58,70,372,434,660,331,310,228,206,159,23,29,0,0,0,0,0,0,0,0]},
+  {name:"27 Mar 2026",fmt:"Reel",offer:"Brand / Always-on",thumb:"https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/657610192_1317763403516988_3376127230475708782_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&_nc_ohc=910DTLTZCAsQ7kNvwEQBb9Z&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&oh=00_Af8p8-qwQ_o8MpQvoVnQ2z4RsVn4Sur33qgEtKp2wvmjMw&oe=6A2365B4",spend:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6.57,18.03,10.46,9.93,0,11.84,9.82,10.39,10.47,10.7,15.51,18.0,37.0,15.97,17.45,5.68,0,0,11.2,16.55,17.13,17.54,16.94,9.79,17.54,22.35,20.28,20.62,29.76,29.87,26.03,26.13,23.44,0,12.95,14.51,12.32,11.6,11.74,11.96,13.64,13.12,12.96,17.8,9.49,14.35,13.88,14.01,11.44,14.04,16.54,12.08,5.6,0,2.54,0,2.54,2.92,5.83,4.06,1.59,1.5,0,0,0],imp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3460,11228,8999,7915,0,11839,12765,12162,8457,8989,15438,15163,20039,15047,11689,4780,0,0,12211,17658,15821,15507,10366,7765,17739,19948,12094,14276,23756,17689,11872,8006,10738,0,5128,5951,6461,7690,7605,8147,8679,9378,5308,5974,5613,7928,7104,5120,5693,5196,8092,4767,1977,0,947,0,906,1120,3299,2336,925,822,0,0,0],clk:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,114,89,84,0,83,83,81,96,92,150,156,179,148,163,47,0,0,106,150,156,152,147,87,128,174,127,132,207,161,153,76,158,0,101,111,114,108,101,81,113,105,101,176,72,124,126,108,113,96,135,101,49,0,25,0,21,33,51,33,8,16,0,0,0]},
+  {name:"15 Oct 2025",fmt:"Reel",offer:"Brand / Always-on",thumb:"https://scontent-cdg6-1.xx.fbcdn.net/v/t45.1600-4/685899689_26950676651228795_2581943569725146259_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=d5bd00&_nc_ohc=m6k3wfylDmQQ7kNvwGA65Fb&_nc_zt=1&_nc_ht=scontent-cdg6-1.xx&edm=AJcBmwoEAAAA&oh=00_Af9Y3sZPIWzcF_LXSUM7xCM-fgY-tdGo7DsWAENokeoQJw&oe=6A25A815",spend:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12.51,17.53,14.55,16.29,3.46,11.45,19.24,30.89,27.2,11.07,17.61,20.27,9.14,0,16.98,28.27,23.35,12.31,16.8,27.42,3.59,3.43,7.74,9.59,9.12,3.59,14.89,22.22,22.73,24.86,23.88,21.12,15.61,14.55,14.95,11.85,15.28,15.77,19.54,24.4,16.87,14.24,11.92,11.18,11.57,9.97,9.82,9.49,10.82,9.87,11.82,3.93],imp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3686,5680,5805,6683,1308,3917,6123,9822,9042,3900,6417,6066,2933,0,4815,9252,8034,4575,5157,7668,976,894,2797,4051,4028,1282,4818,6269,6355,5806,5893,6215,4772,4062,4221,3798,5019,5710,6434,7709,4990,4489,4740,4773,4812,4132,3914,3317,3876,3321,4482,1062],clk:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,46,223,198,228,48,99,174,258,223,92,147,135,57,0,126,211,177,87,116,204,21,28,64,97,67,39,122,179,183,258,270,186,102,86,111,94,96,120,117,182,128,125,99,91,101,92,53,63,83,75,108,39]},
+  {name:"10 Aug 2025",fmt:"Reel",offer:"Brand / Always-on",thumb:"https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/670198613_956576533417662_3028008300130577155_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=100&ccb=7-5&_nc_sid=18de74&_nc_ohc=j44gnFksu84Q7kNvwHg7yaB&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&oh=00_Af8lR4NMwbVLsQL3_G6oFwRrT_45OaZR3QqNffGlWcVnrw&oe=6A233B86",spend:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8.1,23.88,24.76,17.44,29.22,34.58,31.95,27.56,29.01,48.71,35.8,29.71,49.25,53.42,36.09,28.28,28.87,43.68,37.27,24.94,16.34,10.15,12.23,12.3,11.33,18.11,12.02,10.41,10.48,4.96,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],imp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1964,4955,6862,5534,10069,12296,11022,9460,11109,19227,14606,11125,17729,17865,13059,11572,12165,15848,9637,8537,5716,2574,3730,6106,4782,5639,3957,3124,3590,1526,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],clk:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,33,125,129,91,213,235,185,153,156,334,241,165,305,320,210,144,136,233,179,111,99,59,76,83,72,99,62,61,63,39,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+  {name:"10 Apr 2026",fmt:"Ghost",offer:"Brand / Always-on",thumb:"https://scontent-cdg4-1.xx.fbcdn.net/v/t45.1600-4/670008658_26663280509968412_3094624517444875991_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=d5bd00&_nc_ohc=81GOVtv1n3MQ7kNvwG_nBMd&_nc_zt=1&_nc_ht=scontent-cdg4-1.xx&edm=AJcBmwoEAAAA&oh=00_Af_KE9-hA3YetU1ce2L-Cfe3UbobMHEz387jEYUr43Kdxw&oe=6A25C507",spend:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.22,14.78,11.06,11.66,12.19,16.65,23.71,22.65,25.96,23.99,23.75,25.74,24.79,27.22,27.08,28.23,29.28,25.12,27.07,25.54,11.55,2.97,7.95,8.27,7.75,8.55,8.23,10.5,9.79,11.34,11.28,9.26,9.97,9.64,10.13,9.54,10.53,10.77,9.63,9.45,8.45,6.44,9.22,13.48,15.08,13.01,12.87,15.45,4.22,6.46,0,4.26],imp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,960,5333,5184,6681,6377,8409,11128,10447,11909,13225,12898,12499,12049,12532,13671,16286,15743,12621,10000,11629,5541,1485,4194,4721,4573,4114,3928,4518,4266,3932,2571,3128,3474,2822,2742,2939,3079,4134,3626,3017,2462,1484,2627,4070,5700,5114,5368,6740,2332,3220,0,2734],clk:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,113,97,108,87,132,183,152,150,170,204,175,175,182,192,220,216,175,137,187,68,23,54,59,66,47,67,86,76,101,114,78,62,59,53,59,59,72,45,54,68,49,75,108,133,121,86,109,32,53,0,45]},
+  {name:"15 Aug 2025",fmt:"Reel",offer:"Brand / Always-on",thumb:"https://scontent-ams2-1.cdninstagram.com/v/t51.71878-15/527415137_1676183983074158_3178698422376633893_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=111&ccb=7-5&_nc_sid=18de74&_nc_ohc=qPjoEc0kF58Q7kNvwF7T4jL&_nc_zt=23&_nc_ht=scontent-ams2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&oh=00_Af9Q5jvpZyfoPJMcrXzuL4azdn_zJ7OOY0tuoNE8o11ghg&oe=6A24FE4B",spend:[0,0,0,5.98,20.52,16.77,20.01,21.85,17.52,17.94,18.26,18.63,17.92,18.95,19.29,17.7,18.89,18.88,17.51,16.62,18.05,20.1,16.78,18.26,17.19,17.38,17.99,11.24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],imp:[0,0,0,1369,4920,3468,4099,5129,4442,3833,3761,3832,3765,4001,4263,3660,3716,3609,3615,3214,3641,4461,3952,3304,3460,3637,4805,2816,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],clk:[0,0,0,30,121,73,120,135,105,91,85,117,99,110,124,80,81,108,88,93,96,117,75,82,91,87,95,60,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
+];
+</script>
+<script>
+(function(){
+  "use strict";
+  /* ---------- date scaffolding ---------- */
+  const D = DATES.map(s => new Date(s+"T00:00:00Z"));
+  const MIN = 0, MAX = N-1;
+  const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  let selStart=MIN, selEnd=MAX, pendStart=MIN, pendEnd=MAX, pickPhase=0, viewY=2026, viewM=2; // March
+  const realToday = new Date(); 
+  const refToday = (realToday > D[MAX]) ? new Date(D[MAX]) : realToday;
+
+  function sum(a,s,e){let t=0;for(let i=s;i<=e;i++)t+=a[i];return t;}
+  function dlabel(i){const d=D[i];return d.getUTCDate()+" "+MON[d.getUTCMonth()]+" "+d.getUTCFullYear();}
+  function dshort(i){const d=D[i];return d.getUTCDate()+" "+MON[d.getUTCMonth()];}
+  function clampIdx(dt){ // nearest in-range index for a JS date
+    const t=Date.UTC(dt.getUTCFullYear(),dt.getUTCMonth(),dt.getUTCDate());
+    if(t<=D[MIN].getTime())return MIN; if(t>=D[MAX].getTime())return MAX;
+    let best=MIN,bd=1e15; for(let i=0;i<N;i++){const diff=Math.abs(D[i].getTime()-t); if(diff<bd){bd=diff;best=i;}} return best;
+  }
+  /* ---------- number formatting ---------- */
+  const nf=new Intl.NumberFormat('en-US');
+  function fInt(v){return nf.format(Math.round(v));}
+  function fEur(v){return "\u20ac"+nf.format(Math.round(v));}
+  function fPct(v,d){return (v).toFixed(d==null?1:d)+"%";}
+
+  /* ---------- factors for the active window ---------- */
+  function factors(){
+    const s=selStart,e=selEnd;
+    const sF=sum(SESS,s,e)/sum(SESS,MIN,MAX);
+    const gF=sum(GOOG,s,e)/sum(GOOG,MIN,MAX);
+    const mF=sum(META,s,e)/sum(META,MIN,MAX);
+    const pSpend=sum(GOOG,s,e)+sum(META,s,e), pAll=sum(GOOG,MIN,MAX)+sum(META,MIN,MAX);
+    return {sess:sF, google:gF, meta:mF, paid:pSpend/pAll};
+  }
+
+  /* ---------- KPI refresh ---------- */
+  function setKPI(id,html){const el=document.getElementById(id);if(el){const v=el.querySelector('.value');if(v)v.innerHTML=html;}}
+  function setDelta(id,html){const el=document.getElementById(id);if(el){const d=el.querySelector('.delta');if(d)d.innerHTML=html;}}
+  function updateKPIs(){
+    const s=selStart,e=selEnd, f=factors();
+    const rev=sum(REV,s,e), bkg=sum(BKG,s,e), spend=sum(META,s,e)+sum(GOOG,s,e);
+    const sessions=Math.round(BASE.sessions*f.sess), users=Math.round(BASE.users*f.sess);
+    const days=e-s+1;
+    // Page I
+    setKPI('kpi-total-rev','<span class="cur">\u20ac</span>'+fInt(rev));
+    setKPI('kpi-total-bkg',fInt(bkg));
+    setKPI('kpi-total-spend','<span class="cur">\u20ac</span>'+fInt(spend));
+    setDelta('kpi-total-spend','<span class="date-range-label">'+days+' day'+(days>1?'s':'')+'</span> &middot; Meta + Google');
+    setKPI('kpi-roas',(spend>0?(rev/spend).toFixed(1):'0')+'<span class="unit">\u00d7</span>');
+    setKPI('kpi-aov','<span class="cur">\u20ac</span>'+(bkg>0?fInt(rev/bkg):'0'));
+    setKPI('kpi-sessions',fInt(sessions));
+    setDelta('kpi-sessions',fInt(users)+' users &middot; /marbella');
+    setKPI('kpi-cvr',(sessions>0?(bkg/sessions*100).toFixed(2):'0')+'<span class="unit">%</span>');
+    setDelta('kpi-cvr',fInt(bkg)+' / '+fInt(sessions));
+    setKPI('kpi-ctr',BASE.ctr.toFixed(2)+'<span class="unit">%</span>');
+    setKPI('kpi-engrate',BASE.engRate.toFixed(1)+'<span class="unit">%</span>');
+    // Page II Google
+    const g=sum(GOOG,s,e);
+    setKPI('kpi-g-spend','<span class="cur">\u20ac</span>'+fInt(g));
+    setDelta('kpi-g-spend',days+' day'+(days>1?'s':'')+' &middot; EUR');
+    setKPI('kpi-g-impr',fInt(BASE.gImpr*f.google));
+    const gclk=BASE.gClicks*f.google;
+    setKPI('kpi-g-clicks',fInt(gclk));
+    setKPI('kpi-g-cpc','<span class="cur">\u20ac</span>'+(gclk>0?(g/gclk).toFixed(2):'0'));
+    // Page II Meta
+    const m=sum(META,s,e);
+    setKPI('kpi-m-spend','<span class="cur">\u20ac</span>'+fInt(m));
+    setDelta('kpi-m-spend',days+' day'+(days>1?'s':'')+' &middot; EUR');
+    setKPI('kpi-m-impr',fInt(BASE.mImpr*f.meta));
+    setKPI('kpi-m-clicks',fInt(BASE.mClicks*f.meta));
+    setKPI('kpi-m-lpv',fInt(BASE.mLPV*f.meta));
+    // Page IV
+    setKPI('kpi-paid-sess',fInt(BASE.paidSess*f.sess));
+    setKPI('kpi-org-sess',fInt(BASE.orgSess*f.sess));
+    setKPI('kpi-dir-sess',fInt(BASE.dirSess*f.sess));
+    setKPI('kpi-ref-sess',fInt(BASE.refSess*f.sess));
+    setKPI('kpi-paid-share',BASE.paidShare.toFixed(1)+'<span class="unit">%</span>');
+  }
+
+  /* ---------- generic table cell scaling ---------- */
+  function scaleCells(){
+    const f=factors();
+    document.querySelectorAll('[data-base][data-scale]').forEach(td=>{
+      const base=parseFloat(td.getAttribute('data-base'));
+      const k=td.getAttribute('data-scale'); const fmt=td.getAttribute('data-fmt');
+      const fac=f[k]!=null?f[k]:1; const v=base*fac;
+      td.textContent = fmt==='eur'? fEur(v) : fmt==='pct'? fPct(v) : fInt(v);
+    });
+  }
+
+  /* ---------- filter indicator ---------- */
+  function refreshLabels(){
+    const days=selEnd-selStart+1;
+    document.getElementById('date-value').innerHTML = dshort(selStart)+' &ndash; '+dshort(selEnd)+' '+D[selEnd].getUTCFullYear();
+    document.getElementById('period-sum').textContent = days+' day'+(days>1?'s':'');
+    const full = (selStart===MIN&&selEnd===MAX);
+    document.getElementById('filter-indicator').innerHTML = (full?'Showing all data':'Filtered')+' &middot; '+dlabel(selStart)+' &ndash; '+dlabel(selEnd);
+    document.getElementById('cal-selected').innerHTML='<strong>'+dlabel(pendStart)+'</strong> &mdash; <strong>'+dlabel(pendEnd)+'</strong>';
+  }
+
+  /* ============ CHARTS ============ */
+  const FONT="Calibri, Carlito, Segoe UI, sans-serif";
+  Chart.defaults.font.family=FONT; Chart.defaults.color="#6B7280";
+  const C={};
+  const GOLD="#C89B94",GOLD2="#A67D76",NAVY="#0E2340",SAND="#E8D4CF",GREEN="#556B4E",INK3="#6B7280",LINE="#E5E7EB";
+  function destroy(k){if(C[k]){C[k].destroy();C[k]=null;}}
+  function gridSlice(){return {s:selStart,e:selEnd};}
+
+  function buildRevTrend(){
+    const el=document.getElementById('chart-rev-trend'); if(!el)return; destroy('rev');
+    const s=selStart,e=selEnd; const L=DATES.slice(s,e+1).map((d,i)=>dshort(s+i));
+    C['rev']=new Chart(el,{data:{labels:L,datasets:[
+      {type:'bar',label:'Revenue',data:REV.slice(s,e+1),backgroundColor:GOLD,yAxisID:'y',borderRadius:1,maxBarThickness:14},
+      {type:'line',label:'Bookings',data:BKG.slice(s,e+1),borderColor:NAVY,backgroundColor:NAVY,yAxisID:'y1',tension:.35,borderWidth:2,pointRadius:0}
+    ]},options:cOpts({dual:true,eur:true})});
+  }
+  function buildSessions(){
+    const el=document.getElementById('chart-sessions'); if(!el)return; destroy('sess');
+    const s=selStart,e=selEnd; const L=DATES.slice(s,e+1).map((d,i)=>dshort(s+i));
+    C['sess']=new Chart(el,{type:'line',data:{labels:L,datasets:[
+      {label:'Sessions',data:SESS.slice(s,e+1),borderColor:GOLD2,backgroundColor:'rgba(200,155,148,.12)',fill:true,tension:.35,borderWidth:2,pointRadius:0}
+    ]},options:cOpts({})});
+  }
+  function doughnut(elId,key,pairs,fac){
+    const el=document.getElementById(elId); if(!el)return; destroy(key);
+    const cols=[NAVY,GOLD,GREEN,SAND,GOLD2,"#1A3558","#93B399","#C9A97E","#B0B7C1","#8A4A4A"];
+    C[key]=new Chart(el,{type:'doughnut',data:{labels:pairs.map(p=>p[0]),datasets:[{data:pairs.map(p=>p[1]*(fac||1)),backgroundColor:cols,borderWidth:1,borderColor:'#fff'}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:11},padding:8}}}}});
+  }
+  function buildChannel(){const f=factors();doughnut('chart-channel','ch',CHANNELS,f.sess);}
+  function buildAssist(){const f=factors();doughnut('chart-assist','as',CHANNELS,f.sess);}
+  function buildGSplit(){const f=factors();doughnut('chart-g-split','gs',GSPLIT,f.google);}
+  function buildOfferShare(){const f=factors();doughnut('chart-offer-share','os',OFFERS,f.sess);}
+  function buildDirectAssist(){
+    const el=document.getElementById('chart-direct-assist'); if(!el)return; destroy('da'); const f=factors();
+    const pairs=[["Paid",BASE.paidSess],["Organic",BASE.orgSess],["Direct",BASE.dirSess],["Referral / other",BASE.refSess]];
+    doughnut('chart-direct-assist','da',pairs,f.sess);
+  }
+  function buildMarkets(){
+    const el=document.getElementById('chart-markets'); if(!el)return; destroy('mk'); const f=factors();
+    const cols=[NAVY,GOLD,GREEN,SAND,GOLD2,"#1A3558","#93B399","#C9A97E"];
+    C['mk']=new Chart(el,{type:'bar',data:{labels:MARKETS.labels,datasets:[{label:'Revenue',data:MARKETS.revenue.map(v=>Math.round(v*f.sess)),backgroundColor:cols,borderRadius:2}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:LINE},ticks:{callback:v=>'\u20ac'+(v/1000)+'k'}},y:{grid:{display:false}}}}});
+  }
+  function cOpts(o){
+    const sc={x:{grid:{display:false},ticks:{maxTicksLimit:8,font:{size:10}}},
+      y:{grid:{color:LINE},ticks:{font:{size:10},callback:v=>o.eur?('\u20ac'+(v>=1000?(v/1000)+'k':v)):v}}};
+    if(o.dual){sc.y1={position:'right',grid:{display:false},ticks:{font:{size:10}}};}
+    return {responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:!!o.dual,labels:{boxWidth:10,font:{size:11}}}},scales:sc};
+  }
+
+  /* ---------- funnels ---------- */
+  function funnelHTML(steps){
+    const top=steps[0].v||1; let h='';
+    steps.forEach((st,i)=>{
+      const pct=Math.max(2,(st.v/top*100));
+      let drop=''; if(i>0){const pr=steps[i-1].v; const dp=pr>0?((pr-st.v)/pr*100):0; drop='<div class="funnel-drop'+(dp<60?' ok':'')+'">-'+dp.toFixed(0)+'%</div>';}else{drop='<div class="funnel-drop ok">&mdash;</div>';}
+      h+='<div class="funnel-step"><div class="funnel-label">'+st.l+(st.s?'<small>'+st.s+'</small>':'')+'</div><div class="funnel-bar"><div class="funnel-bar-fill" style="width:'+pct+'%"></div></div><div class="funnel-val">'+fInt(st.v)+'</div>'+drop+'</div>';
+    });
+    return h;
+  }
+  function buildFunnels(){
+    const f=factors();
+    const sb=document.getElementById('site-funnel');
+    if(sb){sb.innerHTML=funnelHTML([
+      {l:'Sessions',s:'/marbella',v:BASE.sessions*f.sess},
+      {l:'Engaged sessions',v:BASE.engaged*f.sess},
+      {l:'Booking-engine / rooms',s:'page views',v:20944*f.sess},
+      {l:'Booking page',v:13110*f.sess},
+      {l:'Bookings',s:'GA4 ecommerce',v:sum(BKG,selStart,selEnd)}
+    ]);}
+    const of=document.getElementById('offer-funnel');
+    if(of){of.innerHTML=funnelHTML([
+      {l:'Impressions',s:'Meta delivery',v:BASE.mImpr*f.meta},
+      {l:'Clicks',v:BASE.mClicks*f.meta},
+      {l:'Landing page views',s:'Meta LPV',v:BASE.mLPV*f.meta}
+    ]);}
+  }
+
+  /* ---------- creatives ---------- */
+  function buildCreatives(){
+    const host=document.getElementById('creative-grid'); if(!host)return;
+    const s=selStart,e=selEnd;
+    const cards=CREATIVES.map(c=>{
+      const sp=sum(c.spend,s,e), im=sum(c.imp,s,e), ck=sum(c.clk,s,e);
+      return {c,sp,im,ck,ctr:im>0?ck/im*100:0};
+    }).filter(x=>x.sp>0).sort((a,b)=>b.sp-a.sp);
+    if(!cards.length){host.innerHTML='<div style="grid-column:1/-1;color:var(--ink-3);font-size:13px;padding:18px;text-align:center;">No creative spend in the selected period.</div>';return;}
+    host.innerHTML=cards.map(x=>{
+      const c=x.c; const fmtClass=c.fmt==='Carousel'?'cap':(c.fmt==='Ghost'?'gen':'vid');
+      const grad='linear-gradient(135deg,#0E2340,#A67D76)';
+      const img = c.thumb
+        ? '<img src="'+c.thumb+'" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\';this.parentNode.style.background=\''+grad+'\';this.parentNode.querySelector(\'.cc-fallback\').style.display=\'flex\';">'
+        : '';
+      return '<div class="card" style="padding:0;overflow:hidden;">'
+        +'<div style="position:relative;width:100%;aspect-ratio:1;background:'+grad+';">'+img
+        +'<div class="cc-fallback" style="display:'+(c.thumb?'none':'flex')+';position:absolute;inset:0;align-items:center;justify-content:center;color:#fff;font-style:italic;font-size:13px;padding:14px;text-align:center;">'+c.name+'</div>'
+        +'<span class="badge '+fmtClass+'" style="position:absolute;top:8px;left:8px;background:rgba(255,255,255,.92);">'+c.fmt+'</span></div>'
+        +'<div style="padding:12px 14px;">'
+        +'<div class="cc-name" style="font-weight:700;color:var(--ink);line-height:1.25;">'+c.name+'</div>'
+        +'<div class="cc-sub" style="font-size:11px;color:var(--ink-3);margin:2px 0 10px;">'+c.offer+'</div>'
+        +'<div style="display:flex;justify-content:space-between;gap:6px;border-top:1px solid var(--line);padding-top:9px;">'
+        +'<div><div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);">Spend</div><div style="font-family:var(--font-mono);font-size:12.5px;font-weight:700;color:var(--ink);">\u20ac'+fInt(x.sp)+'</div></div>'
+        +'<div style="text-align:right;"><div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);">Impr.</div><div style="font-family:var(--font-mono);font-size:12.5px;font-weight:700;color:var(--ink);">'+fInt(x.im)+'</div></div>'
+        +'<div style="text-align:right;"><div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);">CTR</div><div style="font-family:var(--font-mono);font-size:12.5px;font-weight:700;color:var(--gold-2);">'+x.ctr.toFixed(2)+'%</div></div>'
+        +'</div></div></div>';
+    }).join('');
+  }
+
+  /* ============ CALENDAR ============ */
+  function monthGrid(y,m){
+    const first=new Date(Date.UTC(y,m,1)); let dow=first.getUTCDay(); dow=(dow+6)%7; // Mon=0
+    const dim=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+    let cells=[]; for(let i=0;i<dow;i++)cells.push(null);
+    for(let d=1;d<=dim;d++)cells.push(d);
+    return cells;
+  }
+  function idxOf(y,m,d){const t=Date.UTC(y,m,d);for(let i=0;i<N;i++)if(D[i].getTime()===t)return i;return -1;}
+  function renderCal(){
+    document.getElementById('cal-title-left').textContent=MONTHS[viewM]+' '+viewY;
+    const rm=(viewM+1)%12, ry=viewM===11?viewY+1:viewY;
+    document.getElementById('cal-title-right').textContent=MONTHS[rm]+' '+ry;
+    drawMonth('cal-grid-left',viewY,viewM); drawMonth('cal-grid-right',ry,rm);
+    // bounds on chevrons
+    const minM=D[MIN].getUTCFullYear()*12+D[MIN].getUTCMonth();
+    const maxM=D[MAX].getUTCFullYear()*12+D[MAX].getUTCMonth();
+    const leftM=viewY*12+viewM, rightM=ry*12+rm;
+    document.getElementById('cal-prev').disabled = leftM<=minM;
+    document.getElementById('cal-next').disabled = rightM>=maxM;
+  }
+  function drawMonth(gridId,y,m){
+    const g=document.getElementById(gridId); 
+    let h=['Mo','Tu','We','Th','Fr','Sa','Su'].map(x=>'<div class="cal-dow">'+x+'</div>').join('');
+    monthGrid(y,m).forEach(d=>{
+      if(d===null){h+='<div></div>';return;}
+      const idx=idxOf(y,m,d);
+      if(idx<0){h+='<button class="cal-day muted" disabled>'+d+'</button>';return;}
+      let cls='cal-day';
+      const a=Math.min(pendStart,pendEnd),b=Math.max(pendStart,pendEnd);
+      if(idx===pendStart||idx===pendEnd)cls+=' range-start';
+      else if(idx>a&&idx<b)cls+=' in-range';
+      h+='<button class="'+cls+'" data-idx="'+idx+'">'+d+'</button>';
+    });
+    g.innerHTML=h;
+    g.querySelectorAll('.cal-day[data-idx]').forEach(btn=>{
+      btn.addEventListener('click',(e)=>{
+        e.stopPropagation();
+        const idx=+btn.getAttribute('data-idx');
+        if(pickPhase===0){pendStart=idx;pendEnd=idx;pickPhase=1;}
+        else{if(idx<pendStart){pendEnd=pendStart;pendStart=idx;}else{pendEnd=idx;}pickPhase=0;}
+        clearPreset(); renderCal(); refreshLabels();
+      });
+    });
+  }
+  function clearPreset(){document.querySelectorAll('.preset-item').forEach(p=>p.classList.remove('active'));}
+
+  function applyPreset(key){
+    let s,e; const r=new Date(refToday); const md=D[MAX];
+    const day=86400000;
+    function di(dt){return clampIdx(dt);}
+    if(key==='all'){s=MIN;e=MAX;}
+    else if(key==='yesterday'){const y=new Date(r.getTime()-day);s=di(y);e=di(y);}
+    else if(key==='7'||key==='14'||key==='30'||key==='90'){const k=+key;e=MAX;s=Math.max(MIN,MAX-(k-1));}
+    else if(key==='this-week'){const wd=(r.getUTCDay()+6)%7;const mon=new Date(r.getTime()-wd*day);s=di(mon);e=di(r);}
+    else if(key==='last-week'){const wd=(r.getUTCDay()+6)%7;const mon=new Date(r.getTime()-(wd+7)*day);const sun=new Date(mon.getTime()+6*day);s=di(mon);e=di(sun);}
+    else if(key==='this-month'){const f=new Date(Date.UTC(r.getUTCFullYear(),r.getUTCMonth(),1));s=di(f);e=di(r);}
+    else if(key==='last-month'){const f=new Date(Date.UTC(r.getUTCFullYear(),r.getUTCMonth()-1,1));const l=new Date(Date.UTC(r.getUTCFullYear(),r.getUTCMonth(),0));s=di(f);e=di(l);}
+    if(s>e){const t=s;s=e;e=t;}
+    pendStart=s;pendEnd=e;pickPhase=0;
+    // move view to start month
+    viewY=D[s].getUTCFullYear();viewM=D[s].getUTCMonth();
+    if(viewM===11){} // keep
+    const maxM=D[MAX].getUTCFullYear()*12+D[MAX].getUTCMonth();
+    if((viewY*12+viewM+1)>maxM){viewM-=1;if(viewM<0){viewM=11;viewY-=1;}}
+    renderCal();refreshLabels();
+  }
+
+  function commit(){selStart=pendStart;selEnd=pendEnd;refreshLabels();updateKPIs();scaleCells();rebuildActive();closePop();}
+  function rebuildActive(){
+    // rebuild charts/visuals for whichever page is active + always-needed
+    buildRevTrend();buildChannel();buildSessions();buildGSplit();buildOfferShare();buildAssist();buildDirectAssist();buildFunnels();buildMarkets();buildCreatives();
+  }
+
+  /* ---------- popover open/close ---------- */
+  const pop=document.getElementById('date-popover'), btn=document.getElementById('btn-date-picker');
+  function openPop(){pop.classList.add('open');btn.setAttribute('aria-expanded','true');pendStart=selStart;pendEnd=selEnd;pickPhase=0;renderCal();refreshLabels();}
+  function closePop(){pop.classList.remove('open');btn.setAttribute('aria-expanded','false');}
+  btn.addEventListener('click',e=>{e.stopPropagation();pop.classList.contains('open')?closePop():openPop();});
+  document.addEventListener('click',e=>{if(!pop.contains(e.target)&&!btn.contains(e.target))closePop();});
+  document.getElementById('cal-prev').addEventListener('click',()=>{viewM--;if(viewM<0){viewM=11;viewY--;}renderCal();});
+  document.getElementById('cal-next').addEventListener('click',()=>{viewM++;if(viewM>11){viewM=0;viewY++;}renderCal();});
+  document.getElementById('cal-cancel').addEventListener('click',closePop);
+  document.getElementById('cal-apply').addEventListener('click',commit);
+  document.querySelectorAll('.preset-item').forEach(p=>{
+    p.addEventListener('click',()=>{clearPreset();p.classList.add('active');applyPreset(p.getAttribute('data-preset'));});
+  });
+
+  /* ============ TABS ============ */
+  const tabPages={overview:'page-overview',paid:'page-paid',offers:'page-offers',attribution:'page-attribution',funnel:'page-funnel',markets:'page-markets',creative:'page-creative'};
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const pg=document.getElementById(tabPages[t.getAttribute('data-tab')]);
+      if(pg)pg.classList.add('active');
+      setTimeout(rebuildActive,30);
+    });
+  });
+
+  /* ============ INIT ============ */
+  refreshLabels();updateKPIs();scaleCells();rebuildActive();
+})();
+</script>
+</body>
+</html>
