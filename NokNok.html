@@ -367,7 +367,7 @@ tbody tr.total td{background:#f4f7fb;font-weight:700;color:var(--navy);border-to
     <div class="tbl-card" style="margin-top:22px">
       <div class="tbl-card-head"><h3>Ad-level performance</h3><span class="pill" id="regAdPill">10 ads · 27 registrations</span></div>
       <div class="tbl-scroll"><table>
-        <thead><tr><th>Ad</th><th>Spend</th><th>Impr.</th><th>Clicks</th><th>CTR</th><th>Regs.</th><th>CPR</th><th>Sessions</th><th>Purch.</th><th>Value</th><th>ROAS</th></tr></thead>
+        <thead><tr><th>Ad</th><th>Active</th><th>Spend</th><th>Impr.</th><th>Clicks</th><th>CTR</th><th>Regs.</th><th>CPR</th><th>Sessions</th><th>Purch.</th><th>Value</th><th>ROAS</th></tr></thead>
         <tbody id="regAdBody"></tbody>
       </table></div>
     </div>
@@ -493,9 +493,22 @@ function renderDashboard(start, end){
 
   // Registration ad-level table
   // regAds day = [impr,clicks,cost,reach,regs,sessions,purch,value]
+  const MS3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const fmtActiveDay = isoDate => { const dt=new Date(isoDate+'T00:00:00Z'); return `${MS3[dt.getUTCMonth()]} ${dt.getUTCDate()}`; };
   const regAdsAgg = DAILY.regAds.map(a=>{
     const s = sumDays(a.days, start, end, 8);
-    return {name:a.name, impr:s[0], clicks:s[1], spend:s[2], reach:s[3], regs:s[4], sessions:s[5], purch:s[6], value:s[7]};
+    // Compute active dates within range (any impr, spend, regs, or purch counts as active)
+    let firstActive=null, lastActive=null, activeDays=0;
+    Object.keys(a.days).sort().forEach(d=>{
+      if(d<start || d>end) return;
+      const m=a.days[d];
+      if((m[0]||0)>0 || (m[2]||0)>0 || (m[4]||0)>0 || (m[6]||0)>0){
+        if(!firstActive) firstActive=d;
+        lastActive=d;
+        activeDays++;
+      }
+    });
+    return {name:a.name, impr:s[0], clicks:s[1], spend:s[2], reach:s[3], regs:s[4], sessions:s[5], purch:s[6], value:s[7], firstActive, lastActive, activeDays};
   });
   // Keep ALL ads visible (incl. new/zero-data ones). Sort by registrations (KPI) desc, then spend, then impressions.
   regAdsAgg.sort((x,y)=> (y.regs-x.regs) || (y.spend-x.spend) || (y.impr-x.impr));
@@ -508,9 +521,15 @@ function renderDashboard(start, end){
     rat.spend+=a.spend; rat.impr+=a.impr; rat.clicks+=a.clicks; rat.regs+=a.regs; rat.sessions+=a.sessions; rat.purch+=a.purch; rat.value+=a.value;
     const nameCell = hasActivity ? a.name : `${a.name} <span style="font-size:10px;color:var(--ink-4);font-weight:600">· no data in range</span>`;
     const rowStyle = hasActivity ? '' : ' style="opacity:.5"';
-    rab += `<tr${rowStyle}><td>${nameCell}</td><td>${money(a.spend)}</td><td>${int(a.impr)}</td><td>${int(a.clicks)}</td><td>${a.impr?ctr.toFixed(2)+'%':'—'}</td><td>${a.regs||'—'}</td><td>${a.regs?money(cpr):'—'}</td><td>${a.sessions?int(a.sessions):'—'}</td><td>${a.purch||'—'}</td><td>${a.value?money(a.value):'—'}</td><td>${a.spend?`<span class="badge ${roasClass(roas)}">${roas.toFixed(2)}×</span>`:'—'}</td></tr>`;
+    // Active cell: "May 13 → May 31" big, "13 days" small. Or "—" if no activity.
+    let activeCell='—';
+    if(a.firstActive){
+      const range = a.firstActive===a.lastActive ? fmtActiveDay(a.firstActive) : `${fmtActiveDay(a.firstActive)} → ${fmtActiveDay(a.lastActive)}`;
+      activeCell = `<div style="line-height:1.2">${range}</div><div style="font-size:10px;color:var(--ink-4);margin-top:2px">${a.activeDays} day${a.activeDays>1?'s':''}</div>`;
+    }
+    rab += `<tr${rowStyle}><td>${nameCell}</td><td style="text-align:left">${activeCell}</td><td>${money(a.spend)}</td><td>${int(a.impr)}</td><td>${int(a.clicks)}</td><td>${a.impr?ctr.toFixed(2)+'%':'—'}</td><td>${a.regs||'—'}</td><td>${a.regs?money(cpr):'—'}</td><td>${a.sessions?int(a.sessions):'—'}</td><td>${a.purch||'—'}</td><td>${a.value?money(a.value):'—'}</td><td>${a.spend?`<span class="badge ${roasClass(roas)}">${roas.toFixed(2)}×</span>`:'—'}</td></tr>`;
   });
-  rab += `<tr class="total"><td>TOTAL</td><td>${money(rat.spend)}</td><td>${int(rat.impr)}</td><td>${int(rat.clicks)}</td><td>${rat.impr?(rat.clicks/rat.impr*100).toFixed(2):'0.00'}%</td><td>${rat.regs}</td><td>${rat.regs?money(rat.spend/rat.regs):'—'}</td><td>${int(rat.sessions)}</td><td>${rat.purch}</td><td>${money(rat.value)}</td><td>${rat.spend?`<span class="badge b-green">${(rat.value/rat.spend).toFixed(2)}×</span>`:'—'}</td></tr>`;
+  rab += `<tr class="total"><td>TOTAL</td><td>—</td><td>${money(rat.spend)}</td><td>${int(rat.impr)}</td><td>${int(rat.clicks)}</td><td>${rat.impr?(rat.clicks/rat.impr*100).toFixed(2):'0.00'}%</td><td>${rat.regs}</td><td>${rat.regs?money(rat.spend/rat.regs):'—'}</td><td>${int(rat.sessions)}</td><td>${rat.purch}</td><td>${money(rat.value)}</td><td>${rat.spend?`<span class="badge b-green">${(rat.value/rat.spend).toFixed(2)}×</span>`:'—'}</td></tr>`;
   document.getElementById('regAdBody').innerHTML = rab;
   document.getElementById('regAdPill').textContent = `${regAdsAgg.length} ads · ${int(rat.regs)} registrations`;
 
