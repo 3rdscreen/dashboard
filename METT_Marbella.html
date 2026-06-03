@@ -433,9 +433,9 @@
 
   <section class="page" id="page-creative">
     <div class="page-head"><div class="eyebrow">Page VII</div><h2>Creative performance</h2><div class="sub">Top Meta creatives by spend in the selected period &middot; spend, impressions &amp; CTR recompute live as you change the date range.</div></div>
-    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Carousels carry Marbella's paid-social spend: the <em>One More Night</em>, <em>Plan Ahead</em> and <em>Suite METT</em> carousels are the three biggest investments of the period. Reels and ghost (text-only) ads fill the always-on layer. Cards re-rank by spend for whatever window you select, and creatives with no spend in that window drop out.</p></div>
-    <div class="card-sub" style="margin:0 0 12px;font-size:11px;color:var(--ink-3);letter-spacing:.5px;">Showing top creatives &middot; spend / impressions / CTR measured live &middot; thumbnails from Meta</div>
-    <div class="creative-grid" id="creative-grid"></div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Carousels carry Marbella's paid-social spend: the <em>One More Night</em>, <em>Plan Ahead</em> and <em>Suite METT</em> carousels are the three biggest investments of the period. Reels and ghost (text-only) ads fill the always-on layer. Rows re-rank by spend for whatever window you select, and creatives with no spend in that window drop out.</p></div>
+    <div class="card-sub" style="margin:0 0 12px;font-size:11px;color:var(--ink-3);letter-spacing:.5px;">Showing top creatives &middot; spend / impressions / clicks / CTR measured live &middot; thumbnails from Meta</div>
+    <div class="table-wrap"><table class="data"><thead><tr><th>Creative</th><th>Format</th><th>Offer</th><th class="num">Spend</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th></tr></thead><tbody id="creative-rows"></tbody></table></div>
   </section>
 
   <section class="admin">
@@ -683,31 +683,28 @@ const CREATIVES = [
 
   /* ---------- creatives ---------- */
   function buildCreatives(){
-    const host=document.getElementById('creative-grid'); if(!host)return;
+    const host=document.getElementById('creative-rows'); if(!host)return;
     const s=selStart,e=selEnd;
-    const cards=CREATIVES.map(c=>{
+    const rows=CREATIVES.map(c=>{
       const sp=sum(c.spend,s,e), im=sum(c.imp,s,e), ck=sum(c.clk,s,e);
       return {c,sp,im,ck,ctr:im>0?ck/im*100:0};
     }).filter(x=>x.sp>0).sort((a,b)=>b.sp-a.sp);
-    if(!cards.length){host.innerHTML='<div style="grid-column:1/-1;color:var(--ink-3);font-size:13px;padding:18px;text-align:center;">No creative spend in the selected period.</div>';return;}
-    host.innerHTML=cards.map(x=>{
+    if(!rows.length){host.innerHTML='<tr><td colspan="7" style="color:var(--ink-3);font-size:13px;padding:18px;text-align:center;">No creative spend in the selected period.</td></tr>';return;}
+    host.innerHTML=rows.map((x,i)=>{
       const c=x.c; const fmtClass=c.fmt==='Carousel'?'cap':(c.fmt==='Ghost'?'gen':'vid');
       const grad='linear-gradient(135deg,#0E2340,#A67D76)';
-      const img = c.thumb
-        ? '<img src="'+c.thumb+'" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\';this.parentNode.style.background=\''+grad+'\';this.parentNode.querySelector(\'.cc-fallback\').style.display=\'flex\';">'
-        : '';
-      return '<div class="card" style="padding:0;overflow:hidden;">'
-        +'<div style="position:relative;width:100%;aspect-ratio:1;background:'+grad+';">'+img
-        +'<div class="cc-fallback" style="display:'+(c.thumb?'none':'flex')+';position:absolute;inset:0;align-items:center;justify-content:center;color:#fff;font-style:italic;font-size:13px;padding:14px;text-align:center;">'+c.name+'</div>'
-        +'<span class="badge '+fmtClass+'" style="position:absolute;top:8px;left:8px;background:rgba(255,255,255,.92);">'+c.fmt+'</span></div>'
-        +'<div style="padding:12px 14px;">'
-        +'<div class="cc-name" style="font-weight:700;color:var(--ink);line-height:1.25;">'+c.name+'</div>'
-        +'<div class="cc-sub" style="font-size:11px;color:var(--ink-3);margin:2px 0 10px;">'+c.offer+'</div>'
-        +'<div style="display:flex;justify-content:space-between;gap:6px;border-top:1px solid var(--line);padding-top:9px;">'
-        +'<div><div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);">Spend</div><div style="font-family:var(--font-mono);font-size:12.5px;font-weight:700;color:var(--ink);">\u20ac'+fInt(x.sp)+'</div></div>'
-        +'<div style="text-align:right;"><div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);">Impr.</div><div style="font-family:var(--font-mono);font-size:12.5px;font-weight:700;color:var(--ink);">'+fInt(x.im)+'</div></div>'
-        +'<div style="text-align:right;"><div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);">CTR</div><div style="font-family:var(--font-mono);font-size:12.5px;font-weight:700;color:var(--gold-2);">'+x.ctr.toFixed(2)+'%</div></div>'
-        +'</div></div></div>';
+      const thumb='<div style="width:44px;height:44px;border-radius:6px;flex-shrink:0;overflow:hidden;background:'+grad+';">'
+        +(c.thumb?'<img src="'+c.thumb+'" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\';">':'')
+        +'</div>';
+      return '<tr>'
+        +'<td><div class="creative-cell">'+thumb+'<div><div class="cc-name">'+c.name+'</div><div class="cc-sub">#'+(i+1)+' by spend</div></div></div></td>'
+        +'<td><span class="badge '+fmtClass+'">'+c.fmt+'</span></td>'
+        +'<td>'+c.offer+'</td>'
+        +'<td class="num">\u20ac'+fInt(x.sp)+'</td>'
+        +'<td class="num">'+fInt(x.im)+'</td>'
+        +'<td class="num">'+fInt(x.ck)+'</td>'
+        +'<td class="num">'+x.ctr.toFixed(2)+'%</td>'
+        +'</tr>';
     }).join('');
   }
 
