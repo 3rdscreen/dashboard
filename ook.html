@@ -4410,7 +4410,7 @@ function getAdDailyData(baseName, geo='', platform=''){
     if(!metaSeenDates[seenKey]) metaSeenDates[seenKey] = new Set();
     arr.forEach(r => {
       if(!r || !r.d) return;
-      const isDaily = r.d.startsWith('Mar ') || r.d.startsWith('Apr ');
+      const isDaily = ALL_DATES.includes(r.d);
       // Skip if we've already counted this date from another variant key
       if(isDaily && metaSeenDates[seenKey].has(r.d)) return;
       if(isDaily) metaSeenDates[seenKey].add(r.d);
