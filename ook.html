@@ -3433,6 +3433,9 @@ const META_CAMPS = [
   { label:"Catalogue",     adsets:["Catalogue Retargeting / Prospecting - GCC"],                prefix:"CAT ·" },
 ];
 const META_FOLLOWERS_KEY = "Followers GCC - Brand";
+// Instagram account-level NEW followers (Supermetrics Instagram Insights, profile "One of a Kin").
+// Account-level / blended (all sources incl organic), NOT per-ad-set. Available from May 5 only; latest day lags ~1d.
+const IG_FOLLOWS = {"May 5":38,"May 6":29,"May 7":35,"May 8":33,"May 9":27,"May 10":37,"May 11":27,"May 12":26,"May 13":25,"May 14":14,"May 15":26,"May 16":29,"May 17":20,"May 18":65,"May 19":79,"May 20":74,"May 21":70,"May 22":50,"May 23":34,"May 24":40,"May 25":42,"May 26":46,"May 27":46,"May 28":76,"May 29":66,"May 30":70,"May 31":70,"Jun 1":86,"Jun 2":51,"Jun 3":null};
 
 // ── KU/QA/BH per-day country breakdown (Meta Apr 2026)
 // Source: Supermetrics Meta Country dimension, ad_set_name =@ Ku, OUTCOME_SALES only.
@@ -3761,6 +3764,18 @@ function renderGranular(pk, dates) {
       const dailyVisits = ALL_DATES.map(d=>{ const r=allFollRecs.find(x=>x.d===d); return r?Math.round(r.conv||0):null; });
       const dailyCPV    = ALL_DATES.map((d,i)=>{ const sp=dailySpend[i],vi=dailyVisits[i]; return (sp&&vi&&vi>0)?+(sp/vi).toFixed(4):null; });
 
+      // ── Instagram account-level NEW followers (IGI). Account/blended, source only serves trailing 30d & latest day lags.
+      // Account-level + slow-moving → KPI shows a fixed rolling 7-day window (independent of the day selector), never empty.
+      const igDatesAvail = ALL_DATES.filter(d=>IG_FOLLOWS[d]!=null);
+      const igWin = igDatesAvail.slice(-7);
+      const igFollows7 = igWin.reduce((s,d)=>s+IG_FOLLOWS[d],0);
+      const follSpendByDate = {}; allFollRecs.forEach(r=>{ follSpendByDate[r.d]=(r.spend||0); });
+      const igSpend7 = igWin.reduce((s,d)=>s+(follSpendByDate[d]||0),0);
+      const igCPF = igFollows7>0 ? igSpend7/igFollows7 : 0;
+      const igHas = igWin.length>0;
+      const igWinLabel = igWin.length ? (igWin[0]+'–'+igWin[igWin.length-1]) : '';
+      const dailyIG = ALL_DATES.map(d=>IG_FOLLOWS[d]!=null?IG_FOLLOWS[d]:null);
+
       // KPI cards
       const kpiStyle = "flex:1;min-width:120px;background:#f8f8f4;border-radius:10px;padding:12px 14px;text-align:center";
       const kpiLabel = "font-size:9px;font-weight:700;letter-spacing:.08em;color:#aaa;margin-bottom:6px;text-transform:uppercase";
@@ -3783,15 +3798,15 @@ function renderGranular(pk, dates) {
             <div style="${kpiVal}">${fS(fSpend)}</div>
             <div style="${kpiSub}">Brand budget</div>
           </div>
-          <div style="${kpiStyle}">
-            <div style="${kpiLabel}">Link Clicks</div>
-            <div style="${kpiVal}">${fVisits>0?Math.round(fVisits).toLocaleString():"—"}</div>
-            <div style="${kpiSub}">Engagement</div>
+          <div style="${kpiStyle}" title="${igWinLabel}">
+            <div style="${kpiLabel}">New IG Followers</div>
+            <div style="${kpiVal}">${igHas?igFollows7.toLocaleString():"—"}</div>
+            <div style="${kpiSub}">Instagram · last 7d</div>
           </div>
-          <div style="${kpiStyle}">
-            <div style="${kpiLabel}">Cost per Click</div>
-            <div style="${kpiVal}">${cpv>0?"$"+cpv.toFixed(3):"—"}</div>
-            <div style="${kpiSub}">CPC</div>
+          <div style="${kpiStyle}" title="${igWinLabel}">
+            <div style="${kpiLabel}">Cost per Follow</div>
+            <div style="${kpiVal}">${igCPF>0?"$"+igCPF.toFixed(2):"—"}</div>
+            <div style="${kpiSub}">CPF · blended · 7d</div>
           </div>
           <div style="${kpiStyle}">
             <div style="${kpiLabel}">Avg Daily Spend</div>
@@ -3815,16 +3830,20 @@ function renderGranular(pk, dates) {
           var geos=[['uae','UAE','#1877F2'],['ksa','KSA','#34a853'],['ku','KU / QA / BH','#a142f4'],['uk','UK','#fbbc04']];
           var agg={};
           followerRecs.forEach(function(r){ if(r.geo){ for(var k in r.geo){ if(!agg[k])agg[k]={spend:0,lc:0}; agg[k].spend+=r.geo[k].spend||0; agg[k].lc+=r.geo[k].lc||0; } } });
+          // 7-day window per market (same window as the account follows box) → estimate follows by link-click share
+          var win={}, totLc=0;
+          allFollRecs.forEach(function(r){ if(igWin.indexOf(r.d)>=0 && r.geo){ for(var k in r.geo){ if(!win[k])win[k]={lc:0,spend:0}; win[k].lc+=r.geo[k].lc||0; win[k].spend+=r.geo[k].spend||0; } } });
+          for(var g in win) totLc+=win[g].lc;
           var rows='';
-          geos.forEach(function(x){ var a=agg[x[0]]; if(!a||a.spend<=0)return; var cpc=a.lc>0?a.spend/a.lc:0; var pct=fSpend>0?(a.spend/fSpend*100):0; rows+='<tr><td style="padding:7px 10px;font-size:11px;color:#333;border-top:1px solid #efefe9"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+x[2]+';margin-right:7px"></span>'+x[1]+'</td><td style="padding:7px 10px;text-align:right;font-family:\'DM Mono\',monospace;font-size:11px;font-weight:700;border-top:1px solid #efefe9">'+fS(a.spend)+'</td><td style="padding:7px 10px;text-align:right;font-size:11px;color:#999;border-top:1px solid #efefe9">'+pct.toFixed(0)+'%</td><td style="padding:7px 10px;text-align:right;font-family:\'DM Mono\',monospace;font-size:11px;border-top:1px solid #efefe9">'+Math.round(a.lc).toLocaleString()+'</td><td style="padding:7px 10px;text-align:right;font-family:\'DM Mono\',monospace;font-size:11px;border-top:1px solid #efefe9">'+(cpc>0?"$"+cpc.toFixed(3):"\u2014")+'</td></tr>'; });
+          geos.forEach(function(x){ var a=agg[x[0]]; if(!a||a.spend<=0)return; var w=win[x[0]]||{lc:0,spend:0}; var est=(totLc>0&&igFollows7>0)?Math.round(igFollows7*w.lc/totLc):0; var cpf=est>0?w.spend/est:0; rows+='<tr><td style="padding:7px 10px;font-size:11px;color:#333;border-top:1px solid #efefe9"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+x[2]+';margin-right:7px"></span>'+x[1]+'</td><td style="padding:7px 10px;text-align:right;font-family:\'DM Mono\',monospace;font-size:11px;font-weight:700;border-top:1px solid #efefe9">'+fS(a.spend)+'</td><td style="padding:7px 10px;text-align:right;font-family:\'DM Mono\',monospace;font-size:11px;border-top:1px solid #efefe9">'+(est>0?est.toLocaleString():"\u2014")+'</td><td style="padding:7px 10px;text-align:right;font-family:\'DM Mono\',monospace;font-size:11px;border-top:1px solid #efefe9">'+(cpf>0?"$"+cpf.toFixed(2):"\u2014")+'</td></tr>'; });
           if(!rows)return '';
-          return '<div style="margin-bottom:16px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;margin-bottom:8px">BY COUNTRY \u2014 AD SET</div><table style="width:100%;border-collapse:collapse;background:#fafaf7;border-radius:8px;overflow:hidden"><thead><tr><th style="padding:8px 10px;text-align:left;font-size:9px;letter-spacing:.06em;color:#999;font-weight:700">MARKET</th><th style="padding:8px 10px;text-align:right;font-size:9px;letter-spacing:.06em;color:#999;font-weight:700">SPEND</th><th style="padding:8px 10px;text-align:right;font-size:9px;letter-spacing:.06em;color:#999;font-weight:700">SHARE</th><th style="padding:8px 10px;text-align:right;font-size:9px;letter-spacing:.06em;color:#999;font-weight:700">LINK CLICKS</th><th style="padding:8px 10px;text-align:right;font-size:9px;letter-spacing:.06em;color:#999;font-weight:700">CPC</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+          return '<div style="margin-bottom:16px"><div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;margin-bottom:8px">BY COUNTRY \u2014 AD SET</div><table style="width:100%;border-collapse:collapse;background:#fafaf7;border-radius:8px;overflow:hidden"><thead><tr><th style="padding:8px 10px;text-align:left;font-size:9px;letter-spacing:.06em;color:#999;font-weight:700">MARKET</th><th style="padding:8px 10px;text-align:right;font-size:9px;letter-spacing:.06em;color:#999;font-weight:700">SPEND</th><th style="padding:8px 10px;text-align:right;font-size:9px;letter-spacing:.06em;color:#999;font-weight:700">IG FOLLOWERS <span style="color:#bbb">(EST.)</span></th><th style="padding:8px 10px;text-align:right;font-size:9px;letter-spacing:.06em;color:#999;font-weight:700">CPF <span style="color:#bbb">(EST.)</span></th></tr></thead><tbody>'+rows+'</tbody></table><div style="font-size:10px;color:#aaa;margin-top:6px">IG Followers &amp; CPF are <strong>estimated</strong> \u2014 account-level new follows (last 7d) split across markets by link-click share. Meta doesn\'t report follows per ad set, so these won\'t match Ads Manager\'s per-ad-set follows.</div></div>';
         })()}
 
         <!-- Trend Charts -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div>
-            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;margin-bottom:8px">LINK CLICKS TREND</div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;color:#aaa;margin-bottom:8px">NEW IG FOLLOWERS TREND <span style="color:#ccc;font-weight:600">· account, from May 5</span></div>
             <div style="position:relative;height:110px"><canvas id="${chartId}-visits"></canvas></div>
           </div>
           <div>
@@ -3833,7 +3852,7 @@ function renderGranular(pk, dates) {
           </div>
         </div>
         <div style="margin-top:10px;padding:8px 12px;background:#f0f4ff;border-radius:8px;font-size:11px;color:#555;line-height:1.5">
-          📌 <strong>Brand Awareness:</strong> This campaign targets follower growth and engagement — not direct purchases. CPC (Cost Per Click) is the key metric. Lower CPC = more efficient brand reach.
+          📌 <strong>Brand Awareness:</strong> Key metrics are <strong>New IG Followers</strong> + <strong>CPF</strong> (Cost per Follow), shown as a rolling <strong>last 7 days</strong>. IG follows come from Instagram Insights and are <strong>account-level / blended</strong> (all sources incl. organic, not split by market); the source only serves the trailing ~30 days and the latest day lags ~1 day. CPF (blended) = Followers spend ÷ net new account follows over the same 7 days. The <em>Spend by Country</em> table shows budget split per market — follows can't be broken out by market because Meta only reports them at the account level.
         </div>
       </div>`;
 
@@ -3844,8 +3863,8 @@ function renderGranular(pk, dates) {
         const spCanvas  = document.getElementById(chartId+'-spend');
         if(visCanvas){
           CR[chartId+'-visits'] = new Chart(visCanvas,{type:'bar',data:{labels:ALL_DATES,
-            datasets:[{data:dailyVisits,backgroundColor:ALL_DATES.map(d=>ds.includes(d)?'#1877F2':'#1877F230'),borderRadius:4,borderSkipped:false}]},
-            options:{...bc,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y!=null?Math.round(c.parsed.y).toLocaleString()+' clicks':'—'}}},
+            datasets:[{data:dailyIG,backgroundColor:ALL_DATES.map(d=>ds.includes(d)?'#1877F2':'#1877F230'),borderRadius:4,borderSkipped:false}]},
+            options:{...bc,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y!=null?Math.round(c.parsed.y).toLocaleString()+' follows':'—'}}},
             scales:{x:{grid:{display:false},ticks:{font:{size:8},color:'#aaa',maxTicksLimit:10}},y:{grid:{color:'#f4f4ef'},ticks:{font:{size:8},color:'#aaa',callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}}}}});
         }
         if(spCanvas){
