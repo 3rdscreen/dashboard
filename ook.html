@@ -1382,7 +1382,7 @@ function reRenderMetaAds(){
     // Determine which camp types are present, in order
     // UAE consolidated Apr 27, KSA consolidated May 7, KU consolidated Apr 28 — all use single 'ALL'
     const campOrder = g.label==='Catalogue' ? ['Catalogue']
-                    : (g.label==='UAE'||g.label==='KSA'||g.label==='KU / QA / BH') ? ['ALL']
+                    : (g.label==='UAE'||g.label==='KSA'||g.label==='KU / QA / BH'||g.label==='UK') ? ['ALL']
                     : ['Abaya','Pyjama','Catalogue'];
     const presentTypes = campOrder.filter(ct=>gData[ct] && Object.keys(gData[ct]).length>0);
     if(!presentTypes.length) return;
