@@ -1414,7 +1414,7 @@ function reRenderMetaAds(){
               dn=dn.replace(/_Sales_ASC.*$/i,'').trim();
               dn=dn.replace(/[_ ]Prospecting[_ ]Catalogue$/i,'').replace(/_Catalogue$/i,'').replace(/[_ ]Catalogue$/i,'').replace(/[_ ]Prospecting$/i,'').trim();
               const adGeo=detectGeo2(name);
-              const nameCT=(adGeo==='Catalogue')?'Catalogue':(adGeo==='UAE'||adGeo==='KSA'||adGeo==='KU / QA / BH')?'ALL':detectCampType(name);
+              const nameCT=(adGeo==='Catalogue')?'Catalogue':(adGeo==='UAE'||adGeo==='KSA'||adGeo==='KU / QA / BH'||adGeo==='UK')?'ALL':detectCampType(name);
               return dn===r.displayName && adGeo===g.label && nameCT===ct;
             }).map(name=>(ads[name]||[]).find(x=>x.d===day)).filter(Boolean);
             if(!dayRecs.length) return;
