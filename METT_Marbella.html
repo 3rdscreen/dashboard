@@ -233,15 +233,15 @@
   <section class="page active" id="page-overview">
     <div class="page-head"><div class="eyebrow">Page I</div><h2>Overview</h2></div>
     <div class="kpi-grid cols-9">
-<div class="kpi hero" id="kpi-total-rev"><div class="label">Total revenue</div><div class="value"><span class="cur">€</span>952,033</div><div class="delta">GA4 ecommerce &middot; measured</div></div>
-<div class="kpi hero" id="kpi-total-bkg"><div class="label">Total bookings</div><div class="value">462</div><div class="delta">measured</div></div>
-<div class="kpi hero" id="kpi-total-spend"><div class="label">Total paid spend</div><div class="value"><span class="cur">€</span>26,038</div><div class="delta"><span class="date-range-label">92 days</span> &middot; Meta + Google</div></div>
-<div class="kpi" id="kpi-roas"><div class="label">Blended ROAS</div><div class="value">36.6<span class="unit">×</span></div><div class="delta">rev ÷ total spend</div></div>
-<div class="kpi" id="kpi-aov"><div class="label">Avg order value</div><div class="value"><span class="cur">€</span>2,061</div><div class="delta">measured</div></div>
-<div class="kpi" id="kpi-sessions"><div class="label">Website sessions</div><div class="value">67,504</div><div class="delta">49,083 users &middot; /marbella</div></div>
-<div class="kpi" id="kpi-cvr"><div class="label">Website CVR</div><div class="value">0.68<span class="unit">%</span></div><div class="delta">462 / 67,504</div></div>
-<div class="kpi" id="kpi-ctr"><div class="label">Blended CTR</div><div class="value">2.18<span class="unit">%</span></div><div class="delta">Clicks / impressions</div></div>
-<div class="kpi" id="kpi-engrate"><div class="label">Engagement rate</div><div class="value">77.8<span class="unit">%</span></div><div class="delta">Engaged / sessions</div></div>
+<div class="kpi hero" id="kpi-total-rev"><div class="label">Total revenue</div><div class="value"><span class="cur">€</span>952,033</div><div class="delta"><span class="date-range-label">92 days</span> &middot; 462 bookings</div></div>
+<div class="kpi hero" id="kpi-total-bkg"><div class="label">Total bookings</div><div class="value">462</div><div class="delta">GA4 ecommerce purchases</div></div>
+<div class="kpi hero" id="kpi-paid-rev"><div class="label">Paid media revenue</div><div class="value"><span class="cur">€</span>785,427</div><div class="delta">Driving 82.5% of revenue</div></div>
+<div class="kpi" id="kpi-paid-bkg"><div class="label">Paid bookings</div><div class="value">380</div><div class="delta">82.3% of all bookings</div></div>
+<div class="kpi" id="kpi-total-spend"><div class="label">Total paid spend</div><div class="value"><span class="cur">€</span>26,038</div><div class="delta">Meta <span class="cur">€</span>8,772 &middot; Google <span class="cur">€</span>17,266</div></div>
+<div class="kpi" id="kpi-roas"><div class="label">Blended ROAS</div><div class="value">36.6<span class="unit">×</span></div><div class="delta">Growth-phase return</div></div>
+<div class="kpi" id="kpi-cpb"><div class="label">Cost per booking</div><div class="value"><span class="cur">€</span>68</div><div class="delta">Paid spend / paid bookings</div></div>
+<div class="kpi" id="kpi-aov"><div class="label">Avg booking value</div><div class="value"><span class="cur">€</span>2,061</div><div class="delta">Luxury market positioning</div></div>
+<div class="kpi" id="kpi-cvr"><div class="label">Website conversion rate</div><div class="value">0.68<span class="unit">%</span></div><div class="delta">462 bookings / 67,504 sessions</div></div>
     </div>
     <div class="grid-2">
       <div class="card"><div class="card-head"><div><h3>Daily revenue &amp; bookings</h3><div class="card-sub">GA4 ecommerce &middot; reconciles to €952,032.60 / 462</div></div></div><div class="chart-wrap"><canvas id="chart-rev-trend"></canvas></div></div>
@@ -542,18 +542,19 @@ const CREATIVES = [
     const sessions=Math.round(BASE.sessions*f.sess), users=Math.round(BASE.users*f.sess);
     const days=e-s+1;
     // Page I
+    const paidRev=rev*0.825, paidBkg=bkg*0.823;
     setKPI('kpi-total-rev','<span class="cur">\u20ac</span>'+fInt(rev));
+    setDelta('kpi-total-rev','<span class="date-range-label">'+days+' day'+(days>1?'s':'')+'</span> &middot; '+fInt(bkg)+' bookings');
     setKPI('kpi-total-bkg',fInt(bkg));
+    setKPI('kpi-paid-rev','<span class="cur">\u20ac</span>'+fInt(paidRev));
+    setKPI('kpi-paid-bkg',fInt(paidBkg));
     setKPI('kpi-total-spend','<span class="cur">\u20ac</span>'+fInt(spend));
-    setDelta('kpi-total-spend','<span class="date-range-label">'+days+' day'+(days>1?'s':'')+'</span> &middot; Meta + Google');
+    setDelta('kpi-total-spend','Meta <span class="cur">\u20ac</span>'+fInt(sum(META,s,e))+' &middot; Google <span class="cur">\u20ac</span>'+fInt(sum(GOOG,s,e)));
     setKPI('kpi-roas',(spend>0?(rev/spend).toFixed(1):'0')+'<span class="unit">\u00d7</span>');
+    setKPI('kpi-cpb','<span class="cur">\u20ac</span>'+(paidBkg>0?fInt(spend/paidBkg):'0'));
     setKPI('kpi-aov','<span class="cur">\u20ac</span>'+(bkg>0?fInt(rev/bkg):'0'));
-    setKPI('kpi-sessions',fInt(sessions));
-    setDelta('kpi-sessions',fInt(users)+' users &middot; /marbella');
     setKPI('kpi-cvr',(sessions>0?(bkg/sessions*100).toFixed(2):'0')+'<span class="unit">%</span>');
-    setDelta('kpi-cvr',fInt(bkg)+' / '+fInt(sessions));
-    setKPI('kpi-ctr',BASE.ctr.toFixed(2)+'<span class="unit">%</span>');
-    setKPI('kpi-engrate',BASE.engRate.toFixed(1)+'<span class="unit">%</span>');
+    setDelta('kpi-cvr',fInt(bkg)+' bookings / '+fInt(sessions)+' sessions');
     // Page II Google
     const g=sum(GOOG,s,e);
     setKPI('kpi-g-spend','<span class="cur">\u20ac</span>'+fInt(g));
