@@ -391,7 +391,7 @@
     </div>
     <div class="meta-right">
       <div class="live-pill"><span class="dot"></span> Live &middot; Mar 1 &ndash; May 31, 2026</div>
-      <div class="timestamp" id="timestamp">Updated 3 Jun 2026 &middot; 20:25 UTC</div>
+      <div class="timestamp" id="timestamp">Updated 3 Jun 2026 &middot; 20:45 UTC</div>
       <div class="sources">
         <span class="src-chip">GA4</span>
         <span class="src-chip">GA4 Ecommerce</span>
@@ -502,22 +502,22 @@
     <div class="kpi-grid cols-9">
       <div class="kpi hero" id="kpi-total-rev">
         <div class="label">Total revenue</div>
-        <div class="value"><span class="cur">&euro;</span>142,597</div>
-        <div class="delta"><span class="date-range-label">92 days</span> &middot; 113 bookings</div>
+        <div class="value"><span class="cur">&euro;</span>278,485</div>
+        <div class="delta"><span class="date-range-label">92 days</span> &middot; <span class="total-bkg-label">113</span> bookings</div>
       </div>
       <div class="kpi" id="kpi-total-bkg">
         <div class="label">Total bookings</div>
-        <div class="value">145</div>
+        <div class="value">113</div>
         <div class="delta">GA4 ecommerce purchases</div>
       </div>
       <div class="kpi hero" id="kpi-paid-rev">
         <div class="label">Paid media revenue</div>
-        <div class="value"><span class="cur">&euro;</span>117,643</div>
+        <div class="value"><span class="cur">&euro;</span>229,751</div>
         <div class="delta"><span class="up">Driving 82.5% of revenue</span></div>
       </div>
       <div class="kpi" id="kpi-paid-bkg">
         <div class="label">Paid bookings</div>
-        <div class="value">119</div>
+        <div class="value">93</div>
         <div class="delta"><span class="up">82.3% of all bookings</span></div>
       </div>
       <div class="kpi" id="kpi-paid-spend">
@@ -766,8 +766,8 @@
       <div class="kpi" id="kpi-attr-direct"><div class="label">Direct paid revenue</div><div class="value"><span class="cur">&euro;</span>28,343</div><div class="delta">UTM-tagged paid sessions</div><div class="kpi-note">Bookings where the visitor clicked a Meta or Google ad and converted in the same session. GA4 sees the paid UTM tag and credits it directly.</div></div>
       <div class="kpi" id="kpi-attr-chain"><div class="label">Chain referral (paid)</div><div class="value"><span class="cur">&euro;</span>59,360</div><div class="delta">Reassigned from referral</div><div class="kpi-note">Visitors that arrived from <code>metthotelsandresorts.com</code> (the chain site) — most were originally driven there by paid ads. GA4 logs these as "referral", so we reassign them to paid.</div></div>
       <div class="kpi" id="kpi-attr-unassigned"><div class="label">Direct/unassigned (paid)</div><div class="value"><span class="cur">&euro;</span>12,065</div><div class="delta">Ad-driven direct &amp; unassigned</div><div class="kpi-note">Visitors who saw an ad earlier, then came back later by typing the URL or via an untagged link. GA4 buckets them as "direct" or "unassigned", but the ad started the journey.</div></div>
-      <div class="kpi hero" id="kpi-attr-paidrev"><div class="label">Paid influenced revenue</div><div class="value"><span class="cur">&euro;</span>117,643</div><div class="delta"><span class="up">82.5% of total</span></div></div>
-      <div class="kpi hero" id="kpi-attr-paidbkg"><div class="label">Paid influenced bookings</div><div class="value">119</div><div class="delta"><span class="up">82.3% of bookings</span></div></div>
+      <div class="kpi hero" id="kpi-attr-paidrev"><div class="label">Paid influenced revenue</div><div class="value"><span class="cur">&euro;</span>229,751</div><div class="delta"><span class="up">82.5% of total</span></div></div>
+      <div class="kpi hero" id="kpi-attr-paidbkg"><div class="label">Paid influenced bookings</div><div class="value">93</div><div class="delta"><span class="up">82.3% of bookings</span></div></div>
       <div class="kpi" id="kpi-attr-roas"><div class="label">True blended ROAS</div><div class="value">5.7<span class="unit">x</span></div>
         <div class="delta"><span class="up">Growth-phase return</span></div></div>
     </div>
@@ -1228,6 +1228,8 @@
     // ===== Page I: Executive overview =====
     setKpi('kpi-total-rev', '<span class="cur">&euro;</span>' + Math.round(totalRev).toLocaleString('en-GB'));
     setKpi('kpi-total-bkg', Math.round(totalBkg).toLocaleString('en-GB'));
+    var _bkgLabels = document.querySelectorAll('.total-bkg-label');
+    for (var _bi = 0; _bi < _bkgLabels.length; _bi++) { _bkgLabels[_bi].textContent = Math.round(totalBkg).toLocaleString('en-GB'); }
     setKpi('kpi-paid-rev', '<span class="cur">&euro;</span>' + Math.round(paidRev).toLocaleString('en-GB'));
     setKpi('kpi-paid-bkg', Math.round(paidBkg).toLocaleString('en-GB'));
     setKpi('kpi-paid-spend', '<span class="cur">&euro;</span>' + Math.round(paidSpend).toLocaleString('en-GB'));
@@ -2111,6 +2113,7 @@
     }
 
     // Initial render
+    updateKPIs();
     initPage('overview');
 
     // Timestamp refresh
