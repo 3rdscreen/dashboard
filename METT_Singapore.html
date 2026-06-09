@@ -503,7 +503,7 @@
       <div class="kpi hero" id="kpi-total-rev">
         <div class="label">Total revenue</div>
         <div class="value"><span class="cur">$</span>142,597</div>
-        <div class="delta"><span class="date-range-label">92 days</span> &middot; 145 bookings</div>
+        <div class="delta"><span class="date-range-label">92 days</span> &middot; <span class="rev-bkg-count">145</span> bookings</div>
       </div>
       <div class="kpi" id="kpi-total-bkg">
         <div class="label">Total bookings</div>
@@ -1234,6 +1234,8 @@
     // ===== Page I: Executive overview =====
     setKpi('kpi-total-rev', '<span class="cur">$</span>' + Math.round(totalRev).toLocaleString('en-GB'));
     setKpi('kpi-total-bkg', Math.round(totalBkg).toLocaleString('en-GB'));
+    var revBkgCount = document.querySelector('#kpi-total-rev .rev-bkg-count');
+    if (revBkgCount) revBkgCount.textContent = Math.round(totalBkg).toLocaleString('en-GB');
     setKpi('kpi-paid-rev', '<span class="cur">$</span>' + Math.round(paidRev).toLocaleString('en-GB'));
     setKpi('kpi-paid-bkg', Math.round(paidBkg).toLocaleString('en-GB'));
     setKpi('kpi-paid-spend', '<span class="cur">$</span>' + Math.round(paidSpend).toLocaleString('en-GB'));
