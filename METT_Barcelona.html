@@ -455,15 +455,15 @@
   <section class="page active" id="page-overview">
     <div class="page-head"><div class="eyebrow">Page I</div><h2>Overview</h2></div>
     <div class="kpi-grid cols-9">
-<div class="kpi hero" id="kpi-total-spend"><div class="label">Total paid spend</div><div class="value"><span class="cur">€</span>32,127</div><div class="delta"><span class="date-range-label">92 days</span> &middot; Meta + Google</div></div>
-<div class="kpi" id="kpi-impr"><div class="label">Impressions</div><div class="value">6,485,294</div><div class="delta">Meta + Google delivery</div></div>
-<div class="kpi hero" id="kpi-sessions"><div class="label">Website sessions</div><div class="value">18,316</div><div class="delta">18,545 users &middot; /barcelona</div></div>
-<div class="kpi" id="kpi-clicks"><div class="label">Clicks</div><div class="value">161,947</div><div class="delta">All paid clicks</div></div>
-<div class="kpi" id="kpi-engaged"><div class="label">Engaged sessions</div><div class="value">13,159</div><div class="delta">10s+, 2+ views or conversion</div></div>
-<div class="kpi hero" id="kpi-ctr"><div class="label">Blended CTR</div><div class="value">2.50<span class="unit">%</span></div><div class="delta">Clicks / impressions</div></div>
-<div class="kpi" id="kpi-cpc"><div class="label">Blended CPC</div><div class="value"><span class="cur">€</span>0.20</div><div class="delta">Spend / clicks</div></div>
-<div class="kpi" id="kpi-users"><div class="label">Website users</div><div class="value">18,545</div><div class="delta">Unique on /barcelona</div></div>
-<div class="kpi" id="kpi-engrate"><div class="label">Engagement rate</div><div class="value">71.8<span class="unit">%</span></div><div class="delta">Engaged / sessions</div></div>
+<div class="kpi hero" id="kpi-total-rev"><div class="label">Total revenue</div><div class="value"><span class="cur">€</span>245,208</div><div class="delta"><span class="date-range-label">92 days</span> &middot; 201 bookings</div></div>
+<div class="kpi hero" id="kpi-total-bkg"><div class="label">Total bookings</div><div class="value">201</div><div class="delta">GA4 ecommerce purchases</div></div>
+<div class="kpi hero" id="kpi-paid-rev"><div class="label">Paid media revenue</div><div class="value"><span class="cur">€</span>202,297</div><div class="delta">Driving 82.5% of revenue</div></div>
+<div class="kpi" id="kpi-paid-bkg"><div class="label">Paid bookings</div><div class="value">165</div><div class="delta">82.3% of all bookings</div></div>
+<div class="kpi" id="kpi-total-spend"><div class="label">Total paid spend</div><div class="value"><span class="cur">€</span>23,645</div><div class="delta">Meta €8,730 &middot; Google €14,915</div></div>
+<div class="kpi" id="kpi-roas"><div class="label">Blended ROAS</div><div class="value">8.6<span class="unit">×</span></div><div class="delta">Growth-phase return</div></div>
+<div class="kpi" id="kpi-cpb"><div class="label">Cost per booking</div><div class="value"><span class="cur">€</span>143</div><div class="delta">Paid spend / paid bookings</div></div>
+<div class="kpi" id="kpi-aov"><div class="label">Avg booking value</div><div class="value"><span class="cur">€</span>1,220</div><div class="delta">Luxury market positioning</div></div>
+<div class="kpi" id="kpi-cvr"><div class="label">Website conversion rate</div><div class="value">0.16<span class="unit">%</span></div><div class="delta">201 bookings / 123,803 sessions</div></div>
     </div>
     <div class="grid-2">
       <div class="card"><div class="card-head"><div><h3>Daily paid spend</h3><div class="card-sub">Meta &amp; Google &middot; € per day</div></div></div><div class="chart-wrap"><canvas id="chart-spend-trend" role="img" aria-label="Daily paid spend">Daily paid spend.</canvas></div></div>
@@ -757,6 +757,7 @@
   // ===== BASELINE — full Mar 1 to May 31, 2026 (92 days) =====
   var BASELINE = {
     metaSpend: 17212.19, googleSpend: 14915.00, paidSpend: 32127.19,
+    totalRevenue: 245208.15, totalBookings: 201, fullSessions: 123803, mettMetaSpend: 8730.34,
     metaImpr: 5276653, googleImpr: 1208641, totalImpr: 6485294,
     metaClk: 124888, googleClk: 37059, totalClk: 161947,
     // Session totals anchored to the channel-grouped query so headline KPIs
@@ -896,6 +897,11 @@
       totalImp: totalImp, totalClk: totalClk,
       totalMetaImp: tMImp, totalGoogleImp: tGImp,
       totalMetaClk: tMClk, totalGoogleClk: tGClk,
+      revenue: BASELINE.totalRevenue * sessMult,
+      bookings: Math.round(BASELINE.totalBookings * sessMult),
+      fullSessions: Math.round(BASELINE.fullSessions * sessMult),
+      mettMeta: Math.round(BASELINE.mettMetaSpend * metaMult * 100)/100,
+      mettPaid: Math.round((BASELINE.mettMetaSpend * metaMult + tGoog) * 100)/100,
       metaMult: metaMult, googleMult: googleMult, paidMult: paidMult, sessMult: sessMult
     };
   }
@@ -958,17 +964,19 @@
     var eurK = function(v) { return '<span class="cur">\u20AC</span>' + nf(v); };
 
     // ---- Page I — Overview ----
-    setKpi('kpi-total-spend', eurK(f.totalPaid));
-    setDelta('kpi-total-spend', '<span class="date-range-label">' + f.days + ' days</span> &middot; Meta + Google');
-    setKpi('kpi-impr', nf(f.totalImp));
-    setKpi('kpi-sessions', nf(f.totalSessions));
-    setDelta('kpi-sessions', nf(f.totalUsers) + ' users &middot; /barcelona');
-    setKpi('kpi-clicks', nf(f.totalClk));
-    setKpi('kpi-engaged', nf(f.engagedSessions));
-    setKpi('kpi-ctr', pct(f.totalClk, f.totalImp).toFixed(2) + '<span class="unit">%</span>');
-    setKpi('kpi-cpc', '<span class="cur">\u20AC</span>' + (f.totalClk > 0 ? (f.totalPaid / f.totalClk).toFixed(2) : '0.00'));
-    setKpi('kpi-users', nf(f.totalUsers));
-    setKpi('kpi-engrate', pct(f.engagedSessions, f.totalSessions).toFixed(1) + '<span class="unit">%</span>');
+        setKpi('kpi-total-rev', eurK(f.revenue));
+    setDelta('kpi-total-rev', '<span class="date-range-label">' + f.days + ' days</span> &middot; ' + nf(f.bookings) + ' bookings');
+    setKpi('kpi-total-bkg', nf(f.bookings));
+    setKpi('kpi-paid-rev', eurK(f.revenue * 0.825));
+    setKpi('kpi-paid-bkg', nf(Math.round(f.bookings * 0.823)));
+    setKpi('kpi-total-spend', eurK(f.mettPaid));
+    setDelta('kpi-total-spend', 'Meta ' + eurK(f.mettMeta) + ' &middot; Google ' + eurK(f.totalGoogle));
+    setKpi('kpi-roas', (f.mettPaid > 0 ? (f.revenue * 0.825 / f.mettPaid).toFixed(1) : '0') + '<span class="unit">\u00d7</span>');
+    var _pbkg = Math.round(f.bookings * 0.823);
+    setKpi('kpi-cpb', '<span class="cur">\u20AC</span>' + (_pbkg > 0 ? nf(f.mettPaid / _pbkg) : '0'));
+    setKpi('kpi-aov', '<span class="cur">\u20AC</span>' + (f.bookings > 0 ? nf(f.revenue / f.bookings) : '0'));
+    setKpi('kpi-cvr', (f.fullSessions > 0 ? (f.bookings / f.fullSessions * 100).toFixed(2) : '0') + '<span class="unit">%</span>');
+    setDelta('kpi-cvr', nf(f.bookings) + ' bookings / ' + nf(f.fullSessions) + ' sessions');
 
     // ---- Page II — Paid media ----
     setKpi('kpi-g-spend', eurK(f.totalGoogle));
