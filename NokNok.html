@@ -227,6 +227,8 @@ tbody tr.total td{background:#f4f7fb;font-weight:700;color:var(--navy);border-to
 .pill-paused{display:inline-block;padding:2px 8px;border-radius:999px;background:#e7eaf0;color:#6b7488;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-left:8px;vertical-align:middle;border:1px solid #d4d9e0}
 tr.row-paused{opacity:.55;background:#fafbfc}
 tr.row-paused td{color:var(--ink-3)}
+tr.group-header td{background:#f4f6fa;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);padding:11px 16px 9px;border-top:none}
+tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:var(--ink-1);border-top:1px dashed #e7eaf0}
 
 /* ── Insight callouts ── */
 .insights{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
@@ -330,7 +332,7 @@ tr.row-paused td{color:var(--ink-3)}
       <div class="kpi"><div class="k">Installs</div><div class="v" id="kInstalls">377</div><div class="s" id="kInstallsSub">CPI $0.96</div></div>
       <div class="kpi"><div class="k">Register / Signup</div><div class="v" id="kRegs">116</div><div class="s" id="kRegsSub">CPR $13.48 · account-wide</div></div>
       <div class="kpi"><div class="k">Purchased</div><div class="v" id="kPurch">618</div><div class="s" id="kPurchSub">CPP $1.27</div></div>
-      <div class="kpi"><div class="k">Purchase Value</div><div class="v" id="kValue">$14,501</div><div class="s">Reg + Sales</div></div>
+      <div class="kpi"><div class="k">Purchase Value</div><div class="v" id="kValue">$14,501</div><div class="s"><span id="kRoas" style="color:#1b7a3e;font-weight:700">11.89× ROAS</span> · Reg + Sales</div></div>
       <div class="kpi"><div class="k">AOV</div><div class="v" id="kAov">$23.46</div><div class="s">Avg. order value</div></div>
       <div class="kpi"><div class="k">FTB</div><div class="v" id="kFtb">81</div><div class="s" id="kFtbSub">1st-Time Buyers · CFB $19.31</div></div>
     </div>
@@ -528,19 +530,50 @@ function renderDashboard(start, end){
     const period = activePeriod(a.days, m => (m[0]||0)>0 || (m[2]||0)>0 || (m[4]||0)>0 || (m[5]||0)>0 || (m[8]||0)>0);
     return {name:a.name, active:(a.active!==false), impr:s[0], clicks:s[1], spend:s[2], reach:s[3], installs:s[4], purch:s[5], value:s[6], sessions:s[7], regs:s[8], period};
   }).filter(a=>a.impr>0 || a.spend>0 || a.installs>0);
-  // sort active first, then by installs desc
-  installAgg.sort((x,y)=>(y.active-x.active) || (y.installs-x.installs));
+
+  // Split into Android / iOS groups (platform encoded in ad set name)
+  const androidAgg = installAgg.filter(a => !a.name.toLowerCase().includes('ios'));
+  const iosAgg     = installAgg.filter(a =>  a.name.toLowerCase().includes('ios'));
+
+  // Within each group: sort active first then by installs desc, cap paused at top 3 (spend>0)
+  [androidAgg, iosAgg].forEach(group => {
+    group.sort((x,y) => (y.active-x.active) || (y.installs-x.installs));
+    const _act = group.filter(a => a.active);
+    const _pau = group.filter(a => !a.active && a.spend > 0).slice(0, 3);
+    group.length = 0;
+    group.push(..._act, ..._pau);
+  });
 
   let ib='', it={spend:0,impr:0,clicks:0,installs:0,sessions:0,regs:0,purch:0};
-  installAgg.forEach(a=>{
+  const renderInstallRow = (a) => {
     const ctr = a.impr? a.clicks/a.impr*100 : 0;
     const cpi = a.installs? a.spend/a.installs : 0;
     it.spend+=a.spend; it.impr+=a.impr; it.clicks+=a.clicks; it.installs+=a.installs; it.sessions+=a.sessions; it.regs+=a.regs; it.purch+=a.purch;
     const pausedBadge = a.active ? '' : '<span class="pill-paused">Paused</span>';
     const rowCls = a.active ? '' : ' class="row-paused"';
-    ib += `<tr${rowCls}><td>${a.name}${pausedBadge}</td><td style="text-align:left">${activeCell(a.period)}</td><td>${money(a.spend)}</td><td>${int(a.impr)}</td><td>${int(a.clicks)}</td><td>${ctr.toFixed(2)}%</td><td>${int(a.installs)}</td><td>${a.installs?`<span class="badge ${cpiClass(cpi)}">${money(cpi)}</span>`:'—'}</td><td>${a.sessions?int(a.sessions):'—'}</td><td>${a.regs||'—'}</td><td>${a.purch||'—'}</td></tr>`;
-  });
-  if(installAgg.length===0){ ib = `<tr><td colspan="11" style="text-align:center;color:var(--ink-3);padding:24px">No App Install activity in this range</td></tr>`; }
+    return `<tr${rowCls}><td>${a.name}${pausedBadge}</td><td style="text-align:left">${activeCell(a.period)}</td><td>${money(a.spend)}</td><td>${int(a.impr)}</td><td>${int(a.clicks)}</td><td>${ctr.toFixed(2)}%</td><td>${int(a.installs)}</td><td>${a.installs?`<span class="badge ${cpiClass(cpi)}">${money(cpi)}</span>`:'—'}</td><td>${a.sessions?int(a.sessions):'—'}</td><td>${a.regs||'—'}</td><td>${a.purch||'—'}</td></tr>`;
+  };
+  const groupTotals = (group) => {
+    const g = {spend:0,impr:0,clicks:0,installs:0,sessions:0,regs:0,purch:0};
+    group.forEach(a => { g.spend+=a.spend; g.impr+=a.impr; g.clicks+=a.clicks; g.installs+=a.installs; g.sessions+=a.sessions; g.regs+=a.regs; g.purch+=a.purch; });
+    return g;
+  };
+  const renderSubtotal = (label, g) => {
+    const ctr = g.impr? g.clicks/g.impr*100 : 0;
+    const cpi = g.installs? g.spend/g.installs : 0;
+    return `<tr class="group-subtotal"><td>${label} subtotal</td><td>—</td><td>${money(g.spend)}</td><td>${int(g.impr)}</td><td>${int(g.clicks)}</td><td>${ctr.toFixed(2)}%</td><td>${int(g.installs)}</td><td>${g.installs?money(cpi):'—'}</td><td>${g.sessions?int(g.sessions):'—'}</td><td>${g.regs||'—'}</td><td>${g.purch||'—'}</td></tr>`;
+  };
+  if (androidAgg.length > 0) {
+    ib += `<tr class="group-header"><td colspan="11">Android</td></tr>`;
+    androidAgg.forEach(a => { ib += renderInstallRow(a); });
+    ib += renderSubtotal('Android', groupTotals(androidAgg));
+  }
+  if (iosAgg.length > 0) {
+    ib += `<tr class="group-header"><td colspan="11">iOS</td></tr>`;
+    iosAgg.forEach(a => { ib += renderInstallRow(a); });
+    ib += renderSubtotal('iOS', groupTotals(iosAgg));
+  }
+  if(androidAgg.length===0 && iosAgg.length===0){ ib = `<tr><td colspan="11" style="text-align:center;color:var(--ink-3);padding:24px">No App Install activity in this range</td></tr>`; }
   else { ib += `<tr class="total"><td>TOTAL</td><td>—</td><td>${money(it.spend)}</td><td>${int(it.impr)}</td><td>${int(it.clicks)}</td><td>${it.impr?(it.clicks/it.impr*100).toFixed(2):'0.00'}%</td><td>${int(it.installs)}</td><td>${it.installs?money(it.spend/it.installs):'—'}</td><td>${int(it.sessions)}</td><td>${it.regs}</td><td>${it.purch}</td></tr>`; }
   document.getElementById('installBody').innerHTML = ib;
   document.getElementById('installPill').textContent = `${money(it.spend)} · ${int(it.installs)} installs`;
@@ -553,6 +586,13 @@ function renderDashboard(start, end){
     return {name:a.name, active:(a.active!==false), impr:s[0], clicks:s[1], spend:s[2], reach:s[3], purch:s[4], value:s[5], regs:s[6], period};
   }).filter(a=>a.impr>0 || a.spend>0 || a.purch>0);
   salesAgg.sort((x,y)=> (y.active-x.active) || (y.purch-x.purch) || (y.value-x.value) || ((y.spend?y.value/y.spend:0)-(x.spend?x.value/x.spend:0)));
+  // Cap paused: hide paused entries with $0 spend in range, show at most 3
+  {
+    const _act = salesAgg.filter(a => a.active);
+    const _pau = salesAgg.filter(a => !a.active && a.spend > 0).slice(0, 3);
+    salesAgg.length = 0;
+    salesAgg.push(..._act, ..._pau);
+  }
 
   let sb='', stt={spend:0,impr:0,clicks:0,purch:0,value:0,regs:0};
   salesAgg.forEach(a=>{
@@ -594,6 +634,13 @@ function renderDashboard(start, end){
   });
   // Sort: active first, then by registrations desc, then spend, then impressions.
   regAdsAgg.sort((x,y)=> (y.active-x.active) || (y.regs-x.regs) || (y.spend-x.spend) || (y.impr-x.impr));
+  // Cap paused: hide paused ads with $0 spend in range, show at most 3
+  {
+    const _act = regAdsAgg.filter(a => a.active);
+    const _pau = regAdsAgg.filter(a => !a.active && a.spend > 0).slice(0, 3);
+    regAdsAgg.length = 0;
+    regAdsAgg.push(..._act, ..._pau);
+  }
   let rab='', rat={spend:0,impr:0,clicks:0,regs:0,sessions:0,purch:0,value:0};
   let activeCount=0;
   regAdsAgg.forEach(a=>{
@@ -647,6 +694,11 @@ function renderDashboard(start, end){
   document.getElementById('kPurch').textContent = int(totalPurch);
   document.getElementById('kPurchSub').textContent = totalPurch? `CPP ${money(blendedCpp)}` : 'CPP —';
   document.getElementById('kValue').textContent = money0(totalValue);
+  // Account-wide ROAS = total purchase value / total spend (all campaigns)
+  // — uses total spend so the math is transparent vs Total Spend tile.
+  // (Funnel's blendedRoas below uses conv-spend only for that section.)
+  const acctRoas = totalSpend > 0 ? totalValue / totalSpend : 0;
+  document.getElementById('kRoas').textContent = totalSpend > 0 ? `${acctRoas.toFixed(2)}× ROAS` : '—';
   document.getElementById('kAov').textContent = totalPurch? money(blendedAov) : '—';
 
   // ===== Estimated First-Time Buyers (FTB) =====
