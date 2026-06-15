@@ -390,8 +390,8 @@
       </div>
     </div>
     <div class="meta-right">
-      <div class="live-pill"><span class="dot"></span> Live &middot; Mar 1 &ndash; May 31, 2026</div>
-      <div class="timestamp" id="timestamp">Updated 1 Jun 2026 &middot; 06:00 UTC</div>
+      <div class="live-pill"><span class="dot"></span> Live &middot; Mar 1 &ndash; Jun 14, 2026</div>
+      <div class="timestamp" id="timestamp">Updated 15 Jun 2026 &middot; 06:00 UTC</div>
       <div class="sources">
         <span class="src-chip">GA4</span>
         <span class="src-chip">GA4 Ecommerce</span>
@@ -412,7 +412,7 @@
       </div>
       <div class="date-meta">
         <span class="date-eyebrow">Date range</span>
-        <span class="date-value" id="date-value">1 Mar &ndash; 31 May 2026</span>
+        <span class="date-value" id="date-value">1 &ndash; 14 Jun 2026</span>
       </div>
       <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M2 4l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -421,14 +421,14 @@
 
     <div class="filter-summary">
       <span class="sum-label">Period</span>
-      <span class="sum-val" id="period-sum">30 days</span>
+      <span class="sum-val" id="period-sum">14 days</span>
     </div>
 
     <!-- Date popover -->
     <div class="date-popover" id="date-popover" role="dialog" aria-label="Select date range">
       <aside class="presets">
         <div class="preset-header">Quick select</div>
-        <button class="preset-item active" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">Mar 1 &ndash; May 31</span></button>
+        <button class="preset-item active" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">Mar 1 &ndash; Jun 14</span></button>
         <button class="preset-item" data-preset="yesterday" type="button"><span class="preset-radio"></span>Yesterday</button>
         <button class="preset-item" data-preset="7" type="button"><span class="preset-radio"></span>Last 7 days</button>
         <button class="preset-item" data-preset="14" type="button"><span class="preset-radio"></span>Last 14 days</button>
@@ -476,7 +476,7 @@
 
   <div class="filter-indicator">
     <span class="bar"></span>
-    <span id="filter-indicator">Showing all data &middot; 1 Mar &ndash; 31 May 2026</span>
+    <span id="filter-indicator">Showing 14 days &middot; 1 &ndash; 14 Jun 2026</span>
   </div>
 
   <!-- ===================== TABS ===================== -->
@@ -940,7 +940,7 @@
       <div class="kpi hero"><div class="label">Top revenue creative</div><div class="value" style="font-size: 17px;">Carousel - Rooms</div><div class="delta">$737 spend &middot; 2,829 clicks</div></div>
       <div class="kpi"><div class="label">Best CTR creative</div><div class="value" style="font-size: 17px;">Reels 22 Mar (Locals)</div><div class="delta">4.35% &middot; 21,158 impr</div></div>
       <div class="kpi"><div class="label">Highest volume</div><div class="value" style="font-size: 17px;">Reels - Now Open</div><div class="delta">1,456,266 impressions</div></div>
-      <div class="kpi"><div class="label">Active creatives</div><div class="value">34</div><div class="delta">Meta &middot; 92 days</div></div>
+      <div class="kpi"><div class="label">Active creatives</div><div class="value">34</div><div class="delta">Meta &middot; 106 days</div></div>
     </div>
 
     <div class="section-label">Top performing creatives &middot; ranked by attributed revenue</div>
@@ -996,19 +996,19 @@
 (function() {
   'use strict';
 
-  // ===== DAILY DATA — REAL Supermetrics pulls, Mar 1 - May 31, 2026 (92 days) =====
-  var dates = ['2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-11','2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-18','2026-04-19','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-23','2026-05-24','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-05-30','2026-05-31'];
+  // ===== DAILY DATA — REAL Supermetrics pulls, Mar 1 - Jun 14, 2026 (106 days) =====
+  var dates = ['2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-11','2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-18','2026-04-19','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-23','2026-05-24','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-05-30','2026-05-31','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-13','2026-06-14'];
   var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function makeDateLabel(d) {
     var p = d.split('-'); return parseInt(p[2], 10) + ' ' + monthNames[parseInt(p[1], 10) - 1];
   }
 
-  var ga4Revenue  = [0,0,0,2635.92,0,0,0,1537.62,588.38,2974.04,0,0,1537.62,1460.74,0,0,0,0,593.08,4561.08,0,1092.81,0,4545.39,378.13,0,327.14,296.54,1200.68,1490.55,1411.32,0,0,889.62,1186.16,802.15,939.05,1882.80,999.45,4222.96,980.62,498.50,2080.49,1825.53,721.74,5493.85,0,4062.53,0,499.73,2617.88,249.86,4848.21,270.65,1519.58,815.36,2651.61,2486.86,0,0,4326.52,0,2294.66,0,0,541.30,3028.17,951.21,0,721.74,5632.71,1731.78,651.13,4581.48,3232.14,2647.69,0,1443.48,3530.25,274.57,517.77,4601.48,2078.92,2083.63,0,2182.87,19003.34,1150.86,2886.96,505.22,445.99,2375.07];
-  var ga4Bookings = [0,0,0,1,0,0,0,1,1,3,0,0,1,2,0,0,0,0,1,5,0,2,0,5,1,0,1,1,3,1,2,0,0,1,2,1,2,1,1,3,1,1,3,1,1,3,0,2,0,1,3,1,4,1,1,2,3,1,0,0,3,0,4,0,0,1,4,3,0,1,3,2,2,5,1,3,0,2,3,1,1,5,5,4,0,3,6,3,2,2,2,3];
-  var ga4Sessions = [127,197,229,366,270,278,274,296,297,320,300,277,269,259,257,255,188,238,273,308,254,257,275,336,311,289,371,643,545,527,563,204,275,262,262,308,329,286,317,294,643,532,534,517,521,499,397,287,279,277,299,259,247,333,272,226,202,275,281,292,236,127,159,201,263,235,276,269,241,171,223,243,243,255,273,286,229,252,312,359,331,348,528,499,182,352,547,561,466,427,437,188];
-  var metaSpendArr   = [23.73,20.99,15.66,60.71,49.01,49.14,52.90,52.22,48.85,46.52,46.96,50.39,48.87,49.04,54.42,49.46,51.43,47.30,49.33,47.41,52.76,50.42,49.92,49.68,74.46,74.94,79.41,90.94,75.14,69.36,61.57,0,51.61,58.82,59.66,61.35,57.27,79.69,87.38,93.48,109.27,84.80,59.59,58.23,54.95,52.42,39.52,58.41,61.61,57.82,57.65,53.94,64.97,93.14,85.63,95.97,93.24,79.55,102.20,70.08,16.65,0,0,0,28.67,72.03,70.89,69.57,78.29,81.93,84.92,78.64,75.35,75.39,79.65,75.51,85.69,81.10,190.82,239.10,208.47,202.32,215.17,131.18,0,221.66,286.62,272.27,251.76,252.71,268.36,20.96];
+  var ga4Revenue  = [0,0,0,2635.92,0,0,0,1537.62,588.38,2974.04,0,0,1537.62,1460.74,0,0,0,0,593.08,4561.08,0,1092.81,0,4545.39,378.13,0,327.14,296.54,1200.68,1490.55,1411.32,0,0,889.62,1186.16,802.15,939.05,1882.80,999.45,4222.96,980.62,498.50,2080.49,1825.53,721.74,5493.85,0,4062.53,0,499.73,2617.88,249.86,4848.21,270.65,1519.58,815.36,2651.61,2486.86,0,0,4326.52,0,2294.66,0,0,541.30,3028.17,951.21,0,721.74,5632.71,1731.78,651.13,4581.48,3232.14,2647.69,0,1443.48,3530.25,274.57,517.77,4601.48,2078.92,2083.63,0,2182.87,19003.34,1150.86,2886.96,505.22,445.99,2375.07,576.61,910.02,993.96,842.55,611.91,0,3075.24,2224.06,0,1004.16,0,558.56,0,0];
+  var ga4Bookings = [0,0,0,1,0,0,0,1,1,3,0,0,1,2,0,0,0,0,1,5,0,2,0,5,1,0,1,1,3,1,2,0,0,1,2,1,2,1,1,3,1,1,3,1,1,3,0,2,0,1,3,1,4,1,1,2,3,1,0,0,3,0,4,0,0,1,4,3,0,1,3,2,2,5,1,3,0,2,3,1,1,5,5,4,0,3,6,3,2,2,2,3,2,1,3,2,2,0,2,1,0,1,0,1,0,0];
+  var ga4Sessions = [127,197,229,366,270,278,274,296,297,320,300,277,269,259,257,255,188,238,273,308,254,257,275,336,311,289,371,643,545,527,563,204,275,262,262,308,329,286,317,294,643,532,534,517,521,499,397,287,279,277,299,259,247,333,272,226,202,275,281,292,236,127,159,201,263,235,276,269,241,171,223,243,243,255,273,286,229,252,312,359,331,348,528,499,182,352,547,561,466,427,437,188,296,419,416,403,413,374,360,715,1327,1042,1049,1084,1086,1060];
+  var metaSpendArr   = [23.73,20.99,15.66,60.71,49.01,49.14,52.90,52.22,48.85,46.52,46.96,50.39,48.87,49.04,54.42,49.46,51.43,47.30,49.33,47.41,52.76,50.42,49.92,49.68,74.46,74.94,79.41,90.94,75.14,69.36,61.57,0,51.61,58.82,59.66,61.35,57.27,79.69,87.38,93.48,109.27,84.80,59.59,58.23,54.95,52.42,39.52,58.41,61.61,57.82,57.65,53.94,64.97,93.14,85.63,95.97,93.24,79.55,102.20,70.08,16.65,0,0,0,28.67,72.03,70.89,69.57,78.29,81.93,84.92,78.64,75.35,75.39,79.65,75.51,85.69,81.10,190.82,239.10,208.47,202.32,215.17,131.18,0,221.66,286.62,272.27,251.76,252.71,268.36,20.96,0,0,0,0,0,0,0,70.95,185.42,153.17,161.74,150.93,182.57,185.32];
   // METT-only (hotel campaigns SEM_METT + PMAX_METT). SEM_Weddings (non-METT) excluded per report scope.
-  var googleSpendArr = [0,0,34.77,258.06,197.21,170.76,149.82,180.33,166.36,146.28,167.82,156.09,184.33,137.97,186.57,136.46,143.4,166.46,178.58,129.41,138.39,141.86,157.91,160.42,140.26,93.47,243.89,148.15,162.03,121.08,164.26,0,130.99,154.42,145.46,181.21,160.69,137.02,150.54,136.21,166.64,143.01,163.97,169.5,149.04,181.68,175.48,170.09,170.23,180.34,120.24,51.5,34.77,47.11,37.44,106.32,127.68,112.64,107.83,150.39,115.5,0,135.19,127.51,127,142.24,158.12,158.91,103.85,102.94,118.42,155.71,104.9,135.57,165.76,122.65,140.78,151.1,115.5,134.89,127.29,128.2,122.89,137.92,149.74,122.72,90.59,123.55,131.65,108.22,111.04,124.1];
+  var googleSpendArr = [0,0,34.77,258.06,197.21,170.76,149.82,180.33,166.36,146.28,167.82,156.09,184.33,137.97,186.57,136.46,143.4,166.46,178.58,129.41,138.39,141.86,157.91,160.42,140.26,93.47,243.89,148.15,162.03,121.08,164.26,0,130.99,154.42,145.46,181.21,160.69,137.02,150.54,136.21,166.64,143.01,163.97,169.5,149.04,181.68,175.48,170.09,170.23,180.34,120.24,51.5,34.77,47.11,37.44,106.32,127.68,112.64,107.83,150.39,115.5,0,135.19,127.51,127,142.24,158.12,158.91,103.85,102.94,118.42,155.71,104.9,135.57,165.76,122.65,140.78,151.1,115.5,134.89,127.29,128.2,122.89,137.92,149.74,122.72,90.59,123.55,131.65,108.22,111.04,124.1,0,0,0,0,0,0,0,44.67,221.46,134.9,130.98,106.71,154.16,127.24];
   var paidSpendArr = metaSpendArr.map(function(m, i) { return Math.round((m + googleSpendArr[i]) * 100) / 100; });
 
   var C = {
@@ -1028,12 +1028,12 @@
   function fmtEur(v) { return '$' + Math.round(v).toLocaleString('en-GB'); }
   function fmtK(v) { return v >= 1000 ? '$' + Math.round(v / 1000) + 'k' : '$' + Math.round(v); }
 
-  // ===== BASELINES — full Mar 1 to May 31 (92 days) =====
+  // ===== BASELINES — full Mar 1 to Jun 14 (106 days) =====
   // Re-attributed paid: 82.5% of total revenue, 82.3% of bookings (per the corrected attribution model)
   var BASELINE = {
-    totalRevenue: 142597, totalBookings: 145,
-    paidRevenue: 117643, paidBookings: 119,
-    paidSpend: 19760.16
+    totalRevenue: 153394, totalBookings: 160,
+    paidRevenue: 126550, paidBookings: 132,
+    paidSpend: 21770.38
   };
 
   // ===== FILTER STATE — defaults to full data range (dynamic from dates array) =====
@@ -1045,12 +1045,13 @@
   var _dataStart = new Date(parseInt(_dsParts[0], 10), parseInt(_dsParts[1], 10) - 1, parseInt(_dsParts[2], 10));
   var _dataEnd = new Date(parseInt(_deParts[0], 10), parseInt(_deParts[1], 10) - 1, parseInt(_deParts[2], 10));
 
+  var _defaultStart = new Date(_dataEnd.getFullYear(), _dataEnd.getMonth(), 1);
   var state = {
-    startDate: new Date(_dataStart.getFullYear(), _dataStart.getMonth(), _dataStart.getDate()),
+    startDate: new Date(_defaultStart.getFullYear(), _defaultStart.getMonth(), _defaultStart.getDate()),
     endDate: new Date(_dataEnd.getFullYear(), _dataEnd.getMonth(), _dataEnd.getDate()),
     tempStart: null, tempEnd: null,
-    viewMonth: new Date(_dataStart.getFullYear(), _dataStart.getMonth(), 1),
-    activePreset: 'all'
+    viewMonth: new Date(_dataEnd.getFullYear(), _dataEnd.getMonth(), 1),
+    activePreset: 'this-month'
   };
 
   // ===== CHART REGISTRY =====
@@ -1621,14 +1622,14 @@
 
   // ===== CREATIVE CARDS (metrics-forward, no image loading) =====
   var creatives = [
-    { ad_id: '120242817088290118', fmt: 'Carousel', offer: 'Rooms', name: 'Carousel - Rooms - Apr 2026 (Tourists)', spend: 736.78, impr: 118131, clicks: 2829, ctr: '2.39%', image: 'https://scontent-lhr6-1.cdninstagram.com/v/t51.71878-15/670021687_1232917915331203_9109366977281966238_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=4W7RHuiFck0Q7kNvwGKTD0v&_nc_oc=AdpfplEFkQoOT_luDpbNmLJSJcnuqqDh4GWbnN7A3yVplwzVgIHmuYiFk3SiJgXoZ-U&_nc_zt=23&_nc_ht=scontent-lhr6-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=98Lj0M4qbp36pLJxajuW_A&oh=00_Af-R9IoOs68YzxOCIM1QGkDnzZtVcIAdAUGiVI1evS4FFw&oe=6A2C93B6' },
-    { ad_id: '120241340410610118', fmt: 'Reel', offer: 'Brand Launch', name: 'Reels - Now Open - Mar 2026 (Tourists)', spend: 634.55, impr: 1456266, clicks: 16304, ctr: '1.12%', image: 'https://scontent-lhr8-1.cdninstagram.com/v/t51.82787-15/572663141_17899430367300292_4043976015003921558_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=l9Axw_qL5rkQ7kNvwGxknVE&_nc_oc=Adqa04_VBX_a-j1BlShjjpERnKczyxHx-FdlGUrNCzrKktDd-wk_VrWhyGSRv35WfQQ&_nc_zt=23&_nc_ht=scontent-lhr8-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=lP8LowNmh8iZq3QSmujG9Q&_nc_tpa=Q5bMBQHEM4kGdLCrDwQGRfATwBONUs8iWEvxV7nArWlA2RBzcn9PPZsIeGId4VWBxAwo9xIAXqqxvc-q&oh=00_Af8b23LQJZohUPBkthRJQAyBk5mNUW6Ux8Oxv9RtQsX5Aw&oe=6A2C884E' },
-    { ad_id: '120244702194750118', fmt: 'Carousel', offer: 'Rooms', name: 'Carousel - Rooms - May 2026 (Tourists)', spend: 537.91, impr: 306741, clicks: 3264, ctr: '1.06%', image: 'https://scontent-lhr6-1.cdninstagram.com/v/t51.71878-15/670021687_1232917915331203_9109366977281966238_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=4W7RHuiFck0Q7kNvwGKTD0v&_nc_oc=AdpfplEFkQoOT_luDpbNmLJSJcnuqqDh4GWbnN7A3yVplwzVgIHmuYiFk3SiJgXoZ-U&_nc_zt=23&_nc_ht=scontent-lhr6-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=98Lj0M4qbp36pLJxajuW_A&oh=00_Af-R9IoOs68YzxOCIM1QGkDnzZtVcIAdAUGiVI1evS4FFw&oe=6A2C93B6' },
-    { ad_id: '120242297735230118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Tourists Mar)', spend: 367.37, impr: 169672, clicks: 2759, ctr: '1.63%', image: 'https://scontent-lhr6-1.xx.fbcdn.net/v/t45.1600-4/655903396_26496562579973540_8593803967248466440_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=d5bd00&_nc_ohc=9etUz4SA0qIQ7kNvwEn0YzW&_nc_oc=AdposCPTVcN3Y5-B68OpYrw-O4MGHrYet9op-Dn30K_fwUvFjhaHzF-adloRee1w4sw&_nc_zt=1&_nc_ht=scontent-lhr6-1.xx&edm=AJcBmwoEAAAA&_nc_gid=0r5xTVelUaeN7gjGeieG8A&_nc_tpa=Q5bMBQHHR9ANcukILLkKH8HRDSB-QE8WHP8YKeLfmyC_ryEvrU1NvnwYee1OvK9ESSDaux1dmx5rma2W&oh=00_Af9CyDDdfMXbv2llGz81v8ZswDrfkMizu6HPBkAXuuOPKQ&oe=6A2C995A' },
-    { ad_id: '120242817088340118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Tourists Apr)', spend: 299.13, impr: 47779, clicks: 1765, ctr: '3.69%', image: 'https://scontent-lhr6-1.xx.fbcdn.net/v/t45.1600-4/655903396_26496562579973540_8593803967248466440_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=d5bd00&_nc_ohc=9etUz4SA0qIQ7kNvwEn0YzW&_nc_oc=AdposCPTVcN3Y5-B68OpYrw-O4MGHrYet9op-Dn30K_fwUvFjhaHzF-adloRee1w4sw&_nc_zt=1&_nc_ht=scontent-lhr6-1.xx&edm=AJcBmwoEAAAA&_nc_gid=0r5xTVelUaeN7gjGeieG8A&_nc_tpa=Q5bMBQHHR9ANcukILLkKH8HRDSB-QE8WHP8YKeLfmyC_ryEvrU1NvnwYee1OvK9ESSDaux1dmx5rma2W&oh=00_Af9CyDDdfMXbv2llGz81v8ZswDrfkMizu6HPBkAXuuOPKQ&oe=6A2C995A' },
-    { ad_id: '120243958163970118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Locals RTG)', spend: 199.82, impr: 21158, clicks: 921, ctr: '4.35%', image: 'https://scontent-lhr6-1.xx.fbcdn.net/v/t45.1600-4/655903396_26496562579973540_8593803967248466440_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=d5bd00&_nc_ohc=9etUz4SA0qIQ7kNvwEn0YzW&_nc_oc=AdposCPTVcN3Y5-B68OpYrw-O4MGHrYet9op-Dn30K_fwUvFjhaHzF-adloRee1w4sw&_nc_zt=1&_nc_ht=scontent-lhr6-1.xx&edm=AJcBmwoEAAAA&_nc_gid=0r5xTVelUaeN7gjGeieG8A&_nc_tpa=Q5bMBQHHR9ANcukILLkKH8HRDSB-QE8WHP8YKeLfmyC_ryEvrU1NvnwYee1OvK9ESSDaux1dmx5rma2W&oh=00_Af9CyDDdfMXbv2llGz81v8ZswDrfkMizu6HPBkAXuuOPKQ&oe=6A2C995A' },
-    { ad_id: '120241340410620118', fmt: 'Reel', offer: 'Brand', name: 'Reel - 25 Jan (Page Growth Mar)', spend: 198.91, impr: 529896, clicks: 5973, ctr: '1.13%', image: 'https://scontent-lhr6-1.cdninstagram.com/v/t51.82787-15/621581532_17909426580300292_6245583075662181056_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=klwNEajTnmYQ7kNvwExGQj5&_nc_oc=AdqC_8cAa4FtvHBJfeuIXT7MoJP_PoFjQf2XI-gKBxympYF_ECEMVa37utEiBY9GzR8&_nc_zt=23&_nc_ht=scontent-lhr6-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=xgBeRMfi2jIzgyHMH5p4GQ&_nc_tpa=Q5bMBQEczIgy5GAAuP1PpJ-6l-DSfWIN__TVflv2aOBVUSC1jI8yNDC5f3IZgDKJqLWM0p3ndN_-FnT-&oh=00_Af_FwqzcxXi4HN13hRHMNzV_ygQ4lzxVX77H6ADgzLRMFA&oe=6A2C7897' },
-    { ad_id: '120242817088310118', fmt: 'Reel', offer: 'Brand', name: 'Reel - 25 Jan (Page Growth Apr)', spend: 197.66, impr: 45102, clicks: 1259, ctr: '2.79%', image: 'https://scontent-lhr6-1.cdninstagram.com/v/t51.82787-15/621581532_17909426580300292_6245583075662181056_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=klwNEajTnmYQ7kNvwExGQj5&_nc_oc=AdqC_8cAa4FtvHBJfeuIXT7MoJP_PoFjQf2XI-gKBxympYF_ECEMVa37utEiBY9GzR8&_nc_zt=23&_nc_ht=scontent-lhr6-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=xgBeRMfi2jIzgyHMH5p4GQ&_nc_tpa=Q5bMBQEczIgy5GAAuP1PpJ-6l-DSfWIN__TVflv2aOBVUSC1jI8yNDC5f3IZgDKJqLWM0p3ndN_-FnT-&oh=00_Af_FwqzcxXi4HN13hRHMNzV_ygQ4lzxVX77H6ADgzLRMFA&oe=6A2C7897' },
+    { ad_id: '120242817088290118', fmt: 'Carousel', offer: 'Rooms', name: 'Carousel - Rooms - Apr 2026 (Tourists)', spend: 736.78, impr: 118131, clicks: 2829, ctr: '2.39%', image: 'https://scontent-ams2-1.cdninstagram.com/v/t51.71878-15/670021687_1232917915331203_9109366977281966238_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=sRPnUreFrQkQ7kNvwEW8BES&_nc_oc=AdpY3HXQ0afVVmvFmAwX7eZAHlgPmxQd8AbEesXNUX3ZeveeXmY0as0X9hs8eUMidjI&_nc_zt=23&_nc_ht=scontent-ams2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=c3OLuJm6VG1RiCcx3zYixg&oh=00_Af8q3j4u56Ca5XcODz3mrCTK-Py3-c5Uobly_tCUPofRjg&oe=6A35CE36' },
+    { ad_id: '120241340410610118', fmt: 'Reel', offer: 'Brand Launch', name: 'Reels - Now Open - Mar 2026 (Tourists)', spend: 634.55, impr: 1456266, clicks: 16304, ctr: '1.12%', image: 'https://scontent-ams2-1.cdninstagram.com/v/t51.82787-15/572663141_17899430367300292_4043976015003921558_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=108&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=3pJ4mlfUsz0Q7kNvwEMg0kq&_nc_oc=AdriYssArmDXFkwX42DV81oXjfb5Z9Rekw3PcOoORFF6VH9yIMBc5TH4angaA4YWaDM&_nc_zt=23&_nc_ht=scontent-ams2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=1buVPgu3enYtOXCtOPoiDw&_nc_tpa=Q5bMBQGiv8HS1quJ_gkdlnFsLaE-nGzv80FoFc6ZGlhQjA8BZepf3C2ysHiGzo0w1dgm-Okne22VXr01&oh=00_Af_5oFAcYHWGGPuBy17K23q7lZdNQvfGFGz_ePNO-sT72w&oe=6A35C2CE' },
+    { ad_id: '120244702194750118', fmt: 'Carousel', offer: 'Rooms', name: 'Carousel - Rooms - May 2026 (Tourists)', spend: 537.91, impr: 306741, clicks: 3264, ctr: '1.06%', image: 'https://scontent-ams2-1.cdninstagram.com/v/t51.71878-15/670021687_1232917915331203_9109366977281966238_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=sRPnUreFrQkQ7kNvwEW8BES&_nc_oc=AdpY3HXQ0afVVmvFmAwX7eZAHlgPmxQd8AbEesXNUX3ZeveeXmY0as0X9hs8eUMidjI&_nc_zt=23&_nc_ht=scontent-ams2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=c3OLuJm6VG1RiCcx3zYixg&oh=00_Af8q3j4u56Ca5XcODz3mrCTK-Py3-c5Uobly_tCUPofRjg&oe=6A35CE36' },
+    { ad_id: '120242297735230118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Tourists Mar)', spend: 367.37, impr: 169672, clicks: 2759, ctr: '1.63%', image: 'https://scontent-ams2-1.xx.fbcdn.net/v/t45.1600-4/655903396_26496562579973540_8593803967248466440_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=d5bd00&_nc_ohc=fpjgv_r23MgQ7kNvwF3-Fsu&_nc_oc=Adri0WDrMdBRw91qDq0sMGUNBVTpriP6RUzK964_aFVmXeo6rWS6VFGB0-dKJvUIqqU&_nc_zt=1&_nc_ht=scontent-ams2-1.xx&edm=AJcBmwoEAAAA&_nc_gid=_H4Kkw2JZMnH5x8W5PKKfA&_nc_tpa=Q5bMBQFbJtjHEgrGCutzU_pROsA8vbDyxmFCv_0neEbZxcBSbhcPApaXI8MBn6wNbKHS2dqFW82PS1Kp&oh=00_Af8X4b2jpHfCBnxdKs_5U2rjQVqngGFwJOu-LAPMZJU7AA&oe=6A35D3DA' },
+    { ad_id: '120242817088340118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Tourists Apr)', spend: 299.13, impr: 47779, clicks: 1765, ctr: '3.69%', image: 'https://scontent-ams2-1.xx.fbcdn.net/v/t45.1600-4/655903396_26496562579973540_8593803967248466440_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=d5bd00&_nc_ohc=fpjgv_r23MgQ7kNvwF3-Fsu&_nc_oc=Adri0WDrMdBRw91qDq0sMGUNBVTpriP6RUzK964_aFVmXeo6rWS6VFGB0-dKJvUIqqU&_nc_zt=1&_nc_ht=scontent-ams2-1.xx&edm=AJcBmwoEAAAA&_nc_gid=_H4Kkw2JZMnH5x8W5PKKfA&_nc_tpa=Q5bMBQFbJtjHEgrGCutzU_pROsA8vbDyxmFCv_0neEbZxcBSbhcPApaXI8MBn6wNbKHS2dqFW82PS1Kp&oh=00_Af8X4b2jpHfCBnxdKs_5U2rjQVqngGFwJOu-LAPMZJU7AA&oe=6A35D3DA' },
+    { ad_id: '120243958163970118', fmt: 'Reel', offer: 'Staycation', name: 'Reels - 22 Mar (Locals RTG)', spend: 199.82, impr: 21158, clicks: 921, ctr: '4.35%', image: 'https://scontent-ams2-1.xx.fbcdn.net/v/t45.1600-4/655903396_26496562579973540_8593803967248466440_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=d5bd00&_nc_ohc=fpjgv_r23MgQ7kNvwF3-Fsu&_nc_oc=Adri0WDrMdBRw91qDq0sMGUNBVTpriP6RUzK964_aFVmXeo6rWS6VFGB0-dKJvUIqqU&_nc_zt=1&_nc_ht=scontent-ams2-1.xx&edm=AJcBmwoEAAAA&_nc_gid=_H4Kkw2JZMnH5x8W5PKKfA&_nc_tpa=Q5bMBQFbJtjHEgrGCutzU_pROsA8vbDyxmFCv_0neEbZxcBSbhcPApaXI8MBn6wNbKHS2dqFW82PS1Kp&oh=00_Af8X4b2jpHfCBnxdKs_5U2rjQVqngGFwJOu-LAPMZJU7AA&oe=6A35D3DA' },
+    { ad_id: '120241340410620118', fmt: 'Reel', offer: 'Brand', name: 'Reel - 25 Jan (Page Growth Mar)', spend: 198.91, impr: 529896, clicks: 5973, ctr: '1.13%', image: 'https://scontent-ams2-1.cdninstagram.com/v/t51.82787-15/621581532_17909426580300292_6245583075662181056_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=EYnIPH4wnfwQ7kNvwGZsl7u&_nc_oc=Adp8xKdzJTqo5E6kzDNWlrcUA-Z2ZmWidv9eGDoGZj7HZJwpHkEy9fEU40gePIwHOiM&_nc_zt=23&_nc_ht=scontent-ams2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=Z57qRm0m2qDoBrh0xFHnOQ&_nc_tpa=Q5bMBQHfFif12B8ms_VPpuWRZa1qIEtO-KD52xFHv-TYAvucXTtD-gP1J2Iv532QPjNwQZXXg327GbjQ&oh=00_Af_YvY3pfFRfZaDazRkY9W_-YJTb6kFc43FdTQKjFDSPxg&oe=6A35B317' },
+    { ad_id: '120242817088310118', fmt: 'Reel', offer: 'Brand', name: 'Reel - 25 Jan (Page Growth Apr)', spend: 197.66, impr: 45102, clicks: 1259, ctr: '2.79%', image: 'https://scontent-ams2-1.cdninstagram.com/v/t51.82787-15/621581532_17909426580300292_6245583075662181056_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=110&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=EYnIPH4wnfwQ7kNvwGZsl7u&_nc_oc=Adp8xKdzJTqo5E6kzDNWlrcUA-Z2ZmWidv9eGDoGZj7HZJwpHkEy9fEU40gePIwHOiM&_nc_zt=23&_nc_ht=scontent-ams2-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=Z57qRm0m2qDoBrh0xFHnOQ&_nc_tpa=Q5bMBQHfFif12B8ms_VPpuWRZa1qIEtO-KD52xFHv-TYAvucXTtD-gP1J2Iv532QPjNwQZXXg327GbjQ&oh=00_Af_YvY3pfFRfZaDazRkY9W_-YJTb6kFc43FdTQKjFDSPxg&oe=6A35B317' },
   ];
 
   function buildCreatives() {
@@ -2118,6 +2119,18 @@
         t.addEventListener('click', function() { switchTab(t.getAttribute('data-tab')); });
       })(tabs[j]);
     }
+
+    // Sync filter UI + KPIs to the default (current-month) window on load
+    document.getElementById('date-value').textContent = fmtDateRange(state.startDate, state.endDate);
+    var _d0 = daysBetween(state.startDate, state.endDate);
+    document.getElementById('period-sum').textContent = (_d0 === 1 ? '1 day' : _d0 + ' days');
+    (function() {
+      var label, fullDays = dates.length;
+      if (_d0 === fullDays) label = 'all data'; else label = _d0 + ' days';
+      document.getElementById('filter-indicator').innerHTML = 'Showing ' + label + ' \u00B7 ' + fmtDateRange(state.startDate, state.endDate);
+    })();
+    renderPresetActive();
+    updateKPIs();
 
     // Initial render
     initPage('overview');
