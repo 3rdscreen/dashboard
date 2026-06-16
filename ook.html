@@ -717,12 +717,13 @@ function _googCountryKey(name){
   if(/KUW|QAT|\bKW\b|\bQA\b|\bBH\b/.test(n)) return 2;
   return 3;
 }
+function _googSpendOf(x){ return (x&&x.agg&&typeof x.agg.spend==='number') ? x.agg.spend : (x.spend||0); }
 function _googCampCmp(a,b){
   const ca=_googCountryKey(a.name), cb=_googCountryKey(b.name);
   if(ca!==cb) return ca-cb;                         // group by country
   const ta=/^PMAX/i.test(a.name)?0:1, tb=/^PMAX/i.test(b.name)?0:1;
   if(ta!==tb) return ta-tb;                         // PMAX before SEM
-  return b.spend-a.spend;                           // then spend desc
+  return _googSpendOf(b)-_googSpendOf(a);           // then spend desc
 }
 function buildGoogleCampsHTML(camps, ds, periodOverride){
   // camps = GRANULAR.google.campaigns = { campName: {geo, days:[{d,spend,sv,conv,roas,cpo}]} }
@@ -1738,7 +1739,7 @@ function buildCampaignTable(datesArr, label){
     if(sp===0) return null;
     const roas=sp>0&&sv>0?Math.round(sv/sp*100)/100:0;
     return { name, agg: { spend:sp, sv, conv, roas, cpo:conv>0?Math.round(sp/conv*100)/100:0, avgPV:conv>0?Math.round(sv/conv*100)/100:0, atc:null, hasAtc:false } };
-  }).filter(c=>c&&c.agg.spend>0);
+  }).filter(c=>c&&c.agg.spend>0).sort(_googCampCmp);
 
   // ── Build HTML — group per platform with colored left border + header row
   const groups = [
