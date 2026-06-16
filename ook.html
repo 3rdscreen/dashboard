@@ -937,96 +937,121 @@ function buildSnapAdsHTML(ads, adNames, ds, label, periodOverride){
   SNAP_GEO.forEach(g => merged[g.label] = {});
 
   // Track seen dates per dn to prevent double-counting duplicate keys
-  const isSnapPermanentKey = name => !/_(?:mar|apr)\d+/i.test(name);
-  const snapSeenDates = {};
-
-  adNames.forEach(name => {
-    if (!isSnapAdActive(name)) return;
-    const geoLabel = detectSnapGeo(name);
-    if (!geoLabel) return;
-    const dn = makeSnapDn(name);
-    const seenKey = `${geoLabel}||${dn}`;
-    if (!snapSeenDates[seenKey]) snapSeenDates[seenKey] = new Set();
-    const dailyRecs = ds.map(d => {
-      if (snapSeenDates[seenKey].has(d)) return null;
-      return (ads[name]||[]).find(x=>x.d===d)||null;
-    }).filter(Boolean);
-    let agg;
-    if (dailyRecs.length > 0) {
-      dailyRecs.forEach(r => snapSeenDates[seenKey].add(r.d));
-      const a = aggRecords(dailyRecs);
-      agg = a;
-      // Populate hover cache with actual per-day data (same source as table)
-      if(!window.SNAP_AD_DAILY_CACHE) window.SNAP_AD_DAILY_CACHE={};
-      if(!window.SNAP_AD_DAILY_CACHE[seenKey]) window.SNAP_AD_DAILY_CACHE[seenKey]={};
-      dailyRecs.forEach(r => {
-        const sp=r.spend||0; const sv=r.sv||0; const conv=r.conv||0; const atc=r.atc||0;
-        const roas=sp>0&&sv>0?Math.round(sv/sp*100)/100:0;
-        const cpo=conv>0?Math.round(sp/conv*100)/100:0;
-        // Accumulate in case multiple keys contribute to same day
-        const ex=window.SNAP_AD_DAILY_CACHE[seenKey][r.d];
-        if(ex){ ex.spend+=sp; ex.sv+=sv; ex.conv+=conv; ex.atc+=atc; ex.roas=ex.spend>0&&ex.sv>0?Math.round(ex.sv/ex.spend*100)/100:0; ex.cpo=ex.conv>0?Math.round(ex.spend/ex.conv*100)/100:0; }
-        else { window.SNAP_AD_DAILY_CACHE[seenKey][r.d]={spend:sp,sv,conv,atc,roas,cpo}; }
+  if (typeof SNAP_GEO_SPLIT_DAILY !== 'undefined') {
+    // Authoritative per-(ad x geo) split for the last-7 window (multi-geo ads appear in every geo they ran in)
+    if(!window.SNAP_AD_DAILY_CACHE) window.SNAP_AD_DAILY_CACHE={};
+    Object.entries(SNAP_GEO_SPLIT_DAILY).forEach(([geoLabel, adsMap]) => {
+      if(!merged[geoLabel]) merged[geoLabel]={};
+      Object.entries(adsMap).forEach(([dn, dayMap]) => {
+        const ck=geoLabel+'||'+dn;
+        let ts=0,tv=0,tc=0,ta=0,any=false;
+        ds.forEach(day => {
+          const r=dayMap[day]; if(!r||!r.spend) return;
+          any=true; ts+=r.spend; tv+=r.sv||0; tc+=r.conv||0; ta+=r.atc||0;
+          if(!window.SNAP_AD_DAILY_CACHE[ck]) window.SNAP_AD_DAILY_CACHE[ck]={};
+          window.SNAP_AD_DAILY_CACHE[ck][day]={spend:r.spend,sv:r.sv||0,conv:r.conv||0,atc:r.atc||0,
+            roas:r.spend>0&&r.sv>0?Math.round(r.sv/r.spend*100)/100:0,
+            cpo:(r.conv||0)>0?Math.round(r.spend/(r.conv||1)*100)/100:0};
+        });
+        if(!any) return;
+        ts=Math.round(ts*100)/100; tv=Math.round(tv*100)/100;
+        const roas=ts>0&&tv>0?Math.round(tv/ts*100)/100:0;
+        merged[geoLabel][dn]={spend:ts,sv:tv,conv:tc,atc:ta,wR:roas*ts};
+        window.SNAP_AD_DAILY_CACHE[ck]['_total']={spend:ts,sv:tv,conv:tc,atc:ta,roas,cpo:tc>0?Math.round(ts/tc*100)/100:0};
       });
-    } else {
-      const mtdRecs = (ads[name]||[]).filter(r=>r&&r.spend>0);
-      if(!mtdRecs.length) return;
-      const mtdAgg = aggRecords(mtdRecs);
-      if(!mtdAgg.spend) return;
-      const gk = SNAP_GEO_KEY[geoLabel] || 'uae';
-      const ratio = scaleRatio[gk] !== undefined ? scaleRatio[gk] : 1;
-      agg = {
-        spend: Math.round(mtdAgg.spend * ratio * 100) / 100,
-        sv:    Math.round((mtdAgg.sv||0) * ratio * 100) / 100,
-        conv:  Math.round((mtdAgg.conv||0) * ratio),
-        atc:   Math.round((mtdAgg.atc||0) * ratio),
-        roas:  mtdAgg.roas || 0,
-        cpo:   0,
-      };
-      if(!agg.spend) return;
-      agg.cpo = agg.conv > 0 ? Math.round(agg.spend / agg.conv * 100) / 100 : 0;
-    }
-    if (!merged[geoLabel][dn]) merged[geoLabel][dn]={spend:0,sv:0,conv:0,atc:0,wR:0};
-    const m=merged[geoLabel][dn];
-    m.spend+=agg.spend||0; m.sv+=agg.sv||0; m.conv+=agg.conv||0;
-    m.atc+=agg.atc||0; m.wR+=(agg.roas||0)*(agg.spend||0);
-  });
-
-  // Ensure every active ad has all ds days in cache — fill gaps using table total + D.snap ratio
-  if(!window.SNAP_AD_DAILY_CACHE) window.SNAP_AD_DAILY_CACHE={};
-  SNAP_GEO.forEach(g => {
-    const gk = SNAP_GEO_KEY[g.label]||'uae';
-    const geoPeriodSpend = ds.reduce((s,d)=>{ const row=(D.snap||[]).find(x=>x.d===d); return s+(row?.[gk]?.spend||0); },0);
-    Object.entries(merged[g.label]).forEach(([dn,m])=>{
-      const ck=`${g.label}||${dn}`;
-      if(!window.SNAP_AD_DAILY_CACHE[ck]) window.SNAP_AD_DAILY_CACHE[ck]={};
-      const roas=m.spend>0?Math.round(m.wR/m.spend*100)/100:0;
-      const _totalEntry={spend:m.spend,sv:m.sv,conv:m.conv,atc:m.atc,roas,cpo:m.conv>0?Math.round(m.spend/m.conv*100)/100:0};
-      const coveredDays=Object.keys(window.SNAP_AD_DAILY_CACHE[ck]).filter(k=>k!=='_total');
-      const missingDays=ds.filter(d=>!coveredDays.includes(d));
-      if(missingDays.length===0){
-        window.SNAP_AD_DAILY_CACHE[ck]['_total']=_totalEntry;
-        return;
-      }
-      // Rebuild entire cache from table total (m) distributed by D.snap daily ratio
-      if(geoPeriodSpend<=0||!m.spend){ window.SNAP_AD_DAILY_CACHE[ck]['_total']=_totalEntry; return; }
-      window.SNAP_AD_DAILY_CACHE[ck]={};
-      const totSpend=m.spend,totSv=m.sv,totConv=m.conv,totAtc=m.atc;
-      ds.forEach(day=>{
-        const geoDay=(D.snap||[]).find(x=>x.d===day)?.[gk]||{};
-        if(!geoDay.spend) return;
-        const ratio=geoDay.spend/geoPeriodSpend;
-        const sp=Math.round(totSpend*ratio*100)/100;
-        const sv=Math.round(totSv*ratio*100)/100;
-        const conv=Math.round(totConv*ratio);
-        const atc=Math.round(totAtc*ratio);
-        window.SNAP_AD_DAILY_CACHE[ck][day]={spend:sp,sv,conv,atc,
-          roas:sp>0&&sv>0?Math.round(sv/sp*100)/100:0,
-          cpo:conv>0?Math.round(sp/conv*100)/100:0};
-      });
-      window.SNAP_AD_DAILY_CACHE[ck]['_total']=_totalEntry;
     });
-  });
+  } else {
+    const isSnapPermanentKey = name => !/_(?:mar|apr)\d+/i.test(name);
+    const snapSeenDates = {};
+
+    adNames.forEach(name => {
+      if (!isSnapAdActive(name)) return;
+      const geoLabel = detectSnapGeo(name);
+      if (!geoLabel) return;
+      const dn = makeSnapDn(name);
+      const seenKey = `${geoLabel}||${dn}`;
+      if (!snapSeenDates[seenKey]) snapSeenDates[seenKey] = new Set();
+      const dailyRecs = ds.map(d => {
+        if (snapSeenDates[seenKey].has(d)) return null;
+        return (ads[name]||[]).find(x=>x.d===d)||null;
+      }).filter(Boolean);
+      let agg;
+      if (dailyRecs.length > 0) {
+        dailyRecs.forEach(r => snapSeenDates[seenKey].add(r.d));
+        const a = aggRecords(dailyRecs);
+        agg = a;
+        // Populate hover cache with actual per-day data (same source as table)
+        if(!window.SNAP_AD_DAILY_CACHE) window.SNAP_AD_DAILY_CACHE={};
+        if(!window.SNAP_AD_DAILY_CACHE[seenKey]) window.SNAP_AD_DAILY_CACHE[seenKey]={};
+        dailyRecs.forEach(r => {
+          const sp=r.spend||0; const sv=r.sv||0; const conv=r.conv||0; const atc=r.atc||0;
+          const roas=sp>0&&sv>0?Math.round(sv/sp*100)/100:0;
+          const cpo=conv>0?Math.round(sp/conv*100)/100:0;
+          // Accumulate in case multiple keys contribute to same day
+          const ex=window.SNAP_AD_DAILY_CACHE[seenKey][r.d];
+          if(ex){ ex.spend+=sp; ex.sv+=sv; ex.conv+=conv; ex.atc+=atc; ex.roas=ex.spend>0&&ex.sv>0?Math.round(ex.sv/ex.spend*100)/100:0; ex.cpo=ex.conv>0?Math.round(ex.spend/ex.conv*100)/100:0; }
+          else { window.SNAP_AD_DAILY_CACHE[seenKey][r.d]={spend:sp,sv,conv,atc,roas,cpo}; }
+        });
+      } else {
+        const mtdRecs = (ads[name]||[]).filter(r=>r&&r.spend>0);
+        if(!mtdRecs.length) return;
+        const mtdAgg = aggRecords(mtdRecs);
+        if(!mtdAgg.spend) return;
+        const gk = SNAP_GEO_KEY[geoLabel] || 'uae';
+        const ratio = scaleRatio[gk] !== undefined ? scaleRatio[gk] : 1;
+        agg = {
+          spend: Math.round(mtdAgg.spend * ratio * 100) / 100,
+          sv:    Math.round((mtdAgg.sv||0) * ratio * 100) / 100,
+          conv:  Math.round((mtdAgg.conv||0) * ratio),
+          atc:   Math.round((mtdAgg.atc||0) * ratio),
+          roas:  mtdAgg.roas || 0,
+          cpo:   0,
+        };
+        if(!agg.spend) return;
+        agg.cpo = agg.conv > 0 ? Math.round(agg.spend / agg.conv * 100) / 100 : 0;
+      }
+      if (!merged[geoLabel][dn]) merged[geoLabel][dn]={spend:0,sv:0,conv:0,atc:0,wR:0};
+      const m=merged[geoLabel][dn];
+      m.spend+=agg.spend||0; m.sv+=agg.sv||0; m.conv+=agg.conv||0;
+      m.atc+=agg.atc||0; m.wR+=(agg.roas||0)*(agg.spend||0);
+    });
+
+    // Ensure every active ad has all ds days in cache — fill gaps using table total + D.snap ratio
+    if(!window.SNAP_AD_DAILY_CACHE) window.SNAP_AD_DAILY_CACHE={};
+    SNAP_GEO.forEach(g => {
+      const gk = SNAP_GEO_KEY[g.label]||'uae';
+      const geoPeriodSpend = ds.reduce((s,d)=>{ const row=(D.snap||[]).find(x=>x.d===d); return s+(row?.[gk]?.spend||0); },0);
+      Object.entries(merged[g.label]).forEach(([dn,m])=>{
+        const ck=`${g.label}||${dn}`;
+        if(!window.SNAP_AD_DAILY_CACHE[ck]) window.SNAP_AD_DAILY_CACHE[ck]={};
+        const roas=m.spend>0?Math.round(m.wR/m.spend*100)/100:0;
+        const _totalEntry={spend:m.spend,sv:m.sv,conv:m.conv,atc:m.atc,roas,cpo:m.conv>0?Math.round(m.spend/m.conv*100)/100:0};
+        const coveredDays=Object.keys(window.SNAP_AD_DAILY_CACHE[ck]).filter(k=>k!=='_total');
+        const missingDays=ds.filter(d=>!coveredDays.includes(d));
+        if(missingDays.length===0){
+          window.SNAP_AD_DAILY_CACHE[ck]['_total']=_totalEntry;
+          return;
+        }
+        // Rebuild entire cache from table total (m) distributed by D.snap daily ratio
+        if(geoPeriodSpend<=0||!m.spend){ window.SNAP_AD_DAILY_CACHE[ck]['_total']=_totalEntry; return; }
+        window.SNAP_AD_DAILY_CACHE[ck]={};
+        const totSpend=m.spend,totSv=m.sv,totConv=m.conv,totAtc=m.atc;
+        ds.forEach(day=>{
+          const geoDay=(D.snap||[]).find(x=>x.d===day)?.[gk]||{};
+          if(!geoDay.spend) return;
+          const ratio=geoDay.spend/geoPeriodSpend;
+          const sp=Math.round(totSpend*ratio*100)/100;
+          const sv=Math.round(totSv*ratio*100)/100;
+          const conv=Math.round(totConv*ratio);
+          const atc=Math.round(totAtc*ratio);
+          window.SNAP_AD_DAILY_CACHE[ck][day]={spend:sp,sv,conv,atc,
+            roas:sp>0&&sv>0?Math.round(sv/sp*100)/100:0,
+            cpo:conv>0?Math.round(sp/conv*100)/100:0};
+        });
+        window.SNAP_AD_DAILY_CACHE[ck]['_total']=_totalEntry;
+      });
+    });
+  }
 
   const showDayBreakdownSnap = periodOverride==='7d' || periodOverride==='3d';
 
@@ -3558,6 +3583,8 @@ const SNAP_AD_GEO = {"547_Minimeabaya0526_Cp_Vid short_Vert_TransitionsVO_En_GLO
 };
 
 const SNAP_AD_STATUS = {"279_Spring0325_Wm_Vid short_Vert_UGC No_En_GLO": "inactive", "279_Spring0325_Wm_Vid short_Vert_UGC No_En_GLO_Snap_KSA_Ret": "inactive", "279_Spring0325_Wm_Vid short_Vert_UGC No_En_GLO_Snap_KU_Ret": "inactive", "279_Spring0325_Wm_Vid short_Vert_UGC_Snap_KSA_Ret": "inactive", "279_Spring0325_Wm_Vid short_Vert_UGC_Snap_KU_Ret": "inactive", "451_Christmas1125_Cp_Vid short_Vert_Snap_KSA_Ret": "inactive", "451_Christmas1125_Cp_Vid short_Vert_UGC Tah_En_GLO_Snap_KSA_Ret": "inactive", "451_Christmas1125_Cp_Vid short_Vert_UGC Tah_En_GLO_Snapchat_KSA_Ret": "inactive", "451_Christmas1125_Cp_Vid short_Vert_UGC Tah_En_GLO_Snapchat_KSA_Retargeting": "active", "451_Christmas1125_Snap_KU_Ret": "inactive", "486_Abaya0126_Wm_Vid short_Vert_UGCO VO_En_GLO": "inactive", "486_Abaya0126_Wm_Vid short_Vert_UGCO VO_En_GLO_Snap_UAE_Ret": "inactive", "486_Abaya0126_Wm_Vid short_Vert_UGCO VO_En_GLO_Snap_UAE_Ret_v2": "inactive", "486_Abaya0126_Wm_Vid short_Vert_UGCO VO_En_GLO_Snapchat_KSA_Ret": "inactive", "486_Abaya0126_Wm_Vid short_Vert_UGCO VO_En_GLO_Snapchat_KSA_Ret2": "inactive", "486_Abaya0126_Wm_Vid short_Vert_UGCO VO_En_GLO_Snapchat_UAE_Ret": "inactive", "486_Abaya0126_Wm_Vid short_Vert_UGCO VO_En_GLO_Snapchat_UAE_Ret2": "inactive", "486_Abaya0126_Wm_Vid short_Vert_UGCO VO_En_GLO_Snapchat_UAE_Retargeting": "inactive", "487_Abaya0126_Cp_Vid short_Vert_UGCO VO_En_GLO _Snapchat_KSA_Ret": "inactive", "487_Abaya0126_Cp_Vid short_Vert_UGCO VO_En_GLO _Snapchat_KSA_Retargeting": "active", "487_Abaya0126_Cp_Vid short_Vert_UGCO VO_En_GLO _Snapchat_UAE_Ret": "inactive", "487_Abaya0126_Cp_Vid short_Vert_UGCO VO_En_GLO _Snapchat_UAE_Retargeting": "inactive", "487_Abaya0126_Cp_Vid short_Vert_UGCO VO_En_GLO_Snapchat_KSA_Ret": "inactive", "487_Abaya0126_Cp_Vid short_Vert_UGCO VO_En_GLO_Snapchat_UAE_Ret": "inactive", "493_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Snapchat_KSA_Sales": "inactive", "493_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_UAE_Snap_Sales": "inactive", "493_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_UAE_Snapchat_Sales": "inactive", "494_Abaya0126_Mn_Vid short_Vert_UGC VO_En_GLO_Snap_KU_Ret": "inactive", "494_Abaya0126_Mn_Vid short_Vert_UGC VO_En_GLO_Snap_UAE_Ret": "inactive", "495_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Snap_KU_Ret": "inactive", "495_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Snapchat_KSA_Ret": "inactive", "495_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Snapchat_UAE_Ret": "inactive", "495_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Snapchat_UAE_Retargeting": "inactive", "496_Abaya0126_Mn_Vid short_Vert_UGCO VO_En_GLO_Snap_KU_Ret": "inactive", "498_Abaya0126_Mn_Vid short_Vert_UGC VO_En_GLO_Snap_GCC_Ret": "inactive", "498_Abaya0126_Mn_Vid short_Vert_UGC VO_En_GLO_Snapchat_GCC_Retargeting": "inactive", "498_Abaya0126_Mn_Vid short_Vert_UGC_Snap_GCC_Ret": "inactive", "499_Abaya0126_Mn_Vid short_Vert_UGC VO_En_GLO": "inactive", "499_Abaya0126_Mn_Vid short_Vert_UGC VO_En_GLO_Snap_GCC_Ret": "inactive", "499_Abaya0126_Mn_Vid short_Vert_UGC VO_En_GLO_Snapchat_KSA_Retargeting": "inactive", "500_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO": "inactive", "500_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO_Snap_KU_Ret": "inactive", "500_Abaya0126_Wm_Vid short_Vert_UGC_Snap_KU_Ret": "inactive", "501_Abaya0126_Fm_Vid short_Vert_UGC VO_En_GLO": "inactive", "501_Abaya0126_Fm_Vid short_Vert_UGC_Snap_KU_Ret": "inactive", "502_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO": "inactive", "504_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO": "inactive", "505_Mask1225_Cp_Vid short_Vert_UGC VO_En_GLO": "inactive", "508_Abaya0126_Mn_Vid short_Ver_UGC VO_En_GLO": "active", "510_Mask1225_Mn_Vid short_Vert_UGC VO_En_GLO": "active", "510_Mask1225_Mn_Vid short_Vert_UGCO VO_En_GLO": "inactive", "512_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO": "inactive", "515_Abaya0126_Cp_Vid short_Vert_UGC VO_En_GLO": "inactive", "521_Tank0426_Wm_Vid short_Vert_UGC VO_En_GLO": "inactive", "521_Tank0426_Wm_Vid short_Vert_UGC VO_En_GLO_UAE_Snapchat_Sales": "inactive", "522_Tank0426_Wm_Vid short_Vert_UGC VO_En_GLO": "inactive", "522_Tank0426_Wm_Vid short_Vert_UGC VO_En_GLO_Snapchat_Sales": "inactive", "523_Tank0426_Wm_Vid short_Vert_UGC VO_En_GLO": "inactive", "523_Tank0426_Wm_Vid short_Vert_UGC VO_En_GLO_Ku&Qa_Sales": "inactive", "524_Tank0426_Wm_Vid short_Vert_UGC VO_En_GLO": "inactive", "534_Tank0426_Cp_Vid short_Vert_BTS_En_GLO": "inactive", "541_Minime0526_Fm_Vid short_Vert_Transitions_En_GLO": "inactive", "542_Minime0526_Fm_Vid short_Vert_Transitions_En_GLO": "inactive", "543_Minime0526_Fm_Vid short_Vert_Transitions_En_GLO": "inactive", "536_Tank0426_Wm_Vid short_Vert_UGC VO_En_GLO": "active", "546_Minime0526_Fm_Vid short_Vert_Transitions_En_GLO": "inactive", "506_Mask1225_Cp_Vid short_Vert_UGC VO_En_GLO": "inactive", "527_Abaya0126_Mn_Vid short_Vert_UGC VO_En_GLO": "active", "548_Abaya0126_Wm_Vid short_Vert_UGC VO_En_GLO": "active", "547_Minimeabaya0526_Cp_Vid short_Vert_TransitionsVO_En_GLO": "active"};;;;;;;
+const SNAP_GEO_SPLIT_DAILY={"KSA":{"451_Christmas1125_Cp_Vid short_Vert_UGC Tah [KSA]":{"Jun 9":{"spend":126.07,"sv":375.25,"conv":1,"atc":12},"Jun 10":{"spend":159.37,"sv":165.31,"conv":1,"atc":7},"Jun 11":{"spend":169.3,"sv":461.55,"conv":1,"atc":14},"Jun 12":{"spend":155.62,"sv":280.83,"conv":1,"atc":6},"Jun 13":{"spend":192.58,"sv":1040.54,"conv":3,"atc":15},"Jun 14":{"spend":168.18,"sv":622.0,"conv":1,"atc":15},"Jun 15":{"spend":182.62,"sv":631.2,"conv":1,"atc":9}},"487_Abaya0126_Cp_Vid short_Vert_UGCO VO [KSA]":{"Jun 9":{"spend":42.51,"sv":403.06,"conv":1,"atc":1},"Jun 10":{"spend":47.35,"sv":637.7,"conv":1,"atc":1},"Jun 11":{"spend":67.91,"sv":250.41,"conv":1,"atc":9},"Jun 12":{"spend":66.25,"sv":121.82,"conv":1,"atc":18},"Jun 13":{"spend":58.38,"sv":0.0,"conv":0,"atc":2},"Jun 14":{"spend":77.02,"sv":877.77,"conv":1,"atc":2},"Jun 15":{"spend":77.43,"sv":121.83,"conv":1,"atc":2}},"510_Mask1225_Mn_Vid short_Vert_UGC VO":{"Jun 9":{"spend":112.91,"sv":0.0,"conv":0,"atc":4},"Jun 10":{"spend":94.01,"sv":88.01,"conv":1,"atc":1},"Jun 11":{"spend":71.46,"sv":0.0,"conv":0,"atc":0},"Jun 12":{"spend":92.04,"sv":337.29,"conv":1,"atc":11},"Jun 13":{"spend":68.59,"sv":0.0,"conv":0,"atc":4},"Jun 14":{"spend":68.88,"sv":431.98,"conv":1,"atc":4},"Jun 15":{"spend":56.58,"sv":0.0,"conv":0,"atc":12}},"548_Abaya0126_Wm_Vid short_Vert_UGC VO":{"Jun 9":{"spend":60.76,"sv":0.0,"conv":0,"atc":1},"Jun 10":{"spend":49.24,"sv":0.0,"conv":0,"atc":1},"Jun 11":{"spend":41.32,"sv":203.11,"conv":0,"atc":3},"Jun 12":{"spend":36.09,"sv":34.99,"conv":0,"atc":0},"Jun 13":{"spend":30.24,"sv":74.32,"conv":0,"atc":3},"Jun 14":{"spend":35.92,"sv":283.57,"conv":1,"atc":1},"Jun 15":{"spend":33.37,"sv":36.06,"conv":0,"atc":1}}},"KU / QA / BH":{"508_Abaya0126_Mn_Vid short_Ver_UGC VO":{"Jun 9":{"spend":79.26,"sv":947.25,"conv":3,"atc":14},"Jun 10":{"spend":76.93,"sv":246.66,"conv":1,"atc":17},"Jun 11":{"spend":88.3,"sv":0.0,"conv":0,"atc":5},"Jun 12":{"spend":96.35,"sv":0.0,"conv":0,"atc":0},"Jun 13":{"spend":110.42,"sv":1320.72,"conv":2,"atc":32},"Jun 14":{"spend":110.01,"sv":421.67,"conv":3,"atc":15},"Jun 15":{"spend":107.05,"sv":0.0,"conv":0,"atc":5}},"527_Abaya0126_Mn_Vid short_Vert_UGC VO":{"Jun 9":{"spend":50.26,"sv":0.0,"conv":0,"atc":1},"Jun 10":{"spend":74.25,"sv":0.0,"conv":0,"atc":6},"Jun 11":{"spend":63.69,"sv":0.0,"conv":0,"atc":1},"Jun 12":{"spend":47.52,"sv":74.34,"conv":1,"atc":2},"Jun 13":{"spend":40.71,"sv":0.0,"conv":0,"atc":0},"Jun 14":{"spend":37.9,"sv":106.05,"conv":0,"atc":2},"Jun 15":{"spend":36.52,"sv":0.0,"conv":0,"atc":0}},"536_Tank0426_Wm_Vid short_Vert_UGC VO":{"Jun 9":{"spend":34.23,"sv":71.54,"conv":0,"atc":5},"Jun 10":{"spend":30.62,"sv":540.49,"conv":1,"atc":15},"Jun 11":{"spend":23.07,"sv":0.0,"conv":0,"atc":0},"Jun 12":{"spend":28.29,"sv":279.86,"conv":1,"atc":7},"Jun 13":{"spend":23.31,"sv":0.0,"conv":0,"atc":5},"Jun 14":{"spend":23.86,"sv":0.0,"conv":0,"atc":0},"Jun 15":{"spend":26.66,"sv":49.08,"conv":0,"atc":7}},"548_Abaya0126_Wm_Vid short_Vert_UGC VO":{"Jun 9":{"spend":19.33,"sv":0.0,"conv":0,"atc":0},"Jun 10":{"spend":18.21,"sv":0.0,"conv":0,"atc":0},"Jun 11":{"spend":24.94,"sv":122.58,"conv":0,"atc":2},"Jun 12":{"spend":27.85,"sv":27.0,"conv":0,"atc":0},"Jun 13":{"spend":25.55,"sv":62.78,"conv":0,"atc":2},"Jun 14":{"spend":28.23,"sv":222.83,"conv":0,"atc":1},"Jun 15":{"spend":29.77,"sv":32.17,"conv":0,"atc":0}}},"UAE":{"527_Abaya0126_Mn_Vid short_Vert_UGC VO":{"Jun 9":{"spend":22.36,"sv":0.0,"conv":0,"atc":0},"Jun 10":{"spend":22.47,"sv":0.0,"conv":0,"atc":2},"Jun 11":{"spend":28.43,"sv":0.0,"conv":0,"atc":1},"Jun 12":{"spend":33.93,"sv":53.07,"conv":0,"atc":1},"Jun 13":{"spend":39.3,"sv":0.0,"conv":0,"atc":0},"Jun 14":{"spend":41.49,"sv":116.07,"conv":1,"atc":2},"Jun 15":{"spend":48.06,"sv":0.0,"conv":0,"atc":0}},"536_Tank0426_Wm_Vid short_Vert_UGC VO":{"Jun 9":{"spend":35.89,"sv":74.99,"conv":1,"atc":5},"Jun 10":{"spend":39.38,"sv":695.29,"conv":2,"atc":20},"Jun 11":{"spend":27.56,"sv":0.0,"conv":0,"atc":1},"Jun 12":{"spend":25.8,"sv":255.27,"conv":0,"atc":7},"Jun 13":{"spend":28.51,"sv":0.0,"conv":0,"atc":6},"Jun 14":{"spend":26.96,"sv":0.0,"conv":0,"atc":1},"Jun 15":{"spend":29.1,"sv":53.58,"conv":1,"atc":8}},"547_Minimeabaya0526_Cp_Vid short_Vert_TransitionsVO":{"Jun 9":{"spend":31.96,"sv":0.0,"conv":0,"atc":1},"Jun 10":{"spend":32.45,"sv":0.0,"conv":0,"atc":0},"Jun 11":{"spend":37.33,"sv":0.0,"conv":0,"atc":8},"Jun 12":{"spend":37.98,"sv":0.0,"conv":0,"atc":0},"Jun 13":{"spend":33.63,"sv":1365.89,"conv":1,"atc":22},"Jun 14":{"spend":31.87,"sv":0.0,"conv":0,"atc":0},"Jun 15":{"spend":30.43,"sv":114.06,"conv":1,"atc":3}},"548_Abaya0126_Wm_Vid short_Vert_UGC VO":{"Jun 9":{"spend":36.98,"sv":0.0,"conv":0,"atc":0},"Jun 10":{"spend":55.69,"sv":0.0,"conv":0,"atc":1},"Jun 11":{"spend":56.69,"sv":278.61,"conv":1,"atc":4},"Jun 12":{"spend":52.29,"sv":50.69,"conv":1,"atc":1},"Jun 13":{"spend":48.56,"sv":119.33,"conv":1,"atc":4},"Jun 14":{"spend":49.68,"sv":392.22,"conv":1,"atc":1},"Jun 15":{"spend":42.42,"sv":45.83,"conv":1,"atc":1}}}};
+
 
 
 function tblHdr(cols){ return `<thead><tr>${cols.map(c=>`<th>${c}</th>`).join("")}</tr></thead>`; }
