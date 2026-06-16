@@ -2857,7 +2857,7 @@ function buildBudgetByMarket(dateArg){
   const dates = isMTD ? dateArg : [dateArg];
 
   const PLATFORMS = [
-    {key:'meta',   label:'Meta',   color:'#1877F2', geos:['uae','ksa','ku','cat']},
+    {key:'meta',   label:'Meta',   color:'#1877F2', geos:['uae','ksa','ku','uk','cat']},
     {key:'tiktok', label:'TikTok', color:'#EE1D52', geos:['uae','ksa','ku','cat']},
     {key:'snap',   label:'Snap',   color:'#FFCC00', textColor:'#1a1a1a', geos:['uae','ksa','ku']},
     {key:'google', label:'Google', color:'#34A853', geos:['uae','ksa','ku']},
@@ -2866,6 +2866,7 @@ function buildBudgetByMarket(dateArg){
     {key:'uae', label:'UAE'},
     {key:'ksa', label:'KSA'},
     {key:'ku',  label:'KU/QA/BH'},
+    {key:'uk',  label:'UK'},
     {key:'cat', label:'Catalogue'},
   ];
 
@@ -2883,6 +2884,8 @@ function buildBudgetByMarket(dateArg){
         const geo = r[m.key];
         if (geo && geo.spend) agg[p.key][m.key] += geo.spend;
       });
+      // Meta followers run in the UK Brand-Social-Followers campaign — attribute to UK market
+      if (p.key === 'meta' && r.foll && r.foll.spend) agg.meta.uk += r.foll.spend;
     });
   });
 
