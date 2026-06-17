@@ -156,6 +156,11 @@ body{
 .kpi .k{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:9px}
 .kpi .v{font-family:Calibri,'Segoe UI',sans-serif;font-size:27px;font-weight:600;letter-spacing:-.02em;color:var(--navy);line-height:1}
 .kpi .s{font-size:11.5px;color:var(--ink-3);margin-top:6px}
+.kpi-horizons{display:flex;flex-wrap:wrap;gap:3px 12px;margin-top:9px}
+.kpi-horizons span{font-size:10px;color:var(--ink-4);letter-spacing:.02em;white-space:nowrap}
+.kpi-horizons b{color:var(--ink-2);font-weight:600}
+.kpi-horizons .hz-12{color:var(--gold)}
+.kpi-horizons .hz-12 b{color:var(--gold)}
 
 /* ── Charts ── */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
@@ -349,8 +354,8 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
     <div class="eyebrow" style="display:flex;align-items:center;gap:10px">Customer Economics <span style="font-weight:500;color:var(--ink-4);text-transform:none;letter-spacing:0;font-size:11px">· paid acquisition × Mixpanel cohort</span></div>
     <div class="kpi-strip kpi-3" style="margin-bottom:22px">
       <div class="kpi"><div class="k">CAC · Cost per FTB</div><div class="v" id="kCac">$19.15</div><div class="s">Total spend ÷ first-time buyers</div></div>
-      <div class="kpi"><div class="k">LTV · 12-month</div><div class="v" id="kLtv">$201.84</div><div class="s">Mixpanel cohort · Q1 2026 baseline</div></div>
-      <div class="kpi"><div class="k">LTV : CAC</div><div class="v" id="kLtvCac"><span style="color:#1b7a3e">10.54×</span></div><div class="s" id="kLtvCacSub">Healthy · ≥ 3× threshold</div></div>
+      <div class="kpi"><div class="k">LTV · 12-month</div><div class="v" id="kLtv">$201.84</div><div class="s">Mixpanel cohort · Q1 2026 baseline</div><div class="kpi-horizons"><span>30D <b>$85.26</b></span><span>3M <b>$146.29</b></span><span>6M <b>$214.50</b></span><span class="hz-12">12M <b>$201.84</b></span></div></div>
+      <div class="kpi"><div class="k">LTV : CAC</div><div class="v" id="kLtvCac"><span style="color:#1b7a3e">10.54×</span></div><div class="s" id="kLtvCacSub">Healthy · ≥ 3× threshold</div><div class="kpi-horizons"><span>30D <b>3.24×</b></span><span>3M <b>5.56×</b></span><span>6M <b>8.15×</b></span><span class="hz-12">12M <b>7.67×</b></span></div><div class="s" style="margin-top:4px;font-size:10px;color:var(--ink-4)">vs $26.32 plan CAC</div></div>
     </div>
 
     <div class="eyebrow">Acquisition → Activation → Conversion</div>
