@@ -366,6 +366,14 @@ function ax(fmt){
   };
 }
 const bc={responsive:true,maintainAspectRatio:false};
+// Like ax() but forces the FIRST and LAST category labels to render (so the latest date,
+// e.g. Jun 16, never gets dropped by Chart.js auto-skip). n = number of data points.
+function axLastForced(fmt,n){
+  const a=ax(fmt); const step=Math.max(1,Math.ceil(n/8));
+  a.x.ticks=Object.assign({},a.x.ticks,{autoSkip:false,maxRotation:0,minRotation:0,
+    callback:function(value,index){return (index===0||index===n-1||index%step===0)?this.getLabelForValue(value):'';}});
+  return a;
+}
 
 // ═══════════════════════════════════════════════════════
 // UI BUILDERS
@@ -2857,7 +2865,7 @@ function renderBudgetTrendChart(pk, canvasId, metric, range, from, to){
         }
         chart.update('none');
       },
-      scales: ax(yFmt)
+      scales: axLastForced(yFmt, dates.length)
     }
   });
 }
@@ -3518,6 +3526,9 @@ function renderPlat(pk,d){
     {l:"CPO",       v:fCPO(r.cpo)},
   ];
 
+  // Meta budget trend rendered directly under the ROAS trend (built here, drawn after innerHTML)
+  const metaBT = (pk==='meta') ? buildBudgetTrendCard('meta') : null;
+
   document.getElementById("view").innerHTML=`
     <div class="${pk==='google'?'g5':'g6'}">
       ${kpis.map(k=>`<div class="card" style="border-top:2px solid ${p.color}"><div class="klbl">${k.l}</div><div class="kval sm">${k.v}</div></div>`).join("")}
@@ -3551,11 +3562,13 @@ ${false?`    <div class="cc">
       </div>
       <div class="cw" style="height:220px"><canvas id="pt"></canvas></div>
     </div>
+    ${metaBT ? metaBT.html : ''}
     ${renderGranular(pk,d)}
     ${pk === 'google' ? buildGoogleBudgetWidget() : ''}`;
   if(pk==='meta') reRenderMetaAds();
   if(pk==='tiktok') reRenderTTAds();
   if(pk==='snap') reRenderSnapAds();
+  if(metaBT) requestAnimationFrame(()=>renderBudgetTrendChart('meta', metaBT.canvasId, _budgetTrend.metric.meta||'spend', _budgetTrend.range.meta||'all', _budgetTrend.from.meta||null, _budgetTrend.to.meta||null));
 
   // Unified trend chart — for non-Google: always ROAS. For Google: metric toggle (ROAS / SV / SALES / CPO).
   const ptMetrics = {
@@ -3573,7 +3586,7 @@ ${false?`    <div class="cc">
       CR["pt"]=new Chart(document.getElementById("pt"),{type:"bar",
         data:{labels:chartAll.map(x=>x.d),datasets:[{data:chartAll.map(m.extract),
           backgroundColor:chartAll.map(x=>x.d===d?p.color:p.color+"40"),borderRadius:5,borderSkipped:false}]},
-        options:{...bc,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>m.fmt(c.parsed.y)}}},scales:ax(m.axisFmt)}});
+        options:{...bc,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>m.fmt(c.parsed.y)}}},scales:axLastForced(m.axisFmt,chartAll.length)}});
     } else {
       CR["pt"]=new Chart(document.getElementById("pt"),{type:"line",
         data:{labels:chartAll.map(x=>x.d),datasets:[{data:chartAll.map(m.extract),
@@ -3582,7 +3595,7 @@ ${false?`    <div class="cc">
           pointBackgroundColor:chartAll.map(x=>x.d===d?p.color:"#fff"),
           pointBorderColor:p.color,pointBorderWidth:chartAll.map(x=>x.d===d?2.5:1.5),
           tension:0.3,spanGaps:false}]},
-        options:{...bc,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>m.fmt(c.parsed.y)}}},scales:ax(m.axisFmt)}});
+        options:{...bc,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>m.fmt(c.parsed.y)}}},scales:axLastForced(m.axisFmt,chartAll.length)}});
     }
   }
   drawPtChart('roas');
@@ -4149,12 +4162,7 @@ function renderGranular(pk, dates) {
   // ── BUDGET CHANGE DETECTION — rolling 3-day average step-change detection
   // Logic: compare 3-day avg BEFORE vs 3-day avg AFTER each date.
   // Flag only when: both windows stable (CV < 20%) AND differ by >15%. Debounced.
-  // ── BUDGET TREND CHART — per-campaign daily trend (via shared builder)
-  (()=>{
-    const card = buildBudgetTrendCard('meta');
-    html += card.html;
-    requestAnimationFrame(()=>renderBudgetTrendChart('meta', card.canvasId, 'spend', 'all', null, null));
-  })();
+  // ── BUDGET TREND CHART now renders in renderPlat directly under the ROAS trend (moved out of here)
 
   // ── FOLLOWERS widget always last
   html += followerHtml;
