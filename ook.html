@@ -707,6 +707,9 @@ let metaAdsPeriod=null;
 let ttAdsPeriod=null;
 let snapAdsPeriod=null;
 let googleCampsPeriod='mtd';
+let metaMBPeriod='yest';
+let metaMBDay='';
+let metaMBPk='meta';
 
 function _googCountryKey(name){
   const n=(name||'').toUpperCase();
@@ -752,7 +755,20 @@ function buildGoogleCampsHTML(camps, ds, periodOverride){
 
   if(!rows||!rows.length) return '<tr><td colspan="6" style="text-align:center;padding:14px;color:#aaa;font-size:12px">No data for this period</td></tr>';
 
-  const showDayBreakdownG = (periodOverride==='7d' || periodOverride==='14d' || periodOverride==='custom') && ds && ds.length > 1 && ds.length <= 16;
+  // Totals row (weighted ROAS, summed spend/sv/conv, blended CPO)
+  const _T = rows.reduce((a,c)=>{a.sp+=c.spend;a.sv+=c.sv;a.conv+=c.conv;return a;},{sp:0,sv:0,conv:0});
+  const _tRoas = _T.sp>0 ? _T.sv/_T.sp : 0;
+  const _tCpo  = _T.conv>0 ? _T.sp/_T.conv : 0;
+  const _totalsRow = `<tr style="border-top:2px solid #d0d0c8;background:#f8f8f4">
+    <td style="font-size:11px;font-weight:700;color:#222;padding:8px 8px 8px 6px">TOTAL</td>
+    <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:8px">${fR(_tRoas)}</td>
+    <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:8px">${fS(_T.sp)}</td>
+    <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:8px">${_T.sv>0?fSV(_T.sv):'—'}</td>
+    <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:8px">${_T.conv>0?fC(_T.conv):'—'}</td>
+    <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:8px">${_tCpo>0?fCPO(_tCpo):'—'}</td>
+  </tr>`;
+
+  const showDayBreakdownG = (periodOverride==='7d' || periodOverride==='custom') && ds && ds.length > 1 && ds.length <= 16;
 
   if(showDayBreakdownG){
     return rows.sort(_googCampCmp).map(c => {
@@ -779,7 +795,7 @@ function buildGoogleCampsHTML(camps, ds, periodOverride){
         </tr>`;
       });
       return html;
-    }).join('');
+    }).join('') + _totalsRow;
   }
 
   return rows.sort(_googCampCmp).map(c => {
@@ -793,7 +809,7 @@ function buildGoogleCampsHTML(camps, ds, periodOverride){
       <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:8px">${c.conv>0?fC(c.conv):'—'}</td>
       <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;padding:8px">${c.cpo>0?fCPO(c.cpo):'—'}</td>
     </tr>`;
-  }).join('');
+  }).join('') + _totalsRow;
 }
 
 function reRenderGoogleCamps(){
@@ -807,7 +823,6 @@ function reRenderGoogleCamps(){
   if(p==='7d'){ adsDates=allDs.slice(-7); lbl='CAMPAIGNS \u2014 Last 7 Days'; }
   else if(p==='14d'){ adsDates=allDs.slice(-14); lbl='CAMPAIGNS \u2014 Last 14 Days'; }
   else if(p==='30d'){ adsDates=allDs.slice(-30); lbl='CAMPAIGNS \u2014 Last 30 Days'; }
-  else if(p==='all'){ adsDates=null; lbl='CAMPAIGNS \u2014 All Time'; }
   else if(p==='custom'){
     const fs=document.getElementById('google-camps-from'), ts=document.getElementById('google-camps-to');
     let i0=fs?allDs.indexOf(fs.value):-1, i1=ts?allDs.indexOf(ts.value):-1;
@@ -821,7 +836,7 @@ function reRenderGoogleCamps(){
   const camps=GRANULAR.google.campaigns||{};
   document.getElementById('google-camps-inner').innerHTML=`<table class="gtbl">${tblHdr(["Campaign",...GOOGLE_HDR])}<tbody>${buildGoogleCampsHTML(camps, adsDates, p)}</tbody></table>`;
   document.getElementById('google-camps-label').textContent=lbl;
-  ['7d','14d','30d','mtd','all','custom'].forEach(pp=>{
+  ['7d','14d','30d','mtd','custom'].forEach(pp=>{
     const btn=document.getElementById('google-camps-btn-'+pp);
     if(!btn) return;
     const active=(p===pp);
@@ -3376,6 +3391,105 @@ function buildLast30MarketTable(pk, p) {
   </div>`;
 }
 
+// ═══════════════════════════════════════════════════════
+// META — Consolidated Market Breakdown with period pills
+// (Yesterday / 7 Days / 30 Days / MTD / Custom)
+// ═══════════════════════════════════════════════════════
+function buildMetaMBInner(pk, dts){
+  const all=D[pk]||[];
+  const showAtc=pk!=='google';
+  const tS='padding:9px 0;border-bottom:1px solid #f4f4ef;font-family:monospace;font-size:12px;font-weight:700;background:#f4f4ef';
+  const geos=GK[pk];
+  const gr=geos.map((g,i)=>{
+    let sp=0,sv=0,cv=0,wr=0;
+    dts.forEach(dt=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){const geo=rr[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);}});
+    return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};
+  });
+  const totAtc=dts.reduce((s,dt)=>{const rr=all.find(x=>x.d===dt);return s+(rr?+(rr.atc||0):0);},0);
+  const _plat=dts.reduce((acc,dt)=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){acc.sp+=rr.spend;acc.sv+=(rr.sv||0);acc.cv+=(rr.conv||0);acc.wr+=rr.roas*rr.spend;}return acc;},{sp:0,sv:0,cv:0,wr:0});
+  const totSpend=gr.reduce((s,g)=>s+g.spend,0);
+  const rows=gr.map(g=>{
+    const gAtc=totSpend>0?Math.round(totAtc*(g.spend/totSpend)):0;
+    return`<tr>
+      <td><span class="gn"><span class="gs" style="background:${g.color}"></span>${g.label}</span></td>
+      <td>${g.spend>0?fR(g.roas):'—'}</td>
+      <td>${g.spend>0?fC(g.conv):'—'}</td>
+      <td>${g.spend>0?fS(g.spend):'—'}</td>
+      ${showAtc?`<td>${g.spend>0&&gAtc>0?fC(gAtc):'—'}</td>`:''}
+      <td>${g.spend>0?fCPO(g.cpo):'—'}</td>
+      <td>${g.spend>0?fSV(g.sv):'—'}</td>
+    </tr>${(pk==='meta'&&g.label==='KU / QA / BH'&&g.spend>0)?buildMetaKuCountryRows(dts,true):''}`;
+  }).join('');
+  const folRecs=pk==='meta'?(GRANULAR.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).filter(r=>dts.includes(r.d)):[];
+  const fSp=folRecs.reduce((s,r)=>s+(r.spend||0),0);
+  const fCv=folRecs.reduce((s,r)=>s+(r.purchase_conv||0),0);
+  const fSv=folRecs.reduce((s,r)=>s+(r.sv||0),0);
+  const folRow=fSp>0?`<tr><td><span class="gn"><span class="gs" style="background:#94a3b8"></span>Followers / Brand</span></td><td>—</td><td>—</td><td>${fS(fSp)}</td><td>—</td><td>—</td><td>—</td></tr>`:'';
+  // Total = account-level totals (which already include the Followers campaign). Do NOT re-add followers (avoids double-count).
+  const tSp=_plat.sp, tSv=_plat.sv, tCv=_plat.cv;
+  const tRoasW=_plat.sp>0?_plat.wr/_plat.sp:0, tCpo=tCv>0?tSp/tCv:0;
+  const totalRow=`<tr style="border-top:2px solid #1a1a1a"><td style="padding:9px 0;background:#f4f4ef;font-size:12px;font-weight:700;color:#1a1a1a">Total</td><td style="${tS}">${tRoasW>0?fR(tRoasW):'—'}</td><td style="${tS}">${tCv>0?fC(tCv):'—'}</td><td style="${tS}">${fS(tSp)}</td>${showAtc?`<td style="${tS}">${totAtc>0?fC(totAtc):'—'}</td>`:''}<td style="${tS}">${tCpo>0?fCPO(tCpo):'—'}</td><td style="${tS}">${tSv>0?fSV(tSv):'—'}</td></tr>`;
+  return `<table class="gtbl"><thead><tr><th>Market</th><th>ROAS</th><th>Sales</th><th>Spend</th>${showAtc?'<th>ATC</th>':''}<th>CPO</th><th>Sales Value</th></tr></thead><tbody>${rows}${folRow}${totalRow}</tbody></table>`;
+}
+
+function metaMBDatesLabel(pk, d, p){
+  const all=ALL_DATES;
+  const di=all.indexOf(d);
+  const endIdx=di>=0?di:all.length-1;   // windows end at the SELECTED day
+  const last=all[endIdx];
+  const curMon=last.replace(/ \d+$/,'');
+  if(p==='7d'){const ds=all.slice(Math.max(0,endIdx-6),endIdx+1);return{dts:ds,label:`LAST 7 DAYS (${ds[0]}–${last})`};}
+  if(p==='30d'){const ds=all.slice(Math.max(0,endIdx-29),endIdx+1);return{dts:ds,label:`LAST 30 DAYS (${ds[0]}–${last})`};}
+  if(p==='mtd'){const ds=all.slice(0,endIdx+1).filter(x=>x.startsWith(curMon));return{dts:ds,label:`MTD ${curMon} 1–${last}`};}
+  if(p==='custom'){
+    const fs=document.getElementById('meta-mb-from'), ts=document.getElementById('meta-mb-to');
+    let i0=fs?all.indexOf(fs.value):-1, i1=ts?all.indexOf(ts.value):-1;
+    if(i0<0)i0=Math.max(0,all.length-7); if(i1<0)i1=all.length-1; if(i0>i1){const t=i0;i0=i1;i1=t;}
+    const ds=all.slice(i0,i1+1);return{dts:ds,label:`${all[i0]} → ${all[i1]}`};
+  }
+  return{dts:[d],label:`${d}`}; // single selected day
+}
+
+function buildMetaMBCard(pk, d){
+  metaMBPeriod='yest'; metaMBDay=d; metaMBPk=pk;
+  const {dts,label}=metaMBDatesLabel(pk,d,'yest');
+  const pills=[['yest',d],['7d','7 Days'],['30d','30 Days'],['mtd','MTD'],['custom','Custom']];
+  const btns=pills.map(([k,lbl])=>{const act=(k==='yest');return `<button onclick="setMetaMBPeriod('${k}')" id="meta-mb-btn-${k}" style="font-size:11px;padding:3px 11px;border-radius:20px;border:1px solid ${act?'#1a1a1a':'#d0d0c8'};background:${act?'#1a1a1a':'#fff'};color:${act?'#fff':'#444'};cursor:pointer;transition:all .15s">${lbl}</button>`;}).join('');
+  return `<div class="cc" id="meta-mb-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <div class="clbl" style="margin-bottom:0">MARKET BREAKDOWN — <strong class="cperiod" id="meta-mb-label">${label}</strong></div>
+      <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap"><span style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em">PERIOD</span>${btns}</div>
+    </div>
+    <div id="meta-mb-custom" style="display:none;justify-content:flex-end;gap:8px;align-items:center;margin-bottom:10px">
+      <span style="font-size:10px;font-weight:700;color:#888;letter-spacing:.06em">FROM</span>
+      <select id="meta-mb-from" onchange="onMetaMBCustom()" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
+      <span style="font-size:10px;font-weight:700;color:#888;letter-spacing:.06em">TO</span>
+      <select id="meta-mb-to" onchange="onMetaMBCustom()" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
+    </div>
+    <div id="meta-mb-inner">${buildMetaMBInner(pk,dts)}</div>
+  </div>`;
+}
+
+function reRenderMetaMB(){
+  const card=document.getElementById('meta-mb-card'); if(!card) return;
+  const p=metaMBPeriod||'yest';
+  const {dts,label}=metaMBDatesLabel(metaMBPk,metaMBDay,p);
+  const innerEl=document.getElementById('meta-mb-inner'); if(innerEl) innerEl.innerHTML=buildMetaMBInner(metaMBPk,dts);
+  const lblEl=document.getElementById('meta-mb-label'); if(lblEl) lblEl.textContent=label;
+  ['yest','7d','30d','mtd','custom'].forEach(pp=>{const b=document.getElementById('meta-mb-btn-'+pp); if(!b)return; const a=(p===pp); b.style.background=a?'#1a1a1a':'#fff'; b.style.color=a?'#fff':'#444'; b.style.borderColor=a?'#1a1a1a':'#d0d0c8';});
+  const cust=document.getElementById('meta-mb-custom'); if(cust) cust.style.display=(p==='custom')?'flex':'none';
+}
+
+function setMetaMBPeriod(p){
+  metaMBPeriod=p;
+  if(p==='custom'){
+    const fs=document.getElementById('meta-mb-from'), ts=document.getElementById('meta-mb-to'); const all=ALL_DATES;
+    if(fs && !fs.options.length){[...all].reverse().forEach(dd=>{const o1=document.createElement('option');o1.value=dd;o1.textContent=dd;fs.appendChild(o1);const o2=document.createElement('option');o2.value=dd;o2.textContent=dd;ts.appendChild(o2);}); fs.value=all[Math.max(0,all.length-7)]; ts.value=all[all.length-1];}
+  }
+  reRenderMetaMB();
+}
+function onMetaMBCustom(){ reRenderMetaMB(); }
+
 function renderPlat(pk,d){
   const p=PL.find(x=>x.key===pk), r=row(pk,d), geos=GK[pk], all=D[pk]||[];
   // For Meta charts: show current month only (MTD). Always reflects whichever month has data.
@@ -3408,7 +3522,7 @@ function renderPlat(pk,d){
     <div class="${pk==='google'?'g5':'g6'}">
       ${kpis.map(k=>`<div class="card" style="border-top:2px solid ${p.color}"><div class="klbl">${k.l}</div><div class="kval sm">${k.v}</div></div>`).join("")}
     </div>
-${pk!=='meta'?`    <div class="cc">
+${false?`    <div class="cc">
       <div class="clbl">MARKET BREAKDOWN — <strong class="cperiod">${d}</strong></div>
       <table class="gtbl">
         <thead><tr><th>Market</th><th>ROAS</th><th>Sales</th><th>Spend</th>${pk!=='google'?'<th>ATC</th>':''}<th>CPO</th><th>Sales Value</th></tr></thead>
@@ -3420,13 +3534,11 @@ ${pk!=='meta'?`    <div class="cc">
           ${pk!=='google'?`<td>${g.spend>0&&gAtc>0?fC(gAtc):"—"}</td>`:''}
           <td>${g.spend>0?fCPO(g.cpo):"—"}</td>
           <td>${g.spend>0?fSV(g.sv):"—"}</td>
-        </tr>`;}).join('');})()}${(()=>{if(pk!=='meta')return'';const folRecs=(GRANULAR.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).filter(r=>r.d===d);const folSpend=folRecs.reduce((s,r)=>s+(r.spend||0),0);const folConv=folRecs.reduce((s,r)=>s+(r.purchase_conv||0),0);const folSV=folRecs.reduce((s,r)=>s+(r.sv||0),0);if(folSpend<=0)return'';return'<tr><td><span class="gn"><span class="gs" style="background:#94a3b8"></span>Followers / Brand</span></td><td>—</td><td>—</td><td>'+fS(folSpend)+'</td><td>—</td><td>—</td><td>—</td></tr>';})()}${(()=>{const folRecs2=pk==='meta'?(GRANULAR.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).filter(r=>r.d===d):[];const fSp=folRecs2.reduce((s,r)=>s+(r.spend||0),0);const fCv=folRecs2.reduce((s,r)=>s+(r.purchase_conv||0),0);const fSv=folRecs2.reduce((s,r)=>s+(r.sv||0),0);const tSp=gr.reduce((s,g)=>s+g.spend,0)+fSp;const tSv=gr.reduce((s,g)=>s+g.sv,0)+fSv;const tCv=gr.reduce((s,g)=>s+g.conv,0)+fCv;const tWr=gr.reduce((s,g)=>s+(g.roas*g.spend),0);const tRoas=tSp>0?tWr/tSp:0;const tCpo=tCv>0?tSp/tCv:0;const totAtcAll=r?+(r.atc||0):0;const tS='padding:9px 0;border-bottom:1px solid #f4f4ef;font-family:monospace;font-size:12px;font-weight:700;background:#f4f4ef';return'<tr style="border-top:2px solid #1a1a1a"><td style="padding:9px 0;background:#f4f4ef;font-size:12px;font-weight:700;color:#1a1a1a">Total</td><td style="'+tS+'">'+(tRoas>0?fR(tRoas):'—')+'</td><td style="'+tS+'">'+(tCv>0?fC(tCv):'—')+'</td><td style="'+tS+'">'+fS(tSp)+'</td>'+(pk!=='google'?'<td style="'+tS+'">'+(totAtcAll>0?fC(totAtcAll):'—')+'</td>':'')+'<td style="'+tS+'">'+(tCpo>0?fCPO(tCpo):'—')+'</td><td style="'+tS+'">'+(tSv>0?fSV(tSv):'—')+'</td></tr>';})()}</tbody>
+        </tr>${(pk==='meta'&&g.label==='KU / QA / BH'&&g.spend>0)?buildMetaKuCountryRows([d],true):''}`;}).join('');})()}${(()=>{if(pk!=='meta')return'';const folRecs=(GRANULAR.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).filter(r=>r.d===d);const folSpend=folRecs.reduce((s,r)=>s+(r.spend||0),0);const folConv=folRecs.reduce((s,r)=>s+(r.purchase_conv||0),0);const folSV=folRecs.reduce((s,r)=>s+(r.sv||0),0);if(folSpend<=0)return'';return'<tr><td><span class="gn"><span class="gs" style="background:#94a3b8"></span>Followers / Brand</span></td><td>—</td><td>—</td><td>'+fS(folSpend)+'</td><td>—</td><td>—</td><td>—</td></tr>';})()}${(()=>{const folRecs2=pk==='meta'?(GRANULAR.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).filter(r=>r.d===d):[];const fSp=folRecs2.reduce((s,r)=>s+(r.spend||0),0);const fCv=folRecs2.reduce((s,r)=>s+(r.purchase_conv||0),0);const fSv=folRecs2.reduce((s,r)=>s+(r.sv||0),0);const tSp=gr.reduce((s,g)=>s+g.spend,0)+fSp;const tSv=gr.reduce((s,g)=>s+g.sv,0)+fSv;const tCv=gr.reduce((s,g)=>s+g.conv,0)+fCv;const tWr=gr.reduce((s,g)=>s+(g.roas*g.spend),0);const tRoas=tSp>0?tWr/tSp:0;const tCpo=tCv>0?tSp/tCv:0;const totAtcAll=r?+(r.atc||0):0;const tS='padding:9px 0;border-bottom:1px solid #f4f4ef;font-family:monospace;font-size:12px;font-weight:700;background:#f4f4ef';return'<tr style="border-top:2px solid #1a1a1a"><td style="padding:9px 0;background:#f4f4ef;font-size:12px;font-weight:700;color:#1a1a1a">Total</td><td style="'+tS+'">'+(tRoas>0?fR(tRoas):'—')+'</td><td style="'+tS+'">'+(tCv>0?fC(tCv):'—')+'</td><td style="'+tS+'">'+fS(tSp)+'</td>'+(pk!=='google'?'<td style="'+tS+'">'+(totAtcAll>0?fC(totAtcAll):'—')+'</td>':'')+'<td style="'+tS+'">'+(tCpo>0?fCPO(tCpo):'—')+'</td><td style="'+tS+'">'+(tSv>0?fSV(tSv):'—')+'</td></tr>';})()}</tbody>
       </table>
     </div>`:''}  
 
-    ${pk!=='google'?buildMTDMarketTable(pk,p):''}
-    ${pk!=='google'?buildLast7MarketTable(pk,p):''}
-    ${pk!=='google'?buildLast30MarketTable(pk,p):''}
+    ${buildMetaMBCard(pk,d)}
     <div class="cc">
       <div class="clbl" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
         <span id="pt-title">${pk==='google'?`TREND — ${p.label}`:`ROAS TREND — ${p.label}`}</span>
@@ -3926,16 +4038,7 @@ function renderGranular(pk, dates) {
     return perfRow(c.label, agg);
   }).filter(Boolean);
 
-  if (campRows.length) {
-    const allCampRecs = META_CAMPS.flatMap(c => c.adsets.flatMap(key => ds.map(d=>(adsets[key]||[]).find(x=>x.d===d)).filter(Boolean)));
-    const campTotal = aggRecords(allCampRecs);
-    const tS = 'padding:9px 0;border-bottom:1px solid #f4f4ef;font-family:monospace;font-size:12px;font-weight:700;background:#f4f4ef';
-    const campTotalRow = campTotal.spend>0?`<tr style="border-top:2px solid #1a1a1a"><td style="padding:9px 0;background:#f4f4ef;font-size:12px;font-weight:700;color:#1a1a1a">Total</td><td style="${tS}">${fR(campTotal.roas)}</td><td style="${tS}">${fC(campTotal.conv)}</td><td style="${tS}">${fS(campTotal.spend)}</td><td style="${tS}">${campTotal.atc>0?fC(campTotal.atc):'—'}</td><td style="${tS}">${fCPO(campTotal.cpo)}</td><td style="${tS}">${fSV(campTotal.sv)}</td></tr>`:'';
-    html += `<div class="cc" style="margin-top:4px">
-      <div class="clbl">SALES CAMPAIGNS — ${label}</div>
-      <table class="gtbl">${tblHdr(["Campaign",...PERF_HDR])}<tbody>${campRows.join("")}${campTotalRow}</tbody></table>
-    </div>`;
-  }
+  // ── SALES CAMPAIGNS table — removed per request (Meta tab)
 
   // ── AD SETS table
   const asRows = META_CAMPS.flatMap(c => {
@@ -3964,12 +4067,7 @@ function renderGranular(pk, dates) {
     return [headerRow, ...subRows];
   });
 
-  if (asRows.length) {
-    html += `<div class="cc" style="margin-top:4px">
-      <div class="clbl">AD SETS — ${label}</div>
-      <table class="gtbl">${tblHdr(["Ad Set",...PERF_HDR])}<tbody>${asRows.join("")}</tbody></table>
-    </div>`;
-  }
+  // ── AD SETS table — removed per request (Meta tab)
 
   // ── ADS table — grouped by country, sorted by spend, first 35 chars of real ad name
   const GEO_GROUPS = [
@@ -4196,8 +4294,8 @@ function renderGranularOther(pk, ds, label) {
     const _gCurMon = _gAll[_gAll.length-1].replace(/ \d+$/,'');
     const _gMtd = _gAll.filter(d=>d.startsWith(_gCurMon));
     const campRowsHTML = `<table class="gtbl">${tblHdr(["Campaign",...GOOGLE_HDR])}<tbody>${buildGoogleCampsHTML(GRANULAR.google.campaigns, _gMtd, 'mtd')}</tbody></table>`;
-    const _gPills = ['7d','14d','30d','mtd','all','custom'];
-    const _gLbls = {'7d':'7d','14d':'14d','30d':'30d','mtd':'MTD','all':'All','custom':'Custom'};
+    const _gPills = ['7d','14d','30d','mtd','custom'];
+    const _gLbls = {'7d':'7d','14d':'14d','30d':'30d','mtd':'MTD','custom':'Custom'};
     const _gBtns = _gPills.map(p=>{
       const act=(p==='mtd');
       return `<button onclick="setGoogleCampsPeriod('${p}')" id="google-camps-btn-${p}"
