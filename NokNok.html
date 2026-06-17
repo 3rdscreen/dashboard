@@ -144,6 +144,12 @@ body{
 .kpi-7 .kpi .v{font-size:23px}
 .kpi-7 .kpi .k{font-size:9.5px;letter-spacing:.06em}
 .kpi-7 .kpi .s{font-size:10.5px}
+.kpi-3{grid-template-columns:repeat(3,1fr)}
+.kpi-3 .kpi{padding:18px 16px}
+.kpi-3 .kpi:not(:last-child){border-right:1px solid var(--line)}
+.kpi-3 .kpi .v{font-size:23px}
+.kpi-3 .kpi .k{font-size:9.5px;letter-spacing:.06em}
+.kpi-3 .kpi .s{font-size:10.5px}
 .kpi{padding:20px 22px;border-right:1px solid var(--line);transition:background .2s}
 .kpi:last-child{border-right:none}
 .kpi:hover{background:var(--surface)}
@@ -285,6 +291,9 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
 }
 @media(max-width:400px){
   .kpi-strip,.kpi-7,.reg-kpi6{grid-template-columns:1fr!important}
+  .kpi-3{grid-template-columns:1fr!important}
+  .kpi-3 .kpi{border-right:none!important;border-bottom:1px solid var(--line)}
+  .kpi-3 .kpi:last-child{border-bottom:none}
   .kpi{border-bottom:1px solid var(--line)}
   .cover-meta{gap:16px 22px}
   .cover-title{font-size:32px}
@@ -334,8 +343,16 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
       <div class="kpi"><div class="k">Purchased</div><div class="v" id="kPurch">618</div><div class="s" id="kPurchSub">CPP $1.27</div></div>
       <div class="kpi"><div class="k">Purchase Value</div><div class="v" id="kValue">$14,501</div><div class="s"><span id="kRoas" style="color:#1b7a3e;font-weight:700">11.89× ROAS</span> · Reg + Sales</div></div>
       <div class="kpi"><div class="k">AOV</div><div class="v" id="kAov">$23.46</div><div class="s">Avg. order value</div></div>
-      <div class="kpi"><div class="k">FTB</div><div class="v" id="kFtb">81</div><div class="s" id="kFtbSub">1st-Time Buyers · CFB $19.31</div></div>
+      <div class="kpi"><div class="k">FTB</div><div class="v" id="kFtb">81</div><div class="s" id="kFtbSub">1st-Time Buyers</div></div>
     </div>
+
+    <div class="eyebrow" style="display:flex;align-items:center;gap:10px">Customer Economics <span style="font-weight:500;color:var(--ink-4);text-transform:none;letter-spacing:0;font-size:11px">· paid acquisition × Mixpanel cohort</span></div>
+    <div class="kpi-strip kpi-3" style="margin-bottom:22px">
+      <div class="kpi"><div class="k">CAC · Cost per FTB</div><div class="v" id="kCac">$19.31</div><div class="s">Total spend ÷ first-time buyers</div></div>
+      <div class="kpi"><div class="k">LTV · 12-month</div><div class="v" id="kLtv">$201.84</div><div class="s">Mixpanel cohort · Q1 2026 baseline</div></div>
+      <div class="kpi"><div class="k">LTV : CAC</div><div class="v" id="kLtvCac"><span style="color:#1b7a3e">10.45×</span></div><div class="s" id="kLtvCacSub">Healthy if ≥ 3× · current range</div></div>
+    </div>
+
     <div class="eyebrow">Acquisition → Activation → Conversion</div>
     <div class="funnel">
       <div class="fstage acq">
@@ -707,11 +724,28 @@ function renderDashboard(start, end){
   const FTB_RATE = 0.70;
   const estFtb = Math.round(acctRegs * FTB_RATE);
   const estCfb = estFtb ? acctRegSpend / estFtb : 0;      // Cost per First-Time Buyer
-  const ftbSub = estFtb ? `1st-Time Buyers · CFB ${money(estCfb)}` : 'No regs in range';
+  const ftbSub = estFtb ? '1st-Time Buyers' : 'No regs in range';
   document.getElementById('kFtb').textContent = estFtb ? int(estFtb) : '—';
   document.getElementById('kFtbSub').textContent = ftbSub;
   document.getElementById('fFtb').textContent = estFtb ? int(estFtb) : '—';
-  document.getElementById('fFtbSub').textContent = ftbSub;
+  document.getElementById('fFtbSub').textContent = estFtb ? `1st-Time Buyers · CFB ${money(estCfb)}` : 'No regs in range';
+
+  // ===== Customer Economics (CAC, LTV, LTV:CAC) =====
+  // CAC = total account spend / estimated FTB for this range.
+  // LTV = Mixpanel 12-month cohort baseline ($201.84, from Q1 2026 cohort analysis — static).
+  // LTV:CAC = LTV / CAC. Health threshold: 3× is the standard SaaS / D2C floor.
+  const LTV_12M = 201.84;
+  const dynCac  = estFtb ? totalSpend / estFtb : 0;
+  const ltvCac  = dynCac ? LTV_12M / dynCac : 0;
+  document.getElementById('kCac').textContent = estFtb ? money(dynCac) : '—';
+  // Color LTV:CAC by health threshold: ≥3× green, 1-3× amber, <1× red
+  const lcColor = ltvCac >= 3 ? '#1b7a3e' : (ltvCac >= 1 ? '#b07a13' : '#a33');
+  document.getElementById('kLtvCac').innerHTML = estFtb
+    ? `<span style="color:${lcColor}">${ltvCac.toFixed(2)}×</span>`
+    : '—';
+  document.getElementById('kLtvCacSub').textContent = estFtb
+    ? (ltvCac >= 3 ? 'Healthy · ≥ 3× threshold' : (ltvCac >= 1 ? 'Recovering CAC · monitor' : 'Below recovery · review'))
+    : 'Healthy if ≥ 3× · current range';
 
   // Funnel
   document.getElementById('fInstalls').textContent = int(totalInstalls);
