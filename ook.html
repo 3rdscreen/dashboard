@@ -893,6 +893,8 @@ function reRenderGoogleCamps(){
 }
 
 function setGoogleCampsPeriod(p){
+  // Toggle off: clicking the already-active non-MTD period reverts to MTD
+  if(p !== 'mtd' && p !== 'custom' && googleCampsPeriod === p){ p = 'mtd'; }
   googleCampsPeriod=p;
   if(p==='custom'){
     const fs=document.getElementById('google-camps-from'), ts=document.getElementById('google-camps-to');
