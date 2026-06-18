@@ -826,8 +826,8 @@ function buildGoogleCampsHTML(camps, ds, periodOverride){
         <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:6px 8px">${c.conv>0?fC(c.conv):'—'}</td>
         <td style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:6px 8px">${c.cpo>0?fCPO(c.cpo):'—'}</td>
       </tr>`;
-      // Day sub-rows latest first
-      [...(c.days||[])].reverse().forEach(r => {
+      // Day sub-rows latest first (days array stored newest-first)
+      (c.days||[]).forEach(r => {
         if(!ds.includes(r.d)) return;
         if(!r.spend) return;
         html+=`<tr><td style="font-size:11px;color:#888;padding:3px 8px 3px 24px">↳ ${r.d}</td>
