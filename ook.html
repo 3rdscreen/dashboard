@@ -3425,15 +3425,17 @@ function buildMetaMBInner(pk, dts){
   const tS='padding:9px 0;border-bottom:1px solid #f4f4ef;font-family:monospace;font-size:12px;font-weight:700;background:#f4f4ef';
   const geos=GK[pk];
   const gr=geos.map((g,i)=>{
-    let sp=0,sv=0,cv=0,wr=0;
-    dts.forEach(dt=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){const geo=rr[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);}});
-    return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};
+    let sp=0,sv=0,cv=0,wr=0,at=0;
+    dts.forEach(dt=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){const geo=rr[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);at+=geo.atc||0;}});
+    return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,atc:at,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};
   });
   const totAtc=dts.reduce((s,dt)=>{const rr=all.find(x=>x.d===dt);return s+(rr?+(rr.atc||0):0);},0);
   const _plat=dts.reduce((acc,dt)=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){acc.sp+=rr.spend;acc.sv+=(rr.sv||0);acc.cv+=(rr.conv||0);acc.wr+=rr.roas*rr.spend;}return acc;},{sp:0,sv:0,cv:0,wr:0});
   const totSpend=gr.reduce((s,g)=>s+g.spend,0);
+  const geoAtcSum=gr.reduce((s,g)=>s+(g.atc||0),0);
+  const useTrueAtc=totAtc>0&&Math.abs(geoAtcSum-totAtc)<=Math.max(2,totAtc*0.03);
   const rows=gr.map(g=>{
-    const gAtc=totSpend>0?Math.round(totAtc*(g.spend/totSpend)):0;
+    const gAtc=useTrueAtc?Math.round(g.atc||0):(totSpend>0?Math.round(totAtc*(g.spend/totSpend)):0);
     return`<tr>
       <td><span class="gn"><span class="gs" style="background:${g.color}"></span>${g.label}</span></td>
       <td>${g.spend>0?fR(g.roas):'—'}</td>
