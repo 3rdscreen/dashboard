@@ -3580,7 +3580,7 @@ ${false?`    <div class="cc">
     </div>
     ${metaBT ? metaBT.html : ''}
     ${renderGranular(pk,d)}
-    ${pk === 'google' ? buildGoogleBudgetWidget() : ''}`;
+    ${pk === 'google' ? '' /* Budget Shift Detection widget hidden per request */ : ''}`;
   if(pk==='meta') reRenderMetaAds();
   if(pk==='tiktok') reRenderTTAds();
   if(pk==='snap') reRenderSnapAds();
