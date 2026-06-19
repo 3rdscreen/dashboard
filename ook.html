@@ -348,7 +348,7 @@ const GK={
   snap:  ["uae","ksa","ku"],
   google:["uae","ksa","ku"],
 };
-const GL={uae:"UAE",ksa:"KSA",ku:"KU / QA / BH",uk:"UK",cat:"Catalogue_Sales_GCC",catadv:"Catalogue_Sales_GCC_ADV+",ret:"Retargeting"};
+const GL={uae:"UAE",ksa:"KSA",ku:"KU / QA / BH",uk:"UK",cat:"Catalogue_GCC",catadv:"Catalogue_GCC_ADV+",ret:"Retargeting"};
 const GC=["#1a1a1a","#6B7280","#9CA3AF","#9333ea","#D1D5DB","#0ea5e9"];
 
 // ═══════════════════════════════════════════════════════
@@ -1410,8 +1410,8 @@ function reRenderMetaAds(){
     { label:'KSA',          pattern:/_KSA_/i },
     { label:'KU / QA / BH',pattern:/_Ku[_&\s]|Ku\s*&\s*Qa|Ku\s*&\s*Q/i },
     { label:'UK',           pattern:/[_ ]UK$/i },
-    { label:'Catalogue_Sales_GCC_ADV+', pattern:/_Adv\+/i },
-    { label:'Catalogue_Sales_GCC',      pattern:/^EN_|^en_/ },
+    { label:'Catalogue_GCC_ADV+', pattern:/_Adv\+/i },
+    { label:'Catalogue_GCC',      pattern:/^EN_|^en_/ },
   ];
   // Detect campaign type: Pyjama, Abaya, or Catalogue
   function detectCampType(n){
@@ -1764,8 +1764,8 @@ function buildCampaignTable(datesArr, label){
     // first Apr-28+ refresh, this aggregator picks up the new bucket without further changes.
     { name:'KUW-QAT-BH Sales - ASC', agg: aggMetaGeo(['KU ALL - ASC','KU Abaya - ASC','KU Pyjama - ASC']) },
     { name:'UK Sales - ASC',         agg: aggMetaGeo(['UK ALL - ASC']) },
-    { name:'Catalogue_Sales_GCC',  agg: aggMetaGeo(['Catalogue Retargeting / Prospecting - GCC']) },
-    { name:'Catalogue_Sales_GCC_ADV+',   agg: aggMetaGeo(['Catalogue Adv+ - GCC']) },
+    { name:'Catalogue_GCC',  agg: aggMetaGeo(['Catalogue Retargeting / Prospecting - GCC']) },
+    { name:'Catalogue_GCC_ADV+',   agg: aggMetaGeo(['Catalogue Adv+ - GCC']) },
     { name:'Followers - GCC Brand',  agg: aggRecs(ds.map(d=>(gran.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).find(r=>r.d===d)).filter(Boolean)), isFollowers: true },
   ];
   const metaCamps = metaAdsets.map(({name, agg, isFollowers}) => {
@@ -1915,8 +1915,8 @@ function buildAdsetTable(datesArr, label){
     // KU: post Apr-28 lives in 'KU ALL - ASC'.
     { geo:'KU / QA / BH',           agg: aggAdset('meta',['KU ALL - ASC','KU Abaya - ASC','KU Pyjama - ASC']) },
     { geo:'UK',                     agg: aggAdset('meta',['UK ALL - ASC']) },
-    { geo:'Catalogue_Sales_GCC',agg: aggAdset('meta',['Catalogue Retargeting / Prospecting - GCC']) },
-    { geo:'Catalogue_Sales_GCC_ADV+',       agg: aggAdset('meta',['Catalogue Adv+ - GCC']) },
+    { geo:'Catalogue_GCC',agg: aggAdset('meta',['Catalogue Retargeting / Prospecting - GCC']) },
+    { geo:'Catalogue_GCC_ADV+',       agg: aggAdset('meta',['Catalogue Adv+ - GCC']) },
     { geo:'Followers – Brand GCC',  agg: aggRecs(getAdset('meta', META_FOLLOWERS_KEY)), isFollowers:true },
   ].filter(a => a.agg.spend > 0 || a.isFollowers);
 
@@ -2978,8 +2978,8 @@ function buildBudgetByMarket(dateArg){
     {key:'ksa', label:'KSA'},
     {key:'ku',  label:'KU/QA/BH'},
     {key:'uk',  label:'UK'},
-    {key:'cat', label:'Catalogue_Sales_GCC'},
-    {key:'catadv', label:'Catalogue_Sales_GCC_ADV+'},
+    {key:'cat', label:'Catalogue_GCC'},
+    {key:'catadv', label:'Catalogue_GCC_ADV+'},
   ];
 
   // Aggregate spend per platform per geo
@@ -3646,8 +3646,8 @@ const META_CAMPS = [
   { label:"KSA",           adsets:["KSA ALL - ASC","KSA Abaya - ASC","KSA Pyjama - ASC"],          prefix:"KSA ·" },
   { label:"KU / QA / BH", adsets:["KU ALL - ASC","KU Abaya - ASC","KU Pyjama - ASC"],          prefix:"KU ·"  },
   { label:"UK",            adsets:["UK ALL - ASC"],                                              prefix:"UK ·"  },
-  { label:"Catalogue_Sales_GCC",      adsets:["Catalogue Retargeting / Prospecting - GCC"], prefix:"CAT ·" },
-  { label:"Catalogue_Sales_GCC_ADV+", adsets:["Catalogue Adv+ - GCC"],                       prefix:"CAT+ ·" },
+  { label:"Catalogue_GCC",      adsets:["Catalogue Retargeting / Prospecting - GCC"], prefix:"CAT ·" },
+  { label:"Catalogue_GCC_ADV+", adsets:["Catalogue Adv+ - GCC"],                       prefix:"CAT+ ·" },
 ];
 const META_FOLLOWERS_KEY = "Followers GCC - Brand";
 // Per-ad Followers breakdown (ad_name x geo x day -> [spend, link_clicks]). Source: Meta per-ad pull,
