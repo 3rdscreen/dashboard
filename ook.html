@@ -2583,7 +2583,7 @@ function _switchSpendMetric(metric){
 const _budgetTrend = {
   instance: {},   // pk → Chart instance
   metric:   { meta:'spend', tiktok:'spend', snap:'spend', google:'spend' },
-  range:    { meta:'all',   tiktok:'all',   snap:'all',   google:'all'   },
+  range:    { meta:'30',    tiktok:'30',    snap:'30',    google:'30'    },
   from:     {},
   to:       {},
   canvasId: {},
@@ -2658,7 +2658,7 @@ const BT_PLAT_NAMES = { meta:'META', tiktok:'TIKTOK', snap:'SNAPCHAT', google:'G
 // Resolve visible date window
 function _btDates(pk){
   const all = ALL_DATES.slice();
-  const range = _budgetTrend.range[pk] || 'all';
+  const range = _budgetTrend.range[pk] || '30';
   const from = _budgetTrend.from[pk], to = _budgetTrend.to[pk];
   if(range === 'custom' && from && to){
     const i = all.indexOf(from), j = all.indexOf(to);
@@ -2684,7 +2684,7 @@ function renderBudgetTrendChart(pk, canvasId, metric, range, from, to){
   const el = document.getElementById(canvasId);
   if(!el) return;
   metric = metric || _budgetTrend.metric[pk] || 'spend';
-  range  = range  || _budgetTrend.range[pk]  || 'all';
+  range  = range  || _budgetTrend.range[pk]  || '30';
   _budgetTrend.metric[pk]   = metric;
   _budgetTrend.range[pk]    = range;
   _budgetTrend.from[pk]     = from || _budgetTrend.from[pk];
@@ -3586,7 +3586,7 @@ ${false?`    <div class="cc">
   if(pk==='meta') reRenderMetaAds();
   if(pk==='tiktok') reRenderTTAds();
   if(pk==='snap') reRenderSnapAds();
-  if(metaBT) requestAnimationFrame(()=>renderBudgetTrendChart('meta', metaBT.canvasId, _budgetTrend.metric.meta||'spend', _budgetTrend.range.meta||'all', _budgetTrend.from.meta||null, _budgetTrend.to.meta||null));
+  if(metaBT) requestAnimationFrame(()=>renderBudgetTrendChart('meta', metaBT.canvasId, _budgetTrend.metric.meta||'spend', _budgetTrend.range.meta||'30', _budgetTrend.from.meta||null, _budgetTrend.to.meta||null));
 
   // Unified trend chart — for non-Google: always ROAS. For Google: metric toggle (ROAS / SV / SALES / CPO).
   const ptMetrics = {
@@ -4321,7 +4321,7 @@ function renderGranularOther(pk, ds, label) {
   if (BUDGET_TREND_CONFIG[pk]) {
     const _btCard = buildBudgetTrendCard(pk);
     html += _btCard.html;
-    requestAnimationFrame(()=>renderBudgetTrendChart(pk, _btCard.canvasId, 'spend', 'all', null, null));
+    requestAnimationFrame(()=>renderBudgetTrendChart(pk, _btCard.canvasId, _budgetTrend.metric[pk]||'spend', _budgetTrend.range[pk]||'30', null, null));
   }
 
 
