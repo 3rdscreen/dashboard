@@ -1151,7 +1151,7 @@ function buildSnapAdsHTML(ads, adNames, ds, label, periodOverride){
         });
       });
       html+=`<div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#1a1a1a;margin-bottom:8px;padding:4px 8px;background:#f0ede8;border-radius:6px">${g.label}</div>
+        <div style="position:sticky;top:80px;z-index:5;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;margin-bottom:10px;padding:9px 14px;background:#1a1a1a;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.14)">${g.label}</div>
         <table class="gtbl"><thead><tr><th>Ad</th>${PERF_HDR.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
         <tbody>${tbodyRows}</tbody></table>
       </div>`;
@@ -1159,7 +1159,7 @@ function buildSnapAdsHTML(ads, adNames, ds, label, periodOverride){
       // Cache already built in snapSeenDates loop above — nothing to do here
       if(!window.SNAP_AD_DAILY_CACHE) window.SNAP_AD_DAILY_CACHE={};
       html+=`<div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#1a1a1a;margin-bottom:8px;padding:4px 8px;background:#f0ede8;border-radius:6px">${g.label}</div>
+        <div style="position:sticky;top:80px;z-index:5;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;margin-bottom:10px;padding:9px 14px;background:#1a1a1a;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.14)">${g.label}</div>
         <table class="gtbl"><thead><tr><th>Ad</th>${PERF_HDR.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
         <tbody>${rows.map(r=>perfRowSignalOther(r.displayName,r.agg,true,'snap',g.label)).join('')}</tbody></table>
       </div>`;
@@ -1346,13 +1346,13 @@ function buildTTAdsHTML(ads, adNames, ds, label, periodOverride){
         });
       });
       html+=`<div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#1a1a1a;margin-bottom:8px;padding:4px 8px;background:#f0ede8;border-radius:6px">${g.label}</div>
+        <div style="position:sticky;top:80px;z-index:5;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;margin-bottom:10px;padding:9px 14px;background:#1a1a1a;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.14)">${g.label}</div>
         <table class="gtbl"><thead><tr><th>Ad</th>${PERF_HDR.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
         <tbody>${tbodyRows}</tbody></table>
       </div>`;
     } else {
       html+=`<div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#1a1a1a;margin-bottom:8px;padding:4px 8px;background:#f0ede8;border-radius:6px">${g.label}</div>
+        <div style="position:sticky;top:80px;z-index:5;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;margin-bottom:10px;padding:9px 14px;background:#1a1a1a;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.14)">${g.label}</div>
         <table class="gtbl"><thead><tr><th>Ad</th>${PERF_HDR.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
         <tbody>${rows.map(r=>perfRowSignalOther(r.displayName,r.agg,true,'tiktok',g.label)).join('')}</tbody></table>
       </div>`;
@@ -1534,7 +1534,7 @@ function reRenderMetaAds(){
         });
       });
       adsHTML2+=`<div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#1a1a1a;margin-bottom:8px;padding:4px 8px;background:#f0ede8;border-radius:6px">${g.label}</div>
+        <div style="position:sticky;top:80px;z-index:5;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;margin-bottom:10px;padding:9px 14px;background:#1a1a1a;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.14)">${g.label}</div>
         <table class="gtbl"><thead><tr><th>Ad</th>${PERF_HDR.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
         <tbody>${tbodyRows}</tbody></table>
       </div>`;
@@ -1547,7 +1547,7 @@ function reRenderMetaAds(){
         tbodyRows+=rows.map(r=>perfRowSignal(r.displayName,r.agg,g.label)).join('');
       });
       adsHTML2+=`<div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#1a1a1a;margin-bottom:8px;padding:4px 8px;background:#f0ede8;border-radius:6px">${g.label}</div>
+        <div style="position:sticky;top:80px;z-index:5;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;margin-bottom:10px;padding:9px 14px;background:#1a1a1a;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.14)">${g.label}</div>
         <table class="gtbl"><thead><tr><th>Ad</th>${PERF_HDR.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
         <tbody>${tbodyRows}</tbody></table>
       </div>`;
