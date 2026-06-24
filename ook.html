@@ -2216,6 +2216,8 @@ function renderTopAdsInner(baseDates, baseLabel, N, marketFilter, periodFilter){
   const metaMerged = {}; // baseName → {recs:[], market:''}
 
   Object.entries(metaAds).forEach(([name, arr]) => {
+    // Only show currently-ON (Active/Learning) ads — match the per-geo panel filter
+    if(!isAdActive(name.replace(/_(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\d+(_v\d+)?$/i,'').replace(/_v\d+$/i,'').replace(/\s*[-–]\s*Copy\s*\d*$/i,'').trim())) return;
     // Strip _marXX date suffixes and version suffixes first
     let baseName = name
       .replace(/_mar\d+(_v[12])?$/i, '')   // _mar13, _mar25, _mar30 etc
@@ -2332,7 +2334,23 @@ function renderTopAdsInner(baseDates, baseLabel, N, marketFilter, periodFilter){
     const tdC = `padding:8px 10px;border-bottom:1px solid #f4f4ef;font-family:'DM Mono',monospace;font-size:12px;text-align:right`;
     const platAds = GRANULAR[platKey]?.ads || {};
     const platMerged = {};
+    // Only show currently-ON ads (active in >=1 geo) — match the per-geo panel filters
+    const _platActive = (nm)=>{
+      const num=(String(nm).match(/^(\d+)/)||[])[1];
+      if(platKey==='tiktok' && typeof TIKTOK_AD_STATUS!=='undefined'){
+        const b=nm.replace(/_mar\d+(_v\d+)?$/i,'').replace(/_apr\d+(_v\d+)?$/i,'').replace(/_v\d+$/i,'').trim();
+        if(TIKTOK_AD_STATUS[b]!==undefined) return TIKTOK_AD_STATUS[b]==='active';
+        if(num) return Object.keys(TIKTOK_AD_STATUS).some(k=>k.split('_')[0]===num&&TIKTOK_AD_STATUS[k]==='active');
+        return false;
+      }
+      if(platKey==='snap' && typeof SNAP_AD_STATUS!=='undefined'){
+        if(num) return Object.keys(SNAP_AD_STATUS).some(k=>k.split('_')[0]===num&&SNAP_AD_STATUS[k]!=='inactive');
+        return false;
+      }
+      return true;
+    };
     Object.entries(platAds).forEach(([name, arr]) => {
+      if(!_platActive(name)) return;
       const baseName = name
         .replace(/_En_GLO.*$/i,'')
         .replace(/_(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\d+(?:_v\d+)?$/i,'')
