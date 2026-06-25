@@ -2483,7 +2483,49 @@ let _atcDates = [];
 let _spendChartInstance = null;
 let _spendChartMetric = 'spend';
 let _spendChartDates = null;
+let _spendChartPeriod = '30d';   // chart owns its own window; default last 30 days
+
+// Compute the date window the spend chart should show, from its own period state.
+function _spendChartWindow(){
+  const all = ALL_DATES.slice();
+  const p = _spendChartPeriod;
+  if(p==='7d')  return all.slice(-7);
+  if(p==='14d') return all.slice(-14);
+  if(p==='30d') return all.slice(-30);
+  if(p==='all') return all;
+  if(p==='custom'){
+    const f=document.getElementById('spend-cust-from'), t=document.getElementById('spend-cust-to');
+    if(f&&t&&f.value&&t.value){
+      const i=all.indexOf(f.value), j=all.indexOf(t.value);
+      if(i>=0&&j>=0&&i<=j) return all.slice(i,j+1);
+    }
+    return all.slice(-30);
+  }
+  return all.slice(-30);
+}
+function _populateSpendCustom(){
+  const all=ALL_DATES.slice();
+  const f=document.getElementById('spend-cust-from'), t=document.getElementById('spend-cust-to');
+  if(!f||!t) return;
+  if(!f.options.length){
+    const opts=all.map(d=>`<option value="${d}">${d}</option>`).join('');
+    f.innerHTML=opts; t.innerHTML=opts;
+    f.value=all[Math.max(0,all.length-30)]; t.value=all[all.length-1];
+  }
+}
+function _applySpendCustom(){ renderSpendChart(_spendChartWindow(), _spendChartMetric); }
+function _switchSpendPeriod(p){
+  _spendChartPeriod = p;
+  document.querySelectorAll('#spend-period-row [data-sp]').forEach(b=>{
+    const a = b.dataset.sp===p;
+    b.style.background=a?'#1a1a1a':'#fff'; b.style.color=a?'#fff':'#666'; b.style.borderColor=a?'#1a1a1a':'#e0e0d8';
+  });
+  const wrap=document.getElementById('spend-cust-wrap');
+  if(p==='custom'){ if(wrap) wrap.style.display='inline-flex'; _populateSpendCustom(); _applySpendCustom(); }
+  else { if(wrap) wrap.style.display='none'; renderSpendChart(_spendChartWindow(), _spendChartMetric); }
+}
 function buildSpendChart(){
+  const pill = (val,label)=>`<button data-sp="${val}" onclick="_switchSpendPeriod('${val}')" style="font-family:inherit;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1.5px solid ${val===_spendChartPeriod?'#1a1a1a':'#e0e0d8'};background:${val===_spendChartPeriod?'#1a1a1a':'#fff'};color:${val===_spendChartPeriod?'#fff':'#666'};cursor:pointer;white-space:nowrap">${label}</button>`;
   return `<div class="cc" style="margin-top:16px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
       <div class="clbl" id="spend-chart-label">DAILY SPEND BY PLATFORM</div>
@@ -2492,6 +2534,14 @@ function buildSpendChart(){
         <button class="mt-btn"        data-metric="sv"     onclick="_switchSpendMetric('sv')">Sales Value</button>
         <button class="mt-btn"        data-metric="roas"   onclick="_switchSpendMetric('roas')">ROAS</button>
       </div>
+    </div>
+    <div id="spend-period-row" style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+      ${pill('7d','7d')}${pill('14d','14d')}${pill('30d','30d')}${pill('all','All')}${pill('custom','Custom')}
+      <span id="spend-cust-wrap" style="display:${_spendChartPeriod==='custom'?'inline-flex':'none'};align-items:center;gap:6px;margin-left:4px">
+        <select id="spend-cust-from" onchange="_applySpendCustom()" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
+        <span style="color:#999;font-size:11px">to</span>
+        <select id="spend-cust-to" onchange="_applySpendCustom()" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
+      </span>
     </div>
     <div class="cw" style="height:220px"><canvas id="spend-by-platform"></canvas></div>
   </div>`;
@@ -2503,8 +2553,10 @@ function renderSpendChart(dates, metric){
   // Remember current metric so the toggle button can re-render
   metric = metric || _spendChartMetric || 'spend';
   _spendChartMetric = metric;
-  _spendChartDates = (dates && dates.length>=2) ? dates.slice() : ALL_DATES.slice();
+  // Chart owns its period window (default 30D) — independent of the page date selector
+  _spendChartDates = _spendChartWindow();
   dates = _spendChartDates;
+  if(_spendChartPeriod==='custom') _populateSpendCustom();
 
   // Update the chart label based on metric
   const labelMap = {spend:"DAILY SPEND BY PLATFORM", sv:"DAILY SALES VALUE BY PLATFORM", roas:"DAILY ROAS BY PLATFORM"};
