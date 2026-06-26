@@ -3603,11 +3603,64 @@ function setMetaMBPeriod(p){
 }
 function onMetaMBCustom(){ reRenderMetaMB(); }
 
+// ── ROAS/Trend chart period state (per-platform, independent of the page date selector) ──
+let _ptPeriod = {meta:'30d', tiktok:'30d', snap:'30d', google:'30d'};  // default last 30 days
+let _ptMetric = {meta:'roas', tiktok:'roas', snap:'roas', google:'roas'};
+let _ptCustom = {meta:{from:null,to:null}, tiktok:{from:null,to:null}, snap:{from:null,to:null}, google:{from:null,to:null}};
+
+// Pill button markup (called from the renderPlat template literal)
+function _ptPillHtml(pk,val,label){
+  const a=(_ptPeriod[pk]||'30d')===val;
+  return `<button data-ptp="${val}" onclick="_switchPtPeriod('${pk}','${val}')" style="font-family:inherit;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1.5px solid ${a?'#1a1a1a':'#e0e0d8'};background:${a?'#1a1a1a':'#fff'};color:${a?'#fff':'#666'};cursor:pointer;white-space:nowrap">${label}</button>`;
+}
+// Slice the platform's full daily series to the active period window.
+function _ptWindow(pk, full){
+  const period=_ptPeriod[pk]||'30d';
+  if(period==='all') return full;
+  if(period==='custom'){
+    const c=_ptCustom[pk]||{};
+    if(c.from&&c.to){
+      const i=full.findIndex(x=>x.d===c.from), j=full.findIndex(x=>x.d===c.to);
+      if(i>=0&&j>=0&&i<=j) return full.slice(i,j+1);
+    }
+    return full.slice(-30);
+  }
+  const n={'7d':7,'14d':14,'30d':30}[period]||30;
+  return full.slice(-n);
+}
+function _populatePtCustom(pk){
+  const f=document.getElementById('pt-cust-from'), t=document.getElementById('pt-cust-to');
+  if(!f||!t||!window._ptDates) return;
+  if(!f.options.length){
+    const opts=window._ptDates.map(d=>`<option value="${d}">${d}</option>`).join('');
+    f.innerHTML=opts; t.innerHTML=opts;
+    const arr=window._ptDates;
+    const cf=(_ptCustom[pk]&&_ptCustom[pk].from)||arr[Math.max(0,arr.length-30)];
+    const ct=(_ptCustom[pk]&&_ptCustom[pk].to)||arr[arr.length-1];
+    f.value=cf; t.value=ct; _ptCustom[pk]={from:cf,to:ct};
+  }
+}
+function _applyPtCustom(pk){
+  const f=document.getElementById('pt-cust-from'), t=document.getElementById('pt-cust-to');
+  if(f&&t&&f.value&&t.value) _ptCustom[pk]={from:f.value,to:t.value};
+  if(window._ptDrawCurrent) window._ptDrawCurrent();
+}
+function _switchPtPeriod(pk,period){
+  _ptPeriod[pk]=period;
+  document.querySelectorAll('#pt-period-row [data-ptp]').forEach(b=>{
+    const a=b.dataset.ptp===period;
+    b.style.background=a?'#1a1a1a':'#fff'; b.style.color=a?'#fff':'#666'; b.style.borderColor=a?'#1a1a1a':'#e0e0d8';
+  });
+  const wrap=document.getElementById('pt-cust-wrap');
+  if(period==='custom'){ if(wrap) wrap.style.display='inline-flex'; _populatePtCustom(pk); }
+  else if(wrap){ wrap.style.display='none'; }
+  if(window._ptDrawCurrent) window._ptDrawCurrent();
+}
+
 function renderPlat(pk,d){
   const p=PL.find(x=>x.key===pk), r=row(pk,d), geos=GK[pk], all=D[pk]||[];
-  // For Meta charts: show current month only (MTD). Always reflects whichever month has data.
-  const _curMon=(()=>{const last=ALL_DATES[ALL_DATES.length-1];return last.replace(/ \d+$/,'');})();
-  const chartAll=pk==='meta'?all.filter(x=>x.d.startsWith(_curMon)):all;
+  // ROAS/trend chart shows a rolling period window (default last 30 days) across all available history.
+  const chartAll=all;
   if(!r||r.spend===0){document.getElementById("view").innerHTML=`<div class="nodata">No data for ${p.label} on ${d}</div>`;return;}
 
   const gr=geos.map((g,i)=>{
@@ -3666,6 +3719,14 @@ ${false?`    <div class="cc">
           <button data-metric="cpo" class="pt-mb" style="padding:4px 10px;font-size:10px;font-weight:600;background:#fff;color:#1a1a1a;border:none;border-left:1px solid #e5e5e0;cursor:pointer;letter-spacing:0.5px">CPO</button>
         </div>`:''}
       </div>
+      <div id="pt-period-row" style="display:flex;align-items:center;gap:6px;margin:8px 0 10px;flex-wrap:wrap">
+        ${_ptPillHtml(pk,'7d','7d')}${_ptPillHtml(pk,'14d','14d')}${_ptPillHtml(pk,'30d','30d')}${_ptPillHtml(pk,'all','All')}${_ptPillHtml(pk,'custom','Custom')}
+        <span id="pt-cust-wrap" style="display:${_ptPeriod[pk]==='custom'?'inline-flex':'none'};align-items:center;gap:6px;margin-left:4px">
+          <select id="pt-cust-from" onchange="_applyPtCustom('${pk}')" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
+          <span style="color:#999;font-size:11px">to</span>
+          <select id="pt-cust-to" onchange="_applyPtCustom('${pk}')" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
+        </span>
+      </div>
       <div class="cw" style="height:220px"><canvas id="pt"></canvas></div>
     </div>
     ${btCard ? btCard.html : ''}
@@ -3683,27 +3744,33 @@ ${false?`    <div class="cc">
     cpo:   { extract:x=>x.spend>0?+(x.cpo||0).toFixed(2):null,  fmt:v=>(v!=null?"$"+v.toFixed(2):"—"), axisFmt:v=>"$"+v, title:`CPO TREND — ${p.label}`, chartType:'line' },
   };
   function drawPtChart(metric){
+    _ptMetric[pk]=metric;
     const m = ptMetrics[metric] || ptMetrics.roas;
     const titleEl = document.getElementById("pt-title");
     if(titleEl) titleEl.textContent = m.title;
+    const series = _ptWindow(pk, chartAll);
     dc("pt");
     if(m.chartType === 'bar'){
       CR["pt"]=new Chart(document.getElementById("pt"),{type:"bar",
-        data:{labels:chartAll.map(x=>x.d),datasets:[{data:chartAll.map(m.extract),
-          backgroundColor:chartAll.map(x=>x.d===d?p.color:p.color+"40"),borderRadius:5,borderSkipped:false}]},
-        options:{...bc,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>m.fmt(c.parsed.y)}}},scales:axLastForced(m.axisFmt,chartAll.length)}});
+        data:{labels:series.map(x=>x.d),datasets:[{data:series.map(m.extract),
+          backgroundColor:series.map(x=>x.d===d?p.color:p.color+"40"),borderRadius:5,borderSkipped:false}]},
+        options:{...bc,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>m.fmt(c.parsed.y)}}},scales:axLastForced(m.axisFmt,series.length)}});
     } else {
       CR["pt"]=new Chart(document.getElementById("pt"),{type:"line",
-        data:{labels:chartAll.map(x=>x.d),datasets:[{data:chartAll.map(m.extract),
+        data:{labels:series.map(x=>x.d),datasets:[{data:series.map(m.extract),
           borderColor:p.color,backgroundColor:p.color+"14",borderWidth:2.5,
-          pointRadius:chartAll.map(x=>x.d===d?7:2.5),
-          pointBackgroundColor:chartAll.map(x=>x.d===d?p.color:"#fff"),
-          pointBorderColor:p.color,pointBorderWidth:chartAll.map(x=>x.d===d?2.5:1.5),
+          pointRadius:series.map(x=>x.d===d?7:2.5),
+          pointBackgroundColor:series.map(x=>x.d===d?p.color:"#fff"),
+          pointBorderColor:p.color,pointBorderWidth:series.map(x=>x.d===d?2.5:1.5),
           tension:0.3,spanGaps:false}]},
-        options:{...bc,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>m.fmt(c.parsed.y)}}},scales:axLastForced(m.axisFmt,chartAll.length)}});
+        options:{...bc,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>m.fmt(c.parsed.y)}}},scales:axLastForced(m.axisFmt,series.length)}});
     }
   }
-  drawPtChart('roas');
+  // Expose period machinery for the pills (one platform view is shown at a time)
+  window._ptDates = chartAll.map(x=>x.d);
+  window._ptDrawCurrent = ()=>drawPtChart(_ptMetric[pk]||'roas');
+  if(_ptPeriod[pk]==='custom') _populatePtCustom(pk);
+  drawPtChart(pk==='google' ? (_ptMetric[pk]||'roas') : 'roas');
 
   // Google: wire up the metric toggle buttons
   if(pk==='google'){
