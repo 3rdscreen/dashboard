@@ -3720,7 +3720,7 @@ ${false?`    <div class="cc">
         </div>`:''}
       </div>
       <div id="pt-period-row" style="display:flex;align-items:center;gap:6px;margin:8px 0 10px;flex-wrap:wrap">
-        ${_ptPillHtml(pk,'7d','7d')}${_ptPillHtml(pk,'14d','14d')}${_ptPillHtml(pk,'30d','30d')}${_ptPillHtml(pk,'all','All')}${_ptPillHtml(pk,'custom','Custom')}
+        ${_ptPillHtml(pk,'7d','7d')}${_ptPillHtml(pk,'14d','14d')}${_ptPillHtml(pk,'30d','30d')}${_ptPillHtml(pk,'custom','Custom')}
         <span id="pt-cust-wrap" style="display:${_ptPeriod[pk]==='custom'?'inline-flex':'none'};align-items:center;gap:6px;margin-left:4px">
           <select id="pt-cust-from" onchange="_applyPtCustom('${pk}')" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
           <span style="color:#999;font-size:11px">to</span>
