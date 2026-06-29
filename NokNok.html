@@ -348,7 +348,7 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
       <div class="kpi"><div class="k">Purchased</div><div class="v" id="kPurch">2,221</div><div class="s" id="kPurchSub">CPP $1.34</div></div>
       <div class="kpi"><div class="k">Purchase Value</div><div class="v" id="kValue">$50,938</div><div class="s"><span id="kRoas" style="color:#1b7a3e;font-weight:700">11.70× ROAS</span> · Reg + Sales</div></div>
       <div class="kpi"><div class="k">AOV</div><div class="v" id="kAov">$22.93</div><div class="s">Avg. order value</div></div>
-      <div class="kpi"><div class="k">FTB</div><div class="v" id="kFtb">232</div><div class="s" id="kFtbSub">1st-Time Buyers</div></div>
+      <div class="kpi"><div class="k">FTB</div><div class="v" id="kFtb">232</div><div class="s" id="kFtbSub">1st-Time Buyers <span style="font-size:.82em;color:var(--ink-4);font-weight:500">· $18.77/FTB</span></div></div>
     </div>
 
     <div class="eyebrow" style="display:flex;align-items:center;gap:10px">Customer Economics <span style="font-weight:500;color:var(--ink-4);text-transform:none;letter-spacing:0;font-size:11px">· paid acquisition × Mixpanel cohort</span></div>
@@ -460,7 +460,7 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
   <!-- ══ TOP CREATIVES ══ -->
   <section class="sec">
     <div class="sec-head"><span class="sec-num" style="color:var(--gold)">★</span><h2 class="sec-title">Top creatives</h2></div>
-    <p class="sec-sub">The three best-performing ads in each campaign across <strong id="topCreativesPeriod">Jun 1 → Jun 28</strong>. Sorted by the campaign's primary KPI (installs · registrations · purchases). Thumbnails are pulled live from Meta's creative CDN.</p>
+    <p class="sec-sub">The three best-performing ads in each campaign over the last 30 days (<strong id="topCreativesPeriod">May 30 → Jun 28</strong>), independent of the date filter above. Sorted by the campaign's primary KPI (installs · registrations · purchases). Thumbnails are served directly from Meta's creative CDN.</p>
 
     <!-- App Install -->
     <div class="creative-block">
@@ -743,7 +743,7 @@ function renderDashboard(start, end){
   const estCfb = estFtb ? acctRegSpend / estFtb : 0;      // Cost per First-Time Buyer
   const ftbSub = estFtb ? '1st-Time Buyers' : 'No regs in range';
   document.getElementById('kFtb').textContent = estFtb ? int(estFtb) : '—';
-  document.getElementById('kFtbSub').textContent = ftbSub;
+  document.getElementById('kFtbSub').innerHTML = estFtb ? ('1st-Time Buyers <span style="font-size:.82em;color:var(--ink-4);font-weight:500">\u00b7 '+money(estCfb)+'/FTB</span>') : 'No regs in range';
   document.getElementById('fFtb').textContent = estFtb ? int(estFtb) : '—';
   document.getElementById('fFtbSub').textContent = estFtb ? `1st-Time Buyers · CFB ${money(estCfb)}` : 'No regs in range';
 
@@ -817,11 +817,7 @@ function renderDashboard(start, end){
   if (regSubValueEl) regSubValueEl.textContent = '$' + Math.round(r.value||0).toLocaleString();
 
   // ── Top Creatives (fully dynamic) ──
-  renderTopCreatives(start, end);
-  const tcPeriodEl = document.getElementById('topCreativesPeriod');
-  const sLabShort = `${MS2[+sp[1]-1]} ${+sp[2]}`;
-  const eLabShort = `${MS2[+ep[1]-1]} ${+ep[2]}`;
-  if (tcPeriodEl) tcPeriodEl.textContent = `${sLabShort} → ${eLabShort}`;
+  renderTopCreatives(); // always trailing 30 days, independent of the date picker
 
   // ── Post Engagement (Father's Day) ──
   renderEngagement(start, end);
@@ -878,7 +874,18 @@ function renderEngagement(start, end){
 }
 
 // ─── Top Creatives: compute Top 3 per campaign for the selected range ───
-function renderTopCreatives(start, end){
+function renderTopCreatives(){
+  // Always show the trailing 30 days ending at the latest data day — independent of the date picker.
+  const _MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let _max='';
+  for(const d in DAILY.acctReg){ if(d>_max) _max=d; }
+  if(!_max){ for(const c of (DAILY.creatives_sales||[])){ for(const d in c.days){ if(d>_max) _max=d; } } }
+  const _e=new Date(_max+'T00:00:00Z'), _s=new Date(_e.getTime()-29*86400000);
+  const _p=n=>String(n).padStart(2,'0');
+  const _fmt=x=>`${x.getUTCFullYear()}-${_p(x.getUTCMonth()+1)}-${_p(x.getUTCDate())}`;
+  const start=_fmt(_s), end=_max;
+  const _tcEl=document.getElementById('topCreativesPeriod');
+  if(_tcEl) _tcEl.textContent=`${_MN[_s.getUTCMonth()]} ${_s.getUTCDate()} → ${_MN[_e.getUTCMonth()]} ${_e.getUTCDate()}`;
   function inRange(d){ return d >= start && d <= end; }
   function fmtMoney(n){ return '$' + n.toFixed(2); }
   function fmtMoneyK(n){ return '$' + Math.round(n).toLocaleString(); }
