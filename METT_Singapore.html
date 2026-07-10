@@ -1693,7 +1693,10 @@
         img.style.transition = 'opacity 0.3s ease';
         img.onload = function() { this.style.opacity = '1'; };
         img.onerror = function() { this.style.display = 'none'; };
-        img.src = c.image;
+        // Meta blocks hotlinking its signed CDN images into third-party pages, so we
+        // fetch the same Meta-CDN creative server-side via a caching image layer
+        // (which also outlives the ~days-long signature). Source stays Meta's CDN.
+        img.src = 'https://images.weserv.nl/?url=' + encodeURIComponent(c.image) + '&w=192&h=192&fit=cover&output=jpg';
         thumb.appendChild(img);
       }
       wrap.appendChild(thumb);
