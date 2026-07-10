@@ -304,6 +304,41 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
   .cover-title{font-size:32px}
   .live-badge{display:none}
 }
+
+/* ===== multi-platform tabs ===== */
+.tabbar{display:flex;gap:2px;margin:26px 0 22px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+.tabbtn{appearance:none;border:0;background:transparent;font:inherit;cursor:pointer;padding:12px 20px;font-size:14px;font-weight:600;color:var(--ink-3);border-bottom:2px solid transparent;margin-bottom:-2px;display:flex;align-items:center;gap:8px;transition:color .15s,border-color .15s}
+.tabbtn:hover{color:var(--ink-2)}
+.tabbtn.active{color:var(--navy);border-bottom-color:var(--gold)}
+.tabbtn .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.tabpanel{display:none}
+.tabpanel.active{display:block;animation:fadetab .28s ease}
+@keyframes fadetab{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.pill-live{font-size:11px;font-weight:700;color:var(--green);background:var(--green-soft);padding:3px 9px;border-radius:20px;white-space:nowrap}
+.pill-off{font-size:11px;font-weight:700;color:var(--ink-3);background:var(--surface);padding:3px 9px;border-radius:20px;border:1px solid var(--line);white-space:nowrap}
+.xtable{width:100%;border-collapse:collapse;margin-top:6px;font-size:14px}
+.xtable th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--line)}
+.xtable td{padding:13px 12px;border-bottom:1px solid var(--line-2);color:var(--ink-2)}
+.xtable tr:last-child td{border-bottom:0}
+.xtable .num{text-align:right;font-variant-numeric:tabular-nums}
+.xtable .plat{font-weight:700;color:var(--ink);display:flex;align-items:center;gap:9px}
+.xtable .tot td{font-weight:700;color:var(--ink);border-top:2px solid var(--line);background:var(--surface)}
+.sharerow{display:grid;grid-template-columns:96px 1fr 96px;align-items:center;gap:14px;margin:11px 0}
+.sharerow .lbl{font-weight:600;color:var(--ink-2);font-size:14px;display:flex;align-items:center;gap:8px}
+.sharebar{height:12px;border-radius:7px;background:var(--line-2);overflow:hidden}
+.sharebar>i{display:block;height:100%;border-radius:7px}
+.sharerow .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-3);font-size:13px;font-weight:600}
+.empty-state{text-align:center;padding:72px 24px}
+.empty-state .es-ic{width:56px;height:56px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:26px}
+.empty-state h3{color:var(--ink);font-size:19px;margin:0 0 10px;font-weight:700}
+.empty-state p{color:var(--ink-3);max-width:440px;margin:0 auto 6px;line-height:1.55;font-size:14px}
+.gnote{font-size:12.5px;color:var(--ink-3);margin-top:14px;line-height:1.5}
+.minibars{display:flex;gap:10px;align-items:flex-end;height:120px;margin-top:8px}
+.minibars .mb{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-end}
+.minibars .mb .bar{width:100%;max-width:56px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#EA4335,#f6a49b)}
+.minibars .mb .cap{font-size:11px;color:var(--ink-3);font-weight:600}
+.minibars .mb .vv{font-size:12px;color:var(--ink);font-weight:700}
+
 </style>
 </head>
 <body>
@@ -336,6 +371,24 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
       <div><div class="m-label">Objectives</div><div class="m-val">Install · Register · Sales</div></div>
     </div>
   </header>
+
+  <nav class="tabbar">
+    <button class="tabbtn active" data-tab="overview" onclick="showTab('overview')">Overview</button>
+    <button class="tabbtn" data-tab="meta" onclick="showTab('meta')"><span class="dot" style="background:#1877F2"></span>Meta</button>
+    <button class="tabbtn" data-tab="google" onclick="showTab('google')"><span class="dot" style="background:#EA4335"></span>Google</button>
+    <button class="tabbtn" data-tab="tiktok" onclick="showTab('tiktok')"><span class="dot" style="background:#111"></span>TikTok</button>
+  </nav>
+
+  <div class="tabpanel active" id="tab-overview">
+    <section class="sec" style="margin-top:6px">
+      <div class="eyebrow">All platforms &middot; combined &middot; <span id="ovWindow">Jul 1 &ndash; Jul 5, 2026</span></div>
+      <div id="ovBody"></div>
+      <div class="gnote" style="margin-top:16px">Figures reflect the period selected in the <b>Period</b> picker (top-right) and recompute across every platform. Per-platform CPI uses that platform's app-install campaign spend; Meta's total spend also spans Sales, Registration &amp; Engagement objectives. Google launched Jul 3; TikTok has no recorded spend yet, so both contribute $0 outside their active days.</div>
+    </section>
+  </div>
+
+  <div class="tabpanel" id="tab-meta">
+
 
   <!-- ══ HEADLINE KPIs + FUNNEL ══ -->
   <section class="sec" style="margin-top:26px">
@@ -485,9 +538,71 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
 
   </section>
 
+  
+  </div><!-- /tab-meta -->
+
+  <div class="tabpanel" id="tab-google">
+    <section class="sec" style="margin-top:6px">
+      <div class="eyebrow"><span class="dot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#EA4335;margin-right:7px"></span>Google Ads &middot; App Installs (Performance Max) &middot; Jul 3 &ndash; Jul 5, 2026</div>
+      <div class="kpi-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px">
+        <div class="kpi"><div class="k">Spend</div><div class="v">$105.77</div><div class="s">3 days live</div></div>
+        <div class="kpi"><div class="k">App Installs</div><div class="v">163</div><div class="s">Android + iOS</div></div>
+        <div class="kpi"><div class="k">Cost / Install</div><div class="v">$0.65</div><div class="s">Blended</div></div>
+        <div class="kpi"><div class="k">Impressions</div><div class="v">60,000</div><div class="s">&nbsp;</div></div>
+        <div class="kpi"><div class="k">Clicks</div><div class="v">2,121</div><div class="s">CTR 3.54%</div></div>
+        <div class="kpi"><div class="k">Avg. CPC</div><div class="v">$0.05</div><div class="s">&nbsp;</div></div>
+      </div>
+
+      <div class="card" style="padding:20px 22px;margin-bottom:22px">
+        <div style="font-weight:700;color:var(--navy);margin-bottom:4px">Android vs iOS</div>
+        <table class="xtable">
+          <thead><tr><th>Platform</th><th class="num">Spend</th><th class="num">Installs</th><th class="num">Cost / Install</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th></tr></thead>
+          <tbody>
+            <tr><td class="plat">Android</td><td class="num">$43.89</td><td class="num">152</td><td class="num">$0.29</td><td class="num">19,875</td><td class="num">1,149</td><td class="num">5.78%</td></tr>
+            <tr><td class="plat">iOS</td><td class="num">$61.87</td><td class="num">11</td><td class="num">$5.62</td><td class="num">40,125</td><td class="num">972</td><td class="num">2.42%</td></tr>
+            <tr class="tot"><td>Total</td><td class="num">$105.77</td><td class="num">163</td><td class="num">$0.65</td><td class="num">60,000</td><td class="num">2,121</td><td class="num">3.54%</td></tr>
+          </tbody>
+        </table>
+        <div class="gnote">Android is driving almost all installs at a very low $0.29 CPI; iOS is still in its learning phase (SKAN-limited signal), so its $5.62 CPI should improve as the campaign matures.</div>
+      </div>
+
+      <div class="card" style="padding:20px 22px">
+        <div style="font-weight:700;color:var(--navy);margin-bottom:2px">Daily trend</div>
+        <div style="font-size:12.5px;color:var(--ink-3);margin-bottom:6px">Spend (bar) &amp; installs (label) per day</div>
+        <div class="minibars">
+          <div class="mb"><div class="vv">1 inst</div><div class="bar" style="height:2%"></div><div class="cap">Jul 3<br>$0.09</div></div>
+          <div class="mb"><div class="vv">98 inst</div><div class="bar" style="height:100%"></div><div class="cap">Jul 4<br>$66.46</div></div>
+          <div class="mb"><div class="vv">64 inst</div><div class="bar" style="height:59%"></div><div class="cap">Jul 5<br>$39.21</div></div>
+        </div>
+        <div class="gnote">Two campaigns run here: <b>NokNok | App Installs (Android) | LB | Google | PMax | 3RDS</b> and the iOS equivalent &mdash; both Performance Max, launched Jul 3, 2026.</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="tabpanel" id="tab-tiktok">
+    <section class="sec" style="margin-top:6px">
+      <div class="eyebrow"><span class="dot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#111;margin-right:7px"></span>TikTok Ads</div>
+      <div class="kpi-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px">
+        <div class="kpi"><div class="k">Spend</div><div class="v">$0.00</div><div class="s">No recorded spend</div></div>
+        <div class="kpi"><div class="k">App Installs</div><div class="v">0</div><div class="s">&nbsp;</div></div>
+        <div class="kpi"><div class="k">Cost / Install</div><div class="v">&mdash;</div><div class="s">&nbsp;</div></div>
+        <div class="kpi"><div class="k">Impressions</div><div class="v">0</div><div class="s">&nbsp;</div></div>
+      </div>
+      <div class="card" style="padding:8px 22px">
+        <div class="empty-state">
+          <div class="es-ic">&#9679;</div>
+          <h3>No active TikTok spend in this period</h3>
+          <p>The TikTok account (<b>noknok.</b>) is connected, but it recorded <b>$0 spend, 0 impressions and 0 installs</b> from May 5 &ndash; Jul 5, 2026.</p>
+          <p>A few registrations and purchases are attributed to older TikTok campaigns, but with no media cost behind them &mdash; so there's nothing to chart yet.</p>
+          <p style="margin-top:14px;color:var(--ink-4)">This tab will populate automatically once TikTok campaigns go live with budget.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <footer class="foot">
-    <div class="fl"><span>NokNok</span><span class="fd"></span><span>Meta Ads · 3RDS</span><span class="fd"></span><span>May 1 – Jun 14, 2026</span></div>
-    <div>Generated June 15, 2026 · Source: Meta Ads Manager via Supermetrics</div>
+    <div class="fl"><span>NokNok</span><span class="fd"></span><span>Meta &middot; Google &middot; TikTok &middot; 3RDS</span><span class="fd"></span><span>Meta May 5&ndash;Jul 5 &middot; Google Jul 3&ndash;5</span></div>
+    <div>Generated Jul 6, 2026 &middot; Meta, Google Ads &amp; TikTok via Supermetrics</div>
   </footer>
 
 </div>
@@ -976,6 +1091,62 @@ function renderTopCreatives(){
   renderGrid('installCreativeGrid', installAgg, 'installs');
   renderGrid('regCreativeGrid', regAgg, 'regs');
   renderGrid('salesCreativeGrid', salesAggCr, 'purch');
+  try{ renderOverview(start,end); }catch(e){}
+}
+
+// ===== Overview: cross-platform, period-aware (synced to the Period picker) =====
+const GOOGLE_DAILY = {
+ '2026-07-03':{a:[0.0029,4,1,0], i:[0.0875,261,7,1]},
+ '2026-07-04':{a:[33.45,18657,1000,92], i:[33.0147,21687,546,6]},
+ '2026-07-05':{a:[10.4403,1214,148,60], i:[28.7707,18177,419,4]}
+};
+function renderOverview(start,end){
+  const MS3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const inR=d=> d>=start && d<=end;
+  const usd0=v=>'$'+Math.round(v).toLocaleString('en-US');
+  const usd2=v=>'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const n0=v=>Math.round(v).toLocaleString('en-US');
+  const cpi=(s,u)=> u>0? usd2(s/u) : '\u2014';
+  // Meta (from DAILY): install[] day=[impr,clicks,cost,reach,installs,purch,value,sessions,regs]
+  let mInstSpend=0,mInstalls=0,mTotSpend=0,mRegs=0,mPurch=0;
+  DAILY.install.forEach(function(o){for(const dt in o.days){if(inR(dt)){const v=o.days[dt];mInstSpend+=v[2];mInstalls+=v[4];mPurch+=v[5];}}});
+  DAILY.sales.forEach(function(o){for(const dt in o.days){if(inR(dt)){mPurch+=o.days[dt][4];}}});
+  for(const dt in DAILY.acctReg){if(inR(dt)){mTotSpend+=DAILY.acctReg[dt][0];mRegs+=DAILY.acctReg[dt][1];}}
+  // Google (from GOOGLE_DAILY)
+  let gSpend=0,gInst=0;
+  for(const dt in GOOGLE_DAILY){if(inR(dt)){const g=GOOGLE_DAILY[dt];gSpend+=g.a[0]+g.i[0];gInst+=g.a[3]+g.i[3];}}
+  // TikTok (no spend in any window yet)
+  const tSpend=0,tInst=0;
+  const totSpend=mTotSpend+gSpend+tSpend;
+  const totInstalls=mInstalls+gInst+tInst;
+  const instSpend=mInstSpend+gSpend;
+  const blended= totInstalls>0? usd2(instSpend/totInstalls):'\u2014';
+  const wl=function(iso){const dt=new Date(iso+'T00:00:00Z');return MS3[dt.getUTCMonth()]+' '+dt.getUTCDate();};
+  const ov=document.getElementById('ovWindow'); if(ov) ov.textContent=wl(start)+' \u2013 '+wl(end)+', '+end.slice(0,4);
+  const pill=s=> s>0? '<span class="pill-live">&#9679; Active</span>':'<span class="pill-off">&#9675; No spend</span>';
+  const D=c=>'<span class="dot" style="width:9px;height:9px;border-radius:50%;background:'+c+'"></span>';
+  const shr=(p,t)=> t>0? 100*p/t:0;
+  function rows(list,tot,fmtv){return list.map(function(r){const pct=shr(r[2],tot);return '<div class="sharerow"><div class="lbl">'+D(r[1])+r[0]+'</div><div class="sharebar"><i style="width:'+pct.toFixed(1)+'%;background:'+r[1]+'"></i></div><div class="val">'+fmtv(r[2])+' &middot; '+pct.toFixed(1)+'%</div></div>';}).join('');}
+  const spList=[['Meta','#1877F2',mTotSpend],['Google','#EA4335',gSpend],['TikTok','#111',tSpend]];
+  const inList=[['Meta','#1877F2',mInstalls],['Google','#EA4335',gInst],['TikTok','#111',tInst]];
+  const body=
+  '<div class="kpi-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px">'+
+    '<div class="kpi"><div class="k">Total Spend</div><div class="v">'+usd0(totSpend)+'</div><div class="s">All platforms</div></div>'+
+    '<div class="kpi"><div class="k">App Installs</div><div class="v">'+n0(totInstalls)+'</div><div class="s">All platforms</div></div>'+
+    '<div class="kpi"><div class="k">Blended CPI</div><div class="v">'+blended+'</div><div class="s">Install spend &divide; installs</div></div>'+
+    '<div class="kpi"><div class="k">Registrations</div><div class="v">'+n0(mRegs)+'</div><div class="s">Meta (tracked)</div></div>'+
+    '<div class="kpi"><div class="k">Purchases</div><div class="v">'+n0(mPurch)+'</div><div class="s">Meta (tracked)</div></div>'+
+  '</div>'+
+  '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:4px">Platform breakdown</div>'+
+    '<table class="xtable"><thead><tr><th>Platform</th><th>Status</th><th class="num">Spend</th><th class="num">Installs</th><th class="num">Cost / Install</th></tr></thead><tbody>'+
+    '<tr><td class="plat">'+D('#1877F2')+'Meta</td><td>'+pill(mTotSpend)+'</td><td class="num">'+usd2(mTotSpend)+'</td><td class="num">'+n0(mInstalls)+'</td><td class="num">'+cpi(mInstSpend,mInstalls)+'</td></tr>'+
+    '<tr><td class="plat">'+D('#EA4335')+'Google</td><td>'+pill(gSpend)+'</td><td class="num">'+usd2(gSpend)+'</td><td class="num">'+n0(gInst)+'</td><td class="num">'+cpi(gSpend,gInst)+'</td></tr>'+
+    '<tr><td class="plat">'+D('#111')+'TikTok</td><td>'+pill(tSpend)+'</td><td class="num">'+usd2(tSpend)+'</td><td class="num">'+n0(tInst)+'</td><td class="num">\u2014</td></tr>'+
+    '<tr class="tot"><td>Total</td><td></td><td class="num">'+usd2(totSpend)+'</td><td class="num">'+n0(totInstalls)+'</td><td class="num">'+blended+'</td></tr>'+
+    '</tbody></table></div>'+
+  '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">Spend share</div>'+rows(spList,totSpend,usd0)+'</div>'+
+  '<div class="card" style="padding:20px 22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">App-install share</div>'+rows(inList,totInstalls,n0)+'</div>';
+  const el=document.getElementById('ovBody'); if(el) el.innerHTML=body;
 }
 
 // Initial render: full MTD range
@@ -1138,6 +1309,15 @@ renderDashboard('2026-07-01','2026-07-05');
   pop.addEventListener('click',e=>e.stopPropagation());
   document.addEventListener('click',e=>{if(pop.classList.contains('open')&&!pop.contains(e.target)&&!trigger.contains(e.target))close();});
 })();
+
+// ===== multi-platform tab switching =====
+function showTab(n){
+  document.querySelectorAll('.tabpanel').forEach(function(p){p.classList.toggle('active', p.id==='tab-'+n);});
+  document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.toggle('active', b.dataset.tab===n);});
+  try{ window.dispatchEvent(new Event('resize')); }catch(e){}
+  try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){}
+}
+
 </script>
 </body>
 </html>
