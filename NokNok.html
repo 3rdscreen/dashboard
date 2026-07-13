@@ -1275,7 +1275,7 @@ renderTikTokTrend();
   function buildGrid(){
     monthEl.textContent=MONTHS[vm]+' '+vy;
     prevB.disabled=(vy<2026||(vy===2026&&vm<=4));
-    nextB.disabled=(vy>2026||(vy===2026&&vm>=5)); // data through June 2026
+    nextB.disabled=(vy>2026||(vy===2026&&vm>=6)); // data through July 2026
     grid.innerHTML='';
     DOW.forEach(d=>{const e=document.createElement('div');e.className='cal-dow';e.textContent=d;grid.appendChild(e);});
     const firstDow=new Date(Date.UTC(vy,vm,1)).getUTCDay(); // 0=Sun
