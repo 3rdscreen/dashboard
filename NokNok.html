@@ -568,7 +568,7 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
 
       <div class="card" style="padding:20px 22px">
         <div style="font-weight:700;color:var(--navy);margin-bottom:2px">Daily trend</div>
-        <div style="font-size:12.5px;color:var(--ink-3);margin-bottom:6px">Spend (bar) &amp; installs (label) per day</div>
+        <div style="font-size:12.5px;color:var(--ink-3);margin-bottom:6px">Installs (rising) &amp; cost per install (falling)</div>
         <div id="gTrend" style="margin-top:10px"></div>
         <div class="gnote">Two campaigns run here: <b>NokNok | App Installs (Android) | LB | Google | PMax | 3RDS</b> and the iOS equivalent &mdash; both Performance Max, launched Jul 3, 2026.</div>
       </div>
@@ -602,7 +602,7 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
 
       <div class="card" style="padding:20px 22px">
         <div style="font-weight:700;color:var(--navy);margin-bottom:2px">Daily trend</div>
-        <div style="font-size:12.5px;color:var(--ink-3);margin-bottom:6px">Spend (bar) &amp; installs (label) per day</div>
+        <div style="font-size:12.5px;color:var(--ink-3);margin-bottom:6px">Installs (rising) &amp; cost per install (falling)</div>
         <div id="tkTrend" style="margin-top:10px"></div>
         <div class="gnote">Campaigns: <b>NokNok | App Installs (Android) | LB | Tiktok | 3RDS</b> and the iOS equivalent. TikTok recorded no spend before Jul 9.</div>
       </div>
@@ -1174,66 +1174,62 @@ function renderOverview(start,end){
 }
 
 // ===== Google Ads daily trend: real SVG bar chart (spend bars + install labels) =====
-function renderTikTokTrend(){
-  const el=document.getElementById('tkTrend'); if(!el) return;
+function drawTrendLine(elId, rows, accent){
+  const el=document.getElementById(elId); if(!el) return;
   const MS3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const days=Object.keys(TIKTOK_DAILY).sort();
-  const rows=days.map(function(d){var t=TIKTOK_DAILY[d];return{d:d,spend:t.spend,inst:t.inst};});
-  const W=720,H=250,padL=50,padR=18,padT=26,padB=50;
-  const cw=W-padL-padR, ch=H-padT-padB;
-  const maxSpend=Math.max.apply(null,rows.map(function(r){return r.spend;}).concat([1]));
-  const niceMax=Math.max(10,Math.ceil(maxSpend/10)*10);
-  const n=rows.length||1, slot=cw/n, bw=Math.min(64,slot*0.5);
-  const cx=function(i){return padL+slot*i+slot/2;};
-  const yy=function(v){return padT+ch-(v/niceMax)*ch;};
-  const money=function(v){return '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  const GRAY='#94a3b8';
+  const W=760,H=300,padL=52,padR=58,padT=44,padB=54;
+  const cw=W-padL-padR, ch=H-padT-padB, n=rows.length;
+  // per-day cost/install
+  rows=rows.map(function(r){return {d:r.d, inst:r.inst, spend:r.spend, cpi:(r.inst>0? r.spend/r.inst : null)};});
+  function niceMax(v){var p=Math.pow(10,Math.floor(Math.log10((v/4)||1)));var f=(v/4)/p;var s=f<=1?1:f<=2?2:f<=5?5:10;var step=s*p;return Math.max(step,Math.ceil(v/step)*step);}
+  const iMax=niceMax(Math.max.apply(null,rows.map(function(r){return r.inst;}).concat([1])));
+  const cVals=rows.filter(function(r){return r.cpi!=null;}).map(function(r){return r.cpi;});
+  const cMax=niceMax(Math.max.apply(null,cVals.concat([0.1])));
+  const X=function(i){return n<=1?padL+cw/2:padL+cw*i/(n-1);};
+  const yI=function(v){return padT+ch-(v/iMax)*ch;};
+  const yC=function(v){return padT+ch-(v/cMax)*ch;};
+  const usd2=function(v){return '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
   var s='';
+  // gridlines: LEFT = Installs (accent), RIGHT = Cost/install (gray)
   [0,0.5,1].forEach(function(t){var y=padT+ch-t*ch;
-    s+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="#e7eaf0" stroke-width="1"/>';
-    s+='<text x="'+(padL-9)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="#6b7488">$'+Math.round(niceMax*t)+'</text>';
+    s+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="#eef1f6" stroke-width="1"/>';
+    s+='<text x="'+(padL-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="'+accent+'">'+Math.round(iMax*t)+'</text>';
+    s+='<text x="'+(W-padR+8)+'" y="'+(y+4)+'" text-anchor="start" font-size="11" fill="'+GRAY+'">$'+(cMax*t).toFixed(2)+'</text>';
   });
-  rows.forEach(function(r,i){
-    var by=yy(r.spend), bh=padT+ch-by; if(bh<2){bh=2;by=padT+ch-2;}
-    var bx=cx(i)-bw/2;
-    s+='<rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="5" fill="url(#tkGrad)"/>';
-    s+='<text x="'+cx(i)+'" y="'+(by-9).toFixed(1)+'" text-anchor="middle" font-size="12.5" font-weight="700" fill="#0a0e1a">'+r.inst+' inst</text>';
-    var dt=new Date(r.d+'T00:00:00Z');
-    s+='<text x="'+cx(i)+'" y="'+(padT+ch+21)+'" text-anchor="middle" font-size="12" font-weight="600" fill="#3d4658">'+MS3[dt.getUTCMonth()]+' '+dt.getUTCDate()+'</text>';
-    s+='<text x="'+cx(i)+'" y="'+(padT+ch+38)+'" text-anchor="middle" font-size="11.5" fill="#6b7488">'+money(r.spend)+'</text>';
-  });
-  s+='<line x1="'+padL+'" y1="'+(padT+ch)+'" x2="'+(W-padR)+'" y2="'+(padT+ch)+'" stroke="#a3aab8" stroke-width="1"/>';
-  el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:100%;height:auto;display:block;font-family:inherit"><defs><linearGradient id="tkGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FE2C55"/><stop offset="1" stop-color="#ff9bb0"/></linearGradient></defs>'+s+'</svg>';
+  // Cost/install line (secondary): gray, thin, falling
+  var cpts=rows.map(function(r,i){return r.cpi==null?null:X(i).toFixed(1)+','+yC(r.cpi).toFixed(1);}).filter(Boolean);
+  s+='<polyline points="'+cpts.join(' ')+'" fill="none" stroke="'+GRAY+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  rows.forEach(function(r,i){if(r.cpi!=null)s+='<circle cx="'+X(i).toFixed(1)+'" cy="'+yC(r.cpi).toFixed(1)+'" r="2.6" fill="'+GRAY+'"/>';});
+  // Installs (primary): filled area + bold line + dots + labels, accent, on top
+  var ipts=rows.map(function(r,i){return X(i).toFixed(1)+','+yI(r.inst).toFixed(1);});
+  s+='<path d="M'+X(0).toFixed(1)+','+(padT+ch)+' L'+ipts.join(' L')+' L'+X(n-1).toFixed(1)+','+(padT+ch)+' Z" fill="'+accent+'" fill-opacity="0.12"/>';
+  s+='<polyline points="'+ipts.join(' ')+'" fill="none" stroke="'+accent+'" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>';
+  rows.forEach(function(r,i){var cy=yI(r.inst);
+    s+='<circle cx="'+X(i).toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="3.6" fill="#fff" stroke="'+accent+'" stroke-width="2.2"/>';
+    s+='<text x="'+X(i).toFixed(1)+'" y="'+(cy-10).toFixed(1)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="'+accent+'">'+r.inst+'</text>';});
+  // x labels: date + CPI
+  rows.forEach(function(r,i){var dt=new Date(r.d+'T00:00:00Z');
+    s+='<text x="'+X(i).toFixed(1)+'" y="'+(padT+ch+20)+'" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3d4658">'+MS3[dt.getUTCMonth()]+' '+dt.getUTCDate()+'</text>';
+    s+='<text x="'+X(i).toFixed(1)+'" y="'+(padT+ch+36)+'" text-anchor="middle" font-size="10.5" fill="#9aa2b1">'+(r.cpi==null?'\u2014':usd2(r.cpi))+'</text>';});
+  s+='<line x1="'+padL+'" y1="'+(padT+ch)+'" x2="'+(W-padR)+'" y2="'+(padT+ch)+'" stroke="#cfd5e0" stroke-width="1"/>';
+  // legend
+  s+='<rect x="'+padL+'" y="13" width="14" height="4" rx="2" fill="'+accent+'"/><text x="'+(padL+20)+'" y="21" font-size="12" font-weight="700" fill="#3d4658">Installs</text>';
+  s+='<rect x="'+(padL+92)+'" y="14" width="14" height="3" rx="1.5" fill="'+GRAY+'"/><text x="'+(padL+112)+'" y="21" font-size="12" font-weight="600" fill="#9aa2b1">Cost / install</text>';
+  el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:100%;height:auto;display:block;font-family:inherit">'+s+'</svg>';
 }
 function renderGoogleTrend(){
-  const el=document.getElementById('gTrend'); if(!el) return;
-  const MS3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const days=Object.keys(GOOGLE_DAILY).sort();
   const rows=days.map(function(d){var g=GOOGLE_DAILY[d];return{d:d,spend:g.a[0]+g.i[0],inst:g.a[3]+g.i[3]};});
-  const W=720,H=250,padL=50,padR=18,padT=26,padB=50;
-  const cw=W-padL-padR, ch=H-padT-padB;
-  const maxSpend=Math.max.apply(null,rows.map(function(r){return r.spend;}).concat([1]));
-  const niceMax=Math.max(10,Math.ceil(maxSpend/10)*10);
-  const n=rows.length||1, slot=cw/n, bw=Math.min(64,slot*0.5);
-  const cx=function(i){return padL+slot*i+slot/2;};
-  const yy=function(v){return padT+ch-(v/niceMax)*ch;};
-  const money=function(v){return '$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
-  var s='';
-  [0,0.5,1].forEach(function(t){var y=padT+ch-t*ch;
-    s+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="#e7eaf0" stroke-width="1"/>';
-    s+='<text x="'+(padL-9)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="#6b7488">$'+Math.round(niceMax*t)+'</text>';
-  });
-  rows.forEach(function(r,i){
-    var by=yy(r.spend), bh=padT+ch-by; if(bh<2){bh=2;by=padT+ch-2;}
-    var bx=cx(i)-bw/2;
-    s+='<rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="5" fill="url(#gGrad)"/>';
-    s+='<text x="'+cx(i)+'" y="'+(by-9).toFixed(1)+'" text-anchor="middle" font-size="12.5" font-weight="700" fill="#0a0e1a">'+r.inst+' inst</text>';
-    var dt=new Date(r.d+'T00:00:00Z');
-    s+='<text x="'+cx(i)+'" y="'+(padT+ch+21)+'" text-anchor="middle" font-size="12" font-weight="600" fill="#3d4658">'+MS3[dt.getUTCMonth()]+' '+dt.getUTCDate()+'</text>';
-    s+='<text x="'+cx(i)+'" y="'+(padT+ch+38)+'" text-anchor="middle" font-size="11.5" fill="#6b7488">'+money(r.spend)+'</text>';
-  });
-  s+='<line x1="'+padL+'" y1="'+(padT+ch)+'" x2="'+(W-padR)+'" y2="'+(padT+ch)+'" stroke="#a3aab8" stroke-width="1"/>';
-  el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:100%;height:auto;display:block;font-family:inherit"><defs><linearGradient id="gGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EA4335"/><stop offset="1" stop-color="#f7a99f"/></linearGradient></defs>'+s+'</svg>';
+  drawTrendLine('gTrend', rows, '#EA4335');
 }
+function renderTikTokTrend(){
+  const days=Object.keys(TIKTOK_DAILY).sort();
+  const rows=days.map(function(d){var t=TIKTOK_DAILY[d];return{d:d,spend:t.spend,inst:t.inst};});
+  drawTrendLine('tkTrend', rows, '#FE2C55');
+}
+
+
 
 // Initial render: full MTD range
 renderDashboard('2026-07-01','2026-07-12');
