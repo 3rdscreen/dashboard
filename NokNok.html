@@ -1165,7 +1165,7 @@ function renderOverview(start,end){
     '<table class="xtable"><thead><tr><th>Platform</th><th>Status</th><th class="num">Spend</th><th class="num">Installs</th><th class="num">Cost / Install</th></tr></thead><tbody>'+
     '<tr><td class="plat">'+D('#1877F2')+'Meta</td><td>'+pill(mTotSpend)+'</td><td class="num">'+usd2(mTotSpend)+'</td><td class="num">'+n0(mInstalls)+'</td><td class="num">'+cpi(mInstSpend,mInstalls)+'</td></tr>'+
     '<tr><td class="plat">'+D('#EA4335')+'Google</td><td>'+pill(gSpend)+'</td><td class="num">'+usd2(gSpend)+'</td><td class="num">'+n0(gInst)+'</td><td class="num">'+cpi(gSpend,gInst)+'</td></tr>'+
-    '<tr><td class="plat">'+D('#111')+'TikTok</td><td>'+pill(tSpend)+'</td><td class="num">'+usd2(tSpend)+'</td><td class="num">'+n0(tInst)+'</td><td class="num">\u2014</td></tr>'+
+    '<tr><td class="plat">'+D('#111')+'TikTok</td><td>'+pill(tSpend)+'</td><td class="num">'+usd2(tSpend)+'</td><td class="num">'+n0(tInst)+'</td><td class="num">'+cpi(tSpend,tInst)+'</td></tr>'+
     '<tr class="tot"><td>Total</td><td></td><td class="num">'+usd2(totSpend)+'</td><td class="num">'+n0(totInstalls)+'</td><td class="num">'+blended+'</td></tr>'+
     '</tbody></table></div>'+
   '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">Spend share</div>'+rows(spList,totSpend,usd0)+'</div>'+
