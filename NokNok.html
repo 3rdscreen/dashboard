@@ -556,7 +556,7 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
       <div class="card" style="padding:20px 22px;margin-bottom:22px">
         <div style="font-weight:700;color:var(--navy);margin-bottom:4px">Android vs iOS</div>
         <table class="xtable">
-          <thead><tr><th>Platform</th><th class="num">Spend</th><th class="num">Installs</th><th class="num">Cost / Install</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th></tr></thead>
+          <thead><tr><th>Platform</th><th class="num">Spend</th><th class="num">Daily spend</th><th class="num">Installs</th><th class="num">Cost / Install</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th></tr></thead>
           <tbody>
             <tr><td class="plat">Android</td><td class="num">$230.23</td><td class="num">1,987</td><td class="num">$0.12</td><td class="num">514,131</td><td class="num">39,342</td><td class="num">7.65%</td></tr>
             <tr><td class="plat">iOS</td><td class="num">$184.56</td><td class="num">41</td><td class="num">$4.50</td><td class="num">158,649</td><td class="num">4,053</td><td class="num">2.55%</td></tr>
@@ -1136,16 +1136,18 @@ function renderOverview(start,end){
   let mInstSpend=0,mInstalls=0,mTotSpend=0,mRegs=0,mPurch=0;
   DAILY.install.forEach(function(o){for(const dt in o.days){if(inR(dt)){const v=o.days[dt];mInstSpend+=v[2];mInstalls+=v[4];mPurch+=v[5];}}});
   DAILY.sales.forEach(function(o){for(const dt in o.days){if(inR(dt)){mPurch+=o.days[dt][4];}}});
-  for(const dt in DAILY.acctReg){if(inR(dt)){mTotSpend+=DAILY.acctReg[dt][0];mRegs+=DAILY.acctReg[dt][1];}}
+  let mDays=0,gDays=0,tDays=0;
+  for(const dt in DAILY.acctReg){if(inR(dt)){mTotSpend+=DAILY.acctReg[dt][0];mRegs+=DAILY.acctReg[dt][1];if(DAILY.acctReg[dt][0]>0)mDays++;}}
   // Google (from GOOGLE_DAILY)
   let gSpend=0,gInst=0;
-  for(const dt in GOOGLE_DAILY){if(inR(dt)){const g=GOOGLE_DAILY[dt];gSpend+=g.a[0]+g.i[0];gInst+=g.a[3]+g.i[3];}}
+  for(const dt in GOOGLE_DAILY){if(inR(dt)){const g=GOOGLE_DAILY[dt];const gs=g.a[0]+g.i[0];gSpend+=gs;gInst+=g.a[3]+g.i[3];if(gs>0)gDays++;}}
   // TikTok (from TIKTOK_DAILY)
   let tSpend=0,tInst=0;
-  for(const dt in TIKTOK_DAILY){if(inR(dt)){const t=TIKTOK_DAILY[dt];tSpend+=t.spend;tInst+=t.inst;}}
+  for(const dt in TIKTOK_DAILY){if(inR(dt)){const t=TIKTOK_DAILY[dt];tSpend+=t.spend;tInst+=t.inst;if(t.spend>0)tDays++;}}
   const totSpend=mTotSpend+gSpend+tSpend;
   const totInstalls=mInstalls+gInst+tInst;
   const instSpend=mInstSpend+gSpend;
+  const mDaily=mDays>0?mTotSpend/mDays:0,gDaily=gDays>0?gSpend/gDays:0,tDaily=tDays>0?tSpend/tDays:0,totDaily=mDaily+gDaily+tDaily;
   const blended= totInstalls>0? usd2(instSpend/totInstalls):'\u2014';
   const wl=function(iso){const dt=new Date(iso+'T00:00:00Z');return MS3[dt.getUTCMonth()]+' '+dt.getUTCDate();};
   const ov=document.getElementById('ovWindow'); if(ov) ov.textContent=wl(start)+' \u2013 '+wl(end)+', '+end.slice(0,4);
@@ -1164,12 +1166,12 @@ function renderOverview(start,end){
     '<div class="kpi"><div class="k">Purchases</div><div class="v">'+n0(mPurch)+'</div><div class="s">Meta (tracked)</div></div>'+
   '</div>'+
   '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:4px">Platform breakdown</div>'+
-    '<table class="xtable"><thead><tr><th>Platform</th><th>Status</th><th class="num">Spend</th><th class="num">Installs</th><th class="num">Cost / Install</th></tr></thead><tbody>'+
-    '<tr><td class="plat">'+D('#1877F2')+'Meta</td><td>'+pill(mTotSpend)+'</td><td class="num">'+usd2(mTotSpend)+'</td><td class="num">'+n0(mInstalls)+'</td><td class="num">'+cpi(mInstSpend,mInstalls)+'</td></tr>'+
-    '<tr><td class="plat">'+D('#EA4335')+'Google</td><td>'+pill(gSpend)+'</td><td class="num">'+usd2(gSpend)+'</td><td class="num">'+n0(gInst)+'</td><td class="num">'+cpi(gSpend,gInst)+'</td></tr>'+
-    '<tr><td class="plat">'+D('#111')+'TikTok</td><td>'+pill(tSpend)+'</td><td class="num">'+usd2(tSpend)+'</td><td class="num">'+n0(tInst)+'</td><td class="num">'+cpi(tSpend,tInst)+'</td></tr>'+
-    '<tr class="tot"><td>Total</td><td></td><td class="num">'+usd2(totSpend)+'</td><td class="num">'+n0(totInstalls)+'</td><td class="num">'+blended+'</td></tr>'+
-    '</tbody></table></div>'+
+    '<table class="xtable"><thead><tr><th>Platform</th><th>Status</th><th class="num">Spend</th><th class="num">Daily budget</th><th class="num">Installs</th><th class="num">Cost / Install</th></tr></thead><tbody>'+
+    '<tr><td class="plat">'+D('#1877F2')+'Meta</td><td>'+pill(mTotSpend)+'</td><td class="num">'+usd2(mTotSpend)+'</td><td class="num">'+'$70*'+'</td><td class="num">'+n0(mInstalls)+'</td><td class="num">'+cpi(mInstSpend,mInstalls)+'</td></tr>'+
+    '<tr><td class="plat">'+D('#EA4335')+'Google</td><td>'+pill(gSpend)+'</td><td class="num">'+usd2(gSpend)+'</td><td class="num">'+'$30'+'</td><td class="num">'+n0(gInst)+'</td><td class="num">'+cpi(gSpend,gInst)+'</td></tr>'+
+    '<tr><td class="plat">'+D('#111')+'TikTok</td><td>'+pill(tSpend)+'</td><td class="num">'+usd2(tSpend)+'</td><td class="num">'+'$40'+'</td><td class="num">'+n0(tInst)+'</td><td class="num">'+cpi(tSpend,tInst)+'</td></tr>'+
+    '<tr class="tot"><td>Total</td><td></td><td class="num">'+usd2(totSpend)+'</td><td class="num">'+'$140*'+'</td><td class="num">'+n0(totInstalls)+'</td><td class="num">'+blended+'</td></tr>'+
+    '</tbody></table><div class="gnote" style="margin-top:10px"><b>Daily budget</b> = current combined daily budget per platform (a fixed campaign setting, not tied to the selected period). Meta&rsquo;s App&nbsp;Install (Android $30 + iOS $30) and Registration ($10) campaigns total <b>$70/day</b>; <b>*</b>&nbsp;its Sales campaign runs on a separate <b>$4,800 lifetime</b> budget (no daily cap), so it isn&rsquo;t included. Google $30/day ($20 + $10); TikTok $40/day ($20 + $20).</div></div>'+
   '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">Spend share</div>'+rows(spList,totSpend,usd0)+'</div>'+
   '<div class="card" style="padding:20px 22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">App-install share</div>'+rows(inList,totInstalls,n0)+'</div>';
   const el=document.getElementById('ovBody'); if(el) el.innerHTML=body;
