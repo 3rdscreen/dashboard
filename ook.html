@@ -349,6 +349,11 @@ const GK={
   google:["uae","ksa","ku"],
 };
 const GL={uae:"UAE",ksa:"KSA",ku:"KU / QA / BH",uk:"UK",cat:"Catalogue_GCC",catadv:"Catalogue_GCC_ADV+",ret:"Retargeting"};
+// HIDE-WHEN-EMPTY (never delete). A market row renders only when it has data in the SELECTED
+// date range. A market that is off today (e.g. UK from Jul 14) drops out of the table, but its
+// history is retained: pick a range where it was live (e.g. Jul 1-9) and the row returns
+// automatically. Never delete a market to hide it — that would destroy the back-history.
+const hasRangeData = x => (x.spend||0) > 0 || (x.conv||0) > 0 || (x.sv||0) > 0;
 const GC=["#1a1a1a","#6B7280","#9CA3AF","#9333ea","#D1D5DB","#0ea5e9"];
 
 // ═══════════════════════════════════════════════════════
@@ -1631,7 +1636,7 @@ function renderPlatRange(pk, rd){
   rd.forEach(d=>{const r=row(pk,d);if(r&&r.spend>0){totSpend+=r.spend;totSV+=r.sv||0;totConv+=r.conv||0;totAtc+=r.atc||0;wR+=r.roas*r.spend;}});
   if(!totSpend){document.getElementById("view").innerHTML=`<div class="nodata">No data for ${p.label} in this range</div>`;return;}
   const mtdRoas=totSpend>0?wR/totSpend:0, mtdCPO=totConv>0?totSpend/totConv:0;
-  const gr=geos.map((g,i)=>{let sp=0,sv=0,cv=0,wr=0;rd.forEach(d=>{const r=row(pk,d);if(r){const geo=r[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);}});return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};});
+  const gr=geos.map((g,i)=>{let sp=0,sv=0,cv=0,wr=0;rd.forEach(d=>{const r=row(pk,d);if(r){const geo=r[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);}});return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};}).filter(hasRangeData);
   const kpis=(pk==='meta'||pk==='tiktok'||pk==='snap')?[{l:"SALES",v:fC(totConv)},{l:"SPEND",v:fS(totSpend)},{l:"ROAS",v:fR(mtdRoas)},{l:"ATC",v:totAtc>0?fC(totAtc):'—'},{l:"CPO",v:fCPO(mtdCPO)},{l:"SALES VALUE",v:fSV(totSV)}]:[{l:"ROAS",v:fR(mtdRoas)},{l:"SPEND",v:fS(totSpend)},{l:"SALES VALUE",v:fSV(totSV)},{l:"SALES",v:fC(totConv)},{l:"CPO",v:fCPO(mtdCPO)}];
   document.getElementById("view").innerHTML=`<div class="${pk==='google'?'g5':'g6'}">${kpis.map(k=>`<div class="card" style="border-top:2px solid ${p.color}"><div class="klbl">${k.l}</div><div class="kval sm">${k.v}</div></div>`).join("")}</div><div class="cc"><div class="clbl">MARKET BREAKDOWN — <strong class="cperiod">${selStart} to ${selEnd}</strong></div><table class="gtbl"><thead><tr><th>Market</th><th>ROAS</th><th>Sales</th><th>Spend</th>${pk!=='google'?'<th>ATC</th>':''}<th>CPO</th><th>Sales Value</th></tr></thead><tbody>${(()=>{const totAtcRng=totAtc||0;const totSpendRng=gr.reduce((s,g)=>s+g.spend,0);return gr.map(g=>{const gAtc=pk!=='google'&&totSpendRng>0?Math.round(totAtcRng*(g.spend/totSpendRng)):0;return`<tr><td><span class="gn"><span class="gs" style="background:${g.color}"></span>${g.label}</span></td><td>${g.spend>0?fR(g.roas):"—"}</td><td>${g.spend>0?fC(g.conv):"—"}</td><td>${g.spend>0?fS(g.spend):"—"}</td>${pk!=='google'?`<td>${g.spend>0&&gAtc>0?fC(gAtc):"—"}</td>`:''}<td>${g.spend>0?fCPO(g.cpo):"—"}</td><td>${g.spend>0?fSV(g.sv):"—"}</td></tr>${(pk==='meta'&&g.label==='KU / QA / BH'&&g.spend>0)?buildMetaKuCountryRows(rd,true):''}`;}).join('') + `<tr style="font-weight:700;border-top:2px solid #d6d6cf;background:#faf9f5"><td><span class="gn"><span class="gs" style="background:#1a1a1a"></span>Total</span></td><td>${totSpend>0?fR(mtdRoas):"—"}</td><td>${totSpend>0?fC(totConv):"—"}</td><td>${totSpend>0?fS(totSpend):"—"}</td>${pk!=='google'?`<td>${totAtc>0?fC(totAtc):"—"}</td>`:''}<td>${totConv>0?fCPO(mtdCPO):"—"}</td><td>${totSpend>0?fSV(totSV):"—"}</td></tr>`;})()}</tbody></table></div>`;
   // Append granular tables for the range FIRST
@@ -1783,7 +1788,7 @@ function buildCampaignTable(datesArr, label){
     { name:'UK Sales - ASC',         agg: aggMetaGeo(['UK ALL - ASC']) },
     { name:'Catalogue_GCC',  agg: aggMetaGeo(['Catalogue Retargeting / Prospecting - GCC']) },
     { name:'Catalogue_GCC_ADV+',   agg: aggMetaGeo(['Catalogue Adv+ - GCC']) },
-    { name:'Followers - GCC Brand',  agg: aggRecs(ds.map(d=>(gran.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).find(r=>r.d===d)).filter(Boolean)), isFollowers: true },
+    { name:'Followers - ALL Markets Brand',  agg: aggRecs(ds.map(d=>(gran.meta?.adsets?.[META_FOLLOWERS_KEY]||[]).find(r=>r.d===d)).filter(Boolean)), isFollowers: true },
   ];
   const metaCamps = metaAdsets.map(({name, agg, isFollowers}) => {
     if(isFollowers) return { name, agg:{ spend:agg.spend, sv:0, conv:0, atc:0, hasAtc:false, roas:0, cpo:0, avgPV:0 }};
@@ -1934,7 +1939,7 @@ function buildAdsetTable(datesArr, label){
     { geo:'UK',                     agg: aggAdset('meta',['UK ALL - ASC']) },
     { geo:'Catalogue_GCC',agg: aggAdset('meta',['Catalogue Retargeting / Prospecting - GCC']) },
     { geo:'Catalogue_GCC_ADV+',       agg: aggAdset('meta',['Catalogue Adv+ - GCC']) },
-    { geo:'Followers – Brand GCC',  agg: aggRecs(getAdset('meta', META_FOLLOWERS_KEY)), isFollowers:true },
+    { geo:'Followers – Brand ALL Markets',  agg: aggRecs(getAdset('meta', META_FOLLOWERS_KEY)), isFollowers:true },
   ].filter(a => a.agg.spend > 0 || a.isFollowers);
 
   // ── TIKTOK adsets
@@ -3333,7 +3338,7 @@ function buildMTDMarketTable(pk, p) {
     let sp=0,sv=0,cv=0,wr=0;
     mtdDates.forEach(dt=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){const geo=rr[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);}});
     return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};
-  });
+  }).filter(hasRangeData);
 
   // Total platform ATC for MTD
   const totAtcMTD=mtdDates.reduce((s,dt)=>{const rr=all.find(x=>x.d===dt);return s+(rr?+(rr.atc||0):0);},0);
@@ -3398,7 +3403,7 @@ function buildLast7MarketTable(pk, p) {
     let sp=0,sv=0,cv=0,wr=0;
     last7.forEach(dt=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){const geo=rr[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);}});
     return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};
-  });
+  }).filter(hasRangeData);
 
   const totAtc7=last7.reduce((s,dt)=>{const rr=all.find(x=>x.d===dt);return s+(rr?+(rr.atc||0):0);},0);
   const _plat7=last7.reduce((acc,dt)=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){acc.sp+=rr.spend;acc.sv+=(rr.sv||0);acc.cv+=(rr.conv||0);acc.wr+=rr.roas*rr.spend;}return acc;},{sp:0,sv:0,cv:0,wr:0});
@@ -3457,7 +3462,7 @@ function buildLast30MarketTable(pk, p) {
     let sp=0,sv=0,cv=0,wr=0;
     last30.forEach(dt=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){const geo=rr[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);}});
     return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};
-  });
+  }).filter(hasRangeData);
 
   const totAtc30=last30.reduce((s,dt)=>{const rr=all.find(x=>x.d===dt);return s+(rr?+(rr.atc||0):0);},0);
   const _plat30=last30.reduce((acc,dt)=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){acc.sp+=rr.spend;acc.sv+=(rr.sv||0);acc.cv+=(rr.conv||0);acc.wr+=rr.roas*rr.spend;}return acc;},{sp:0,sv:0,cv:0,wr:0});
@@ -3515,7 +3520,7 @@ function buildMetaMBInner(pk, dts){
     let sp=0,sv=0,cv=0,wr=0,at=0;
     dts.forEach(dt=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){const geo=rr[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);at+=geo.atc||0;}});
     return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,atc:at,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};
-  });
+  }).filter(hasRangeData);
   const totAtc=dts.reduce((s,dt)=>{const rr=all.find(x=>x.d===dt);return s+(rr?+(rr.atc||0):0);},0);
   const _plat=dts.reduce((acc,dt)=>{const rr=all.find(x=>x.d===dt);if(rr&&rr.spend>0){acc.sp+=rr.spend;acc.sv+=(rr.sv||0);acc.cv+=(rr.conv||0);acc.wr+=rr.roas*rr.spend;}return acc;},{sp:0,sv:0,cv:0,wr:0});
   const totSpend=gr.reduce((s,g)=>s+g.spend,0);
@@ -3666,7 +3671,7 @@ function renderPlat(pk,d){
   const gr=geos.map((g,i)=>{
     const geo=r[g]||{};
     return{g,label:GL[g],color:GC[i],roas:geo.roas||0,spend:geo.spend||0,sv:geo.sv||0,conv:geo.conv||0,cpo:geo.cpo||0};
-  });
+  }).filter(hasRangeData);
 
   // KPI cards: ROAS, SPEND, SALES VALUE, SALES, ATC, CPO
   const kpis=(pk==='meta'||pk==='tiktok'||pk==='snap')?[
@@ -4622,7 +4627,7 @@ function renderPlatMTD(pk){
     let sp=0,sv=0,cv=0,wr=0;
     active.forEach(r=>{const geo=r[g]||{};sp+=geo.spend||0;sv+=geo.sv||0;cv+=geo.conv||0;wr+=(geo.roas||0)*(geo.spend||0);});
     return{g,label:GL[g],color:GC[i],spend:sp,sv,conv:cv,roas:sp>0?wr/sp:0,cpo:cv>0?sp/cv:0};
-  });
+  }).filter(hasRangeData);
 
   // KPI cards
   const totAtcMTD=active.reduce((s,r)=>s+(r.atc||0),0);
