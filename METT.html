@@ -49,64 +49,42 @@
   .filter-indicator{margin-bottom:20px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:10px}
   .filter-indicator .bar{display:inline-block;width:20px;height:1px;background:var(--gold);flex-shrink:0}
 
-  .section-label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold-2);font-weight:700;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
-  .section-label::after{content:'';flex:1;height:1px;background:var(--line)}
 
 
   /* property grid */
-  .prop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-  .card{border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden;display:flex;flex-direction:column}
-  .card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--surface-2)}
-  .card-head h3{font-size:16px;font-weight:600;letter-spacing:.2px}
-  .card-head .loc{font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold-2);font-weight:700}
-  .cur-chip{font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 9px;border:1px solid var(--line-2);color:var(--ink-2);background:var(--surface);border-radius:2px;font-family:var(--font-mono)}
 
-  .chan{border-bottom:1px solid var(--line)}
-  .chan-head{display:flex;align-items:center;gap:9px;padding:9px 18px;background:var(--meta)}
-  .chan.g .chan-head{background:var(--goog)}
-  .chan-head .nm{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#fff;font-weight:700}
-  .chan-head .roas-pill{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.6px;padding:3px 9px;border-radius:2px;background:rgba(255,255,255,.16);color:#fff;font-family:var(--font-mono)}
-  .swatch{width:8px;height:8px;background:#fff;opacity:.85;flex-shrink:0}
-  .rows{display:grid;grid-template-columns:1fr 1fr}
-  .row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:9px 18px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
-  .rows .row:nth-child(2n){border-right:none}
-  .rows .row:nth-last-child(-n+1){border-bottom:none}
-  .row .k{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-3);font-weight:700}
-  .row .v{font-size:15px;font-weight:700;font-family:var(--font-mono);white-space:nowrap}
-  .row .v .cur{font-size:11px;color:var(--gold-2);margin-right:2px}
-  .row.wide{grid-column:1/-1;border-right:none}
-  .row.rev .v{color:var(--success)}
-  .card-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--navy);color:#fff;margin-top:auto}
-  .card-foot .k{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.72)}
-  .card-foot .v{font-size:17px;font-weight:700;font-family:var(--font-mono)}
 
   /* table */
-  .tbl-wrap{border:1px solid var(--line);overflow-x:auto;background:var(--surface);box-shadow:var(--shadow-sm)}
-  table{border-collapse:collapse;width:100%;min-width:900px}
-  thead th{background:var(--navy);color:#fff;font-size:9.5px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;padding:11px 12px;text-align:right;white-space:nowrap}
-  thead th:first-child,thead th:nth-child(2){text-align:left}
-  tbody td{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--font-mono);white-space:nowrap}
-  tbody td:first-child,tbody td:nth-child(2){text-align:left;font-family:var(--font)}
-  tbody td:first-child{font-weight:600}
-  tbody tr:hover{background:var(--surface-2)}
-  tbody tr.tot{background:var(--surface-2);font-weight:700}
-  tbody tr.tot td{border-top:2px solid var(--navy);border-bottom:none}
-  .badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.8px;padding:2px 8px;border-radius:2px;color:#fff;background:var(--meta)}
+  .tables{display:grid;gap:15px}
+  .tbl-wrap{border:1px solid var(--line);overflow-x:auto;background:var(--surface);box-shadow:var(--shadow-sm);-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;min-width:880px;table-layout:fixed}
+
+  /* navy header carries the hotel name + column labels */
+  thead th{background:var(--navy);color:#fff;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;font-weight:700;padding:13px 14px;text-align:right;white-space:nowrap;vertical-align:middle}
+  thead th.th-name{text-align:left;width:210px;border-right:1px solid rgba(255,255,255,.14);box-shadow:inset 3px 0 0 var(--gold)}
+  .hotel{font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#fff}
+  .hotel-cur{font-size:8.5px;font-weight:700;letter-spacing:1px;color:var(--gold);border:1px solid rgba(200,155,148,.55);
+    padding:2px 6px;border-radius:2px;margin-left:9px;vertical-align:1px}
+
+  tbody td{padding:11px 14px;font-size:13px;text-align:right;font-family:var(--font-mono);white-space:nowrap;color:var(--ink);border-bottom:1px solid var(--line)}
+  tbody td.ch{text-align:left;font-family:var(--font)}
+  tbody tr:hover td{background:#FBFAF8}
+
+  tbody tr.tot td{border-top:1px solid var(--ink-4);border-bottom:none;font-weight:700;background:var(--surface-2)}
+  tbody tr.tot td.ch{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+  tbody tr.tot:hover td{background:var(--surface-2)}
+
+  .badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.6px;padding:3px 9px;border-radius:2px;color:#fff;background:var(--meta);min-width:60px;text-align:center}
   .badge.g{background:var(--goog)}
-  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:2px;font-family:var(--font-mono)}
+  .pill{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:2px;font-family:var(--font-mono);min-width:56px;text-align:center}
   .pill.good{background:rgba(79,122,90,.12);color:var(--success)}
   .pill.warn{background:rgba(176,122,63,.12);color:var(--warn)}
   .pill.bad{background:rgba(158,75,75,.12);color:var(--danger)}
 
-  .note{margin-top:14px;border:1px solid var(--line);border-left:2px solid var(--gold);background:var(--surface-2);padding:14px 18px;font-size:12px;color:var(--ink-2);line-height:1.65}
-  .note b{color:var(--ink)}
   .footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--ink-3)}
 
   .scroll-hint{display:none}
 
-  @media (max-width:1080px){
-    .prop-grid{grid-template-columns:1fr}
-  }
   @media (max-width:760px){
     .app{padding:14px 14px 56px}
     .masthead{align-items:flex-start;gap:14px;padding-bottom:14px;margin-bottom:14px}
@@ -131,28 +109,19 @@
     /* KPIs */
 
     /* property cards */
-    .card-head{padding:11px 14px}
-    .card-head h3{font-size:15px}
-    .chan-head{padding:8px 14px}
-    .row{padding:8px 14px}
-    .row .k{font-size:9px;letter-spacing:.7px}
-    .row .v{font-size:13px}
-    .card-foot{padding:11px 14px}
-    .card-foot .v{font-size:15px}
 
     /* table: scrollable with hint */
     .scroll-hint{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
     .tbl-wrap{-webkit-overflow-scrolling:touch}
+    .tables{gap:15px}
     table{min-width:760px}
-    thead th{padding:9px 10px;font-size:9px}
-    tbody td{padding:8px 10px;font-size:12px}
-    .note{padding:12px 14px;font-size:11.5px}
-    .section-label{margin:20px 0 10px}
+    thead th{padding:11px 11px;font-size:8.5px;letter-spacing:.9px}
+    thead th.th-name{width:150px}
+    .hotel{font-size:10.5px;letter-spacing:1.3px}
+    .hotel-cur{margin-left:6px;font-size:8px}
+    tbody td{padding:9px 11px;font-size:12px}
+    .badge{min-width:52px;font-size:9px}
     .footer{flex-direction:column;gap:6px;font-size:10px}
-  }
-  @media (max-width:420px){
-    .rows{grid-template-columns:1fr}
-    .row{border-right:none!important}
   }
   @media print{.filter-bar{position:static}.seg{display:none}.seg.active{display:block}.scroll-hint{display:none}}
   @media print{.filter-bar{position:static}.seg{display:none}.seg.active{display:block}}
@@ -198,29 +167,11 @@
 
   <div class="filter-indicator"><span class="bar"></span><span id="filterInd">Showing May &ndash; 26 &middot; all four properties</span></div>
 
-  <div class="section-label">By Property</div>
-  <div class="prop-grid" id="propGrid"></div>
-
-  <div class="section-label">Channel Detail</div>
   <div class="scroll-hint">
     <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     Swipe to see all columns
   </div>
-  <div class="tbl-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Property</th><th>Channel</th><th>Impressions</th><th>Clicks</th><th>Cost / Click</th>
-          <th>Ad Spend</th><th>Total Revenue</th><th>Rooms Booked</th><th>ROAS</th>
-        </tr>
-      </thead>
-      <tbody id="tblBody"></tbody>
-    </table>
-  </div>
-
-  <div class="note">
-    <b>Method.</b> Impressions, clicks and ad spend are actuals pulled from Meta Ads and Google Ads via Supermetrics, scoped to METT campaigns only. Cost per click = spend &divide; clicks. Revenue and rooms are attributed from GA4 transactions using the locked attribution model (82.5% of GA4 revenue and 82.3% of transactions assigned to paid, split Google:Meta 59:41 &mdash; 76:24 for Bodrum, matching its actual spend ratio). Bodrum is reported in EUR at the locked rate of TRY 53.5 = &euro;1; Singapore reports in USD, all other properties in EUR. Barcelona shares a GA4 group rollup and a multi-brand Meta account; both are filtered to METT before attribution. July &ndash; 26 covers 1&ndash;14 Jul only &mdash; a partial month, so do not read it as a full-month step down.
-  </div>
+  <div class="tables" id="tables"></div>
 
   <footer class="footer">
     <span>METT HOTELS &mdash; Marbella &middot; Barcelona &middot; Bodrum &middot; Singapore</span>
@@ -231,7 +182,6 @@
 <script>
 const DATA = {"singapore": {"name": "METT Singapore", "cur": "$", "months": {"2026-05": {"meta": {"impressions": 1697371, "clicks": 21933, "cpc": 0.17, "spend": 3799.03, "revenue": 29791.2, "rooms": 24.0, "roas": 7.84}, "google": {"impressions": 286303, "clicks": 7040, "cpc": 0.55, "spend": 3878.96, "revenue": 42870.26, "rooms": 34.5, "roas": 11.05}, "totalSpend": 7677.99}, "2026-06": {"meta": {"impressions": 1696658, "clicks": 28426, "cpc": 0.13, "spend": 3799.58, "revenue": 18229.48, "rooms": 17.9, "roas": 4.8}, "google": {"impressions": 203421, "clicks": 6313, "cpc": 0.69, "spend": 4353.97, "revenue": 26232.66, "rooms": 25.7, "roas": 6.02}, "totalSpend": 8153.55}, "2026-07": {"meta": {"impressions": 357812, "clicks": 6677, "cpc": 0.18, "spend": 1197.97, "revenue": 17005.52, "rooms": 14.2, "roas": 14.2}, "google": {"impressions": 77515, "clicks": 2357, "cpc": 0.68, "spend": 1607.6, "revenue": 24471.36, "rooms": 20.4, "roas": 15.22}, "totalSpend": 2805.57}}}, "marbella": {"name": "METT Marbella", "cur": "\u20ac", "months": {"2026-05": {"meta": {"impressions": 1208551, "clicks": 26509, "cpc": 0.12, "spend": 3129.07, "revenue": 137435.01, "rooms": 62.4, "roas": 43.92}, "google": {"impressions": 226058, "clicks": 13119, "cpc": 0.61, "spend": 7971.37, "revenue": 197772.33, "rooms": 89.8, "roas": 24.81}, "totalSpend": 11100.44}, "2026-06": {"meta": {"impressions": 1917139, "clicks": 22655, "cpc": 0.17, "spend": 3928.25, "revenue": 108599.78, "rooms": 45.6, "roas": 27.65}, "google": {"impressions": 372728, "clicks": 19140, "cpc": 0.47, "spend": 9014.08, "revenue": 156277.74, "rooms": 65.6, "roas": 17.34}, "totalSpend": 12942.33}, "2026-07": {"meta": {"impressions": 926052, "clicks": 13246, "cpc": 0.15, "spend": 1932.02, "revenue": 34773.26, "rooms": 15.5, "roas": 18.0}, "google": {"impressions": 1249958, "clicks": 86462, "cpc": 0.05, "spend": 4366.41, "revenue": 50039.57, "rooms": 22.3, "roas": 11.46}, "totalSpend": 6298.43}}}, "bodrum": {"name": "METT Bodrum", "cur": "\u20ac", "months": {"2026-05": {"meta": {"impressions": 785591, "clicks": 10826, "cpc": 0.1, "spend": 1122.83, "revenue": 28652.35, "rooms": 11.5, "roas": 25.52}, "google": {"impressions": 137226, "clicks": 10221, "cpc": 0.23, "spend": 2322.14, "revenue": 90732.44, "rooms": 36.3, "roas": 39.07}, "totalSpend": 3444.98}, "2026-06": {"meta": {"impressions": 709699, "clicks": 10392, "cpc": 0.11, "spend": 1140.03, "revenue": 56839.67, "rooms": 13.4, "roas": 49.86}, "google": {"impressions": 266475, "clicks": 16974, "cpc": 0.19, "spend": 3197.27, "revenue": 179992.3, "rooms": 42.5, "roas": 56.3}, "totalSpend": 4337.3}, "2026-07": {"meta": {"impressions": 396002, "clicks": 6699, "cpc": 0.11, "spend": 762.31, "revenue": 16438.9, "rooms": 6.3, "roas": 21.56}, "google": {"impressions": 191414, "clicks": 12607, "cpc": 0.16, "spend": 1989.09, "revenue": 52056.52, "rooms": 20.0, "roas": 26.17}, "totalSpend": 2751.4}}}, "barcelona": {"name": "METT Barcelona", "cur": "\u20ac", "months": {"2026-05": {"meta": {"impressions": 817594, "clicks": 19044, "cpc": 0.16, "spend": 3031.61, "revenue": 29029.56, "rooms": 20.6, "roas": 9.58}, "google": {"impressions": 682728, "clicks": 14353, "cpc": 0.39, "spend": 5545.78, "revenue": 41774.25, "rooms": 29.6, "roas": 7.53}, "totalSpend": 8577.39}, "2026-06": {"meta": {"impressions": 1337621, "clicks": 25277, "cpc": 0.12, "spend": 3052.31, "revenue": 21392.13, "rooms": 17.9, "roas": 7.01}, "google": {"impressions": 396990, "clicks": 11316, "cpc": 0.58, "spend": 6538.86, "revenue": 30783.8, "rooms": 25.7, "roas": 4.71}, "totalSpend": 9591.17}, "2026-07": {"meta": {"impressions": 729559, "clicks": 11848, "cpc": 0.11, "spend": 1288.68, "revenue": 6046.17, "rooms": 7.8, "roas": 4.69}, "google": {"impressions": 146218, "clicks": 5385, "cpc": 0.57, "spend": 3050.45, "revenue": 8700.58, "rooms": 11.2, "roas": 2.85}, "totalSpend": 4339.13}}}};
 const ORDER = ['marbella','barcelona','bodrum','singapore'];
-const LOC = {marbella:'Spain', barcelona:'Spain', bodrum:'Türkiye', singapore:'Singapore'};
 const CURNAME = {'€':'EUR','$':'USD'};
 const MLABEL = {
   '2026-05':{n:'May – 26',  r:'1 – 31 May 2026'},
@@ -245,61 +195,46 @@ const m2 = v => v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractio
 const m0 = v => Math.round(v).toLocaleString('en-US');
 const roasCls = r => r >= 8 ? 'good' : (r >= 4 ? 'warn' : 'bad');
 
-function propCard(key, month){
+function propTable(key, month){
   const p = DATA[key], d = p.months[month], c = p.cur;
-  const chan = (o, cls, name) => `
-    <div class="chan ${cls}">
-      <div class="chan-head"><span class="swatch"></span><span class="nm">${name}</span>
-        <span class="roas-pill">ROAS ${m2(o.roas)}×</span></div>
-      <div class="rows">
-        <div class="row"><span class="k">Impressions</span><span class="v">${n0(o.impressions)}</span></div>
-        <div class="row"><span class="k">Clicks</span><span class="v">${n0(o.clicks)}</span></div>
-        <div class="row"><span class="k">Cost per Click</span><span class="v"><span class="cur">${c}</span>${m2(o.cpc)}</span></div>
-        <div class="row"><span class="k">Ad Spend</span><span class="v"><span class="cur">${c}</span>${m0(o.spend)}</span></div>
-        <div class="row rev"><span class="k">Total Revenue</span><span class="v"><span class="cur">${c}</span>${m0(o.revenue)}</span></div>
-        <div class="row"><span class="k">Rooms Booked</span><span class="v">${n1(o.rooms)}</span></div>
-      </div>
-    </div>`;
-  return `<article class="card">
-    <div class="card-head">
-      <div><div class="loc">${LOC[key]}</div><h3>${p.name}</h3></div>
-      <span class="cur-chip">${CURNAME[c]}</span>
-    </div>
-    ${chan(d.meta,'m','Meta – Instagram')}
-    ${chan(d.google,'g','Google Ads – SEM')}
-    <div class="card-foot"><span class="k">Total Spend: ${CURNAME[c]}</span><span class="v">${c}${m2(d.totalSpend)}</span></div>
-  </article>`;
-}
-
-function tableRows(month){
-  let html = '';
-  ORDER.forEach(key => {
-    const p = DATA[key], d = p.months[month], c = p.cur;
-    const line = (o, cls, name, first) => `
-      <tr>
-        <td>${first ? p.name : ''}</td>
-        <td><span class="badge ${cls}">${name}</span></td>
-        <td>${n0(o.impressions)}</td><td>${n0(o.clicks)}</td>
-        <td>${c}${m2(o.cpc)}</td><td>${c}${m0(o.spend)}</td>
-        <td>${c}${m0(o.revenue)}</td><td>${n1(o.rooms)}</td>
-        <td><span class="pill ${roasCls(o.roas)}">${m2(o.roas)}×</span></td>
-      </tr>`;
-    html += line(d.meta,'','META',true) + line(d.google,'g','GOOGLE',false);
-    html += `<tr class="tot"><td>${p.name}</td><td>Total</td>
-      <td>${n0(d.meta.impressions+d.google.impressions)}</td>
-      <td>${n0(d.meta.clicks+d.google.clicks)}</td>
-      <td>${c}${m2(d.totalSpend/(d.meta.clicks+d.google.clicks))}</td>
-      <td>${c}${m0(d.totalSpend)}</td>
-      <td>${c}${m0(d.meta.revenue+d.google.revenue)}</td>
-      <td>${n1(d.meta.rooms+d.google.rooms)}</td>
-      <td><span class="pill ${roasCls((d.meta.revenue+d.google.revenue)/d.totalSpend)}">${m2((d.meta.revenue+d.google.revenue)/d.totalSpend)}×</span></td></tr>`;
-  });
-  return html;
+  const line = (o, cls, name) => `
+    <tr>
+      <td class="ch"><span class="badge ${cls}">${name}</span></td>
+      <td>${n0(o.impressions)}</td><td>${n0(o.clicks)}</td>
+      <td>${c}${m2(o.cpc)}</td><td>${c}${m0(o.spend)}</td>
+      <td>${c}${m0(o.revenue)}</td><td>${n1(o.rooms)}</td>
+      <td><span class="pill ${roasCls(o.roas)}">${m2(o.roas)}×</span></td>
+    </tr>`;
+  const tRev = d.meta.revenue + d.google.revenue, tClicks = d.meta.clicks + d.google.clicks;
+  return `<div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="th-name"><span class="hotel">${p.name}</span><span class="hotel-cur">${CURNAME[c]}</span></th>
+          <th>Impressions</th><th>Clicks</th><th>Cost / Click</th>
+          <th>Ad Spend</th><th>Total Revenue</th><th>Rooms Booked</th><th>ROAS</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${line(d.meta,'','Meta')}
+        ${line(d.google,'g','Google')}
+        <tr class="tot">
+          <td class="ch">Total</td>
+          <td>${n0(d.meta.impressions+d.google.impressions)}</td>
+          <td>${n0(tClicks)}</td>
+          <td>${c}${m2(d.totalSpend/tClicks)}</td>
+          <td>${c}${m0(d.totalSpend)}</td>
+          <td>${c}${m0(tRev)}</td>
+          <td>${n1(d.meta.rooms+d.google.rooms)}</td>
+          <td><span class="pill ${roasCls(tRev/d.totalSpend)}">${m2(tRev/d.totalSpend)}×</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
 }
 
 function render(month){
-  document.getElementById('propGrid').innerHTML = ORDER.map(k => propCard(k, month)).join('');
-  document.getElementById('tblBody').innerHTML = tableRows(month);
+  document.getElementById('tables').innerHTML = ORDER.map(k => propTable(k, month)).join('');
 
   document.getElementById('livePill').textContent   = MLABEL[month].n;
   document.getElementById('dateValue').textContent  = MLABEL[month].r;
