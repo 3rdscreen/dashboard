@@ -36,7 +36,7 @@
   .src-chip{font-size:10px;letter-spacing:.8px;padding:4px 10px;border:1px solid var(--gold);color:var(--gold-2);background:var(--gold-soft);border-radius:2px;font-weight:600}
 
   /* month filter */
-  .filter-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-sm);padding:12px 16px;margin-bottom:12px;flex-wrap:wrap;position:sticky;top:0;z-index:60}
+  .filter-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-sm);padding:12px 16px;margin-bottom:12px;flex-wrap:wrap;position:sticky;top:0;z-index:60}
   .fl{display:flex;align-items:center;gap:14px;min-width:0}
   .cal-icon{width:36px;height:36px;border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold-2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .date-eyebrow{font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink-3);font-weight:700}
@@ -46,24 +46,12 @@
   .seg:first-child{border-left:none}
   .seg:hover{background:var(--surface-2);color:var(--ink)}
   .seg.active{background:var(--navy);color:#fff}
-  .fr{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
-  .sum{display:flex;flex-direction:column;gap:2px}
-  .sum-label{font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink-3);font-weight:700}
-  .sum-val{font-size:14px;font-weight:700;font-family:var(--font-mono);white-space:nowrap}
   .filter-indicator{margin-bottom:20px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:10px}
   .filter-indicator .bar{display:inline-block;width:20px;height:1px;background:var(--gold);flex-shrink:0}
 
   .section-label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold-2);font-weight:700;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
   .section-label::after{content:'';flex:1;height:1px;background:var(--line)}
 
-  /* summary KPIs */
-  .kpi-grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);grid-template-columns:repeat(4,1fr)}
-  .kpi{background:var(--surface);padding:16px 18px;position:relative}
-  .kpi.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--navy)}
-  .kpi .label{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink-3);font-weight:700}
-  .kpi .value{font-size:28px;font-weight:700;margin-top:8px;letter-spacing:-.3px;line-height:1.1}
-  .kpi .value .cur{font-size:15px;color:var(--gold-2);margin-right:3px;font-weight:600}
-  .kpi .delta{margin-top:6px;font-size:11px;color:var(--ink-3)}
 
   /* property grid */
   .prop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
@@ -118,8 +106,6 @@
 
   @media (max-width:1080px){
     .prop-grid{grid-template-columns:1fr}
-    .kpi-grid{grid-template-columns:repeat(2,1fr)}
-    .fr{gap:16px}
   }
   @media (max-width:760px){
     .app{padding:14px 14px 56px}
@@ -140,16 +126,9 @@
     .date-value{font-size:13px}
     .segs{width:100%}
     .seg{flex:1;padding:11px 2px;font-size:10.5px;letter-spacing:.4px;white-space:nowrap}
-    .fr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px solid var(--line);padding-top:10px}
-    .sum-label{font-size:8px;letter-spacing:1px}
-    .sum-val{font-size:12px}
     .filter-indicator{margin-bottom:14px;font-size:10px}
 
     /* KPIs */
-    .kpi{padding:12px 14px}
-    .kpi .label{font-size:9px;letter-spacing:1.2px}
-    .kpi .value{font-size:21px;margin-top:5px}
-    .kpi .delta{font-size:10px}
 
     /* property cards */
     .card-head{padding:11px 14px}
@@ -172,11 +151,8 @@
     .footer{flex-direction:column;gap:6px;font-size:10px}
   }
   @media (max-width:420px){
-    .kpi-grid{grid-template-columns:1fr}
     .rows{grid-template-columns:1fr}
     .row{border-right:none!important}
-    .fr{grid-template-columns:1fr 1fr}
-    .fr .sum:last-child{grid-column:1/-1}
   }
   @media print{.filter-bar{position:static}.seg{display:none}.seg.active{display:block}.scroll-hint{display:none}}
   @media print{.filter-bar{position:static}.seg{display:none}.seg.active{display:block}}
@@ -217,25 +193,10 @@
       <button class="seg" data-m="2026-06">Jun &ndash; 26</button>
       <button class="seg" data-m="2026-07">Jul &ndash; 26</button>
     </div>
-    <div class="fr">
-      <div class="sum"><span class="sum-label">Total Spend</span><span class="sum-val" id="sumSpend">&mdash;</span></div>
-      <div class="sum"><span class="sum-label">Attributed Revenue</span><span class="sum-val" id="sumRev">&mdash;</span></div>
-      <div class="sum"><span class="sum-label">Blended ROAS</span><span class="sum-val" id="sumRoas">&mdash;</span></div>
-    </div>
+
   </div>
 
   <div class="filter-indicator"><span class="bar"></span><span id="filterInd">Showing May &ndash; 26 &middot; all four properties</span></div>
-
-  <div class="section-label">Summary</div>
-  <div class="kpi-grid">
-    <div class="kpi hero"><div class="label">Total Spend</div><div class="value" id="kSpend">&mdash;</div><div class="delta" id="kSpendSub">Meta + Google Ads</div></div>
-    <div class="kpi hero"><div class="label">Total Revenue</div><div class="value" id="kRev">&mdash;</div><div class="delta" id="kRevSub">Paid-attributed</div></div>
-    <div class="kpi hero"><div class="label">Rooms Booked</div><div class="value" id="kRooms">&mdash;</div><div class="delta" id="kRoomsSub">Paid-attributed</div></div>
-    <div class="kpi hero"><div class="label">Blended ROAS</div><div class="value" id="kRoas">&mdash;</div><div class="delta" id="kRoasSub">Revenue &divide; spend</div></div>
-  </div>
-  <div class="note" style="margin-bottom:4px">
-    <b>Reading the summary row:</b> Singapore reports in USD and the other three in EUR, so the combined money figures are the arithmetic sum of each property in its own currency and are directional only. Compare like-for-like at property level below.
-  </div>
 
   <div class="section-label">By Property</div>
   <div class="prop-grid" id="propGrid"></div>
@@ -258,7 +219,7 @@
   </div>
 
   <div class="note">
-    <b>Method.</b> Impressions, clicks and ad spend are actuals pulled from Meta Ads and Google Ads via Supermetrics, scoped to METT campaigns only. Cost per click = spend &divide; clicks. Revenue and rooms are attributed from GA4 transactions using the locked attribution model (82.5% of GA4 revenue and 82.3% of transactions assigned to paid, split Google:Meta 59:41 &mdash; 76:24 for Bodrum, matching its actual spend ratio). Bodrum is reported in EUR at the locked rate of TRY 53.5 = &euro;1. Barcelona shares a GA4 group rollup and a multi-brand Meta account; both are filtered to METT before attribution. July &ndash; 26 covers 1&ndash;14 Jul only &mdash; a partial month, so do not read it as a full-month step down.
+    <b>Method.</b> Impressions, clicks and ad spend are actuals pulled from Meta Ads and Google Ads via Supermetrics, scoped to METT campaigns only. Cost per click = spend &divide; clicks. Revenue and rooms are attributed from GA4 transactions using the locked attribution model (82.5% of GA4 revenue and 82.3% of transactions assigned to paid, split Google:Meta 59:41 &mdash; 76:24 for Bodrum, matching its actual spend ratio). Bodrum is reported in EUR at the locked rate of TRY 53.5 = &euro;1; Singapore reports in USD, all other properties in EUR. Barcelona shares a GA4 group rollup and a multi-brand Meta account; both are filtered to METT before attribution. July &ndash; 26 covers 1&ndash;14 Jul only &mdash; a partial month, so do not read it as a full-month step down.
   </div>
 
   <footer class="footer">
@@ -339,19 +300,6 @@ function tableRows(month){
 function render(month){
   document.getElementById('propGrid').innerHTML = ORDER.map(k => propCard(k, month)).join('');
   document.getElementById('tblBody').innerHTML = tableRows(month);
-
-  let spend=0, rev=0, rooms=0;
-  ORDER.forEach(k => { const d = DATA[k].months[month];
-    spend += d.totalSpend; rev += d.meta.revenue + d.google.revenue; rooms += d.meta.rooms + d.google.rooms; });
-  const roas = rev/spend;
-
-  document.getElementById('kSpend').innerHTML  = '<span class="cur">≈</span>' + m0(spend);
-  document.getElementById('kRev').innerHTML    = '<span class="cur">≈</span>' + m0(rev);
-  document.getElementById('kRooms').textContent = n0(rooms);
-  document.getElementById('kRoas').textContent  = m2(roas) + '×';
-  document.getElementById('sumSpend').textContent = '≈' + m0(spend);
-  document.getElementById('sumRev').textContent   = '≈' + m0(rev);
-  document.getElementById('sumRoas').textContent  = m2(roas) + '×';
 
   document.getElementById('livePill').textContent   = MLABEL[month].n;
   document.getElementById('dateValue').textContent  = MLABEL[month].r;
