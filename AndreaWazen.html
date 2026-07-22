@@ -567,25 +567,32 @@ function render(){
         cancelB=document.getElementById('calCancel'),applyB=document.getElementById('calApply'),
         sumEl=document.getElementById('calSum');
   const presetsEl=document.getElementById('calPresets');
-  const DAY=864e5;
-  const presets=[{label:'Full period',from:MIN_MS,to:MAX_MS}];
-  for(let k=0;;k++){
-    const ws=MIN_MS+k*7*DAY;
-    if(ws>MAX_MS)break;
-    presets.push({label:'Week '+(k+1),from:ws,to:Math.min(ws+6*DAY,MAX_MS)});
-  }
   function applyRange(from,to){
     state.from=ms2iso(from);state.to=ms2iso(to);
     psMs=peMs=hovMs=null;applyB.disabled=true;
     sumEl.innerHTML='<strong>Select start date</strong>';
     render();close();
   }
-  presets.forEach(p=>{
+  function addPreset(label,from,to){
     const btn=document.createElement('button');btn.type='button';btn.className='cal-preset';
-    btn.textContent=p.label;btn.dataset.from=p.from;btn.dataset.to=p.to;
-    btn.addEventListener('click',ev=>{ev.stopPropagation();applyRange(p.from,p.to)});
+    btn.textContent=label;btn.dataset.from=from;btn.dataset.to=to;
+    btn.addEventListener('click',ev=>{ev.stopPropagation();applyRange(from,to)});
     presetsEl.appendChild(btn);
-  });
+  }
+  function buildPresets(){
+    presetsEl.innerHTML='';
+    addPreset('Full period',MIN_MS,MAX_MS);
+    const dim=new Date(Date.UTC(vy,vm+1,0)).getUTCDate();
+    for(let w=0;;w++){
+      const dStart=1+w*7;
+      if(dStart>dim)break;
+      const dEnd=Math.min(dStart+6,dim);
+      const wFrom=Date.UTC(vy,vm,dStart),wTo=Date.UTC(vy,vm,dEnd);
+      if(wTo<MIN_MS||wFrom>MAX_MS)continue;   // week falls outside the data
+      addPreset('Week '+(w+1),Math.max(wFrom,MIN_MS),Math.min(wTo,MAX_MS));
+    }
+    markActivePreset();
+  }
   function markActivePreset(){
     const cf=iso2ms(state.from),ct=iso2ms(state.to);
     presetsEl.querySelectorAll('.cal-preset').forEach(b=>
@@ -612,6 +619,7 @@ function render(){
       grid.appendChild(b);
     }
     paint();
+    buildPresets();
   }
   function paint(){
     const lo=(psMs!=null&&peMs!=null)?Math.min(psMs,peMs):null,
@@ -658,7 +666,7 @@ function render(){
   function open(){
     const s=psMs!=null?new Date(psMs):new Date(MAX_MS);
     vy=s.getUTCFullYear();vm=s.getUTCMonth();hovMs=null;
-    pop.classList.add('open');buildGrid();place();markActivePreset();
+    pop.classList.add('open');buildGrid();place();
   }
   const close=()=>pop.classList.remove('open');
 
