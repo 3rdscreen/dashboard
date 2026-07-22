@@ -64,6 +64,11 @@ body{
 @keyframes calIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 .cal-hint{font-size:11px;color:var(--ink-3);background:var(--surface);border-radius:2px;padding:9px 12px;text-align:center;margin-bottom:15px;letter-spacing:.04em}
 .cal-hint strong{color:var(--ink)}
+.cal-plabel{font-size:9.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+.cal-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid var(--line-2)}
+.cal-preset{flex:1 1 auto;padding:7px 8px;border-radius:2px;border:1px solid var(--line);background:#fff;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:.03em;color:var(--ink-2);white-space:nowrap;transition:.15s}
+.cal-preset:hover{background:var(--surface);border-color:var(--ink-4);color:var(--ink)}
+.cal-preset.active{background:var(--ink);color:#fff;border-color:var(--ink)}
 .cal-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
 .cal-month{font-weight:600;font-size:15px;letter-spacing:.02em;flex:1;text-align:center}
 .cal-nav-btn{width:32px;height:32px;border-radius:2px;border:1px solid var(--line);background:#fff;cursor:pointer;
@@ -98,20 +103,19 @@ body{
 .sec-title{font-size:clamp(22px,3vw,30px);font-weight:600;letter-spacing:-.022em;line-height:1.1}
 .sec-sub{font-size:14px;color:var(--ink-2);max-width:760px;line-height:1.65;margin:10px 0 26px;font-weight:300}
 .sec-sub strong{color:var(--ink);font-weight:500}
-.eyebrow{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2);margin-bottom:14px}
 
 /* ── KPI strip ── */
 .kpi-strip{display:grid;grid-template-columns:repeat(3,1fr);background:var(--paper);border:1px solid var(--line);overflow:hidden;margin-bottom:26px}
-.kpi-strip.kpi-4{grid-template-columns:repeat(4,1fr)}
+.kpi-strip.kpi-4{grid-template-columns:repeat(5,1fr)}
 .kpi-4 .kpi{border-bottom:none}
-.kpi-4 .kpi:nth-child(3n){border-right:1px solid var(--line)}
-.kpi-4 .kpi:nth-child(4n),.kpi-4 .kpi:last-child{border-right:none}
-.kpi-4 .kpi .v{font-size:25px}
+.kpi-4 .kpi:last-child{border-right:none}
+.kpi-4 .kpi .v{font-size:23px}
 .kpi{padding:20px 22px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:background .2s}
 .kpi:nth-child(3n){border-right:none}
 .kpi:nth-last-child(-n+3){border-bottom:none}
 .kpi:hover{background:var(--surface)}
-.kpi .k{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+.kpi .k{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);margin-bottom:10px}
 .kpi .v{font-size:29px;font-weight:500;letter-spacing:-.022em;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
 .kpi .v .cur{font-size:13px;color:var(--ink-3);font-weight:400;letter-spacing:.06em;margin-right:1px}
 .kpi .s{font-size:11.5px;color:var(--ink-3);margin-top:7px;font-weight:300}
@@ -119,7 +123,7 @@ body{
 /* ── Cards / charts ── */
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
 .card{background:var(--paper);border:1px solid var(--line);padding:26px 28px;border-radius:2px}
-.card-title{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.card-title{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);margin-bottom:20px;display:flex;align-items:center;gap:10px}
 .card-title .sw{width:9px;height:9px;border-radius:50%}
 .chart-box{position:relative;height:300px}
 .chart-box.tall{height:330px}
@@ -220,9 +224,9 @@ footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);display
           <span id="periodLabel">—</span><span class="chev">▼</span>
         </div>
       </div>
-      <div><div class="m-label">Platform</div><div class="m-val">Meta Ads Manager</div></div>
+      <div><div class="m-label">Platform</div><div class="m-val">Meta</div></div>
       <div><div class="m-label">Objectives</div><div class="m-val">Sales &middot; Awareness</div></div>
-      <div><div class="m-label">Markets</div><div class="m-val">Gulf &middot; LB &middot; UK &middot; FR</div></div>
+      <div><div class="m-label">Markets</div><div class="m-val">GCC &middot; LB &middot; UK &middot; FR</div></div>
       <div><div class="m-label">Currency</div><div class="m-val">USD</div></div>
     </div>
   </header>
@@ -233,17 +237,10 @@ footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);display
     <div class="kpi-strip" id="kpis"></div>
     <div class="eyebrow" style="margin-top:26px">Delivery</div>
     <div class="kpi-strip kpi-4" id="delivery"></div>
-    <div class="gnote" id="headNote"></div>
-  </section>
-
-  <section class="sec" style="margin-top:44px">
-    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">Day by day</h2></div>
-    <p class="sec-sub">Daily spend against the revenue attributed back to it, with awareness spend stacked on top. Hover any day for the exact figures.</p>
-    <div class="card"><div class="chart-box tall"><canvas id="dailyChart"></canvas></div></div>
   </section>
 
   <section class="sec">
-    <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">By market</h2></div>
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">Market Performance</h2></div>
     <p class="sec-sub">Spend and return by delivery market, with the ad set behind each. The retargeting ad set covers <strong>Saudi Arabia, Kuwait and Qatar</strong>; the two broad ad sets sit in a single market each.</p>
     <div class="grid-2" style="margin-bottom:22px">
       <div class="card">
@@ -251,7 +248,7 @@ footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);display
         <div class="chart-box"><canvas id="countryChart"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title"><span class="sw" style="background:#8A8A8A"></span>Return by market</div>
+        <div class="card-title"><span class="sw" style="background:#8A8A8A"></span>ROAS by market</div>
         <div class="chart-box"><canvas id="countryRoasChart"></canvas></div>
       </div>
     </div>
@@ -263,16 +260,15 @@ footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);display
   </section>
 
   <section class="sec">
-    <div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">Awareness</h2></div>
+    <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">Awareness Campaign</h2></div>
     <p class="sec-sub">A separate objective running in the <strong>UK</strong> and <strong>France</strong>, buying landing page views rather than purchases. Its spend is included in the total at the top of this report, but it carries no purchase or ROAS data, so it sits outside the sales figures.</p>
     <div class="tbl-card">
-      <div class="tbl-card-head"><h3>Awareness by market</h3><span class="pill" id="awrPill">&mdash;</span></div>
       <div class="tbl-scroll"><table id="awrTable"></table></div>
     </div>
   </section>
 
   <section class="sec">
-    <div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">Ad performance</h2></div>
+    <div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">Ad performance</h2></div>
     <p class="sec-sub">Every ad that delivered in the selected period, with its creative thumbnail.</p>
     <div class="tbl-card">
       <div class="tbl-card-head"><h3>By ad</h3><span class="pill" id="adPill">—</span></div>
@@ -295,6 +291,8 @@ footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);display
 
 <div class="cal-pop" id="calPop">
   <div class="cal-hint">Click a <strong>start</strong> date, then an <strong>end</strong> date</div>
+  <div class="cal-plabel">Quick ranges</div>
+  <div class="cal-presets" id="calPresets"></div>
   <div class="cal-nav">
     <button class="cal-nav-btn" id="calPrev">‹</button>
     <div class="cal-month" id="calMonth">—</div>
@@ -384,35 +382,6 @@ Chart.defaults.font.family="Calibri, 'Segoe UI', Candara, sans-serif";
 Chart.defaults.font.size=11.5;
 Chart.defaults.color=STONE;
 
-function renderCharts(rs){
-  ['daily'].forEach(k=>{if(charts[k]){charts[k].destroy();delete charts[k]}});
-
-  const days=[];for(let ms=iso2ms(state.from);ms<=iso2ms(state.to);ms+=864e5)days.push(ms2iso(ms));
-  const byDay=new Map(days.map(d=>[d,{spend:0,rev:0,pur:0,awr:0}]));
-  rs.forEach(r=>{const o=byDay.get(r[D]);if(o){o.spend+=r[SP];o.rev+=r[RV];o.pur+=r[PU]}});
-  awrRows().forEach(r=>{const o=byDay.get(r[0]);if(o)o.awr+=r[2]});
-  const dd=days.map(d=>byDay.get(d));
-
-  charts.daily=new Chart(document.getElementById('dailyChart'),{
-    data:{labels:days.map(d=>fmtShort(iso2ms(d))),
-      datasets:[
-        {type:'bar',label:'Sales spend',data:dd.map(o=>+o.spend.toFixed(2)),backgroundColor:MIST,
-          borderColor:'#D2D2D2',borderWidth:1,borderRadius:2,order:3,yAxisID:'y',stack:'s'},
-        {type:'bar',label:'Awareness spend',data:dd.map(o=>+o.awr.toFixed(2)),backgroundColor:'#BDBDBD',
-          borderColor:'#ABABAB',borderWidth:1,borderRadius:2,order:2,yAxisID:'y',stack:'s'},
-        {type:'line',label:'Revenue',data:dd.map(o=>+o.rev.toFixed(2)),borderColor:ACCENT_DEEP,
-          backgroundColor:ACCENT_DEEP,borderWidth:2,tension:.3,pointRadius:3,pointHoverRadius:5,order:1,yAxisID:'y'}
-      ]},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{position:'top',align:'end',labels:{boxWidth:9,boxHeight:9,usePointStyle:true,pointStyle:'circle',padding:14}},
-        tooltip:{callbacks:{
-          label:c=>` ${c.dataset.label}: ${n2(c.raw)} USD`,
-          afterBody:items=>{const p=dd[items[0].dataIndex].pur;return p?`\n Purchases: ${p}`:''}}}},
-      scales:{y:{stacked:true,grid:{color:LINE,drawBorder:false},ticks:{callback:v=>n0(v)}},
-              x:{stacked:true,grid:{display:false},ticks:{maxRotation:0,autoSkipPadding:14}}}}
-  });
-}
-
 /* ───── tables ───── */
 function roasBadge(v){
   if(!v) return '<span class="badge">—</span>';
@@ -478,11 +447,13 @@ function renderDelivery(totalSpend){
   let impr=0,reach=0;
   imprRows().forEach(r=>{impr+=r[2];reach+=r[3]});
   const freq=reach?impr/reach:0, cpm=impr?totalSpend/impr*1000:0;
+  const lpv=awrTotals().lpv;
   const cards=[
     ['Impressions',n0(impr),'Times the ads were shown'],
     ['Reach',n0(reach),'Daily reach summed — not deduplicated'],
     ['Frequency',freq?freq.toFixed(2):'—','Impressions ÷ reach'],
-    ['CPM',impr?`<span class="cur">USD</span> ${n2(cpm)}`:'—','Cost per 1,000 impressions']
+    ['CPM',impr?`<span class="cur">USD</span> ${n2(cpm)}`:'—','Cost per 1,000 impressions'],
+    ['Landing page views',n0(lpv),'Awareness campaign page loads']
   ];
   document.getElementById('delivery').innerHTML=cards.map(c=>
     `<div class="kpi"><div class="k">${c[0]}</div><div class="v">${c[1]}</div><div class="s">${c[2]}</div></div>`).join('');
@@ -499,7 +470,6 @@ function renderAwareness(){
     const g=m.get(k);g.spend+=r[2];g.lpv+=r[3];});
   const gs=[...m.values()].sort((x,y)=>y.spend-x.spend);
   const sum=gs.reduce((a,g)=>({spend:a.spend+g.spend,lpv:a.lpv+g.lpv}),{spend:0,lpv:0});
-  document.getElementById('awrPill').textContent=`${n2(sum.spend)} USD · ${n0(sum.lpv)} views`;
   const el=document.getElementById('awrTable');
   if(!gs.length){el.innerHTML='<tbody><tr><td class="empty">No awareness delivery in this period.</td></tr></tbody>';return}
   el.innerHTML=`<thead><tr><th>Market</th><th>Spend</th><th>Landing page views</th><th>Cost / view</th><th>Share of views</th></tr></thead>
@@ -576,11 +546,8 @@ function render(){
   document.getElementById('totalsEyebrow').textContent=`Account totals · ${fmtShort(a)} – ${fmtFull(b)}`;
   document.getElementById('footRange').textContent=`${fmtShort(a)} – ${fmtFull(b)}`;
   document.getElementById('adPill').textContent=`${new Set(rs.filter(r=>r[SP]>0).map(r=>r[AD])).size} ads delivering`;
-  document.getElementById('headNote').innerHTML=
-    `Revenue is calculated as <b>purchase ROAS × amount spent</b> on each ad-day, because the export carries no purchase-value column. Purchases that Meta reported without a ROAS value therefore add nothing to revenue, so <b>ROAS here is a floor, not a ceiling</b>. A small number of purchases land on days with no spend — normal behaviour for Meta's attribution window. <b>Amount spent</b> covers both objectives; <b>ROAS</b> is measured against sales spend only. <b>Reach</b> is the sum of each day's reach, so anyone reached on more than one day is counted more than once — read it as a ceiling, and treat impressions as the reliable delivery figure.`;
   renderKpis(t,awrTotals());
   renderDelivery(t.spend+awrTotals().spend);
-  renderCharts(rs);
   buildTable('adTable',group(rs,AD).filter(g=>g.spend>0||g.pur>0),state.adSort,k=>state.adSort=k,true);
   renderCountries();
   renderAwareness();
@@ -599,6 +566,31 @@ function render(){
         prevB=document.getElementById('calPrev'),nextB=document.getElementById('calNext'),
         cancelB=document.getElementById('calCancel'),applyB=document.getElementById('calApply'),
         sumEl=document.getElementById('calSum');
+  const presetsEl=document.getElementById('calPresets');
+  const DAY=864e5;
+  const presets=[{label:'Full period',from:MIN_MS,to:MAX_MS}];
+  for(let k=0;;k++){
+    const ws=MIN_MS+k*7*DAY;
+    if(ws>MAX_MS)break;
+    presets.push({label:'Week '+(k+1),from:ws,to:Math.min(ws+6*DAY,MAX_MS)});
+  }
+  function applyRange(from,to){
+    state.from=ms2iso(from);state.to=ms2iso(to);
+    psMs=peMs=hovMs=null;applyB.disabled=true;
+    sumEl.innerHTML='<strong>Select start date</strong>';
+    render();close();
+  }
+  presets.forEach(p=>{
+    const btn=document.createElement('button');btn.type='button';btn.className='cal-preset';
+    btn.textContent=p.label;btn.dataset.from=p.from;btn.dataset.to=p.to;
+    btn.addEventListener('click',ev=>{ev.stopPropagation();applyRange(p.from,p.to)});
+    presetsEl.appendChild(btn);
+  });
+  function markActivePreset(){
+    const cf=iso2ms(state.from),ct=iso2ms(state.to);
+    presetsEl.querySelectorAll('.cal-preset').forEach(b=>
+      b.classList.toggle('active',+b.dataset.from===cf&&+b.dataset.to===ct));
+  }
   const minY=new Date(MIN_MS).getUTCFullYear(),minM=new Date(MIN_MS).getUTCMonth();
   const maxY=new Date(MAX_MS).getUTCFullYear(),maxM=new Date(MAX_MS).getUTCMonth();
   vy=maxY;vm=maxM;
@@ -666,7 +658,7 @@ function render(){
   function open(){
     const s=psMs!=null?new Date(psMs):new Date(MAX_MS);
     vy=s.getUTCFullYear();vm=s.getUTCMonth();hovMs=null;
-    pop.classList.add('open');buildGrid();place();
+    pop.classList.add('open');buildGrid();place();markActivePreset();
   }
   const close=()=>pop.classList.remove('open');
 
