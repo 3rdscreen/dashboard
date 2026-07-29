@@ -55,7 +55,51 @@
 
 
   /* table */
-  .tables{display:grid;gap:15px}
+  .tables{display:grid;gap:34px}
+  .prop{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);box-shadow:var(--shadow-sm);background:var(--surface)}
+  .prop .tbl-wrap{border:none;box-shadow:none;border-bottom:1px solid var(--line)}
+
+  /* GA4 panels */
+  .ga{display:grid;grid-template-columns:1.55fr 1fr;gap:0}
+  .ga-col{padding:16px 18px}
+  .ga-col.ga-wide{border-right:1px solid var(--line)}
+  .ga-h{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;color:var(--ink);margin-bottom:10px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .ga-sub{font-size:9.5px;letter-spacing:.4px;text-transform:none;color:var(--ink-3);font-weight:600}
+
+  .seg-bar{display:flex;height:12px;border-radius:2px;overflow:hidden;background:var(--surface-2);margin-bottom:9px}
+  .seg-fill{display:block;height:100%}
+  .ga-legend,.nr-legend{display:flex;flex-wrap:wrap;gap:10px 14px;margin-bottom:12px}
+  .lg{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:var(--ink-2);font-weight:600;white-space:nowrap}
+  .lg i{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+  table.mini{width:100%;border-collapse:collapse;margin-top:4px}
+  table.mini thead th{background:transparent;color:var(--ink-3);font-size:9px;letter-spacing:.9px;text-transform:uppercase;font-weight:700;padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  table.mini thead th:first-child{text-align:left}
+  table.mini td{padding:7px 8px;font-size:12px;font-family:var(--font-mono);text-align:right;border-bottom:1px solid var(--line);color:var(--ink);white-space:nowrap}
+  table.mini td.ch{text-align:left;font-family:var(--font);font-weight:600;font-size:12px}
+  table.mini tr:hover td{background:#FBFAF8}
+  table.mini tr.tot td{font-weight:700;border-top:1px solid var(--ink-4);border-bottom:none;background:var(--surface-2)}
+  table.mini tr.tot:hover td{background:var(--surface-2)}
+  .dot2{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:7px;vertical-align:0}
+
+  .ga-note{margin-top:10px;font-size:10.5px;line-height:1.55;color:var(--ink-3)}
+  .ga-note b{color:var(--ink-2)}
+
+  .nr-bar{display:flex;height:26px;border-radius:3px;overflow:hidden;margin-bottom:9px}
+  .nr .lg{font-size:11px}
+
+  .geo{display:flex;flex-direction:column;gap:7px;margin-top:2px}
+  .geo-row{display:grid;grid-template-columns:96px 1fr auto;align-items:center;gap:9px}
+  .geo-c{font-size:11.5px;color:var(--ink-2);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .geo-track{height:8px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+  .geo-fill{display:block;height:100%;background:var(--gold)}
+  .geo-v{font-family:var(--font-mono);font-size:11px;color:var(--ink);white-space:nowrap}
+  .geo-v em{font-style:normal;color:var(--ink-3);margin-left:6px}
+
+  @media (max-width:820px){
+    .ga{grid-template-columns:1fr}
+    .ga-col.ga-wide{border-right:none;border-bottom:1px solid var(--line)}
+  }
   .tbl-wrap{border:1px solid var(--line);overflow-x:auto;background:var(--surface);box-shadow:var(--shadow-sm);-webkit-overflow-scrolling:touch}
   table{border-collapse:collapse;width:100%;min-width:880px;table-layout:fixed}
 
@@ -113,7 +157,8 @@
     /* table: scrollable with hint */
     .scroll-hint{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
     .tbl-wrap{-webkit-overflow-scrolling:touch}
-    .tables{gap:15px}
+    .tables{gap:22px}
+    .ga-col{padding:14px 14px}
     table{min-width:760px}
     thead th{padding:11px 11px;font-size:8.5px;letter-spacing:.9px}
     thead th.th-name{width:150px}
@@ -180,7 +225,7 @@
 </div>
 
 <script>
-const DATA = {"singapore": {"name": "METT Singapore", "cur": "$", "months": {"2026-05": {"meta": {"impressions": 1697371, "clicks": 21933, "cpc": 0.17, "spend": 3799.03, "revenue": 29791.2, "rooms": 24.0, "roas": 7.84}, "google": {"impressions": 286303, "clicks": 7040, "cpc": 0.55, "spend": 3878.96, "revenue": 42870.26, "rooms": 34.5, "roas": 11.05}, "totalSpend": 7677.99}, "2026-06": {"meta": {"impressions": 1696658, "clicks": 28426, "cpc": 0.13, "spend": 3799.58, "revenue": 18229.48, "rooms": 17.9, "roas": 4.8}, "google": {"impressions": 203421, "clicks": 6313, "cpc": 0.69, "spend": 4353.97, "revenue": 26232.66, "rooms": 25.7, "roas": 6.02}, "totalSpend": 8153.55}, "2026-07": {"meta": {"impressions": 766152, "clicks": 14990, "cpc": 0.21, "spend": 3086.76, "revenue": 27538.56, "rooms": 25.0, "roas": 8.92}, "google": {"impressions": 216212, "clicks": 5998, "cpc": 0.65, "spend": 3882.32, "revenue": 39628.65, "rooms": 35.9, "roas": 10.21}, "totalSpend": 6969.08}}}, "marbella": {"name": "METT Marbella", "cur": "\u20ac", "months": {"2026-05": {"meta": {"impressions": 1208551, "clicks": 26509, "cpc": 0.12, "spend": 3129.07, "revenue": 137435.01, "rooms": 62.4, "roas": 43.92}, "google": {"impressions": 226058, "clicks": 13119, "cpc": 0.61, "spend": 7971.37, "revenue": 197772.33, "rooms": 89.8, "roas": 24.81}, "totalSpend": 11100.44}, "2026-06": {"meta": {"impressions": 1917139, "clicks": 22655, "cpc": 0.17, "spend": 3928.25, "revenue": 108599.78, "rooms": 45.6, "roas": 27.65}, "google": {"impressions": 372728, "clicks": 19140, "cpc": 0.47, "spend": 9014.08, "revenue": 156277.74, "rooms": 65.6, "roas": 17.34}, "totalSpend": 12942.33}, "2026-07": {"meta": {"impressions": 1608473, "clicks": 23940, "cpc": 0.15, "spend": 3509.63, "revenue": 78302.83, "rooms": 34.8, "roas": 22.31}, "google": {"impressions": 1492277, "clicks": 105103, "cpc": 0.08, "spend": 7890.29, "revenue": 112679.68, "rooms": 50.0, "roas": 14.28}, "totalSpend": 11399.92}}}, "bodrum": {"name": "METT Bodrum", "cur": "\u20ac", "months": {"2026-05": {"meta": {"impressions": 785591, "clicks": 10826, "cpc": 0.1, "spend": 1122.83, "revenue": 28652.35, "rooms": 11.5, "roas": 25.52}, "google": {"impressions": 137226, "clicks": 10221, "cpc": 0.23, "spend": 2322.14, "revenue": 90732.44, "rooms": 36.3, "roas": 39.07}, "totalSpend": 3444.98}, "2026-06": {"meta": {"impressions": 709699, "clicks": 10392, "cpc": 0.11, "spend": 1140.03, "revenue": 56839.67, "rooms": 13.4, "roas": 49.86}, "google": {"impressions": 266475, "clicks": 16974, "cpc": 0.19, "spend": 3197.27, "revenue": 179992.3, "rooms": 42.5, "roas": 56.3}, "totalSpend": 4337.3}, "2026-07": {"meta": {"impressions": 894332, "clicks": 13916, "cpc": 0.1, "spend": 1439.0, "revenue": 31706.34, "rooms": 10.7, "roas": 22.03}, "google": {"impressions": 335728, "clicks": 21636, "cpc": 0.17, "spend": 3634.31, "revenue": 100403.41, "rooms": 33.8, "roas": 27.63}, "totalSpend": 5073.31}}}, "barcelona": {"name": "METT Barcelona", "cur": "\u20ac", "months": {"2026-05": {"meta": {"impressions": 817594, "clicks": 19044, "cpc": 0.16, "spend": 3031.61, "revenue": 29029.56, "rooms": 20.6, "roas": 9.58}, "google": {"impressions": 682728, "clicks": 14353, "cpc": 0.39, "spend": 5545.78, "revenue": 41774.25, "rooms": 29.6, "roas": 7.53}, "totalSpend": 8577.39}, "2026-06": {"meta": {"impressions": 1337621, "clicks": 25277, "cpc": 0.12, "spend": 3052.31, "revenue": 21392.13, "rooms": 17.9, "roas": 7.01}, "google": {"impressions": 396990, "clicks": 11316, "cpc": 0.58, "spend": 6538.86, "revenue": 30783.8, "rooms": 25.7, "roas": 4.71}, "totalSpend": 9591.17}, "2026-07": {"meta": {"impressions": 1333535, "clicks": 22721, "cpc": 0.11, "spend": 2434.85, "revenue": 15383.01, "rooms": 15.5, "roas": 6.32}, "google": {"impressions": 276730, "clicks": 10821, "cpc": 0.52, "spend": 5602.54, "revenue": 22136.53, "rooms": 22.3, "roas": 3.95}, "totalSpend": 8037.39}}}};
+const DATA = {"singapore": {"name": "METT Singapore", "cur": "$", "months": {"2026-05": {"meta": {"impressions": 1697371, "clicks": 21933, "cpc": 0.17, "spend": 3799.03, "revenue": 29791.2, "rooms": 24.0, "roas": 7.84}, "google": {"impressions": 286303, "clicks": 7040, "cpc": 0.55, "spend": 3878.96, "revenue": 42870.26, "rooms": 34.5, "roas": 11.05}, "totalSpend": 7677.99}, "2026-06": {"meta": {"impressions": 1696658, "clicks": 28426, "cpc": 0.13, "spend": 3799.58, "revenue": 18229.48, "rooms": 17.9, "roas": 4.8}, "google": {"impressions": 203421, "clicks": 6313, "cpc": 0.69, "spend": 4353.97, "revenue": 26232.66, "rooms": 25.7, "roas": 6.02}, "totalSpend": 8153.55}, "2026-07": {"meta": {"impressions": 766152, "clicks": 14990, "cpc": 0.21, "spend": 3086.76, "revenue": 27538.56, "rooms": 25.0, "roas": 8.92}, "google": {"impressions": 216212, "clicks": 5998, "cpc": 0.65, "spend": 3882.32, "revenue": 39628.65, "rooms": 35.9, "roas": 10.21}, "totalSpend": 6969.08}}, "extra": {"2026-05": {"channels": [{"k": "Organic", "sessions": 1421, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Paid", "sessions": 1528, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Direct", "sessions": 965, "tx": 1, "rev": 690, "cvr": 0.1}, {"k": "Social", "sessions": 90, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Referral", "sessions": 2630, "tx": 61, "rev": 80165, "cvr": 2.32}, {"k": "Email", "sessions": 18, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 2795, "tx": 9, "rev": 7220, "cvr": 0.32}], "chanTot": {"sessions": 9447, "tx": 71, "rev": 88074, "cvr": 0.75}, "newret": {"new": 7000, "ret": 1859, "newUsers": 7263, "retUsers": 1112, "tot": 9282}, "geo": [{"c": "Singapore", "s": 6292, "pct": 78.7}, {"c": "Australia", "s": 694, "pct": 8.7}, {"c": "Malaysia", "s": 330, "pct": 4.1}, {"c": "United Kingdom", "s": 267, "pct": 3.3}, {"c": "United States", "s": 253, "pct": 3.2}, {"c": "Indonesia", "s": 162, "pct": 2.0}]}, "2026-06": {"channels": [{"k": "Organic", "sessions": 4934, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Paid", "sessions": 4675, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Direct", "sessions": 1964, "tx": 3, "rev": 3570, "cvr": 0.15}, {"k": "Social", "sessions": 77, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Referral", "sessions": 3292, "tx": 48, "rev": 49636, "cvr": 1.46}, {"k": "Email", "sessions": 90, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 18649, "tx": 2, "rev": 688, "cvr": 0.01}], "chanTot": {"sessions": 33681, "tx": 53, "rev": 53894, "cvr": 0.16}, "newret": {"new": 29381, "ret": 3591, "newUsers": 29126, "retUsers": 2147, "tot": 34092}, "geo": [{"c": "Malaysia", "s": 14137, "pct": 46.3}, {"c": "Singapore", "s": 13631, "pct": 44.6}, {"c": "Australia", "s": 1371, "pct": 4.5}, {"c": "United States", "s": 606, "pct": 2.0}, {"c": "United Kingdom", "s": 482, "pct": 1.6}, {"c": "Hong Kong", "s": 328, "pct": 1.1}]}, "2026-07": {"channels": [{"k": "Organic", "sessions": 4634, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Paid", "sessions": 4794, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Direct", "sessions": 1780, "tx": 3, "rev": 2160, "cvr": 0.17}, {"k": "Social", "sessions": 104, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Referral", "sessions": 3106, "tx": 62, "rev": 71522, "cvr": 2.0}, {"k": "Email", "sessions": 603, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 11446, "tx": 9, "rev": 7733, "cvr": 0.08}], "chanTot": {"sessions": 26467, "tx": 74, "rev": 81415, "cvr": 0.28}, "newret": {"new": 21885, "ret": 3595, "newUsers": 21700, "retUsers": 2087, "tot": 26444}, "geo": [{"c": "Singapore", "s": 9421, "pct": 42.0}, {"c": "France", "s": 6141, "pct": 27.4}, {"c": "Malaysia", "s": 2688, "pct": 12.0}, {"c": "Australia", "s": 1708, "pct": 7.6}, {"c": "United Kingdom", "s": 1364, "pct": 6.1}, {"c": "United States", "s": 1124, "pct": 5.0}]}}}, "marbella": {"name": "METT Marbella", "cur": "\u20ac", "months": {"2026-05": {"meta": {"impressions": 1208551, "clicks": 26509, "cpc": 0.12, "spend": 3129.07, "revenue": 137435.01, "rooms": 62.4, "roas": 43.92}, "google": {"impressions": 226058, "clicks": 13119, "cpc": 0.61, "spend": 7971.37, "revenue": 197772.33, "rooms": 89.8, "roas": 24.81}, "totalSpend": 11100.44}, "2026-06": {"meta": {"impressions": 1917139, "clicks": 22655, "cpc": 0.17, "spend": 3928.25, "revenue": 108599.78, "rooms": 45.6, "roas": 27.65}, "google": {"impressions": 372728, "clicks": 19140, "cpc": 0.47, "spend": 9014.08, "revenue": 156277.74, "rooms": 65.6, "roas": 17.34}, "totalSpend": 12942.33}, "2026-07": {"meta": {"impressions": 1608473, "clicks": 23940, "cpc": 0.15, "spend": 3509.63, "revenue": 78302.83, "rooms": 34.8, "roas": 22.31}, "google": {"impressions": 1492277, "clicks": 105103, "cpc": 0.08, "spend": 7890.29, "revenue": 112679.68, "rooms": 50.0, "roas": 14.28}, "totalSpend": 11399.92}}, "extra": {"2026-05": {"channels": [{"k": "Organic", "sessions": 5547, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Paid", "sessions": 6979, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Direct", "sessions": 4655, "tx": 12, "rev": 26206, "cvr": 0.26}, {"k": "Social", "sessions": 1593, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Referral", "sessions": 4216, "tx": 70, "rev": 137281, "cvr": 1.66}, {"k": "Email", "sessions": 153, "tx": 4, "rev": 7050, "cvr": 2.61}, {"k": "Other", "sessions": 4618, "tx": 99, "rev": 235775, "cvr": 2.14}], "chanTot": {"sessions": 27761, "tx": 185, "rev": 406312, "cvr": 0.67}, "newret": {"new": 20481, "ret": 6683, "newUsers": 20381, "retUsers": 3715, "tot": 28072}, "geo": [{"c": "Spain", "s": 6872, "pct": 36.9}, {"c": "United Kingdom", "s": 5431, "pct": 29.2}, {"c": "United States", "s": 2404, "pct": 12.9}, {"c": "Germany", "s": 1611, "pct": 8.7}, {"c": "Netherlands", "s": 1181, "pct": 6.3}, {"c": "Ireland", "s": 1118, "pct": 6.0}]}, "2026-06": {"channels": [{"k": "Organic", "sessions": 2677, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Paid", "sessions": 20667, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Direct", "sessions": 3454, "tx": 17, "rev": 49331, "cvr": 0.49}, {"k": "Social", "sessions": 3069, "tx": 1, "rev": 1611, "cvr": 0.03}, {"k": "Referral", "sessions": 3065, "tx": 45, "rev": 84701, "cvr": 1.47}, {"k": "Email", "sessions": 70, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 5179, "tx": 72, "rev": 185420, "cvr": 1.39}], "chanTot": {"sessions": 38181, "tx": 135, "rev": 321064, "cvr": 0.35}, "newret": {"new": 32249, "ret": 4921, "newUsers": 32356, "retUsers": 2856, "tot": 37935}, "geo": [{"c": "Saudi Arabia", "s": 9154, "pct": 34.3}, {"c": "United States", "s": 5109, "pct": 19.1}, {"c": "Serbia", "s": 4531, "pct": 17.0}, {"c": "Spain", "s": 3364, "pct": 12.6}, {"c": "United Arab Emirates", "s": 2329, "pct": 8.7}, {"c": "T\u00fcrkiye", "s": 2198, "pct": 8.2}]}, "2026-07": {"channels": [{"k": "Organic", "sessions": 2594, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Paid", "sessions": 47602, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Direct", "sessions": 2953, "tx": 15, "rev": 17166, "cvr": 0.51}, {"k": "Social", "sessions": 11504, "tx": 1, "rev": 3851, "cvr": 0.01}, {"k": "Referral", "sessions": 3170, "tx": 45, "rev": 117945, "cvr": 1.42}, {"k": "Email", "sessions": 818, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 4412, "tx": 42, "rev": 92531, "cvr": 0.95}], "chanTot": {"sessions": 73053, "tx": 103, "rev": 231494, "cvr": 0.14}, "newret": {"new": 60738, "ret": 12754, "newUsers": 59780, "retUsers": 8554, "tot": 74926}, "geo": [{"c": "Saudi Arabia", "s": 16867, "pct": 56.8}, {"c": "United States", "s": 5388, "pct": 18.1}, {"c": "Spain", "s": 2793, "pct": 9.4}, {"c": "United Arab Emirates", "s": 1980, "pct": 6.7}, {"c": "United Kingdom", "s": 1570, "pct": 5.3}, {"c": "T\u00fcrkiye", "s": 1116, "pct": 3.8}]}}}, "bodrum": {"name": "METT Bodrum", "cur": "\u20ac", "months": {"2026-05": {"meta": {"impressions": 785591, "clicks": 10826, "cpc": 0.1, "spend": 1122.83, "revenue": 28652.35, "rooms": 11.5, "roas": 25.52}, "google": {"impressions": 137226, "clicks": 10221, "cpc": 0.23, "spend": 2322.14, "revenue": 90732.44, "rooms": 36.3, "roas": 39.07}, "totalSpend": 3444.98}, "2026-06": {"meta": {"impressions": 709699, "clicks": 10392, "cpc": 0.11, "spend": 1140.03, "revenue": 56839.67, "rooms": 13.4, "roas": 49.86}, "google": {"impressions": 266475, "clicks": 16974, "cpc": 0.19, "spend": 3197.27, "revenue": 179992.3, "rooms": 42.5, "roas": 56.3}, "totalSpend": 4337.3}, "2026-07": {"meta": {"impressions": 894332, "clicks": 13916, "cpc": 0.1, "spend": 1439.0, "revenue": 31706.34, "rooms": 10.7, "roas": 22.03}, "google": {"impressions": 335728, "clicks": 21636, "cpc": 0.17, "spend": 3634.31, "revenue": 100403.41, "rooms": 33.8, "roas": 27.63}, "totalSpend": 5073.31}}, "extra": {"2026-05": {"channels": [{"k": "Organic", "sessions": 4017, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Paid", "sessions": 7737, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Direct", "sessions": 6037, "tx": 9, "rev": 22387, "cvr": 0.15}, {"k": "Social", "sessions": 4311, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Referral", "sessions": 3913, "tx": 38, "rev": 94854, "cvr": 0.97}, {"k": "Email", "sessions": 74, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 6620, "tx": 11, "rev": 27468, "cvr": 0.17}], "chanTot": {"sessions": 32709, "tx": 58, "rev": 144709, "cvr": 0.18}, "newret": {"new": 27642, "ret": 3849, "newUsers": 28165, "retUsers": 2032, "tot": 32329}, "geo": [{"c": "T\u00fcrkiye", "s": 16933, "pct": 60.9}, {"c": "Saudi Arabia", "s": 5911, "pct": 21.3}, {"c": "United States", "s": 2430, "pct": 8.7}, {"c": "United Kingdom", "s": 1440, "pct": 5.2}, {"c": "United Arab Emirates", "s": 575, "pct": 2.1}, {"c": "Germany", "s": 523, "pct": 1.9}]}, "2026-06": {"channels": [{"k": "Organic", "sessions": 4521, "tx": 2, "rev": 6599, "cvr": 0.04}, {"k": "Paid", "sessions": 5264, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Direct", "sessions": 6889, "tx": 14, "rev": 47045, "cvr": 0.2}, {"k": "Social", "sessions": 4680, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Referral", "sessions": 4650, "tx": 43, "rev": 212477, "cvr": 0.92}, {"k": "Email", "sessions": 60, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 14384, "tx": 9, "rev": 20948, "cvr": 0.06}], "chanTot": {"sessions": 40448, "tx": 68, "rev": 287069, "cvr": 0.17}, "newret": {"new": 34132, "ret": 4834, "newUsers": 34705, "retUsers": 2570, "tot": 40038}, "geo": [{"c": "T\u00fcrkiye", "s": 21609, "pct": 61.3}, {"c": "Saudi Arabia", "s": 8926, "pct": 25.3}, {"c": "United States", "s": 2442, "pct": 6.9}, {"c": "United Kingdom", "s": 1132, "pct": 3.2}, {"c": "United Arab Emirates", "s": 656, "pct": 1.9}, {"c": "Russia", "s": 499, "pct": 1.4}]}, "2026-07": {"channels": [{"k": "Organic", "sessions": 4729, "tx": 2, "rev": 1628, "cvr": 0.04}, {"k": "Paid", "sessions": 5642, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Direct", "sessions": 8159, "tx": 4, "rev": 10566, "cvr": 0.05}, {"k": "Social", "sessions": 3487, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Referral", "sessions": 4447, "tx": 31, "rev": 99837, "cvr": 0.7}, {"k": "Email", "sessions": 338, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 19715, "tx": 17, "rev": 48102, "cvr": 0.09}], "chanTot": {"sessions": 46517, "tx": 54, "rev": 160133, "cvr": 0.12}, "newret": {"new": 39556, "ret": 5694, "newUsers": 38821, "retUsers": 3390, "tot": 46585}, "geo": [{"c": "T\u00fcrkiye", "s": 27110, "pct": 66.5}, {"c": "Saudi Arabia", "s": 9010, "pct": 22.1}, {"c": "United States", "s": 2376, "pct": 5.8}, {"c": "United Kingdom", "s": 1110, "pct": 2.7}, {"c": "United Arab Emirates", "s": 591, "pct": 1.4}, {"c": "Russia", "s": 571, "pct": 1.4}]}}}, "barcelona": {"name": "METT Barcelona", "cur": "\u20ac", "months": {"2026-05": {"meta": {"impressions": 817594, "clicks": 19044, "cpc": 0.16, "spend": 3031.61, "revenue": 29029.56, "rooms": 20.6, "roas": 9.58}, "google": {"impressions": 682728, "clicks": 14353, "cpc": 0.39, "spend": 5545.78, "revenue": 41774.25, "rooms": 29.6, "roas": 7.53}, "totalSpend": 8577.39}, "2026-06": {"meta": {"impressions": 1337621, "clicks": 25277, "cpc": 0.12, "spend": 3052.31, "revenue": 21392.13, "rooms": 17.9, "roas": 7.01}, "google": {"impressions": 396990, "clicks": 11316, "cpc": 0.58, "spend": 6538.86, "revenue": 30783.8, "rooms": 25.7, "roas": 4.71}, "totalSpend": 9591.17}, "2026-07": {"meta": {"impressions": 1333535, "clicks": 22721, "cpc": 0.11, "spend": 2434.85, "revenue": 15383.01, "rooms": 15.5, "roas": 6.32}, "google": {"impressions": 276730, "clicks": 10821, "cpc": 0.52, "spend": 5602.54, "revenue": 22136.53, "rooms": 22.3, "roas": 3.95}, "totalSpend": 8037.39}}, "extra": {"2026-05": {"channels": [{"k": "Organic", "sessions": 9765, "tx": 1, "rev": 1125, "cvr": 0.01}, {"k": "Paid", "sessions": 4532, "tx": 6, "rev": 18213, "cvr": 0.13}, {"k": "Direct", "sessions": 10526, "tx": 14, "rev": 19053, "cvr": 0.13}, {"k": "Social", "sessions": 5993, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Referral", "sessions": 5553, "tx": 22, "rev": 29164, "cvr": 0.4}, {"k": "Email", "sessions": 133, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 16239, "tx": 18, "rev": 18267, "cvr": 0.11}], "chanTot": {"sessions": 52741, "tx": 61, "rev": 85823, "cvr": 0.12}, "newret": {"new": 41451, "ret": 8164, "newUsers": 42058, "retUsers": 4528, "tot": 51726}, "geo": [{"c": "Spain", "s": 4210, "pct": 64.4}, {"c": "Qatar", "s": 840, "pct": 12.8}, {"c": "United Kingdom", "s": 424, "pct": 6.5}, {"c": "Kuwait", "s": 418, "pct": 6.4}, {"c": "United States", "s": 393, "pct": 6.0}, {"c": "Germany", "s": 256, "pct": 3.9}]}, "2026-06": {"channels": [{"k": "Organic", "sessions": 14361, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Paid", "sessions": 27361, "tx": 11, "rev": 11981, "cvr": 0.04}, {"k": "Direct", "sessions": 14397, "tx": 14, "rev": 18219, "cvr": 0.1}, {"k": "Social", "sessions": 7109, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Referral", "sessions": 7096, "tx": 15, "rev": 12323, "cvr": 0.21}, {"k": "Email", "sessions": 128, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 24870, "tx": 13, "rev": 20721, "cvr": 0.05}], "chanTot": {"sessions": 95322, "tx": 53, "rev": 63244, "cvr": 0.06}, "newret": {"new": 77643, "ret": 10833, "newUsers": 79192, "retUsers": 6175, "tot": 91898}, "geo": [{"c": "Spain", "s": 9498, "pct": 36.1}, {"c": "Serbia", "s": 6791, "pct": 25.8}, {"c": "Saudi Arabia", "s": 5497, "pct": 20.9}, {"c": "Qatar", "s": 1785, "pct": 6.8}, {"c": "Portugal", "s": 1475, "pct": 5.6}, {"c": "Kuwait", "s": 1244, "pct": 4.7}]}, "2026-07": {"channels": [{"k": "Organic", "sessions": 7554, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Paid", "sessions": 13436, "tx": 8, "rev": 5790, "cvr": 0.06}, {"k": "Direct", "sessions": 9273, "tx": 6, "rev": 8296, "cvr": 0.06}, {"k": "Social", "sessions": 4137, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Referral", "sessions": 4008, "tx": 16, "rev": 18563, "cvr": 0.4}, {"k": "Email", "sessions": 619, "tx": 0, "rev": 0, "cvr": 0.0}, {"k": "Other", "sessions": 19042, "tx": 16, "rev": 12829, "cvr": 0.08}], "chanTot": {"sessions": 58069, "tx": 46, "rev": 45478, "cvr": 0.08}, "newret": {"new": 48965, "ret": 6177, "newUsers": 47816, "retUsers": 3966, "tot": 57428}, "geo": [{"c": "Spain", "s": 5055, "pct": 38.7}, {"c": "Serbia", "s": 3881, "pct": 29.7}, {"c": "Saudi Arabia", "s": 1563, "pct": 12.0}, {"c": "Portugal", "s": 1193, "pct": 9.1}, {"c": "United States", "s": 807, "pct": 6.2}, {"c": "Qatar", "s": 550, "pct": 4.2}]}}}};
 const ORDER = ['marbella','barcelona','bodrum','singapore'];
 const CURNAME = {'€':'EUR','$':'USD'};
 const MLABEL = {
@@ -195,8 +240,7 @@ const m2 = v => v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractio
 const m0 = v => Math.round(v).toLocaleString('en-US');
 const roasCls = r => r >= 8 ? 'good' : (r >= 4 ? 'warn' : 'bad');
 
-function propTable(key, month){
-  const p = DATA[key], d = p.months[month], c = p.cur;
+function adTable(p, d, c){
   const line = (o, cls, name) => `
     <tr>
       <td class="ch"><span class="badge ${cls}">${name}</span></td>
@@ -233,8 +277,89 @@ function propTable(key, month){
   </div>`;
 }
 
+// colour per channel bucket
+const CHCOL = {Organic:'#4F7A5A', Paid:'#2F6FD0', Direct:'#0E2340', Social:'#B07A3F', Referral:'#C89B94', Email:'#8895A7', Other:'#B0B7C1'};
+
+function gaPanels(x, c){
+  if(!x) return '';
+  // ---- traffic-by-channel bar (sessions share) ----
+  const chans = x.channels.slice().sort((a,b)=>b.sessions-a.sessions);
+  const ts = x.chanTot.sessions || 1;
+  const bar = chans.map(ch =>
+    `<span class="seg-fill" style="width:${(ch.sessions/ts*100).toFixed(2)}%;background:${CHCOL[ch.k]||'#ccc'}" title="${ch.k}: ${n0(ch.sessions)} sessions"></span>`).join('');
+  const legend = chans.filter(ch=>ch.sessions/ts>=0.02).map(ch =>
+    `<span class="lg"><i style="background:${CHCOL[ch.k]||'#ccc'}"></i>${ch.k} ${(ch.sessions/ts*100).toFixed(0)}%</span>`).join('');
+
+  // ---- channel table: sessions / CVR / bookings / revenue (real GA4, all channels) ----
+  const rows = chans.map(ch => `
+    <tr>
+      <td class="ch"><span class="dot2" style="background:${CHCOL[ch.k]||'#ccc'}"></span>${ch.k}</td>
+      <td>${n0(ch.sessions)}</td>
+      <td>${ch.cvr.toFixed(2)}%</td>
+      <td>${n0(ch.tx)}</td>
+      <td>${c}${m0(ch.rev)}</td>
+    </tr>`).join('');
+  const t = x.chanTot;
+  const chanTable = `
+    <table class="mini">
+      <thead><tr><th>Channel</th><th>Sessions</th><th>Conv. rate</th><th>Bookings</th><th>Revenue</th></tr></thead>
+      <tbody>${rows}
+        <tr class="tot"><td class="ch">All channels</td><td>${n0(t.sessions)}</td><td>${t.cvr.toFixed(2)}%</td><td>${n0(t.tx)}</td><td>${c}${m0(t.rev)}</td></tr>
+      </tbody>
+    </table>`;
+
+  // ---- new vs returning ----
+  const nr = x.newret, nrTot = (nr.new+nr.ret)||1;
+  const newPct = nr.new/nrTot*100;
+  const nrBlock = `
+    <div class="nr">
+      <div class="nr-bar">
+        <span class="seg-fill" style="width:${newPct.toFixed(1)}%;background:var(--goog)" title="New"></span>
+        <span class="seg-fill" style="width:${(100-newPct).toFixed(1)}%;background:var(--gold)" title="Returning"></span>
+      </div>
+      <div class="nr-legend">
+        <span class="lg"><i style="background:var(--goog)"></i>New ${newPct.toFixed(0)}% · ${n0(nr.new)} sess</span>
+        <span class="lg"><i style="background:var(--gold)"></i>Returning ${(100-newPct).toFixed(0)}% · ${n0(nr.ret)} sess</span>
+      </div>
+    </div>`;
+
+  // ---- top markets ----
+  const gmax = x.geo.length ? x.geo[0].s : 1;
+  const geo = x.geo.map(g => `
+    <div class="geo-row">
+      <span class="geo-c">${g.c}</span>
+      <span class="geo-track"><span class="geo-fill" style="width:${(g.s/gmax*100).toFixed(1)}%"></span></span>
+      <span class="geo-v">${n0(g.s)}<em>${g.pct}%</em></span>
+    </div>`).join('');
+
+  return `
+    <div class="ga">
+      <div class="ga-col ga-wide">
+        <div class="ga-h">Traffic by channel <span class="ga-sub">GA4 sessions · organic vs paid vs direct vs social vs referral</span></div>
+        <div class="seg-bar">${bar}</div>
+        <div class="ga-legend">${legend}</div>
+        ${chanTable}
+        <div class="ga-note">Conversion rate &amp; revenue are GA4-attributed by channel (all sources, not paid only). A large share of booking revenue lands under <b>Referral</b> / <b>Other</b> because the booking engine is on a separate domain — a known cross-domain attribution effect.</div>
+      </div>
+      <div class="ga-col">
+        <div class="ga-h">New vs returning <span class="ga-sub">sessions</span></div>
+        ${nrBlock}
+        <div class="ga-h" style="margin-top:16px">Top source markets <span class="ga-sub">by sessions</span></div>
+        <div class="geo">${geo}</div>
+      </div>
+    </div>`;
+}
+
+function propBlock(key, month){
+  const p = DATA[key], d = p.months[month], c = p.cur;
+  return `<section class="prop">
+    ${adTable(p, d, c)}
+    ${gaPanels(p.extra ? p.extra[month] : null, c)}
+  </section>`;
+}
+
 function render(month){
-  document.getElementById('tables').innerHTML = ORDER.map(k => propTable(k, month)).join('');
+  document.getElementById('tables').innerHTML = ORDER.map(k => propBlock(k, month)).join('');
 
   document.getElementById('livePill').textContent   = MLABEL[month].n;
   document.getElementById('dateValue').textContent  = MLABEL[month].r;
