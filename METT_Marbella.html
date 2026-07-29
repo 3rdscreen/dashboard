@@ -82,6 +82,26 @@
   .cal-btn { padding: 8px 16px; font-family: inherit; font-size: 12px; border-radius: 3px; cursor: pointer; font-weight: 600; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); }
   .cal-btn:hover { background: var(--surface-2); }
   .cal-btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  /* Compare mode (period-over-period) */
+  .cmp-panel { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .cmp-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cmp-switch { position: relative; width: 34px; height: 18px; border-radius: 9px; background: var(--line); border: none; cursor: pointer; flex-shrink: 0; transition: background .15s; padding: 0; }
+  .cmp-switch::after { content:''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .cmp-switch.on { background: #5b8def; }
+  .cmp-switch.on::after { left: 18px; }
+  .cmp-label { font-size: 12px; color: var(--ink-2); font-weight: 600; letter-spacing: .3px; }
+  .cmp-range-lbl { margin-left: auto; font-size: 10px; color: #5b8def; font-weight: 600; }
+  .cmp-modes { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cmp-mode { font-size: 11px; padding: 4px 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); border-radius: 2px; cursor: pointer; font-family: inherit; }
+  .cmp-mode:hover { border-color: #5b8def; color: #5b8def; }
+  .cmp-mode.active { background: #5b8def; border-color: #5b8def; color: #fff; font-weight: 600; }
+  .cmp-panel.off .cmp-modes { opacity: .4; pointer-events: none; }
+  .cal-day.cmp-range::after, .cal-day.cmp-edge::after { content:''; position: absolute; left: 2px; right: 2px; bottom: 2px; height: 2px; background: #5b8def; border-radius: 1px; }
+  .cmp-chip { font-weight: 600; }
+  .cmp-chip.up { color: #1a8f5a; }
+  .cmp-chip.down { color: #c0392b; }
+  .cmp-chip.flat { color: var(--ink-3); }
+  .cmp-none { color: var(--ink-3); font-style: italic; }
   .filter-indicator { margin-bottom: 18px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 10px; }
   .filter-indicator .bar { display: inline-block; width: 20px; height: 1px; background: var(--gold); flex-shrink: 0; }
   .tabs-wrap { border-bottom: 1px solid var(--line); margin-bottom: 24px; overflow-x: auto; scrollbar-width: none; }
@@ -214,6 +234,20 @@
         <div class="cal-months">
           <div class="cal-month"><div class="cal-nav"><button class="cal-arrow" type="button" id="cal-prev" aria-label="Previous month"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="cal-title" id="cal-title-left">March 2026</span><span style="width:24px;"></span></div><div class="cal-grid" id="cal-grid-left"></div></div>
           <div class="cal-month"><div class="cal-nav"><span style="width:24px;"></span><span class="cal-title" id="cal-title-right">April 2026</span><button class="cal-arrow" type="button" id="cal-next" aria-label="Next month"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div class="cal-grid" id="cal-grid-right"></div></div>
+        </div>
+        <div class="cmp-panel off" id="cmp-panel">
+          <div class="cmp-head">
+            <button class="cmp-switch" id="cmp-switch" type="button" role="switch" aria-checked="false" aria-label="Compare"></button>
+            <span class="cmp-label">Compare</span>
+            <span class="cmp-range-lbl" id="cmp-range-lbl"></span>
+          </div>
+          <div class="cmp-modes">
+            <button class="cmp-mode active" data-cmp="prev-period" type="button">Previous period</button>
+            <button class="cmp-mode" data-cmp="prev-period-dow" type="button">Prev period (day of week)</button>
+            <button class="cmp-mode" data-cmp="prev-year" type="button">Previous year</button>
+            <button class="cmp-mode" data-cmp="prev-year-dow" type="button">Prev year (day of week)</button>
+            <button class="cmp-mode" data-cmp="custom" type="button">Custom</button>
+          </div>
         </div>
         <div class="cal-footer"><div class="cal-selected" id="cal-selected"><strong>1 Jul 2026</strong> &mdash; <strong>26 Jul 2026</strong></div><div class="cal-actions"><button class="cal-btn" type="button" id="cal-cancel">Cancel</button><button class="cal-btn primary" type="button" id="cal-apply">Apply</button></div></div>
       </div>
@@ -509,6 +543,7 @@ const CREATIVES = [
   const _lastD=D[MAX];
   const CURMON_START=(function(){let i=MAX;while(i>0 && D[i-1].getUTCFullYear()===_lastD.getUTCFullYear() && D[i-1].getUTCMonth()===_lastD.getUTCMonth())i--;return i;})();
   let selStart=CURMON_START, selEnd=MAX, pendStart=CURMON_START, pendEnd=MAX, pickPhase=0, viewY=_lastD.getUTCFullYear(), viewM=_lastD.getUTCMonth(); // default: current month
+  let cmpEnabled=false, cmpMode='prev-period', cmpStart=-1, cmpEnd=-1, pickTarget='main', cmpPickPhase=0;
   const realToday = new Date(); 
   const refToday = (realToday > D[MAX]) ? new Date(D[MAX]) : realToday;
 
@@ -534,6 +569,51 @@ const CREATIVES = [
     const mF=sum(META,s,e)/sum(META,MIN,MAX);
     const pSpend=sum(GOOG,s,e)+sum(META,s,e), pAll=sum(GOOG,MIN,MAX)+sum(META,MIN,MAX);
     return {sess:sF, google:gF, meta:mF, paid:pSpend/pAll};
+  }
+
+  /* ---------- Compare-mode helpers ---------- */
+  const CMP_IDS=['kpi-total-rev','kpi-total-bkg','kpi-paid-rev','kpi-paid-bkg','kpi-total-spend','kpi-roas','kpi-cpb','kpi-aov','kpi-cvr'];
+  const REST_IDS=['kpi-total-bkg','kpi-paid-rev','kpi-paid-bkg','kpi-roas','kpi-cpb','kpi-aov'];
+  let _origDeltas={};
+  function snapshotDeltas(){REST_IDS.forEach(id=>{const el=document.getElementById(id);if(el){const d=el.querySelector('.delta');if(d)_origDeltas[id]=d.innerHTML;}});}
+  function restoreDeltas(){REST_IDS.forEach(id=>{if(_origDeltas[id]!=null)setDelta(id,_origDeltas[id]);});}
+  function computeCompareRange(s,e,mode){
+    if(s<0||e<0)return[-1,-1];
+    const nlen=e-s+1, ds=D[s], de=D[e]; let cs,ce;
+    if(mode==='prev-period'){ce=new Date(ds.getTime()-86400000);cs=new Date(ce.getTime()-(nlen-1)*86400000);}
+    else if(mode==='prev-period-dow'){ce=new Date(ds.getTime()-86400000);cs=new Date(ce.getTime()-(nlen-1)*86400000);const d2=((cs.getUTCDay()-ds.getUTCDay())%7+7)%7;cs=new Date(cs.getTime()-d2*86400000);ce=new Date(ce.getTime()-d2*86400000);}
+    else if(mode==='prev-year'){cs=new Date(Date.UTC(ds.getUTCFullYear()-1,ds.getUTCMonth(),ds.getUTCDate()));ce=new Date(Date.UTC(de.getUTCFullYear()-1,de.getUTCMonth(),de.getUTCDate()));}
+    else if(mode==='prev-year-dow'){cs=new Date(Date.UTC(ds.getUTCFullYear()-1,ds.getUTCMonth(),ds.getUTCDate()));ce=new Date(Date.UTC(de.getUTCFullYear()-1,de.getUTCMonth(),de.getUTCDate()));let nud=(ds.getUTCDay()-cs.getUTCDay());if(nud>3)nud-=7;if(nud<-3)nud+=7;cs=new Date(cs.getTime()+nud*86400000);ce=new Date(ce.getTime()+nud*86400000);}
+    else return[cmpStart,cmpEnd];
+    const csT=Date.UTC(cs.getUTCFullYear(),cs.getUTCMonth(),cs.getUTCDate()), ceT=Date.UTC(ce.getUTCFullYear(),ce.getUTCMonth(),ce.getUTCDate());
+    if(ceT<D[MIN].getTime()||csT>D[MAX].getTime())return[-1,-1];
+    return[clampIdx(new Date(csT)),clampIdx(new Date(ceT))];
+  }
+  function rangeTotals(s,e){
+    if(s<0||e<0)return null;
+    const rev=sum(REV,s,e),bkg=sum(BKG,s,e),spend=sum(META,s,e)+sum(GOOG,s,e);
+    const sess=BASE.sessions*(sum(SESS,s,e)/sum(SESS,MIN,MAX));
+    const paidRev=rev*0.825,paidBkg=bkg*0.823;
+    return {rev,bkg,paidRev,paidBkg,spend,roas:spend>0?rev/spend:0,cpb:paidBkg>0?spend/paidBkg:0,aov:bkg>0?rev/bkg:0,cvr:sess>0?bkg/sess*100:0};
+  }
+  function cmpChip(cur,prev,lbl){
+    if(prev==null)return '<span class="cmp-none">no comparison data for period</span>';
+    if(prev===0)return '<span class="cmp-chip flat">\u2014 vs '+lbl+'</span>';
+    const pct=(cur-prev)/prev*100, up=pct>=0.05, down=pct<=-0.05;
+    const cls=up?'up':down?'down':'flat', ar=up?'\u25b2 ':down?'\u25bc ':'';
+    return '<span class="cmp-chip '+cls+'">'+ar+Math.abs(pct).toFixed(1)+'% vs '+lbl+'</span>';
+  }
+  function cmpResolve(s,e){return cmpMode==='custom'?[cmpStart,cmpEnd]:computeCompareRange(s,e,cmpMode);}
+  function updateCompareUI(){
+    const panel=document.getElementById('cmp-panel'); if(!panel)return;
+    const sw=document.getElementById('cmp-switch');
+    panel.classList.toggle('off',!cmpEnabled);
+    sw.classList.toggle('on',cmpEnabled); sw.setAttribute('aria-checked',cmpEnabled?'true':'false');
+    document.querySelectorAll('.cmp-mode').forEach(b=>b.classList.toggle('active',b.getAttribute('data-cmp')===cmpMode));
+    const lbl=document.getElementById('cmp-range-lbl');
+    if(cmpEnabled&&cmpStart>=0&&cmpEnd>=0)lbl.innerHTML='vs '+dshort(cmpStart)+' \u2013 '+dshort(cmpEnd);
+    else if(cmpEnabled)lbl.innerHTML='no data';
+    else lbl.innerHTML='';
   }
 
   /* ---------- KPI refresh ---------- */
@@ -579,6 +659,14 @@ const CREATIVES = [
     setKPI('kpi-dir-sess',fInt(BASE.dirSess*f.sess));
     setKPI('kpi-ref-sess',fInt(BASE.refSess*f.sess));
     setKPI('kpi-paid-share',BASE.paidShare.toFixed(1)+'<span class="unit">%</span>');
+    // ---- Compare deltas ----
+    if(cmpEnabled){
+      const cr=cmpResolve(selStart,selEnd), cs=cr[0], ce=cr[1];
+      const p=rangeTotals(cs,ce), lbl=(cs>=0&&ce>=0)?(dlabel(cs)+' \u2013 '+dlabel(ce)):'';
+      const cur={'kpi-total-rev':rev,'kpi-total-bkg':bkg,'kpi-paid-rev':paidRev,'kpi-paid-bkg':paidBkg,'kpi-total-spend':spend,'kpi-roas':(spend>0?rev/spend:0),'kpi-cpb':(paidBkg>0?spend/paidBkg:0),'kpi-aov':(bkg>0?rev/bkg:0),'kpi-cvr':(sessions>0?bkg/sessions*100:0)};
+      const pv=p?{'kpi-total-rev':p.rev,'kpi-total-bkg':p.bkg,'kpi-paid-rev':p.paidRev,'kpi-paid-bkg':p.paidBkg,'kpi-total-spend':p.spend,'kpi-roas':p.roas,'kpi-cpb':p.cpb,'kpi-aov':p.aov,'kpi-cvr':p.cvr}:null;
+      CMP_IDS.forEach(id=>setDelta(id,cmpChip(cur[id],pv?pv[id]:null,lbl)));
+    } else { restoreDeltas(); }
   }
 
   /* ---------- generic table cell scaling ---------- */
@@ -600,6 +688,7 @@ const CREATIVES = [
     const full = (selStart===MIN&&selEnd===MAX);
     const state = full?'Showing all data':((selStart===CURMON_START&&selEnd===MAX)?'Current month':'Filtered');
     document.getElementById('filter-indicator').innerHTML = state+' &middot; '+dlabel(selStart)+' &ndash; '+dlabel(selEnd);
+    if(cmpEnabled){const cr=cmpResolve(selStart,selEnd);const el=document.getElementById('filter-indicator');if(cr[0]>=0&&cr[1]>=0)el.innerHTML+=' &middot; vs '+dlabel(cr[0])+' &ndash; '+dlabel(cr[1]);else el.innerHTML+=' &middot; vs (no data)';}
     document.getElementById('cal-selected').innerHTML='<strong>'+dlabel(pendStart)+'</strong> &mdash; <strong>'+dlabel(pendEnd)+'</strong>';
   }
 
@@ -720,6 +809,8 @@ const CREATIVES = [
   }
   function idxOf(y,m,d){const t=Date.UTC(y,m,d);for(let i=0;i<N;i++)if(D[i].getTime()===t)return i;return -1;}
   function renderCal(){
+    if(cmpEnabled&&cmpMode!=='custom'){const cr=computeCompareRange(pendStart,pendEnd,cmpMode);cmpStart=cr[0];cmpEnd=cr[1];}
+    updateCompareUI();
     document.getElementById('cal-title-left').textContent=MONTHS[viewM]+' '+viewY;
     const rm=(viewM+1)%12, ry=viewM===11?viewY+1:viewY;
     document.getElementById('cal-title-right').textContent=MONTHS[rm]+' '+ry;
@@ -742,6 +833,7 @@ const CREATIVES = [
       const a=Math.min(pendStart,pendEnd),b=Math.max(pendStart,pendEnd);
       if(idx===pendStart||idx===pendEnd)cls+=' range-start';
       else if(idx>a&&idx<b)cls+=' in-range';
+      if(cmpEnabled&&cmpStart>=0&&cmpEnd>=0){const ca=Math.min(cmpStart,cmpEnd),cb=Math.max(cmpStart,cmpEnd);if(idx===cmpStart||idx===cmpEnd)cls+=' cmp-edge';else if(idx>ca&&idx<cb)cls+=' cmp-range';}
       h+='<button class="'+cls+'" data-idx="'+idx+'">'+d+'</button>';
     });
     g.innerHTML=h;
@@ -749,6 +841,7 @@ const CREATIVES = [
       btn.addEventListener('click',(e)=>{
         e.stopPropagation();
         const idx=+btn.getAttribute('data-idx');
+        if(cmpEnabled&&cmpMode==='custom'&&pickTarget==='compare'){if(cmpPickPhase===0){cmpStart=idx;cmpEnd=idx;cmpPickPhase=1;}else{if(idx<cmpStart){cmpEnd=cmpStart;cmpStart=idx;}else{cmpEnd=idx;}cmpPickPhase=0;}renderCal();return;}
         if(pickPhase===0){pendStart=idx;pendEnd=idx;pickPhase=1;}
         else{if(idx<pendStart){pendEnd=pendStart;pendStart=idx;}else{pendEnd=idx;}pickPhase=0;}
         clearPreset(); renderCal(); refreshLabels();
@@ -797,6 +890,8 @@ const CREATIVES = [
   document.querySelectorAll('.preset-item').forEach(p=>{
     p.addEventListener('click',()=>{clearPreset();p.classList.add('active');applyPreset(p.getAttribute('data-preset'));});
   });
+  document.getElementById('cmp-switch').addEventListener('click',()=>{cmpEnabled=!cmpEnabled;pickTarget=(cmpEnabled&&cmpMode==='custom')?'compare':'main';if(cmpEnabled&&cmpMode!=='custom'){const cr=computeCompareRange(pendStart,pendEnd,cmpMode);cmpStart=cr[0];cmpEnd=cr[1];}renderCal();updateKPIs();});
+  document.querySelectorAll('.cmp-mode').forEach(b=>{b.addEventListener('click',()=>{cmpMode=b.getAttribute('data-cmp');cmpEnabled=true;if(cmpMode==='custom'){cmpStart=-1;cmpEnd=-1;cmpPickPhase=0;pickTarget='compare';}else{pickTarget='main';const cr=computeCompareRange(pendStart,pendEnd,cmpMode);cmpStart=cr[0];cmpEnd=cr[1];}renderCal();updateKPIs();});});
 
   /* ============ TABS ============ */
   const tabPages={overview:'page-overview',paid:'page-paid',offers:'page-offers',attribution:'page-attribution',funnel:'page-funnel',markets:'page-markets',creative:'page-creative'};
@@ -812,6 +907,7 @@ const CREATIVES = [
   });
 
   /* ============ INIT ============ */
+  snapshotDeltas();
   refreshLabels();updateKPIs();scaleCells();rebuildActive();
 })();
 </script>
