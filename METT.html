@@ -75,6 +75,11 @@
   table.mini{width:100%;border-collapse:collapse;margin-top:4px}
   table.mini thead th{background:transparent;color:var(--ink-3);font-size:9px;letter-spacing:.9px;text-transform:uppercase;font-weight:700;padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
   table.mini thead th:first-child{text-align:left}
+  table.mini th.sortable{cursor:pointer;user-select:none;-webkit-user-select:none;transition:color .12s}
+  table.mini th.sortable:hover{color:var(--ink)}
+  table.mini th.sortable::after{content:'⇅';margin-left:5px;opacity:.32;font-size:9px}
+  table.mini th.sortable[data-arrow="desc"]::after{content:'↓';opacity:1;color:var(--gold-2)}
+  table.mini th.sortable[data-arrow="asc"]::after{content:'↑';opacity:1;color:var(--gold-2)}
   table.mini td{padding:7px 8px;font-size:12px;font-family:var(--font-mono);text-align:right;border-bottom:1px solid var(--line);color:var(--ink);white-space:nowrap}
   table.mini td.ch{text-align:left;font-family:var(--font);font-weight:600;font-size:12px}
   table.mini tr:hover td{background:#FBFAF8}
@@ -292,7 +297,7 @@ function gaPanels(x, c){
 
   // ---- channel table: sessions / CVR / bookings / revenue (GA4, Paid+Referral merged) ----
   const rows = chans.map(ch => `
-    <tr>
+    <tr data-sessions="${ch.sessions}" data-cvr="${ch.cvr||0}" data-tx="${ch.tx||0}" data-rev="${ch.rev||0}">
       <td class="ch"><span class="dot2" style="background:${CHCOL[ch.k]||'#ccc'}"></span>${ch.k}</td>
       <td>${n0(ch.sessions)}</td>
       <td>${(ch.cvr||0).toFixed(2)}%</td>
@@ -302,7 +307,7 @@ function gaPanels(x, c){
   const t = x.chanTot;
   const chanTable = `
     <table class="mini">
-      <thead><tr><th>Channel</th><th>Sessions</th><th>Conv. rate</th><th>Bookings</th><th>Revenue</th></tr></thead>
+      <thead><tr><th>Channel</th><th class="sortable" data-k="sessions">Sessions</th><th class="sortable" data-k="cvr">Conv. rate</th><th class="sortable" data-k="tx">Bookings</th><th class="sortable" data-k="rev">Revenue</th></tr></thead>
       <tbody>${rows}
         <tr class="tot"><td class="ch">All channels</td><td>${n0(t.sessions)}</td><td>${(t.cvr||0).toFixed(2)}%</td><td>${n0(t.tx||0)}</td><td>${c}${m0(t.rev||0)}</td></tr>
       </tbody>
@@ -368,6 +373,26 @@ function render(month){
 }
 
 document.querySelectorAll('.seg').forEach(b => b.addEventListener('click', () => render(b.dataset.m)));
+
+// sortable channel tables (delegated — survives month re-render)
+document.getElementById('tables').addEventListener('click', e => {
+  const th = e.target.closest('th.sortable');
+  if(!th) return;
+  const table = th.closest('table'), k = th.dataset.k;
+  const dir = (table.dataset.sortk === k && table.dataset.sortdir === 'desc') ? 'asc' : 'desc';
+  table.dataset.sortk = k; table.dataset.sortdir = dir;
+  const tbody = table.querySelector('tbody');
+  const tot = tbody.querySelector('tr.tot');
+  const rows = [...tbody.querySelectorAll('tr:not(.tot)')];
+  rows.sort((a,b) => {
+    const av = parseFloat(a.dataset[k])||0, bv = parseFloat(b.dataset[k])||0;
+    return dir === 'desc' ? bv - av : av - bv;
+  });
+  rows.forEach(r => tbody.insertBefore(r, tot));
+  table.querySelectorAll('th.sortable').forEach(h => h.removeAttribute('data-arrow'));
+  th.setAttribute('data-arrow', dir);
+});
+
 render('2026-05');
 </script>
 </body>
