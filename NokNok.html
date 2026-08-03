@@ -380,6 +380,7 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
     <button class="tabbtn" data-tab="meta" onclick="showTab('meta')"><span class="dot" style="background:#1877F2"></span>Meta</button>
     <button class="tabbtn" data-tab="google" onclick="showTab('google')"><span class="dot" style="background:#EA4335"></span>Google</button>
     <button class="tabbtn" data-tab="tiktok" onclick="showTab('tiktok')"><span class="dot" style="background:#111"></span>TikTok</button>
+    <button class="tabbtn" data-tab="apple" onclick="showTab('apple')"><span class="dot" style="background:#555"></span>Apple</button>
   </nav>
 
   <div class="tabpanel active" id="tab-overview">
@@ -603,6 +604,64 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
         <div style="font-size:12.5px;color:var(--ink-3);margin-bottom:6px">Installs (rising) &amp; cost per install (falling)</div>
         <div id="tkTrend" style="margin-top:10px"></div>
         <div class="gnote">Campaigns: <b>NokNok | App Installs (Android) | LB | Tiktok | 3RDS</b> and the iOS equivalent. TikTok recorded no spend before Jul 9.</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="tabpanel" id="tab-apple">
+    <section class="sec" style="margin-top:6px">
+      <div class="eyebrow"><span class="dot" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#555;margin-right:7px"></span>Apple Search Ads &middot; App Installs &middot; Jul 1 &ndash; Jul 31, 2026</div>
+      <div class="kpi-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px">
+        <div class="kpi"><div class="k">Spend</div><div class="v">$331.28</div><div class="s">$10.69/day avg</div></div>
+        <div class="kpi"><div class="k">App Installs</div><div class="v">796</div><div class="s">Total (tap + view)</div></div>
+        <div class="kpi"><div class="k">Cost / Install</div><div class="v">$0.42</div><div class="s">Avg CPA (total)</div></div>
+        <div class="kpi"><div class="k">Impressions</div><div class="v">13,503</div><div class="s">&nbsp;</div></div>
+        <div class="kpi"><div class="k">Taps</div><div class="v">663</div><div class="s">TTR 4.91%</div></div>
+        <div class="kpi"><div class="k">Avg. CPT</div><div class="v">$0.50</div><div class="s">Cost per tap</div></div>
+        <div class="kpi"><div class="k">New Downloads</div><div class="v">435</div><div class="s">55% of installs</div></div>
+        <div class="kpi"><div class="k">Redownloads</div><div class="v">361</div><div class="s">45% of installs</div></div>
+      </div>
+
+      <div class="card" style="padding:20px 22px;margin-bottom:22px">
+        <div style="font-weight:700;color:var(--navy);margin-bottom:2px">Search funnel</div>
+        <div style="font-size:12.5px;color:var(--ink-3);margin-bottom:14px">App Store search results &middot; impression &rarr; tap &rarr; tap-through install</div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div style="display:grid;grid-template-columns:132px 1fr 132px;align-items:center;gap:12px"><div style="font-size:13px;font-weight:600;color:var(--ink-2)">Impressions</div><div style="height:26px;background:var(--line-2);border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:100%;background:linear-gradient(90deg,#555,#b8bcc0);border-radius:6px"></i></div><div style="text-align:right;font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink)"><b>13,503</b> <span style="color:var(--ink-3)">100%</span></div></div>
+          <div style="display:grid;grid-template-columns:132px 1fr 132px;align-items:center;gap:12px"><div style="font-size:13px;font-weight:600;color:var(--ink-2)">Taps</div><div style="height:26px;background:var(--line-2);border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:5%;background:linear-gradient(90deg,#555,#b8bcc0);border-radius:6px"></i></div><div style="text-align:right;font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink)"><b>663</b> <span style="color:var(--ink-3)">4.9%</span></div></div>
+          <div style="display:grid;grid-template-columns:132px 1fr 132px;align-items:center;gap:12px"><div style="font-size:13px;font-weight:600;color:var(--ink-2)">Tap-through installs</div><div style="height:26px;background:var(--line-2);border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:2.6%;background:linear-gradient(90deg,#2E8B63,#7fd0a8);border-radius:6px"></i></div><div style="text-align:right;font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink)"><b>355</b> <span style="color:var(--ink-3)">CR 53.5%</span></div></div>
+        </div>
+        <div class="gnote">Tap-through conversion rate is a very strong <b>53.5%</b> &mdash; over half of everyone who taps installs. A further <b>441 view-through installs</b> (people who saw the ad, didn&rsquo;t tap, but installed within the attribution window) lift total installs to 796, which is why the blended CPA ($0.42) sits below the tap-through CPA ($0.93).</div>
+      </div>
+
+      <div class="card" style="padding:20px 22px;margin-bottom:22px">
+        <div style="font-weight:700;color:var(--navy);margin-bottom:4px">Installs by attribution &amp; type</div>
+        <div class="tbl-scroll"><table class="xtable">
+          <thead><tr><th>Attribution</th><th class="num">Installs</th><th class="num">New downloads</th><th class="num">Redownloads</th><th class="num">Avg CPA</th></tr></thead>
+          <tbody>
+            <tr><td class="plat">Tap-through</td><td class="num">355</td><td class="num">201</td><td class="num">154</td><td class="num">$0.93</td></tr>
+            <tr><td class="plat">View-through</td><td class="num">441</td><td class="num">234</td><td class="num">207</td><td class="num">&mdash;</td></tr>
+            <tr class="tot"><td>Total</td><td class="num">796</td><td class="num">435</td><td class="num">361</td><td class="num">$0.42</td></tr>
+          </tbody>
+        </table></div>
+        <div class="gnote">Roughly an even split between brand-new users (435) and returning users reinstalling (361). View-through installs have no separate cost &mdash; spend is billed on taps &mdash; so they pull the blended CPA down.</div>
+      </div>
+
+      <div class="card" style="padding:20px 22px">
+        <div style="font-weight:700;color:var(--navy);margin-bottom:4px">Campaign setup</div>
+        <div class="tbl-scroll"><table class="xtable">
+          <tbody>
+            <tr><td class="plat">Campaign</td><td>NokNok - Apple SearchAds - Ongoing 2026 <span style="color:var(--ink-3)">(ID 1785619253)</span></td></tr>
+            <tr><td class="plat">App</td><td>noknok - ONE TOUCH. <span style="color:var(--ink-3)">(App ID 1360852720)</span></td></tr>
+            <tr><td class="plat">Ad group</td><td>Apple Search - ongoing 2026 &middot; <span style="color:#2E8B63;font-weight:600">Running</span></td></tr>
+            <tr><td class="plat">Placement</td><td>App Store &mdash; Search Results</td></tr>
+            <tr><td class="plat">Country</td><td>Lebanon (LB)</td></tr>
+            <tr><td class="plat">Device</td><td>iPhone only</td></tr>
+            <tr><td class="plat">Bid strategy</td><td>Manual CPT &middot; max bid $3.00 &middot; Search Match On</td></tr>
+            <tr><td class="plat">Daily budget</td><td>$10.00</td></tr>
+            <tr><td class="plat">Live since</td><td>Feb 11, 2025</td></tr>
+          </tbody>
+        </table></div>
+        <div class="gnote">Source: Apple Search Ads ad-group export for this campaign (July 2026) plus the campaign metadata sheet. This export is a <b>monthly total for July</b> &mdash; unlike the Meta &amp; Google tabs (daily, through Aug 2), Apple has no daily breakdown, so there&rsquo;s no trend line here. In the <b>Overview</b> breakdown Apple is folded into the cross-channel totals, prorated by the days the selected period overlaps July (marked with a &dagger;). Send a daily / August Apple export whenever you have one and I&rsquo;ll give this tab a full daily trend to match the others.</div>
       </div>
     </section>
   </div>
@@ -1124,9 +1183,16 @@ function renderOverview(start,end){
   // TikTok (from TIKTOK_DAILY)
   let tSpend=0,tInst=0;
   for(const dt in TIKTOK_DAILY){if(inR(dt)){const t=TIKTOK_DAILY[dt];tSpend+=t.spend;tInst+=t.inst;if(t.spend>0)tDays++;}}
-  const totSpend=mTotSpend+gSpend+tSpend;
-  const totInstalls=mInstalls+gInst+tInst;
-  const instSpend=mInstSpend+gSpend;
+  // Apple Search Ads: only a July monthly total is available (no daily data), so prorate by the
+  // number of days the selected window overlaps Jul 1-31, 2026. Exact when the window contains July.
+  const AP={s:'2026-07-01',e:'2026-07-31',spend:331.28,inst:796,days:31};
+  let aSpend=0,aInst=0,aDaysOv=0;
+  {const os=start>AP.s?start:AP.s, oe=end<AP.e?end:AP.e;
+   if(os<=oe){const d0=Date.UTC(+os.slice(0,4),+os.slice(5,7)-1,+os.slice(8,10)),d1=Date.UTC(+oe.slice(0,4),+oe.slice(5,7)-1,+oe.slice(8,10));aDaysOv=Math.round((d1-d0)/86400000)+1;}
+   const fr=aDaysOv/AP.days; aSpend=AP.spend*fr; aInst=Math.round(AP.inst*fr);}
+  const totSpend=mTotSpend+gSpend+tSpend+aSpend;
+  const totInstalls=mInstalls+gInst+tInst+aInst;
+  const instSpend=mInstSpend+gSpend+aSpend;
   const mDaily=mDays>0?mTotSpend/mDays:0,gDaily=gDays>0?gSpend/gDays:0,tDaily=tDays>0?tSpend/tDays:0,totDaily=mDaily+gDaily+tDaily;
   const blended= totInstalls>0? usd2(instSpend/totInstalls):'\u2014';
   const wl=function(iso){const dt=new Date(iso+'T00:00:00Z');return MS3[dt.getUTCMonth()]+' '+dt.getUTCDate();};
@@ -1135,8 +1201,8 @@ function renderOverview(start,end){
   const D=c=>'<span class="dot" style="width:9px;height:9px;border-radius:50%;background:'+c+'"></span>';
   const shr=(p,t)=> t>0? 100*p/t:0;
   function rows(list,tot,fmtv){return list.map(function(r){const pct=shr(r[2],tot);return '<div class="sharerow"><div class="lbl">'+D(r[1])+r[0]+'</div><div class="sharebar"><i style="width:'+pct.toFixed(1)+'%;background:'+r[1]+'"></i></div><div class="val">'+fmtv(r[2])+' &middot; '+pct.toFixed(1)+'%</div></div>';}).join('');}
-  const spList=[['Meta','#1877F2',mTotSpend],['Google','#EA4335',gSpend],['TikTok','#111',tSpend]];
-  const inList=[['Meta','#1877F2',mInstalls],['Google','#EA4335',gInst],['TikTok','#111',tInst]];
+  const spList=[['Meta','#1877F2',mTotSpend],['Google','#EA4335',gSpend],['TikTok','#111',tSpend],['Apple','#555',aSpend]];
+  const inList=[['Meta','#1877F2',mInstalls],['Google','#EA4335',gInst],['TikTok','#111',tInst],['Apple','#555',aInst]];
   const body=
   '<div class="kpi-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px">'+
     '<div class="kpi"><div class="k">Total Spend</div><div class="v">'+usd0(totSpend)+'</div><div class="s">All platforms</div></div>'+
@@ -1150,8 +1216,9 @@ function renderOverview(start,end){
     '<tr><td class="plat">'+D('#1877F2')+'Meta</td><td>'+pill(mTotSpend)+'</td><td class="num">'+usd2(mTotSpend)+'</td><td class="num">'+'$232*'+'</td><td class="num">'+n0(mInstalls)+'</td><td class="num">'+cpi(mInstSpend,mInstalls)+'</td></tr>'+
     '<tr><td class="plat">'+D('#EA4335')+'Google</td><td>'+pill(gSpend)+'</td><td class="num">'+usd2(gSpend)+'</td><td class="num">'+'$30'+'</td><td class="num">'+n0(gInst)+'</td><td class="num">'+cpi(gSpend,gInst)+'</td></tr>'+
     '<tr><td class="plat">'+D('#111')+'TikTok</td><td>'+pill(tSpend)+'</td><td class="num">'+usd2(tSpend)+'</td><td class="num">'+'$40'+'</td><td class="num">'+n0(tInst)+'</td><td class="num">'+cpi(tSpend,tInst)+'</td></tr>'+
-    '<tr class="tot"><td>Total</td><td></td><td class="num">'+usd2(totSpend)+'</td><td class="num">'+'$302*'+'</td><td class="num">'+n0(totInstalls)+'</td><td class="num">'+blended+'</td></tr>'+
-    '</tbody></table></div><div class="gnote" style="margin-top:10px"><b>Daily budget</b> = combined daily budget per platform (current campaign settings, not tied to the selected period). <b>*</b>&nbsp;<b>Meta $232/day</b> = App&nbsp;Install ($30+$30 LB, $10+$10 Expats) + Registration ($15) on daily budgets ($95), plus the Sales campaign&rsquo;s active per-ad-set <b>lifetime</b> budgets as an effective daily (lifetime &divide; flight days): Beirut&nbsp;Maten $43 + FMCG $27 + Fresh&nbsp;Flyer $50 + Jackson $10 + Beauty&nbsp;Brands $7 &asymp; <b>$137/day</b>. Google $30/day; TikTok $40/day.</div></div>'+
+    '<tr><td class="plat">'+D('#555')+'Apple</td><td>'+pill(aSpend)+'</td><td class="num">'+usd2(aSpend)+'&dagger;</td><td class="num">'+'$10'+'</td><td class="num">'+n0(aInst)+'</td><td class="num">'+cpi(aSpend,aInst)+'</td></tr>'+
+    '<tr class="tot"><td>Total</td><td></td><td class="num">'+usd2(totSpend)+'</td><td class="num">'+'$312*'+'</td><td class="num">'+n0(totInstalls)+'</td><td class="num">'+blended+'</td></tr>'+
+    '</tbody></table></div><div class="gnote" style="margin-top:10px"><b>Daily budget</b> = combined daily budget per platform (current campaign settings, not tied to the selected period). <b>*</b>&nbsp;<b>Meta $232/day</b> = App&nbsp;Install ($30+$30 LB, $10+$10 Expats) + Registration ($15) on daily budgets ($95), plus the Sales campaign&rsquo;s active per-ad-set <b>lifetime</b> budgets as an effective daily (lifetime &divide; flight days): Beirut&nbsp;Maten $43 + FMCG $27 + Fresh&nbsp;Flyer $50 + Jackson $10 + Beauty&nbsp;Brands $7 &asymp; <b>$137/day</b>. Google $30/day; TikTok $40/day; Apple $10/day. <b>&dagger;</b>&nbsp;Apple Search Ads reports only a <b>July full-month total</b> ($331.28 / 796 installs); with no daily data it is prorated across the days the selected period overlaps July, so it is exact for windows covering July and an even-spread estimate otherwise.</div></div>'+
   '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">Spend share</div>'+rows(spList,totSpend,usd0)+'</div>'+
   '<div class="card" style="padding:20px 22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">App-install share</div>'+rows(inList,totInstalls,n0)+'</div>';
   const el=document.getElementById('ovBody'); if(el) el.innerHTML=body;
