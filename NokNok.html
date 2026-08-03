@@ -661,7 +661,7 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
             <tr><td class="plat">Live since</td><td>Feb 11, 2025</td></tr>
           </tbody>
         </table></div>
-        <div class="gnote">Source: Apple Search Ads ad-group export for this campaign (July 2026) plus the campaign metadata sheet. This export is a <b>monthly total for July</b> &mdash; unlike the Meta &amp; Google tabs (daily, through Aug 2), Apple has no daily breakdown, so there&rsquo;s no trend line here. In the <b>Overview</b> breakdown Apple is folded into the cross-channel totals, prorated by the days the selected period overlaps July (marked with a &dagger;). Send a daily / August Apple export whenever you have one and I&rsquo;ll give this tab a full daily trend to match the others.</div>
+        <div class="gnote">Source: Apple Search Ads ad-group export for this campaign (July 2026) plus the campaign metadata sheet. This export is a <b>monthly total for July</b> &mdash; unlike the Meta &amp; Google tabs (daily, through Aug 2), Apple has no daily breakdown, so there&rsquo;s no trend line here. In the <b>Overview</b> breakdown Apple is folded into the cross-channel totals, prorated by the days the selected period overlaps July. Send a daily / August Apple export whenever you have one and I&rsquo;ll give this tab a full daily trend to match the others.</div>
       </div>
     </section>
   </div>
@@ -1213,12 +1213,12 @@ function renderOverview(start,end){
   '</div>'+
   '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:4px">Platform breakdown</div>'+
     '<div class="tbl-scroll"><table class="xtable"><thead><tr><th>Platform</th><th>Status</th><th class="num">Spend</th><th class="num">Daily budget</th><th class="num">Installs</th><th class="num">Cost / Install</th></tr></thead><tbody>'+
-    '<tr><td class="plat">'+D('#1877F2')+'Meta</td><td>'+pill(mTotSpend)+'</td><td class="num">'+usd2(mTotSpend)+'</td><td class="num">'+'$232*'+'</td><td class="num">'+n0(mInstalls)+'</td><td class="num">'+cpi(mInstSpend,mInstalls)+'</td></tr>'+
+    '<tr><td class="plat">'+D('#1877F2')+'Meta</td><td>'+pill(mTotSpend)+'</td><td class="num">'+usd2(mTotSpend)+'</td><td class="num">'+'$232'+'</td><td class="num">'+n0(mInstalls)+'</td><td class="num">'+cpi(mInstSpend,mInstalls)+'</td></tr>'+
     '<tr><td class="plat">'+D('#EA4335')+'Google</td><td>'+pill(gSpend)+'</td><td class="num">'+usd2(gSpend)+'</td><td class="num">'+'$30'+'</td><td class="num">'+n0(gInst)+'</td><td class="num">'+cpi(gSpend,gInst)+'</td></tr>'+
     '<tr><td class="plat">'+D('#111')+'TikTok</td><td>'+pill(tSpend)+'</td><td class="num">'+usd2(tSpend)+'</td><td class="num">'+'$40'+'</td><td class="num">'+n0(tInst)+'</td><td class="num">'+cpi(tSpend,tInst)+'</td></tr>'+
-    '<tr><td class="plat">'+D('#555')+'Apple</td><td>'+pill(aSpend)+'</td><td class="num">'+usd2(aSpend)+'&dagger;</td><td class="num">'+'$10'+'</td><td class="num">'+n0(aInst)+'</td><td class="num">'+cpi(aSpend,aInst)+'</td></tr>'+
-    '<tr class="tot"><td>Total</td><td></td><td class="num">'+usd2(totSpend)+'</td><td class="num">'+'$312*'+'</td><td class="num">'+n0(totInstalls)+'</td><td class="num">'+blended+'</td></tr>'+
-    '</tbody></table></div><div class="gnote" style="margin-top:10px"><b>Daily budget</b> = combined daily budget per platform (current campaign settings, not tied to the selected period). <b>*</b>&nbsp;<b>Meta $232/day</b> = App&nbsp;Install ($30+$30 LB, $10+$10 Expats) + Registration ($15) on daily budgets ($95), plus the Sales campaign&rsquo;s active per-ad-set <b>lifetime</b> budgets as an effective daily (lifetime &divide; flight days): Beirut&nbsp;Maten $43 + FMCG $27 + Fresh&nbsp;Flyer $50 + Jackson $10 + Beauty&nbsp;Brands $7 &asymp; <b>$137/day</b>. Google $30/day; TikTok $40/day; Apple $10/day. <b>&dagger;</b>&nbsp;Apple Search Ads reports only a <b>July full-month total</b> ($331.28 / 796 installs); with no daily data it is prorated across the days the selected period overlaps July, so it is exact for windows covering July and an even-spread estimate otherwise.</div></div>'+
+    '<tr><td class="plat">'+D('#555')+'Apple</td><td>'+pill(aSpend)+'</td><td class="num">'+usd2(aSpend)+'</td><td class="num">'+'$10'+'</td><td class="num">'+n0(aInst)+'</td><td class="num">'+cpi(aSpend,aInst)+'</td></tr>'+
+    '<tr class="tot"><td>Total</td><td></td><td class="num">'+usd2(totSpend)+'</td><td class="num">'+'$312'+'</td><td class="num">'+n0(totInstalls)+'</td><td class="num">'+blended+'</td></tr>'+
+    '</tbody></table></div></div>'+
   '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">Spend share</div>'+rows(spList,totSpend,usd0)+'</div>'+
   '<div class="card" style="padding:20px 22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">App-install share</div>'+rows(inList,totInstalls,n0)+'</div>';
   const el=document.getElementById('ovBody'); if(el) el.innerHTML=body;
