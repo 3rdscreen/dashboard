@@ -111,6 +111,29 @@
   .cal-btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
   .cal-btn.primary:hover { background: var(--navy-2); border-color: var(--navy-2); }
 
+  /* ===== Compare (period-over-period) ===== */
+  .cmp-panel { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .cmp-head { display: flex; align-items: center; gap: 10px; }
+  .cmp-title { font-size: 12px; font-weight: 600; color: var(--ink); }
+  .cmp-switch { position: relative; width: 36px; height: 20px; border-radius: 20px; background: var(--ink-4); cursor: pointer; transition: background .15s; flex-shrink: 0; }
+  .cmp-switch.on { background: #5b8def; }
+  .cmp-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; }
+  .cmp-switch.on::after { transform: translateX(16px); }
+  .cmp-range-label { font-size: 11px; color: var(--ink-3); margin-left: auto; }
+  .cmp-range-label strong { color: #5b8def; font-weight: 600; }
+  .cmp-modes { display: none; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .cmp-modes.show { display: flex; }
+  .cmp-mode { padding: 5px 10px; font-family: inherit; font-size: 11px; border: 1px solid var(--line); background: #fff; color: var(--ink-2); border-radius: 3px; cursor: pointer; }
+  .cmp-mode:hover { background: var(--surface-2); }
+  .cmp-mode.active { border-color: #5b8def; color: #5b8def; background: rgba(91,141,239,0.12); font-weight: 600; }
+  .cal-day.cmp-range { box-shadow: inset 0 -3px 0 #5b8def; border-radius: 2px; }
+  .cal-day.cmp-edge { box-shadow: inset 0 -3px 0 #5b8def; color: #3a6fd6; font-weight: 600; }
+  .cmp-chip { font-weight: 700; white-space: nowrap; }
+  .cmp-chip.up { color: #1a8f5a; }
+  .cmp-chip.down { color: #c0392b; }
+  .cmp-chip.flat { color: var(--ink-3); }
+  .cmp-vs { color: var(--ink-3); }
+
   .filter-indicator { margin-bottom: 18px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 10px; }
   .filter-indicator .bar { display: inline-block; width: 20px; height: 1px; background: var(--gold); flex-shrink: 0; }
 
@@ -390,8 +413,8 @@
       </div>
     </div>
     <div class="meta-right">
-      <div class="live-pill"><span class="dot"></span> Live &middot; Jul 1 &ndash; Jul 26, 2026</div>
-      <div class="timestamp" id="timestamp">Updated 27 Jul 2026 &middot; 09:00 UTC</div>
+      <div class="live-pill"><span class="dot"></span> Live &middot; Jul 1 &ndash; Jul 31, 2026</div>
+      <div class="timestamp" id="timestamp">Updated 1 Aug 2026 &middot; 09:00 UTC</div>
       <div class="sources">
         <span class="src-chip">GA4</span>
         <span class="src-chip">GA4 Ecommerce</span>
@@ -412,7 +435,7 @@
       </div>
       <div class="date-meta">
         <span class="date-eyebrow">Date range</span>
-        <span class="date-value" id="date-value">1 &ndash; 26 Jul 2026</span>
+        <span class="date-value" id="date-value">1 &ndash; 31 Jul 2026</span>
       </div>
       <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M2 4l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -421,14 +444,14 @@
 
     <div class="filter-summary">
       <span class="sum-label">Period</span>
-      <span class="sum-val" id="period-sum">26 days</span>
+      <span class="sum-val" id="period-sum">31 days</span>
     </div>
 
     <!-- Date popover -->
     <div class="date-popover" id="date-popover" role="dialog" aria-label="Select date range">
       <aside class="presets">
         <div class="preset-header">Quick select</div>
-        <button class="preset-item" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">Mar 1 &ndash; Jul 26</span></button>
+        <button class="preset-item" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">Mar 1 &ndash; Jul 31</span></button>
         <button class="preset-item" data-preset="yesterday" type="button"><span class="preset-radio"></span>Yesterday</button>
         <button class="preset-item" data-preset="7" type="button"><span class="preset-radio"></span>Last 7 days</button>
         <button class="preset-item" data-preset="14" type="button"><span class="preset-radio"></span>Last 14 days</button>
@@ -463,8 +486,22 @@
             <div class="cal-grid" id="cal-grid-right"></div>
           </div>
         </div>
+        <div class="cmp-panel">
+          <div class="cmp-head">
+            <span class="cmp-title">Compare</span>
+            <div class="cmp-switch" id="cmp-switch" role="switch" aria-checked="false" tabindex="0"></div>
+            <span class="cmp-range-label" id="cmp-range-label"></span>
+          </div>
+          <div class="cmp-modes" id="cmp-modes">
+            <button class="cmp-mode active" data-cmp="prev-period" type="button">Previous period</button>
+            <button class="cmp-mode" data-cmp="prev-period-dow" type="button">Prev period (day of week)</button>
+            <button class="cmp-mode" data-cmp="prev-year" type="button">Previous year</button>
+            <button class="cmp-mode" data-cmp="prev-year-dow" type="button">Prev year (day of week)</button>
+            <button class="cmp-mode" data-cmp="custom" type="button">Custom</button>
+          </div>
+        </div>
         <div class="cal-footer">
-          <div class="cal-selected" id="cal-selected"><strong>1 Jul 2026</strong> &mdash; <strong>26 Jul 2026</strong></div>
+          <div class="cal-selected" id="cal-selected"><strong>1 Jul 2026</strong> &mdash; <strong>31 Jul 2026</strong></div>
           <div class="cal-actions">
             <button class="cal-btn" type="button" id="cal-cancel">Cancel</button>
             <button class="cal-btn primary" type="button" id="cal-apply">Apply</button>
@@ -476,7 +513,7 @@
 
   <div class="filter-indicator">
     <span class="bar"></span>
-    <span id="filter-indicator">Showing this month &middot; 1 &ndash; 26 Jul 2026</span>
+    <span id="filter-indicator">Showing this month &middot; 1 &ndash; 31 Jul 2026</span>
   </div>
 
   <!-- ===================== TABS ===================== -->
@@ -932,10 +969,10 @@
     </div>
 
     <div class="kpi-grid cols-4">
-      <div class="kpi hero"><div class="label">Top revenue creative</div><div class="value" style="font-size: 17px;">Carousel &middot; Stay 3 Pay 2</div><div class="delta">&euro;1,499 spend &middot; 7,572 clicks</div></div>
-      <div class="kpi"><div class="label">Best CTR creative</div><div class="value" style="font-size: 17px;">Reel &middot; 30 April</div><div class="delta">2.01% &middot; 436,238 impr</div></div>
-      <div class="kpi"><div class="label">Highest volume</div><div class="value" style="font-size: 17px;">Carousel &middot; Stay 3 Pay 2</div><div class="delta">794,824 impressions</div></div>
-      <div class="kpi"><div class="label">Active creatives</div><div class="value">7</div><div class="delta">Meta &middot; 148 days</div></div>
+      <div class="kpi hero"><div class="label">Top revenue creative</div><div class="value" style="font-size: 17px;">Carousel &middot; Stay 3 Pay 2</div><div class="delta">&euro;1,640 spend &middot; 8,307 clicks</div></div>
+      <div class="kpi"><div class="label">Best CTR creative</div><div class="value" style="font-size: 17px;">Carousel &middot; Stay 3 Pay 2 TR</div><div class="delta">1.98% &middot; 627,674 impr</div></div>
+      <div class="kpi"><div class="label">Highest volume</div><div class="value" style="font-size: 17px;">Carousel &middot; Stay 3 Pay 2</div><div class="delta">873,857 impressions</div></div>
+      <div class="kpi"><div class="label">Active creatives</div><div class="value">7</div><div class="delta">Meta &middot; 153 days</div></div>
     </div>
 
     <div class="section-label">Top performing creatives &middot; ranked by attributed revenue</div>
@@ -991,18 +1028,18 @@
 (function() {
   'use strict';
 
-  // ===== DAILY DATA — REAL Supermetrics pulls, Mar 1 - Jul 26, 2026 (148 days) =====
-  var dates = ['2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-11','2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-18','2026-04-19','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-23','2026-05-24','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-05-30','2026-05-31','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-13','2026-06-14','2026-06-15','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-20','2026-06-21','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-27','2026-06-28','2026-06-29','2026-06-30','2026-07-01','2026-07-02','2026-07-03','2026-07-04','2026-07-05','2026-07-06','2026-07-07','2026-07-08','2026-07-09','2026-07-10','2026-07-11','2026-07-12','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-18','2026-07-19','2026-07-20','2026-07-21','2026-07-22','2026-07-23','2026-07-24','2026-07-25','2026-07-26'];
+  // ===== DAILY DATA — REAL Supermetrics pulls, Mar 1 - Jul 31, 2026 (153 days) =====
+  var dates = ['2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-11','2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-18','2026-04-19','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-23','2026-05-24','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-05-30','2026-05-31','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-13','2026-06-14','2026-06-15','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-20','2026-06-21','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-27','2026-06-28','2026-06-29','2026-06-30','2026-07-01','2026-07-02','2026-07-03','2026-07-04','2026-07-05','2026-07-06','2026-07-07','2026-07-08','2026-07-09','2026-07-10','2026-07-11','2026-07-12','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-18','2026-07-19','2026-07-20','2026-07-21','2026-07-22','2026-07-23','2026-07-24','2026-07-25','2026-07-26','2026-07-27','2026-07-28','2026-07-29','2026-07-30','2026-07-31'];
   var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function makeDateLabel(d) {
     var p = d.split('-'); return parseInt(p[2], 10) + ' ' + monthNames[parseInt(p[1], 10) - 1];
   }
 
-  var ga4Revenue  = [5254.99,0.0,0.0,0.0,0.0,0.0,1821.1,0.0,6462.05,3439.01,0.0,0.0,7094.87,3770.35,0.0,2461.54,2378.43,3769.6,1726.13,0.0,0.0,2626.78,0.0,10687.83,0.0,0.0,0.0,582.64,0.0,4018.06,1667.61,2530.18,0.0,2573.73,1074.65,1863.03,6979.2,5328.66,0.0,0.0,3309.91,3409.8,0.0,498.44,0.0,4066.21,3575.63,0.0,2601.4,1253.74,0.0,0.0,519.57,1034.31,0.0,11059.17,4496.5,3526.85,16314.64,0.0,0.0,3689.19,2849.11,7706.26,0.0,5241.1,3587.11,16448.84,5848.96,0.0,1254.25,5275.92,0.0,934.81,3282.58,3687.42,1526.45,4996.54,1960.69,0.0,10253.54,6674.81,5017.15,5893.13,8462.9,12340.17,0.0,2355.7,562.08,7211.59,7369.54,10279.01,21373.45,6668.51,2812.26,6460.28,7004.51,0.0,0.0,16619.02,0.0,2862.29,1822.59,0.0,11202.0,40615.7,1303.89,19898.7,0.0,74594.14,2866.45,1516.57,819.94,10047.79,1160.73,20896.61,4207.47,8689.96,4859.37,9084.63,2905.15,6777.04,4383.56,3121.23,0.0,1306.73,972.47,5278.88,2092.24,29095.37,14846.85,0.0,8856.59,0.0,9541.48,3529.36,0.0,6850.25,6121.4,1729.42,7986.97,0.0,9021.97,5711.63,15307.21,7657.48,4206.77,12515.17];
-  var ga4Bookings = [1,0,0,0,0,0,1,0,2,2,0,0,2,1,0,2,2,2,1,0,0,2,0,2,0,0,0,1,0,1,1,1,0,1,1,1,4,1,0,0,2,2,0,1,0,2,1,0,2,1,0,0,1,1,0,3,2,1,4,0,0,2,2,1,0,2,3,5,2,0,1,1,0,1,1,2,2,3,2,0,3,5,1,3,2,3,0,1,1,2,2,5,6,3,1,2,2,0,0,3,0,1,1,0,2,11,1,4,0,6,1,2,1,3,1,5,2,2,2,2,1,3,4,2,0,2,1,4,1,4,3,0,3,0,6,2,0,2,1,1,4,0,2,2,3,1,2,4];
-  var ga4Sessions = [384,471,523,530,449,484,508,366,606,678,583,589,619,390,468,554,531,701,575,484,1002,499,778,657,605,593,531,472,557,665,626,678,638,1314,1430,838,821,850,1008,1244,1014,772,976,951,1010,686,688,1111,802,1079,792,727,657,623,982,925,754,969,690,924,804,526,773,1000,751,849,879,910,955,1102,1175,1340,1032,1235,1510,1169,1125,1243,1589,1037,1085,887,1195,1021,1028,1046,1077,984,1145,1081,1095,1006,802,1346,1150,1192,946,2733,1538,1445,1521,2117,1386,1313,1215,1504,1427,1697,1229,1468,1084,1056,1192,1386,1080,1217,1222,1337,1163,1177,1268,1283,1253,2362,1728,1347,1673,2058,2421,2071,2422,1851,1964,2238,2217,1969,1531,1567,1547,1573,1288,1164,1966,1502,1911,1847,1508,1624];
-  var metaSpendArr   = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,4.18,4.21,4.92,4.82,4.32,4.59,4.42,14.67,25.76,24.18,27.93,23.71,22.63,24.25,24.24,25.77,25.79,25.37,23.39,23.82,24.55,24.8,31.77,27.46,26.43,20.87,19.72,25.06,20.32,23.02,28.78,30.02,26.11,29.54,20.15,23.24,30.0,32.34,30.46,27.58,21.02,39.22,44.64,42.49,45.1,47.29,39.7,53.36,44.43,40.99,40.59,44.35,43.95,40.02,40.07,41.72,41.33,37.99,39.3,34.01,29.39,40.74,38.08,38.73,37.34,40.26,43.0,22.98,28.68,39.44,46.23,40.69,48.88,49.9,39.94,58.22,36.8,34.74,35.54,38.32,38.34,33.26,36.05,34.91,35.85,36.28,36.79,35.98,34.6,30.07,36.6,54.74,58.92,58.39,57.91,54.35,41.38,55.08,53.91,68.76,51.63,60.7,51.85,58.1,61.64,74.89,56.38,54.75,51.84,54.43,53.55,52.82,52.06,50.52,58.13,55.67];
-  var googleSpendArr = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.21,143.53,108.85,123.35,114.16,79.69,74.75,93.36,94.64,108.75,100.17,84.06,100.26,74.08,116.0,96.88,73.12,67.08,117.74,112.6,94.34,141.43,67.47,2.76,154.51,128.26,115.28,101.3,95.0,92.61,96.88,100.73,86.26,109.64,101.28,97.69,122.56,194.48,119.96,107.82,87.06,144.87,91.05,92.63,120.58,73.42,130.15,84.36,76.04,107.09,93.24,58.1,57.64,15.18,90.66,95.29,94.34,58.24,51.47,60.35,53.89,44.4,43.26,77.1,70.19,92.72,99.62,95.09,98.89,100.0,84.01,83.51,90.19,77.52,138.27,81.03,86.97,93.26,73.9,96.38,76.72,89.78,84.86,79.29,0.0,90.77,145.46,109.03,83.99,163.61,122.89,104.68,115.42,137.68,108.93,133.91,125.11,144.79,91.21,157.51,112.77,124.84,104.19,101.94,139.65,119.62,108.16,104.18,116.95,113.96,81.85,103.21,126.62,106.21,110.53,170.27,128.0,121.19,188.78,143.28,165.63,127.99,164.42,137.42,152.06,161.31,143.77,137.96,140.22,156.82,144.72,144.29,160.47,129.1,163.63,133.29,135.71,139.85,131.68,136.07];
+  var ga4Revenue  = [5254.99,0.0,0.0,0.0,0.0,0.0,1821.1,0.0,6462.05,3439.01,0.0,0.0,7094.87,3770.35,0.0,2461.54,2378.43,3769.6,1726.13,0.0,0.0,2626.78,0.0,10687.83,0.0,0.0,0.0,582.64,0.0,4018.06,1667.61,2530.18,0.0,2573.73,1074.65,1863.03,6979.2,5328.66,0.0,0.0,3309.91,3409.8,0.0,498.44,0.0,4066.21,3575.63,0.0,2601.4,1253.74,0.0,0.0,519.57,1034.31,0.0,11059.17,4496.5,3526.85,16314.64,0.0,0.0,3689.19,2849.11,7706.26,0.0,5241.1,3587.11,16448.84,5848.96,0.0,1254.25,5275.92,0.0,934.81,3282.58,3687.42,1526.45,4996.54,1960.69,0.0,10253.54,6674.81,5017.15,5893.13,8462.9,12340.17,0.0,2355.7,562.08,7211.59,7369.54,10279.01,21373.45,6668.51,2812.26,6460.28,7004.51,0.0,0.0,16619.02,0.0,2862.29,1822.59,0.0,11202.0,40615.7,1303.89,19898.7,0.0,74594.14,2866.45,1516.57,819.94,10047.79,1160.73,20896.61,4207.47,8689.96,4859.37,9084.63,2905.15,6777.04,4383.56,3121.23,0.0,1306.73,972.47,5278.88,2092.24,29095.37,14846.85,0.0,8856.59,0.0,9541.48,3529.36,0.0,6850.25,6121.4,1729.42,7986.97,0.0,9021.97,5711.63,15307.21,7657.48,4206.77,12515.17,8923.77,2655.65,5923.57,483.83,3891.35];
+  var ga4Bookings = [1,0,0,0,0,0,1,0,2,2,0,0,2,1,0,2,2,2,1,0,0,2,0,2,0,0,0,1,0,1,1,1,0,1,1,1,4,1,0,0,2,2,0,1,0,2,1,0,2,1,0,0,1,1,0,3,2,1,4,0,0,2,2,1,0,2,3,5,2,0,1,1,0,1,1,2,2,3,2,0,3,5,1,3,2,3,0,1,1,2,2,5,6,3,1,2,2,0,0,3,0,1,1,0,2,11,1,4,0,6,1,2,1,3,1,5,2,2,2,2,1,3,4,2,0,2,1,4,1,4,3,0,3,0,6,2,0,2,1,1,4,0,2,2,3,1,2,4,1,1,2,2,2];
+  var ga4Sessions = [384,471,523,530,449,484,508,366,606,678,583,589,619,390,468,554,531,701,575,484,1002,499,778,657,605,593,531,472,557,665,626,678,638,1314,1430,838,821,850,1008,1244,1014,772,976,951,1010,686,688,1111,802,1079,792,727,657,623,982,925,754,969,690,924,804,526,773,1000,751,849,879,910,955,1102,1175,1340,1032,1235,1510,1169,1125,1243,1589,1037,1085,887,1195,1021,1028,1046,1077,984,1145,1081,1095,1006,802,1346,1150,1192,946,2733,1538,1445,1521,2117,1386,1313,1215,1504,1427,1697,1229,1468,1084,1056,1192,1386,1080,1217,1222,1337,1163,1177,1268,1283,1253,2362,1728,1347,1673,2058,2421,2071,2422,1851,1964,2238,2217,1969,1531,1567,1547,1573,1288,1164,1966,1502,1911,1847,1508,1624,1527,1544,1545,1378,1409];
+  var metaSpendArr   = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,4.18,4.21,4.92,4.82,4.32,4.59,4.42,14.67,25.76,24.18,27.93,23.71,22.63,24.25,24.24,25.77,25.79,25.37,23.39,23.82,24.55,24.8,31.77,27.46,26.43,20.87,19.72,25.06,20.32,23.02,28.78,30.02,26.11,29.54,20.15,23.24,30.0,32.34,30.46,27.58,21.02,39.22,44.64,42.49,45.1,47.29,39.7,53.36,44.43,40.99,40.59,44.35,43.95,40.02,40.07,41.72,41.33,37.99,39.3,34.01,29.39,40.74,38.08,38.73,37.34,40.26,43.0,22.98,28.68,39.44,46.23,40.69,48.88,49.9,39.94,58.22,36.8,34.74,35.54,38.32,38.34,33.26,36.05,34.91,35.85,36.28,36.79,35.98,34.6,30.07,36.6,54.74,58.92,58.39,57.91,54.35,41.38,55.08,53.91,68.76,51.63,60.7,51.85,58.1,61.64,74.89,56.38,54.75,51.84,54.43,53.55,52.82,52.06,50.52,58.13,55.67,57.38,51.75,45.58,49.43,38.82];
+  var googleSpendArr = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.21,143.53,108.85,123.35,114.16,79.69,74.75,93.36,94.64,108.75,100.17,84.06,100.26,74.08,116.0,96.88,73.12,67.08,117.74,112.6,94.34,141.43,67.47,2.76,154.51,128.26,115.28,101.3,95.0,92.61,96.88,100.73,86.26,109.64,101.28,97.69,122.56,194.48,119.96,107.82,87.06,144.87,91.05,92.63,120.58,73.42,130.15,84.36,76.04,107.09,93.24,58.1,57.64,15.18,90.66,95.29,94.34,58.24,51.47,60.35,53.89,44.4,43.26,77.1,70.19,92.72,99.62,95.09,98.89,100.0,84.01,83.51,90.19,77.52,138.27,81.03,86.97,93.26,73.9,96.38,76.72,89.78,84.86,79.29,0.0,90.77,145.46,109.03,83.99,163.61,122.89,104.68,115.42,137.68,108.93,133.91,125.11,144.79,91.21,157.51,112.77,124.84,104.19,101.94,139.65,119.62,108.16,104.18,116.95,113.96,81.85,103.21,126.62,106.21,110.53,170.27,128.0,121.19,188.78,143.28,165.63,127.99,164.42,137.42,152.06,161.31,143.77,137.96,140.22,156.82,144.72,144.29,160.47,129.1,163.44,133.29,135.94,139.38,131.44,135.81,156.03,133.52,125.92,81.04,63.66];
   var paidSpendArr = metaSpendArr.map(function(m, i) { return Math.round((m + googleSpendArr[i]) * 100) / 100; });
 
   var C = {
@@ -1049,7 +1086,8 @@
     endDate: new Date(_dataEnd.getFullYear(), _dataEnd.getMonth(), _dataEnd.getDate()),
     tempStart: null, tempEnd: null,
     viewMonth: new Date(_curMonthStart.getFullYear(), _curMonthStart.getMonth(), 1),
-    activePreset: 'this-month'
+    activePreset: 'this-month',
+    compareEnabled: false, compareMode: 'prev-period', compareStart: null, compareEnd: null, pickTarget: 'main'
   };
 
   // ===== CHART REGISTRY =====
@@ -1098,6 +1136,83 @@
   function daysBetween(s, e) { return Math.round((e - s) / 86400000) + 1; }
   function isSameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
   function addDays(d, n) { var r = new Date(d); r.setDate(r.getDate() + n); return r; }
+
+  // ===== COMPARE (period-over-period) =====
+  function setDelta(id, html) {
+    var el = document.getElementById(id); if (!el) return;
+    var d = el.querySelector('.delta'); if (d) d.innerHTML = html;
+  }
+  function computeCompareRange(s, e, mode) {
+    var N = daysBetween(s, e), cs, ce;
+    if (mode === 'prev-year' || mode === 'prev-year-dow') {
+      cs = new Date(s.getFullYear() - 1, s.getMonth(), s.getDate());
+      ce = new Date(e.getFullYear() - 1, e.getMonth(), e.getDate());
+      if (mode === 'prev-year-dow') {
+        var diff = s.getDay() - cs.getDay();
+        if (diff > 3) diff -= 7; if (diff < -3) diff += 7;
+        cs = addDays(cs, diff); ce = addDays(ce, diff);
+      }
+    } else {
+      ce = addDays(s, -1); cs = addDays(ce, -(N - 1));
+      if (mode === 'prev-period-dow') {
+        var d2 = ((cs.getDay() - s.getDay()) % 7 + 7) % 7;
+        if (d2 > 0) { cs = addDays(cs, -d2); ce = addDays(ce, -d2); }
+      }
+    }
+    return { start: cs, end: ce };
+  }
+  // Lean totals over any date range (comparison period) from REAL daily arrays.
+  // Same 0.825 revenue / 0.823 booking attribution as the Overview — exact & traceable.
+  function rangeTotals(start, end) {
+    var days = daysBetween(start, end), hasData = false;
+    var tRev = 0, tBkg = 0, tMeta = 0, tGoog = 0, tSess = 0;
+    for (var i = 0; i < days; i++) {
+      var idx = dateIndex[dateKey(addDays(start, i))];
+      if (idx !== undefined) {
+        hasData = true;
+        tRev += ga4Revenue[idx]; tBkg += ga4Bookings[idx];
+        tMeta += metaSpendArr[idx]; tGoog += googleSpendArr[idx]; tSess += ga4Sessions[idx];
+      }
+    }
+    var paid = Math.round((tMeta + tGoog) * 100) / 100;
+    var pbkg = Math.round(tBkg * 0.823);
+    return { days: days, hasData: hasData, revenue: Math.round(tRev * 100) / 100, bookings: tBkg,
+      paidRev: Math.round(tRev * 0.825 * 100) / 100, paidBkg: pbkg, paid: paid, sessions: tSess,
+      roas: paid > 0 ? tRev * 0.825 / paid : 0, cpb: pbkg > 0 ? paid / pbkg : 0,
+      aov: tBkg > 0 ? tRev / tBkg : 0, cvr: tSess > 0 ? tBkg / tSess * 100 : 0 };
+  }
+  function cmpChip(cur, prev) {
+    if (prev === 0) return '<span class="cmp-chip flat">\u2014</span>';
+    var ch = (cur - prev) / prev * 100;
+    var cls = ch > 0.05 ? 'up' : (ch < -0.05 ? 'down' : 'flat');
+    var ar = ch > 0.05 ? '\u25B2' : (ch < -0.05 ? '\u25BC' : '\u2014');
+    return '<span class="cmp-chip ' + cls + '">' + ar + ' ' + Math.abs(ch).toFixed(1) + '%</span>';
+  }
+  function setCmpDelta(id, cur, prev, cmp) {
+    if (!cmp.hasData) { setDelta(id, '<span class="cmp-vs">no comparison data for period</span>'); return; }
+    setDelta(id, cmpChip(cur, prev) + ' <span class="cmp-vs">vs ' + fmtDateShort(state.compareStart) + ' \u2013 ' + fmtDateShort(state.compareEnd) + '</span>');
+  }
+  // Snapshot the canonical static deltas (constant-copy cards only) so we can restore them when Compare is off.
+  var _origDeltas = {};
+  function snapshotDeltas() {
+    ['kpi-total-bkg','kpi-roas','kpi-cpb','kpi-avg-val'].forEach(function(id) {
+      var el = document.getElementById(id); if (!el) return;
+      var d = el.querySelector('.delta'); if (d) _origDeltas[id] = d.innerHTML;
+    });
+  }
+  function updateCompareUI() {
+    var sw = document.getElementById('cmp-switch'), modes = document.getElementById('cmp-modes'), lbl = document.getElementById('cmp-range-label');
+    if (sw) { sw.classList.toggle('on', state.compareEnabled); sw.setAttribute('aria-checked', state.compareEnabled ? 'true' : 'false'); }
+    if (modes) modes.classList.toggle('show', state.compareEnabled);
+    var mb = document.querySelectorAll('.cmp-mode');
+    for (var i = 0; i < mb.length; i++) mb[i].classList.toggle('active', mb[i].getAttribute('data-cmp') === state.compareMode);
+    if (lbl) {
+      if (!state.compareEnabled) lbl.innerHTML = '';
+      else if (state.compareMode === 'custom' && (!state.compareStart || !state.compareEnd)) lbl.innerHTML = '<em>click two dates for comparison</em>';
+      else if (state.compareStart && state.compareEnd) lbl.innerHTML = 'vs <strong>' + fmtDateShort(state.compareStart) + ' \u2013 ' + fmtDateShort(state.compareEnd) + '</strong>';
+      else lbl.innerHTML = '';
+    }
+  }
 
   // ===== DATA SCALING — uses REAL day-by-day data from selected range =====
   // Helper: convert Date object to YYYY-MM-DD key matching `dates` array
@@ -1329,6 +1444,24 @@
     var labels = document.querySelectorAll('.date-range-label');
     var txt = f.days + ' days';
     for (var i = 0; i < labels.length; i++) labels[i].textContent = txt;
+
+    // ---- Compare (period-over-period): overlay % change, or restore canonical copy ----
+    if (state.compareEnabled && state.compareStart && state.compareEnd) {
+      var cmp = rangeTotals(state.compareStart, state.compareEnd);
+      setCmpDelta('kpi-total-rev', totalRev, cmp.revenue, cmp);
+      setCmpDelta('kpi-total-bkg', totalBkg, cmp.bookings, cmp);
+      setCmpDelta('kpi-paid-rev', paidRev, cmp.paidRev, cmp);
+      setCmpDelta('kpi-paid-bkg', paidBkg, cmp.paidBkg, cmp);
+      setCmpDelta('kpi-paid-spend', paidSpend, cmp.paid, cmp);
+      setCmpDelta('kpi-roas', roas, cmp.roas, cmp);
+      setCmpDelta('kpi-cpb', cpb, cmp.cpb, cmp);
+      setCmpDelta('kpi-avg-val', avgBkgVal, cmp.aov, cmp);
+      setCmpDelta('kpi-cvr', websiteCvr, cmp.cvr, cmp);
+    } else {
+      for (var _oid in _origDeltas) { if (_origDeltas.hasOwnProperty(_oid)) setDelta(_oid, _origDeltas[_oid]); }
+      // total-rev delta is span-populated (not wholesale re-set) — rebuild its structure with current values
+      setDelta('kpi-total-rev', '<span class="date-range-label">' + f.days + ' days</span> · <span class="total-bkg-label">' + Math.round(totalBkg).toLocaleString('en-GB') + '</span> bookings');
+    }
   }
 
   // ===== CHART BUILDERS =====
@@ -1620,13 +1753,13 @@
 
   // ===== CREATIVE CARDS (metrics-forward, no image loading) =====
   var creatives = [
-    { fmt: 'Carousel', offer: 'Stay 3 Pay 2', name: 'Carousel - 29 Apr 2026 (stay 3 pay 2) EN', spend: 1499, impr: 794824, clicks: 7572, ctr: '0.95%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/681757763_1264451122074591_4597199919398792802_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=UaCEPI4WLGkQ7kNvwHw1xAb&_nc_oc=AdqSSIXlaCn_IZyZc9E1JNIRAwL04IMN5b6EvpzmWF8LWBvzjAiG0o7Vyv78-YAevqo&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=HvnCRC7KLczqUsmEpSTkCA&oh=00_AQD9Q4t2C2g6SfCAzUfZ-yhOC_FhSHsMwdNxg2Q91ADhqA&oe=6A6E5731' },
-    { fmt: 'Carousel', offer: 'Stay 3 Pay 2', name: 'Carousel - 30 Mar 2026 (stay 3 pay 2) TR', spend: 529, impr: 314682, clicks: 5915, ctr: '1.88%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/681681133_2176553506434106_8047897864114874186_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=1-cnp-kO0L8Q7kNvwGfgap9&_nc_oc=AdpIwYAcrq69Ee0BHftaNmBa-YX1UhiJpY8NW1I8hWf1lmVpkuikQ11JGKGRXaTK5PE&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=8nVtZs3Jn9kpSVHRTzqF3w&oh=00_AQBUiIVtme9DLxYiDiLsuB4OqnJzIbVtDocrqAA6NJYT9Q&oe=6A6E7DB0' },
-    { fmt: 'Carousel', offer: 'Stay 3 Pay 2', name: 'Carousel - 30 Mar 2026 (stay 3 pay 2) TR (v2)', spend: 749, impr: 586739, clicks: 11403, ctr: '1.94%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/685716191_1614226393025225_4561609443987960103_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=LW2CKmhI6ZcQ7kNvwG7paqD&_nc_oc=AdrNjxj-BlJk1N29a9rcp8QmMCaq5rXXTuVTdKxPZFdLb5igIcMZVCBXO5ZHggVjfr0&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=YX2iWKFquRMSYFagcZAVoA&oh=00_AQCt9zG8KNwxtkQ1T_VWsKeJdUmMwGzQS3BnvYgaLbSR_g&oe=6A6E59B7' },
-    { fmt: 'Carousel', offer: 'Plan Ahead', name: 'Carousel - 29 Apr 2026 (Plan Ahead) TR', spend: 316, impr: 239443, clicks: 4143, ctr: '1.73%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/670885296_2921322054869377_153976013141370447_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=qvczd-WlkmgQ7kNvwEbM6bN&_nc_oc=AdqRI9mO4IiDJKL6F-Xa7KXXd2taxTTMspg3m2LmEuHlhJ9IXThv_XQwr9VXmikggIU&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=tSisPgerC0K1Klb7vWzvgg&oh=00_AQAW7Q2x0GKbQ9f0aEzBsTYjWMo0NdQRujatoietg7gURg&oe=6A6E83DA' },
-    { fmt: 'Carousel', offer: 'Plan Ahead', name: 'Carousel - 29 Apr 2026 (Plan Ahead Your Stay) EN', spend: 722, impr: 348408, clicks: 3412, ctr: '0.98%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/684545610_2201049624001463_652123530428460702_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=5-QvSGN2t64Q7kNvwFrxb9L&_nc_oc=Adqwfx73Lk4vv_LyetV-WoLK2xhDiRwr3RpF5-PDoIPYUxH34EXOMQvXgHJ3lvMBrAg&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=O0IBYgNCnBSYDmRUICyYnw&oh=00_AQDkc3FEUjoDK33tGDgKfwAZh3vr_LcI_ON8LoIHIj3wyw&oe=6A6E73AD' },
-    { fmt: 'Reel', offer: 'Brand Launch', name: 'Reel - 30 Apr 2026', spend: 432, impr: 436238, clicks: 8755, ctr: '2.01%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/682361286_919624714391418_4385957136702371200_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=yM4xeAkuuQMQ7kNvwGbkQNq&_nc_oc=AdqC6Bl_sR04gvMafkXW_xa9yEdPX6Bl_a5y3ssVgFDJ16jVxP0HjKrJrSc2nlT7KU8&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=eeu3WhPMvJNLOYbH7FpomA&_nc_tpa=Q5bMBQEI9BMhARRyH4rRcl5upsgR2HM7t4iQdO4qRzte0FJ9EpuTGZFibGCZhLhPD0fi-EGCqThHatq4&oh=00_AQDw1YNjUlNGbxQ5boKy0U6bv2tAYek0jkCuvT16TbK53g&oe=6A6E7025' },
-    { fmt: 'Carousel', offer: 'Plan Ahead', name: 'Carousel - 29 Apr 2026 (Plan Ahead) TR (v2)', spend: 21, impr: 31025, clicks: 367, ctr: '1.18%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/682000135_986312770709014_8922619856251405314_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=-cw2a8c4_TwQ7kNvwG6a0VS&_nc_oc=AdpVsp0JlxOLk5cP1GgbEBQUV4mzm-wj8RJa6LnnQBOkweFGLeVeHmVSeTLCD1hZuxk&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=pm1H_PJsl-Z9y82I2xeXOA&oh=00_AQAIVDjfi3NhUfPDLxePmqyFoqPPM1Fv_Hvj9BWaqdEzJA&oe=6A6E824A' }
+    { fmt: 'Carousel', offer: 'Stay 3 Pay 2', name: 'Carousel - 29 Apr 2026 (stay 3 pay 2) EN', spend: 1640, impr: 873857, clicks: 8307, ctr: '0.95%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/681757763_1264451122074591_4597199919398792802_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=102&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=pl3WbLATIaMQ7kNvwGXcpK0&_nc_oc=AdoE_K4VfPOJi6r_0TqKZTw3pxvDaBJVX7AfJiqa2ml2Yhup0c9XSXg5jqDepVyv2gM&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=xCtOnTBHw0AIW18rdUUTKg&oh=00_AQF82Frl2cu6O4V2hwNVeDwOEj5VdkrnaziGcjb1eahvyA&oe=6A7607F1' },
+    { fmt: 'Carousel', offer: 'Stay 3 Pay 2', name: 'Carousel - 30 Mar 2026 (stay 3 pay 2) TR', spend: 529, impr: 314682, clicks: 5915, ctr: '1.88%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/681681133_2176553506434106_8047897864114874186_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=c7moKKzXwLkQ7kNvwHelQKX&_nc_oc=AdqHBS3kIzxUexPxjUe9_9nA7PzIg3mZSkPtoXKnxl7gzy8PKb0LBB4nusWdSnHzNcA&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=sRuoLLp1vWHq64M0fb9ihQ&oh=00_AQG5-hABDqFvfmg7qtCdp4YQ09jD23XcTRfr1MFo4Mg3Bg&oe=6A75F630' },
+    { fmt: 'Carousel', offer: 'Stay 3 Pay 2', name: 'Carousel - 30 Mar 2026 (stay 3 pay 2) TR (v2)', spend: 805, impr: 627674, clicks: 12404, ctr: '1.98%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/685716191_1614226393025225_4561609443987960103_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=4fnCG4kL0q4Q7kNvwHTvhEn&_nc_oc=AdrwcscakTO6TttjuTipkKxBVNCXMzMuFaGK0JoQbNPQsATbPNQthNg60U7MZT36Wzg&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=1aKBuTbmWCykAUkADDi6tw&oh=00_AQEtfQ8Og3DLO2Jdeie1QLMcIVdb6_TtqayvnMXAxR-wrQ&oe=6A760A77' },
+    { fmt: 'Carousel', offer: 'Plan Ahead', name: 'Carousel - 29 Apr 2026 (Plan Ahead) TR', spend: 316, impr: 239444, clicks: 4143, ctr: '1.73%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/670885296_2921322054869377_153976013141370447_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=R6AaetiYvwEQ7kNvwEQ6noq&_nc_oc=Adod1bTpBkaU2e3WJU25BNLrnJLKBoxyjlLMthYcFMYupGKc5zQmdcH1jcUQWmvaLlc&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=FYMDuhrzqEsNZ96lfujwtA&oh=00_AQGWOafDldNZJuumgoUVdotmK2JEOh91HsGb3vZInAZNNQ&oe=6A75FC5A' },
+    { fmt: 'Carousel', offer: 'Plan Ahead', name: 'Carousel - 29 Apr 2026 (Plan Ahead Your Stay) EN', spend: 733, impr: 355595, clicks: 3471, ctr: '0.98%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/684545610_2201049624001463_652123530428460702_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=104&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=LFpJAZh-LhIQ7kNvwFdw1Ui&_nc_oc=Adr76wgmA-57SJbUyUu70lO79jBcmQWRVOZORZ_EfsKEFdjPeokFK0sZS4AB3qbbsu4&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=j9gcuvcfIEjdPAelv6edEg&oh=00_AQFzebiyi8L-ljSpVvFk6NXOgEp0S23U4259m8UlICMvdg&oe=6A75EC2D' },
+    { fmt: 'Reel', offer: 'Brand Launch', name: 'Reel - 30 Apr 2026', spend: 467, impr: 486346, clicks: 9573, ctr: '1.97%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/682361286_919624714391418_4385957136702371200_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=106&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=y5lb7o67ZDcQ7kNvwHqmrKD&_nc_oc=Adr6Xi-ttfN074S89EuMUMy667LW9isVwnzkoCrcMWh5NKvUO0nhXkxmJ_ziyuGCv78&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=kAZanzHJTuuv4DBz6TbGaA&_nc_tpa=Q5bMBQE3W95SV2bP3QthtsnaWPZuhEOgjk5NU4DG4l_zRnPdi8g5B9d65I3qfdzbu3gGvqoB-ffwPdCf&oh=00_AQG8xF4JVwtNtPznnnQlsWzHaE7b0SbjQNvMvDlyGV4kNQ&oe=6A75E8A5' },
+    { fmt: 'Carousel', offer: 'Plan Ahead', name: 'Carousel - 29 Apr 2026 (Plan Ahead) TR (v2)', spend: 21, impr: 31025, clicks: 367, ctr: '1.18%', image: 'https://scontent-bru2-1.cdninstagram.com/v/t51.71878-15/682000135_986312770709014_8922619856251405314_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQUQuYmVzdF9pbWFnZV91cmxnZW4uQzMifQ%3D%3D&_nc_ohc=eYzdHNICyxcQ7kNvwHekA0d&_nc_oc=AdqorudfLMHKf7xhm3HC4mbafm1i3YjirZGIg101EHGu2_nKdbIP_G4a4Wr7HNSIT58&_nc_zt=23&_nc_ht=scontent-bru2-1.cdninstagram.com&edm=AIZKd-4EAAAA&_nc_gid=AAWfHMSH1lMZ3Y8k70E9hA&oh=00_AQEBDtGIAecxvoZEtlKxtI1l7tRfP0kSoFsUDR5mQ5jSSA&oe=6A75FACA' }
   ];
 
   function buildCreatives() {
@@ -1794,6 +1927,11 @@
   var btnDate = null;
 
   function renderCalendar() {
+    if (state.compareEnabled && state.compareMode !== 'custom') {
+      var _cr = computeCompareRange(state.tempStart || state.startDate, state.tempEnd || state.endDate, state.compareMode);
+      state.compareStart = _cr.start; state.compareEnd = _cr.end;
+    }
+    updateCompareUI();
     var startM = new Date(state.viewMonth);
     var endM = new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth() + 1, 1);
     renderMonthGrid('cal-grid-left', 'cal-title-left', startM);
@@ -1857,6 +1995,10 @@
         if (s && isSameDay(cellDate, s)) classes += ' range-start';
         if (e && isSameDay(cellDate, e)) classes += ' range-end';
         if (s && e && cellDate > s && cellDate < e) classes += ' in-range';
+        if (state.compareEnabled && state.compareStart && state.compareEnd) {
+          if (isSameDay(cellDate, state.compareStart) || isSameDay(cellDate, state.compareEnd)) classes += ' cmp-edge';
+          else if (cellDate > state.compareStart && cellDate < state.compareEnd) classes += ' cmp-range';
+        }
       }
       var ts = cellDate.getTime();
       var disabledAttr = outOfRange ? ' disabled' : '';
@@ -1879,6 +2021,19 @@
 
         // Layer 3 defense: re-check bounds even if rendering missed it
         if (picked < _dataStart || picked > _dataEnd) return;
+
+        // Custom compare: clicks build the comparison range instead of the main range
+        if (state.compareEnabled && state.compareMode === 'custom' && state.pickTarget === 'compare') {
+          if (!state.compareStart || (state.compareStart && state.compareEnd)) {
+            state.compareStart = picked; state.compareEnd = null;
+          } else if (picked.getTime() < state.compareStart.getTime()) {
+            state.compareEnd = state.compareStart; state.compareStart = picked;
+          } else {
+            state.compareEnd = picked;
+          }
+          renderCalendar();
+          return;
+        }
 
         // Normalize tempStart/tempEnd to ensure they're real Date objects at midnight
         if (state.tempStart && !(state.tempStart instanceof Date)) {
@@ -2045,7 +2200,9 @@
     else if (d === 14) label = 'last 14 days';
     else if (d === 90) label = 'last 90 days';
     else label = d + ' days';
-    document.getElementById('filter-indicator').innerHTML = 'Showing ' + label + ' \u00B7 ' + fmtDateRange(state.startDate, state.endDate);
+    var _fi = 'Showing ' + label + ' \u00B7 ' + fmtDateRange(state.startDate, state.endDate);
+    if (state.compareEnabled && state.compareStart && state.compareEnd) _fi += ' <span class="cmp-vs">vs ' + fmtDateRange(state.compareStart, state.compareEnd) + '</span>';
+    document.getElementById('filter-indicator').innerHTML = _fi;
 
     // Flash timestamp
     var ts = document.getElementById('timestamp');
@@ -2109,6 +2266,26 @@
     document.getElementById('cal-cancel').addEventListener('click', function() { closePicker(); });
     document.getElementById('cal-apply').addEventListener('click', commitDates);
 
+    // Compare toggle + mode chips
+    var cmpSw = document.getElementById('cmp-switch');
+    if (cmpSw) cmpSw.addEventListener('click', function() {
+      state.compareEnabled = !state.compareEnabled;
+      state.pickTarget = (state.compareEnabled && state.compareMode === 'custom') ? 'compare' : 'main';
+      renderCalendar();
+    });
+    var cmpModeBtns = document.querySelectorAll('.cmp-mode');
+    for (var ci = 0; ci < cmpModeBtns.length; ci++) {
+      (function(btn) {
+        btn.addEventListener('click', function() {
+          state.compareMode = btn.getAttribute('data-cmp');
+          if (state.compareMode === 'custom') { state.pickTarget = 'compare'; state.compareStart = null; state.compareEnd = null; }
+          else { state.pickTarget = 'main'; }
+          if (!state.compareEnabled) state.compareEnabled = true;
+          renderCalendar();
+        });
+      })(cmpModeBtns[ci]);
+    }
+
     // Tabs
     var tabs = document.querySelectorAll('.tab');
     for (var j = 0; j < tabs.length; j++) {
@@ -2125,6 +2302,7 @@
     renderPresetActive();
 
     // Initial render
+    snapshotDeltas();
     updateKPIs();
     initPage('overview');
 
