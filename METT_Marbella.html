@@ -305,11 +305,11 @@
 
   <section class="page" id="page-paid">
     <div class="page-head"><div class="eyebrow">Page II</div><h2>Paid media performance</h2></div>
-    <div class="section-label">Channel summary</div>
-    <div class="card" style="padding:4px 0 0;"><div class="table-wrap"><table class="data"><thead><tr><th>Channel</th><th class="num">Spend</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">Share</th></tr></thead><tbody>
-        <tr><td class="name">Google Ads <span class="badge cap">Capture</span></td><td class="num" data-base="17265.93" data-fmt="eur" data-scale="google">€17,266</td><td class="num" data-base="428924" data-fmt="int" data-scale="google">428,924</td><td class="num" data-base="26140" data-fmt="int" data-scale="google">26,140</td><td class="num">6.09%</td><td class="num">€0.66</td><td class="num">66%</td></tr>
-        <tr><td class="name">Meta Ads <span class="badge gen">Generate</span></td><td class="num" data-base="8771.81" data-fmt="eur" data-scale="meta">€8,772</td><td class="num" data-base="4062043" data-fmt="int" data-scale="meta">4,062,043</td><td class="num" data-base="71713" data-fmt="int" data-scale="meta">71,713</td><td class="num">1.77%</td><td class="num">€0.12</td><td class="num">34%</td></tr>
-        <tr class="tot-row"><td>Total paid</td><td class="num" data-base="26037.74" data-fmt="eur" data-scale="paid">€26,038</td><td class="num" data-base="4490967" data-fmt="int" data-scale="paid">4,490,967</td><td class="num" data-base="97853" data-fmt="int" data-scale="paid">97,853</td><td class="num">2.18%</td><td class="num">€0.27</td><td class="num">100%</td></tr>
+    <div class="section-label">Channel summary &middot; Re-attributed</div>
+    <div class="card" style="padding:4px 0 0;"><div class="card-head" style="padding:10px 14px 2px;"><div class="card-sub">Spend &amp; impressions measured &middot; revenue &amp; bookings re-attributed to paid (82.5% / 82.3% of GA4, Google:Meta 59:41) <span class="badge modeled">Re-attributed</span></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Channel</th><th class="num">Spend</th><th class="num">Impressions</th><th class="num">Revenue</th><th class="num">Bookings</th><th class="num">ROAS</th><th class="num">Cost / bkg</th><th class="num">Avg value</th></tr></thead><tbody>
+        <tr><td class="name">Google Ads <span class="badge cap">Capture</span></td><td class="num" id="pc-g-spend">&mdash;</td><td class="num" id="pc-g-impr">&mdash;</td><td class="num" id="pc-g-rev">&mdash;</td><td class="num" id="pc-g-bkg">&mdash;</td><td class="num" id="pc-g-roas">&mdash;</td><td class="num" id="pc-g-cpb">&mdash;</td><td class="num" id="pc-g-avg">&mdash;</td></tr>
+        <tr><td class="name">Meta Ads <span class="badge gen">Generate</span></td><td class="num" id="pc-m-spend">&mdash;</td><td class="num" id="pc-m-impr">&mdash;</td><td class="num" id="pc-m-rev">&mdash;</td><td class="num" id="pc-m-bkg">&mdash;</td><td class="num" id="pc-m-roas">&mdash;</td><td class="num" id="pc-m-cpb">&mdash;</td><td class="num" id="pc-m-avg">&mdash;</td></tr>
+        <tr class="tot-row"><td>Total paid</td><td class="num" id="pc-t-spend">&mdash;</td><td class="num" id="pc-t-impr">&mdash;</td><td class="num" id="pc-t-rev">&mdash;</td><td class="num" id="pc-t-bkg">&mdash;</td><td class="num" id="pc-t-roas">&mdash;</td><td class="num" id="pc-t-cpb">&mdash;</td><td class="num" id="pc-t-avg">&mdash;</td></tr>
       </tbody></table></div></div>
     <div class="insight"><div class="insight-mark">&ldquo;</div><p>Spend splits Google €22,498 (66%) on high-intent Search + PMax, Meta €10,258 (34%) on reach-led prospecting. Google captures intent at €0.66 CPC; Meta drives volume at €0.12 CPC across 4.1M impressions. <em>Both run efficiently for their funnel role.</em></p></div>
     <div class="section-label">Google Ads &middot; demand capture</div>
@@ -619,6 +619,7 @@ const CREATIVES = [
   /* ---------- KPI refresh ---------- */
   function setKPI(id,html){const el=document.getElementById(id);if(el){const v=el.querySelector('.value');if(v)v.innerHTML=html;}}
   function setDelta(id,html){const el=document.getElementById(id);if(el){const d=el.querySelector('.delta');if(d)d.innerHTML=html;}}
+  function setCellHTML(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
   function updateKPIs(){
     const s=selStart,e=selEnd, f=factors();
     const rev=sum(REV,s,e), bkg=sum(BKG,s,e), spend=sum(META,s,e)+sum(GOOG,s,e);
@@ -659,6 +660,19 @@ const CREATIVES = [
     setKPI('kpi-dir-sess',fInt(BASE.dirSess*f.sess));
     setKPI('kpi-ref-sess',fInt(BASE.refSess*f.sess));
     setKPI('kpi-paid-share',BASE.paidShare.toFixed(1)+'<span class="unit">%</span>');
+    // ---- Paid channel re-attributed table (spend+impr measured; rev/bkg re-attributed 82.5/82.3, G:M 59:41) ----
+    {
+      const gS=sum(GOOG,s,e), mS=sum(META,s,e), tS=gS+mS;
+      const gI=BASE.gImpr*f.google, mI=BASE.mImpr*f.meta, tI=gI+mI;
+      const gR=paidRev*0.59, mR=paidRev*0.41, tR=paidRev;
+      const gB=Math.round(paidBkg*0.59), mB=Math.round(paidBkg*0.41), tB=gB+mB;
+      const E='<span class="cur">\u20ac</span>';
+      const roas=(r,sp)=>sp>0?(r/sp).toFixed(1)+'\u00d7':'\u2014';
+      const per=(v,b)=>b>0?E+fInt(v/b):'\u2014';
+      setCellHTML('pc-g-spend',E+fInt(gS));setCellHTML('pc-g-impr',fInt(gI));setCellHTML('pc-g-rev',E+fInt(gR));setCellHTML('pc-g-bkg',fInt(gB));setCellHTML('pc-g-roas',roas(gR,gS));setCellHTML('pc-g-cpb',per(gS,gB));setCellHTML('pc-g-avg',per(gR,gB));
+      setCellHTML('pc-m-spend',E+fInt(mS));setCellHTML('pc-m-impr',fInt(mI));setCellHTML('pc-m-rev',E+fInt(mR));setCellHTML('pc-m-bkg',fInt(mB));setCellHTML('pc-m-roas',roas(mR,mS));setCellHTML('pc-m-cpb',per(mS,mB));setCellHTML('pc-m-avg',per(mR,mB));
+      setCellHTML('pc-t-spend',E+fInt(tS));setCellHTML('pc-t-impr',fInt(tI));setCellHTML('pc-t-rev',E+fInt(tR));setCellHTML('pc-t-bkg',fInt(tB));setCellHTML('pc-t-roas',roas(tR,tS));setCellHTML('pc-t-cpb',per(tS,tB));setCellHTML('pc-t-avg',per(tR,tB));
+    }
     // ---- Compare deltas ----
     if(cmpEnabled){
       const cr=cmpResolve(selStart,selEnd), cs=cr[0], ce=cr[1];

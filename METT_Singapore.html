@@ -162,6 +162,7 @@
   .kpi-grid.cols-9 { grid-template-columns: repeat(3, 1fr); }
   .kpi-grid.cols-6 { grid-template-columns: repeat(3, 1fr); }
   .kpi-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .kpi-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
   .kpi { background: var(--surface); padding: 18px 20px; position: relative; }
   .kpi .label { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
   .kpi .value { font-size: 30px; font-weight: 700; color: var(--ink); margin-top: 10px; letter-spacing: -0.3px; line-height: 1.1; }
@@ -291,6 +292,7 @@
     .kpi-grid.cols-8 { grid-template-columns: repeat(2, 1fr); }
     .kpi-grid.cols-9 { grid-template-columns: repeat(2, 1fr); }
     .kpi-grid.cols-6 { grid-template-columns: repeat(2, 1fr); }
+    .kpi-grid.cols-5 { grid-template-columns: repeat(2, 1fr); }
     .kpi-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .rec-grid, .admin-grid { grid-template-columns: 1fr; }
@@ -341,7 +343,7 @@
     .page-head h2 { font-size: 20px; }
     .page-head .sub { font-size: 12.5px; }
 
-    .kpi-grid.cols-8, .kpi-grid.cols-9, .kpi-grid.cols-6, .kpi-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .kpi-grid.cols-8, .kpi-grid.cols-9, .kpi-grid.cols-6, .kpi-grid.cols-5, .kpi-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
     .kpi { padding: 14px 14px; }
     .kpi .label { font-size: 9px; letter-spacing: 1.2px; }
     .kpi .value { font-size: 22px; margin-top: 6px; }
@@ -395,7 +397,7 @@
   }
 
   @media (max-width: 400px) {
-    .kpi-grid.cols-8, .kpi-grid.cols-9, .kpi-grid.cols-6, .kpi-grid.cols-4 { grid-template-columns: 1fr; }
+    .kpi-grid.cols-8, .kpi-grid.cols-9, .kpi-grid.cols-6, .kpi-grid.cols-5, .kpi-grid.cols-4 { grid-template-columns: 1fr; }
     .kpi .value { font-size: 26px; }
   }
 </style>
@@ -691,10 +693,11 @@
     </div>
 
     <div class="section-label">Google Ads &middot; high-intent demand capture</div>
-    <div class="kpi-grid cols-4">
+    <div class="kpi-grid cols-5">
       <div class="kpi hero" id="kpi-g-spend"><div class="label">Spend</div><div class="value"><span class="cur">$</span>12,319</div><div class="delta"><span class="g-period">92 days</span> &middot; USD</div></div>
       <div class="kpi" id="kpi-g-bookings"><div class="label">Bookings</div><div class="value">76</div><div class="delta"><span class="up">Re-attributed</span></div></div>
       <div class="kpi" id="kpi-g-revenue"><div class="label">Revenue</div><div class="value"><span class="cur">$</span>74,939</div><div class="delta"><span class="up"><span class="g-roas-text">5.7x</span> ROAS</span></div></div>
+      <div class="kpi" id="kpi-g-impr"><div class="label">Impressions</div><div class="value">1,313,271</div><div class="delta"><span class="g-cpm">CPM &mdash;</span></div></div>
       <div class="kpi" id="kpi-g-clicks"><div class="label">Clicks</div><div class="value">27,564</div><div class="delta"><span class="g-clicks-meta">CTR 3.44% &middot; CPC $0.45</span></div></div>
     </div>
 
@@ -718,10 +721,11 @@
     </div>
 
     <div class="section-label">Meta Ads &middot; demand generation &amp; assisted booking</div>
-    <div class="kpi-grid cols-4">
+    <div class="kpi-grid cols-5">
       <div class="kpi hero" id="kpi-m-spend"><div class="label">Spend</div><div class="value"><span class="cur">$</span>7,441</div><div class="delta"><span class="m-period">92 days</span> &middot; USD</div></div>
       <div class="kpi" id="kpi-m-bookings"><div class="label">Bookings</div><div class="value">43</div><div class="delta"><span class="up">Re-attributed</span></div></div>
       <div class="kpi" id="kpi-m-revenue"><div class="label">Revenue</div><div class="value"><span class="cur">$</span>42,704</div><div class="delta"><span class="up"><span class="m-roas-text">5.7x</span> ROAS</span></div></div>
+      <div class="kpi" id="kpi-m-impr"><div class="label">Impressions</div><div class="value">7,120,260</div><div class="delta"><span class="m-cpm">CPM &mdash;</span></div></div>
       <div class="kpi" id="kpi-m-lpv"><div class="label">Landing page views</div><div class="value">60,553</div><div class="delta"><span class="m-lpv-meta">CTR 1.34% &middot; CPC $0.12</span></div></div>
     </div>
 
@@ -1046,6 +1050,8 @@
   var metaSpendArr   = [23.73,20.99,15.66,60.71,49.01,49.14,52.90,52.22,48.85,46.52,46.96,50.39,48.87,49.04,54.42,49.46,51.43,47.30,49.33,47.41,52.76,50.42,49.92,49.68,74.46,74.94,79.41,90.94,75.14,69.36,61.57,0,51.61,58.82,59.66,61.35,57.27,79.69,87.38,93.48,109.27,84.80,59.59,58.23,54.95,52.42,39.52,58.41,61.61,57.82,57.65,53.94,64.97,93.14,85.63,95.97,93.24,79.55,102.20,70.08,16.65,0,0,0,28.67,72.03,70.89,69.57,78.29,81.93,84.92,78.64,75.35,75.39,79.65,75.51,85.69,81.10,190.82,239.10,208.47,202.32,215.17,131.18,0,221.66,286.62,272.27,251.76,252.71,268.36,20.96,0,0,0,0,0,0,0,70.95,185.42,153.17,161.74,150.93,182.57,185.32,171.68,172.93,210.91,169.59,164.94,173.41,176.97,164.98,163.96,164.41,161.67,165.86,174.85,173.24,153.44,146.64,0,0,0,0,0,0,69.05,155.57,157.11,154.92,175.67,163.78,164.02,157.85,157.03,155,155.22,165.4,167.2,143.31,159.7,154.34,149.03,158.68,166.51,157.37,148.97,145.52,132.41,144.97,141.74];
   // METT-only (hotel campaigns SEM_METT + PMAX_METT). SEM_Weddings (non-METT) excluded per report scope.
   var googleSpendArr = [0,0,34.77,258.06,197.21,170.76,149.82,180.33,166.36,146.28,167.82,156.09,184.33,137.97,186.57,136.46,143.4,166.46,178.58,129.41,138.39,141.86,157.91,160.42,140.26,93.47,243.89,148.15,162.03,121.08,164.26,0,130.99,154.42,145.46,181.21,160.69,137.02,150.54,136.21,166.64,143.01,163.97,169.5,149.04,181.68,175.48,170.09,170.23,180.34,120.24,51.5,34.77,47.11,37.44,106.32,127.68,112.64,107.83,150.39,115.5,0,135.19,127.51,127,142.24,158.12,158.91,103.85,102.94,118.42,155.71,104.9,135.57,165.76,122.65,140.78,151.1,115.5,134.89,127.29,128.2,122.89,137.92,149.74,122.72,90.59,123.55,131.65,108.22,111.04,124.1,0,0,0,0,0,0,0,44.67,221.46,134.9,130.98,106.71,154.16,127.24,108.2,168.37,123.22,111.92,141.86,119.56,117.55,113.42,217.91,415.2,344.28,328.68,310.2,312.53,361.4,299.24,0,0,0,0,0,0,93.07,255.95,216.07,217.25,234.49,185.85,220.24,215.34,168.53,214.51,209.55,187.91,209.89,214.15,187.46,146.88,222.58,124.1,277.66,242.85,198.39,148.51,195.03,179.88,165.5];
+  var googleImprArr  = [0,0,1652,13359,12431,9738,11452,14166,10702,8422,12189,15920,17724,9309,14603,8776,8219,12032,13917,10862,18229,10745,10924,13084,7862,7863,8629,6424,5862,4998,8491,0,6010,9218,7469,7943,10399,4898,7365,4922,5680,9584,8279,7546,7441,10167,6825,10344,7974,10565,5973,3256,4879,3076,5350,8139,5920,7674,8140,9607,6860,0,11122,9581,5392,7413,12248,9897,5807,8312,11271,7496,8589,13221,13846,11052,13051,9313,8786,10676,6909,8564,14642,13637,12622,9303,11860,13497,9623,10537,12259,10861,0,0,0,0,0,0,0,3195,8159,4090,5702,6557,10088,2918,7259,9425,6967,8448,9067,8493,8762,6028,9421,15998,11753,11505,14366,14884,12322,13900,0,0,0,0,0,0,10459,10092,11420,17683,4436,11110,8102,7488,8963,10018,11420,12113,11630,13868,10147,7831,16616,13009,12305,16080,9954,7981,10492,11013,8260];
+  var metaImprArr    = [5404,4353,27804,59567,72459,107202,107090,125901,114955,102964,102225,112886,116607,110410,122963,108385,115682,98388,82491,108222,152991,152978,147658,93456,13579,11725,14783,20303,19075,18241,12077,0,10943,11105,10209,11813,11016,16461,17048,16599,17762,14547,11637,10926,9891,9097,7337,10786,10454,10122,10582,11512,13613,17209,14696,15126,15532,13759,14250,9264,2244,0,0,0,6062,15210,16654,29313,34818,39499,42352,41179,39989,34919,39186,33504,37285,35401,75006,96284,84549,86548,85861,60389,0,86316,133681,137215,137611,128066,137514,2960,0,0,0,0,0,0,0,33189,77781,57622,65438,67582,81066,79728,79810,75442,104270,76046,77549,86978,95258,82098,80895,74112,62841,70140,70023,76898,61922,59970,0,0,0,0,0,0,34563,72195,63743,42590,40835,38541,37265,28080,30762,31510,32691,36505,38961,38149,38865,33992,29510,29464,33638,34293,32616,31573,27049,26953,23524];
   var paidSpendArr = metaSpendArr.map(function(m, i) { return Math.round((m + googleSpendArr[i]) * 100) / 100; });
 
   var C = {
@@ -1231,7 +1237,7 @@
     var days = daysBetween(state.startDate, state.endDate);
     var labels = [], rev = [], bkg = [], sess = [], mSpend = [], gSpend = [], pSpend = [];
 
-    var totalRev = 0, totalBkg = 0, totalSess = 0, totalMeta = 0, totalGoogle = 0;
+    var totalRev = 0, totalBkg = 0, totalSess = 0, totalMeta = 0, totalGoogle = 0, totalGImpr = 0, totalMImpr = 0;
 
     for (var i = 0; i < days; i++) {
       var d = addDays(state.startDate, i);
@@ -1251,6 +1257,7 @@
         pSpend.push(Math.round((ms + gs) * 100) / 100);
         totalRev += r; totalBkg += b; totalSess += s;
         totalMeta += ms; totalGoogle += gs;
+        totalGImpr += googleImprArr[idx]; totalMImpr += metaImprArr[idx];
       } else {
         // No data for this date (out of range) — push zeros
         rev.push(0); bkg.push(0); sess.push(0);
@@ -1273,6 +1280,8 @@
       totalMetaSpend: totalMeta,
       totalGoogleSpend: totalGoogle,
       totalPaidSpend: totalPaid,
+      totalGoogleImpr: totalGImpr,
+      totalMetaImpr: totalMImpr,
       rangeMult: rangeMult
     };
   }
@@ -1419,6 +1428,14 @@
     setKpi('kpi-m-spend', '<span class="cur">$</span>' + Math.round(metaSpend).toLocaleString('en-GB'));
     setKpi('kpi-m-bookings', metaBkg.toLocaleString('en-GB'));
     setKpi('kpi-m-revenue', '<span class="cur">$</span>' + Math.round(metaRev).toLocaleString('en-GB'));
+    // Impressions (windowed, real Google/Meta pulls) + CPM
+    var gImpr = f.totalGoogleImpr || 0, mImpr = f.totalMetaImpr || 0;
+    setKpi('kpi-g-impr', Math.round(gImpr).toLocaleString('en-GB'));
+    setKpi('kpi-m-impr', Math.round(mImpr).toLocaleString('en-GB'));
+    var _gcpm = document.querySelector('#kpi-g-impr .delta');
+    if (_gcpm) _gcpm.innerHTML = 'CPM ' + (gImpr > 0 ? '$' + (googleSpend / gImpr * 1000).toFixed(2) : '\u2014');
+    var _mcpm = document.querySelector('#kpi-m-impr .delta');
+    if (_mcpm) _mcpm.innerHTML = 'CPM ' + (mImpr > 0 ? '$' + (metaSpend / mImpr * 1000).toFixed(2) : '\u2014');
 
     var gPeriod = document.querySelectorAll('.g-period, .m-period');
     for (var gp = 0; gp < gPeriod.length; gp++) gPeriod[gp].textContent = f.days + ' days';

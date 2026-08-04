@@ -569,6 +569,7 @@
         <tr><td class="name">Website traffic - Mar 2026 (RTG)</td><td class="num" data-base="399.99" data-fmt="eur" data-scale="meta">€400</td><td class="num" data-base="147065" data-fmt="int" data-scale="meta">147,065</td><td class="num" data-base="1951" data-fmt="int" data-scale="meta">1,951</td><td class="num">&mdash;</td><td class="num">1.33%</td><td class="num">€0.21</td></tr>
         <tr><td class="name">F1 - 14 June 2026 (Barcelona)</td><td class="num" data-base="399.98" data-fmt="eur" data-scale="meta">€400</td><td class="num" data-base="139509" data-fmt="int" data-scale="meta">139,509</td><td class="num" data-base="1983" data-fmt="int" data-scale="meta">1,983</td><td class="num">&mdash;</td><td class="num">1.42%</td><td class="num">€0.20</td></tr>
       </tbody></table></div></div>
+    <div class="card"><div class="card-head"><div><h3>Daily impressions &middot; Meta &amp; Google</h3><div class="card-sub">Ad impressions per day across both paid channels</div></div></div><div class="chart-wrap"><canvas id="chart-impr-trend"></canvas></div></div>
   </section>
   <section class="page" id="page-offers">
     <div class="page-head"><div class="eyebrow">Page III</div><h2>Offers &amp; activations performance</h2></div>
@@ -1220,6 +1221,18 @@
 
   function buildPaid() {
     var f = getScaledData();
+    var eli = document.getElementById('chart-impr-trend');
+    if (eli) registerChart('impr-trend', new SafeChart(eli, {
+      type: 'line',
+      data: { labels: f.labels, datasets: [
+        { label: 'Meta', data: f.metaImp, borderColor: C.navy, backgroundColor: 'rgba(14,35,64,0.07)', tension: 0.35, fill: true, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
+        { label: 'Google', data: f.googleImp, borderColor: C.gold, tension: 0.35, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 }
+      ] },
+      options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: true, position: 'top', align: 'end', labels: { boxWidth: 10, padding: 14, font: { size: 11 } } },
+          tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + fmtInt(c.parsed.y) + ' impressions'; } } } },
+        scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } }, y: { grid: { color: C.line }, ticks: { callback: fmtK } } } }
+    }));
     var el = document.getElementById('chart-g-split');
     if (!el) return;
     var gm = function(v){ return Math.round(v * f.googleMult); };
