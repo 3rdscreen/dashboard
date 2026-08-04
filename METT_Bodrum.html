@@ -649,12 +649,13 @@
       <div class="table-wrap">
         <table class="data">
           <thead>
-            <tr><th>Channel</th><th class="num">Spend</th><th class="num">Revenue</th><th class="num">Bookings</th><th class="num">ROAS</th><th class="num">Cost / bkg</th><th class="num">Avg value</th></tr>
+            <tr><th>Channel</th><th class="num">Spend</th><th class="num">Impressions</th><th class="num">Revenue</th><th class="num">Bookings</th><th class="num">ROAS</th><th class="num">Cost / bkg</th><th class="num">Avg value</th></tr>
           </thead>
           <tbody>
             <tr>
               <td class="name">Google Ads <span class="badge cap">Capture</span></td>
               <td class="num" id="g-spend">&euro;7,806</td>
+              <td class="num" id="g-impr">367,000</td>
               <td class="num" id="g-revenue">&euro;135,553</td>
               <td class="num" id="g-bookings">55</td>
               <td class="num"><span class="pill good" id="g-roas">17.4x</span></td>
@@ -664,6 +665,7 @@
             <tr>
               <td class="name">Meta Ads <span class="badge gen">Generate</span></td>
               <td class="num" id="m-spend">&euro;1,690</td>
+              <td class="num" id="m-impr">1,071,596</td>
               <td class="num" id="m-revenue">&euro;94,198</td>
               <td class="num" id="m-bookings">38</td>
               <td class="num"><span class="pill good" id="m-roas">39.0x</span></td>
@@ -673,6 +675,7 @@
             <tr class="tot-row">
               <td>Total paid</td>
               <td class="num" id="t-spend">&euro;9,496</td>
+              <td class="num" id="t-impr">1,438,596</td>
               <td class="num" id="t-revenue">&euro;229,751</td>
               <td class="num" id="t-bookings">93</td>
               <td class="num" id="t-roas">22.5x</td>
@@ -1041,6 +1044,8 @@
   var metaSpendArr   = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,4.18,4.21,4.92,4.82,4.32,4.59,4.42,14.67,25.76,24.18,27.93,23.71,22.63,24.25,24.24,25.77,25.79,25.37,23.39,23.82,24.55,24.8,31.77,27.46,26.43,20.87,19.72,25.06,20.32,23.02,28.78,30.02,26.11,29.54,20.15,23.24,30.0,32.34,30.46,27.58,21.02,39.22,44.64,42.49,45.1,47.29,39.7,53.36,44.43,40.99,40.59,44.35,43.95,40.02,40.07,41.72,41.33,37.99,39.3,34.01,29.39,40.74,38.08,38.73,37.34,40.26,43.0,22.98,28.68,39.44,46.23,40.69,48.88,49.9,39.94,58.22,36.8,34.74,35.54,38.32,38.34,33.26,36.05,34.91,35.85,36.28,36.79,35.98,34.6,30.07,36.6,54.74,58.92,58.39,57.91,54.35,41.38,55.08,53.91,68.76,51.63,60.7,51.85,58.1,61.64,74.89,56.38,54.75,51.84,54.43,53.55,52.82,52.06,50.52,58.13,55.67,57.38,51.75,45.58,49.43,38.82];
   var googleSpendArr = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.21,143.53,108.85,123.35,114.16,79.69,74.75,93.36,94.64,108.75,100.17,84.06,100.26,74.08,116.0,96.88,73.12,67.08,117.74,112.6,94.34,141.43,67.47,2.76,154.51,128.26,115.28,101.3,95.0,92.61,96.88,100.73,86.26,109.64,101.28,97.69,122.56,194.48,119.96,107.82,87.06,144.87,91.05,92.63,120.58,73.42,130.15,84.36,76.04,107.09,93.24,58.1,57.64,15.18,90.66,95.29,94.34,58.24,51.47,60.35,53.89,44.4,43.26,77.1,70.19,92.72,99.62,95.09,98.89,100.0,84.01,83.51,90.19,77.52,138.27,81.03,86.97,93.26,73.9,96.38,76.72,89.78,84.86,79.29,0.0,90.77,145.46,109.03,83.99,163.61,122.89,104.68,115.42,137.68,108.93,133.91,125.11,144.79,91.21,157.51,112.77,124.84,104.19,101.94,139.65,119.62,108.16,104.18,116.95,113.96,81.85,103.21,126.62,106.21,110.53,170.27,128.0,121.19,188.78,143.28,165.63,127.99,164.42,137.42,152.06,161.31,143.77,137.96,140.22,156.82,144.72,144.29,160.47,129.1,163.44,133.29,135.94,139.38,131.44,135.81,156.03,133.52,125.92,81.04,63.66];
   var paidSpendArr = metaSpendArr.map(function(m, i) { return Math.round((m + googleSpendArr[i]) * 100) / 100; });
+  var googleImprArr = [0,0,0,0,0,0,0,0,1687,980,768,660,506,480,515,775,718,850,836,2214,52424,10120,24383,2379,1114,1176,2193,963,758,826,947,98,1647,39370,66225,17539,1587,2601,4025,11774,2485,1391,965,967,3107,5828,4144,7632,3364,16935,15990,13066,11361,3177,7476,8352,3423,5839,2855,4369,4051,841,4492,6644,2939,4370,2842,2864,2419,2887,3578,4124,2761,3858,5191,6292,6259,4174,4957,5734,5737,4267,6496,4453,4287,5056,5581,4769,4740,5649,4892,4454,0,6795,5409,6871,4584,20269,12538,7301,10056,17475,9760,9699,10730,8798,6208,12426,7672,10619,7949,7597,7406,9731,6952,8530,8195,8248,7840,9122,9473,8684,7457,16791,12110,8032,13034,13241,15164,11761,16800,13001,16158,16751,15923,15213,13744,11137,12714,12746,6388,10583,14288,11135,15561,13484,11209,11743,5220,7034,7206,5609,5763];
+  var metaImprArr = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2479,4429,4787,5885,6261,5818,5773,4812,17805,31957,10363,10691,9476,8228,9135,11679,10603,10430,10543,10382,11306,10751,9085,15715,25396,18647,14560,12219,27889,24633,26169,30325,24390,20315,27041,14672,10610,12457,15382,12825,13142,7546,17981,17153,11782,12838,15071,13910,25085,29972,32364,36433,38416,41444,39249,35675,38940,41313,41378,42583,39130,34422,28715,35260,32926,36397,33516,29394,14689,15259,13170,15073,13636,9270,8291,6320,19761,27144,27599,23906,29451,28560,25991,28721,27943,26859,26710,23561,23279,22346,21530,27944,39341,42228,45043,44834,40617,23561,22802,13130,23500,16797,21405,18926,15875,15172,44108,36616,35498,41172,49801,49404,53232,49565,43868,40612,39281,37757,38252,36611,40597,24047];
 
   var C = {
     gold: '#C89B94', goldDark: '#A67D76', sand: '#E8D4CF', sandLight: '#F5E6E2',
@@ -1228,7 +1233,7 @@
     var days = daysBetween(state.startDate, state.endDate);
     var labels = [], rev = [], bkg = [], sess = [], mSpend = [], gSpend = [], pSpend = [];
 
-    var totalRev = 0, totalBkg = 0, totalSess = 0, totalMeta = 0, totalGoogle = 0;
+    var totalRev = 0, totalBkg = 0, totalSess = 0, totalMeta = 0, totalGoogle = 0, totalGImpr = 0, totalMImpr = 0;
 
     for (var i = 0; i < days; i++) {
       var d = addDays(state.startDate, i);
@@ -1248,6 +1253,7 @@
         pSpend.push(Math.round((ms + gs) * 100) / 100);
         totalRev += r; totalBkg += b; totalSess += s;
         totalMeta += ms; totalGoogle += gs;
+        totalGImpr += googleImprArr[idx]; totalMImpr += metaImprArr[idx];
       } else {
         // No data for this date (out of range) — push zeros
         rev.push(0); bkg.push(0); sess.push(0);
@@ -1270,6 +1276,8 @@
       totalMetaSpend: totalMeta,
       totalGoogleSpend: totalGoogle,
       totalPaidSpend: totalPaid,
+      totalGoogleImpr: totalGImpr,
+      totalMetaImpr: totalMImpr,
       rangeMult: rangeMult
     };
   }
@@ -1321,6 +1329,8 @@
     var paidSpend = f.totalPaidSpend;
     var metaSpend = f.totalMetaSpend;
     var googleSpend = f.totalGoogleSpend;
+    var googleImpr = f.totalGoogleImpr || 0;
+    var metaImpr = f.totalMetaImpr || 0;
 
     // Paid attribution: maintain the 82.5% revenue / 82.3% booking model
     var paidRev = totalRev * 0.825;
@@ -1373,6 +1383,7 @@
 
     // ===== Page II: Channel summary table =====
     setText('g-spend', eur(googleSpend));
+    setText('g-impr', Math.round(googleImpr).toLocaleString('en-GB'));
     setText('g-revenue', eur(googleRev));
     setText('g-bookings', googleBkg);
     setText('g-roas', googleRoas.toFixed(1) + 'x');
@@ -1380,6 +1391,7 @@
     setText('g-aov', eur(googleAov));
 
     setText('m-spend', eur(metaSpend));
+    setText('m-impr', Math.round(metaImpr).toLocaleString('en-GB'));
     setText('m-revenue', eur(metaRev));
     setText('m-bookings', metaBkg);
     setText('m-roas', metaRoas.toFixed(1) + 'x');
@@ -1387,6 +1399,7 @@
     setText('m-aov', eur(metaAov));
 
     setText('t-spend', eur(paidSpend));
+    setText('t-impr', Math.round(googleImpr + metaImpr).toLocaleString('en-GB'));
     setText('t-revenue', eur(paidRev));
     setText('t-bookings', paidBkg);
     setText('t-roas', roas.toFixed(1) + 'x');
