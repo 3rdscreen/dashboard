@@ -530,12 +530,8 @@
   <section class="page" id="page-paid">
     <div class="page-head"><div class="eyebrow">Page II</div><h2>Paid media performance</h2></div>
     <div class="section-label">Channel summary</div>
-    <div class="card" style="padding:4px 0 0;"><div class="table-wrap"><table class="data"><thead><tr><th>Channel</th><th class="num">Spend</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">Share</th></tr></thead><tbody>
-        <tr><td class="name">Google Ads <span class="badge cap">Capture</span></td><td class="num" data-base="18065.36" data-fmt="eur" data-scale="google">€18,065</td><td class="num" data-base="1421770" data-fmt="int" data-scale="google">1,421,770</td><td class="num" data-base="42503" data-fmt="int" data-scale="google">42,503</td><td class="num">2.99%</td><td class="num">€0.43</td><td class="num">64%</td></tr>
-        <tr><td class="name">Meta Ads <span class="badge gen">Generate</span></td><td class="num" data-base="10269.24" data-fmt="eur" data-scale="meta">€10,269</td><td class="num" data-base="3669759" data-fmt="int" data-scale="meta">3,669,759</td><td class="num" data-base="62980" data-fmt="int" data-scale="meta">62,980</td><td class="num">1.72%</td><td class="num">€0.16</td><td class="num">36%</td></tr>
-        <tr class="tot-row"><td>Total paid</td><td class="num" data-base="28334.62" data-fmt="eur" data-scale="paid">€28,335</td><td class="num" data-base="5091529" data-fmt="int" data-scale="paid">5,091,529</td><td class="num" data-base="105483" data-fmt="int" data-scale="paid">105,483</td><td class="num">2.07%</td><td class="num">€0.27</td><td class="num">100%</td></tr>
-      </tbody></table></div></div>
-    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Google leads spend at €18,065 (64%) on high-intent Search + PMax, with Meta €10,269 (36%) on reach-led prospecting and page growth. Meta still delivers the impression volume (3.7M impressions, €0.16 CPC) while Google captures intent at €0.43 CPC. <em>METT-only campaigns; co-tenanted brands excluded.</em></p></div>
+    <div class="card" style="padding:4px 0 0;"><div class="table-wrap"><table class="data"><thead><tr><th>Channel</th><th class="num">Spend</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">Share</th></tr></thead><tbody id="chan-tbody"></tbody></table></div></div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Google leads spend at €28,048 (66%) on high-intent Search + PMax, with Meta €14,431 (34%) on reach-led prospecting and page growth. Meta still delivers the impression volume (5.8M impressions, €0.14 CPC) while Google captures intent at €0.45 CPC. <em>METT-only campaigns; co-tenanted brands excluded.</em></p></div>
     <div class="section-label">Google Ads &middot; high-intent demand capture</div>
     <div class="kpi-grid cols-4">
 <div class="kpi hero" id="kpi-g-spend"><div class="label">Spend</div><div class="value"><span class="cur">€</span>28,048</div><div class="delta"><span class="g-period">153 days</span> &middot; EUR</div></div>
@@ -544,10 +540,7 @@
 <div class="kpi" id="kpi-g-cpc"><div class="label">CPC</div><div class="value"><span class="cur">€</span>0.43</div><div class="delta"><span class="g-clicks-meta">Cost / click</span></div></div>
     </div>
     <div class="grid-2">
-      <div class="card"><div class="card-head"><div><h3>Google Ads campaigns</h3><div class="card-sub">Performance by campaign type</div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Campaign</th><th>Type</th><th class="num">Spend</th><th class="num">Impr.</th><th class="num">Clicks</th></tr></thead><tbody>
-        <tr><td class="name">SEM_METT Barcelona</td><td>Search</td><td class="num" data-base="16431.61" data-fmt="eur" data-scale="google">€16,432</td><td class="num" data-base="86110" data-fmt="int" data-scale="google">86,110</td><td class="num" data-base="8553" data-fmt="int" data-scale="google">8,553</td></tr>
-        <tr><td class="name">PMAX_METT Barcelona</td><td>Performance Max</td><td class="num" data-base="11616.62" data-fmt="eur" data-scale="google">€11,617</td><td class="num" data-base="1856510" data-fmt="int" data-scale="google">1,856,510</td><td class="num" data-base="53663" data-fmt="int" data-scale="google">53,663</td></tr>
-      </tbody></table></div></div>
+      <div class="card"><div class="card-head"><div><h3>Google Ads campaigns</h3><div class="card-sub">Performance by campaign type</div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Campaign</th><th>Type</th><th class="num">Spend</th><th class="num">Impr.</th><th class="num">Clicks</th><th class="num">CPC</th></tr></thead><tbody id="gcamp-tbody"></tbody></table></div></div>
       <div class="card"><div class="card-head"><div><h3>Spend &middot; Search / PMax</h3><div class="card-sub">Where Google budget concentrates</div></div></div><div class="chart-wrap"><canvas id="chart-g-split" role="img" aria-label="Google Ads spend split">Google Ads split.</canvas></div></div>
     </div>
     <div class="section-label">Meta Ads &middot; demand generation &amp; reach</div>
@@ -1170,9 +1163,12 @@
     { name: 'Paid Search', sess: 1368 }, { name: 'Unassigned', sess: 472 },
     { name: 'Paid Social', sess: 453 }, { name: 'Referral', sess: 452 }, { name: 'Email', sess: 34 }
   ];
-  var GCAMPAIGNS = [
-    { name: 'SEM (Brand)', spend: 10327 }, { name: 'PMax', spend: 7738 }
-  ];
+  // ===== GOOGLE CAMPAIGNS — real per-campaign daily (SEM, PMax); summed per selected range =====
+  var GCAMP = [{ name: 'SEM_METT Barcelona', type: 'Search' }, { name: 'PMAX_METT Barcelona', type: 'Performance Max' }];
+  var gcSpend = [[101.66,105.24,97.76,101.23,106.44,101.54,107.11,104.96,99.59,74.2,85.06,125.47,101.25,89.11,81.63,68.33,176.33,105.71,47.06,0.43,0.07,0.11,0,1.61,7.65,3.34,13.41,42.57,77.61,118.57,199.99,72.66,141.06,113.84,106.07,98.99,101.21,101.71,87.98,106.77,101.76,81.28,129.96,89.24,99.63,89.04,80.31,103.38,145.61,114.31,97.65,99.82,100.36,100.62,83.4,58.75,37.59,129.28,152.77,89.83,85.84,68.87,120.27,98.71,133.31,112.44,147.94,110.7,66.45,57.3,89.9,115.75,95.46,109.31,88.22,93.64,106.29,110.94,95.27,87.22,107.14,89.34,88.71,73.94,109.05,113.24,98.11,99.8,72.01,82.39,105.52,83.39,93.96,166.29,134.81,158.59,130.48,123.85,170.79,124.39,132.28,139.64,111.28,122.48,199.19,143.16,126.69,128.85,100.66,132.12,147.97,98.22,135.28,185.6,115.4,116.62,130.32,160.76,106.81,134.35,117.48,112.64,126.31,138.53,138.81,124.73,157.81,128.68,109.74,106.18,170.81,74.75,149.31,208.04,125.56,132.57,127.16,109.95,155.61,108.8,120.37,182.89,101.33,123.24,91.34,74.43,145.05,231.95,119.14,115.51,119.21,115.78,120.61],[49.02,43.05,48.41,49.65,50.16,50.59,51.8,56.89,45.81,51.1,48.93,48.58,53.63,49.95,53.26,45.56,51.83,49.42,20.46,43.14,38.81,13.85,90.6,80.59,18.44,67.81,68.65,16.01,72.34,49.66,45.02,16.42,139.32,93.5,93.96,78.63,90.64,88.48,53.54,114.38,85.07,88.37,87.23,72.13,80.63,97.83,78.72,71.39,78.89,158.32,64.25,54.1,75.76,68.85,98.1,100.68,62.5,83.85,86.46,54.01,84.46,88.89,73.29,124.02,89.15,57.52,56.29,79.33,87.31,62.55,119.9,78.27,72.6,91.24,69.09,99.8,91.39,99.63,75.94,73.95,87.66,70.94,83.19,86.81,91.58,80.27,74.48,63.09,80.79,78.24,71.92,55.99,56.84,97.29,96.57,102.32,79.39,50.03,102.35,137.77,81.17,85.04,62.73,69.48,90.1,63.31,64.63,103.76,67.32,72.92,147.73,83.47,60.33,112.05,75.48,88.57,74.58,73.04,101.36,81.76,48.68,107.83,64.99,73.86,94.22,79.07,97.96,73.84,36.22,94.61,59.19,93.02,76.64,110.3,89.51,85.55,78.31,66.88,94.32,99.72,78.93,108.12,60.57,113.64,72.25,87.15,79.92,69.31,72.75,102.42,78.07,64.91,83.89]];
+  var gcImp = [[912,1237,1087,1027,1174,1150,1075,1016,1008,1110,1210,1403,940,799,905,958,1448,1046,448,25,14,12,4,27,96,53,96,201,238,808,1312,258,958,577,425,621,296,493,271,401,353,434,490,360,491,484,486,534,487,317,363,366,220,475,301,128,224,441,394,292,434,175,571,267,700,635,398,401,244,394,410,788,537,468,419,387,544,343,401,449,260,440,204,414,588,443,283,443,447,469,410,505,543,892,689,607,336,615,727,567,492,657,618,462,661,422,419,534,697,689,681,661,766,827,431,403,380,600,310,581,575,630,611,805,688,821,576,402,536,518,490,496,946,1104,362,543,644,716,835,610,746,533,546,662,622,462,691,954,659,665,648,615,482],[7297,5587,5269,4895,5042,4893,5914,6586,5214,6251,5782,5827,5846,5896,7447,5639,7011,7697,2294,4606,5326,2767,7271,6718,2308,4492,6247,4333,4416,3909,3326,1214,8253,10553,8682,10188,6968,7814,4261,5465,6734,6045,5877,4561,9059,10522,9623,5148,7214,14296,12852,26233,23338,19457,13532,10252,7688,19519,10561,6771,31914,12066,8651,10529,7074,6690,6835,12278,10862,11430,43309,14275,26784,38708,31634,43697,41822,32257,23256,31484,34056,13280,24486,26982,24558,22897,17987,13066,32205,19480,13324,13329,18401,32944,26210,9134,9356,7552,33292,13563,9302,10171,5923,6532,12023,9986,8198,12455,8798,11295,13802,6757,7572,8934,11462,14149,6840,13379,23745,9940,7746,10057,14697,9405,10098,11429,11619,5843,6861,9867,11004,8718,11727,12394,7777,5764,11911,7752,9552,12365,12128,7947,8330,18314,8388,12842,6499,6549,9139,22830,7835,8987,8430]];
+  var gcClk = [[62,66,79,74,73,79,82,78,78,59,67,77,77,76,75,66,94,93,35,10,3,3,0,4,20,5,16,40,38,55,84,18,61,57,54,63,43,39,32,51,46,56,61,53,48,46,43,54,51,53,60,46,28,56,45,33,38,70,55,47,40,21,67,58,73,47,60,41,32,54,61,63,51,39,48,41,54,51,38,46,41,35,24,44,53,41,39,55,37,44,57,46,43,73,59,55,43,55,75,65,54,58,55,43,77,61,54,62,61,69,76,62,76,76,50,47,52,77,53,80,63,63,89,87,88,95,72,59,65,62,73,52,93,84,55,52,70,58,89,53,60,64,60,65,65,53,76,94,66,55,61,60,65],[242,203,209,196,199,208,214,272,213,209,198,213,222,226,238,195,235,231,86,710,714,141,330,619,87,238,429,119,106,193,111,36,214,768,592,826,469,653,128,172,289,207,191,115,202,729,566,158,191,824,235,414,316,355,481,595,210,378,705,197,569,956,508,555,361,316,189,239,547,243,543,348,318,373,389,488,550,739,242,332,674,200,268,662,359,256,373,243,437,406,388,390,396,458,480,290,364,185,461,364,250,243,151,161,450,358,200,292,269,340,507,218,205,170,289,499,185,253,575,338,252,276,828,223,187,223,305,163,133,213,394,351,407,434,312,161,446,306,289,506,509,225,176,740,426,503,330,192,219,800,639,584,477]];
+  var gcVal = [[59,59,84,70,123,53,199.31,77,53.5,50.5,47,69,60.5,103.58,90,65,145,105,49,7,0,3,0,14,27.32,6,13,39,16,32,46.49,3,31,20,79,57.33,49.83,32,11.5,28,30.25,15.17,59.83,23.25,33.5,20.33,56.03,28.23,38.9,40,71.5,17.09,7,17.33,43,24.33,20.5,56.24,141,37,44.5,26,35,21,35.31,12,39.83,72.16,20.5,63.04,109,33,113,32.64,57.17,32.75,42,28.83,11.11,31,29.33,20.67,19.5,20,52.95,29.02,78,67,24.4,26,139.03,37.33,17.66,66,38.17,69.5,39.45,36.6,112.14,37.57,47.67,26,30.33,32,50,35.75,54.5,23,24,97,126,25,50,57,33,43,55,69,34,75,26,69,42,32,23,78,111,22.33,49.67,85,50,71,112,31,22,15,24,61,127,32,34,36,27,55,37,25,115,52,41,55.07,55,24,47],[509,310,258,291.5,251,326,331.69,452,376.5,450.5,264,293,310.31,325.42,436.69,274,376,292,188.5,5,88,200,241,236.33,258,220,133,186,149.5,235.43,220.25,10,239,232.17,399.33,225,214.83,149,192.5,248,221,323.83,360.33,231,361.33,150.69,341.33,293,253,99,364,252,133.33,237,133.5,181,506,348,236,417.5,284,27,352,197,168.33,213.19,186.68,232.6,162,239,284,214,130,251.5,293.75,212.63,523,252.87,249.42,206.5,333.62,260.17,120.33,221,351,220,143.5,213,184.5,291,247.25,264,135.26,335.67,284.5,336.5,239.5,244.5,408.02,187.3,277.74,137.02,225.5,157.76,220.33,302,319.5,141,301,480.5,371.5,276,418,302,223,285,262,284,184,309,251,346,351,391,236,386,500,232,226,320,187,408,431,584,540,168,284,228,462,368,340,336,322,354,364,193,353,458,372,316,182,183,211]];
   var ACTIVATIONS = [
     { name: 'Website traffic', spend: 7662, clicks: 42394, ctr: 1.50 },
     { name: 'Page Growth', spend: 1621, clicks: 13897, ctr: 2.99 },
@@ -1219,26 +1215,52 @@
     hbar('chart-channel', 'channel', CHANNELS.map(function(c){return c.name;}), CHANNELS.map(function(c){return sm(c.sess);}), function(x){return fmtInt(x)+' sessions';});
   }
 
+  function gcSum(ci, arr) {
+    var days = daysBetween(state.startDate, state.endDate), t = 0;
+    for (var d = 0; d < days; d++) { var i = dateIndex[dateKey(addDays(state.startDate, d))]; if (i !== undefined) t += arr[ci][i]; }
+    return t;
+  }
+  function buildChannelSummary(f) {
+    var tb = document.getElementById('chan-tbody');
+    if (!tb) return;
+    function row(name, badge, spend, imp, clk, share, isTot) {
+      var ctr = imp > 0 ? (clk / imp * 100).toFixed(2) + '%' : '0%';
+      var cpc = clk > 0 ? '\u20AC' + (spend / clk).toFixed(2) : '\u20AC0';
+      var nm = isTot ? name : name + ' <span class="' + badge + '">' + (badge.indexOf('cap') >= 0 ? 'Capture' : 'Generate') + '</span>';
+      return '<tr' + (isTot ? ' class="tot-row"' : '') + '><td class="' + (isTot ? '' : 'name') + '">' + nm + '</td>' +
+        '<td class="num">' + fmtEur(spend) + '</td><td class="num">' + fmtInt(imp) + '</td><td class="num">' + fmtInt(clk) + '</td>' +
+        '<td class="num">' + ctr + '</td><td class="num">' + cpc + '</td><td class="num">' + share + '</td></tr>';
+    }
+    var paid = f.totalPaid || 1;
+    var gShare = Math.round(f.totalGoogle / paid * 100), mShare = Math.round(f.totalMeta / paid * 100);
+    tb.innerHTML =
+      row('Google Ads', 'badge cap', f.totalGoogle, f.totalGoogleImp, f.totalGoogleClk, gShare + '%', false) +
+      row('Meta Ads', 'badge gen', f.totalMeta, f.totalMetaImp, f.totalMetaClk, mShare + '%', false) +
+      row('Total paid', '', f.totalPaid, f.totalImp, f.totalClk, '100%', true);
+  }
   function buildPaid() {
     var f = getScaledData();
-    var eli = document.getElementById('chart-impr-trend');
-    if (eli) registerChart('impr-trend', new SafeChart(eli, {
-      type: 'line',
-      data: { labels: f.labels, datasets: [
-        { label: 'Meta', data: f.metaImp, borderColor: C.navy, backgroundColor: 'rgba(14,35,64,0.07)', tension: 0.35, fill: true, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
-        { label: 'Google', data: f.googleImp, borderColor: C.gold, tension: 0.35, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 }
-      ] },
-      options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { display: true, position: 'top', align: 'end', labels: { boxWidth: 10, padding: 14, font: { size: 11 } } },
-          tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + fmtInt(c.parsed.y) + ' impressions'; } } } },
-        scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } }, y: { grid: { color: C.line }, ticks: { callback: fmtK } } } }
-    }));
+    buildChannelSummary(f);
+    var rows = [];
+    for (var c = 0; c < GCAMP.length; c++) {
+      var sp = gcSum(c, gcSpend), im = gcSum(c, gcImp), ck = gcSum(c, gcClk);
+      rows.push({ meta: GCAMP[c], sp: sp, im: im, ck: ck, cpc: ck > 0 ? sp / ck : 0 });
+    }
+    var tb = document.getElementById('gcamp-tbody');
+    if (tb) {
+      tb.innerHTML = rows.map(function(r) {
+        return '<tr><td class="name">' + r.meta.name + '</td><td>' + r.meta.type + '</td>' +
+          '<td class="num">' + fmtEur(r.sp) + '</td>' +
+          '<td class="num">' + fmtInt(r.im) + '</td>' +
+          '<td class="num">' + fmtInt(r.ck) + '</td>' +
+          '<td class="num">\u20AC' + (r.cpc).toFixed(2) + '</td></tr>';
+      }).join('');
+    }
     var el = document.getElementById('chart-g-split');
     if (!el) return;
-    var gm = function(v){ return Math.round(v * f.googleMult); };
     registerChart('g-split', new SafeChart(el, {
       type: 'doughnut',
-      data: { labels: GCAMPAIGNS.map(function(c){return c.name;}), datasets: [{ data: GCAMPAIGNS.map(function(c){return gm(c.spend);}), backgroundColor: [C.navy, C.gold, C.sand], borderColor: '#fff', borderWidth: 2 }] },
+      data: { labels: rows.map(function(r){return r.meta.name;}), datasets: [{ data: rows.map(function(r){return Math.round(r.sp);}), backgroundColor: [C.navy, C.gold, C.sand], borderColor: '#fff', borderWidth: 2 }] },
       options: { responsive: true, maintainAspectRatio: false, cutout: '64%',
         plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11 } } },
           tooltip: { callbacks: { label: function(c){ return c.label + ': ' + fmtEur(c.parsed); } } } } }
