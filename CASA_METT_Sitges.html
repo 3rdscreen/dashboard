@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#FAF8F4" />
+<title>CASA METT Sitges | July 2026 Performance Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #F7F5F2; --ink: #0E2340; --ink-2: #2D3E56;
+    --ink-3: #6B7280; --ink-4: #B0B7C1; --line: #E5E7EB; --line-2: #D1D5DB; --gold: #C89B94;
+    --gold-2: #A67D76; --gold-soft: #F5E6E2; --sand: #E8D4CF; --accent-green: #556B4E;
+    --accent-burgundy: #8A4A4A; --success: #4F7A5A; --warn: #B07A3F; --danger: #9E4B4B;
+    --navy: #0E2340; --navy-2: #1A3558; --font: 'Calibri','Carlito','Segoe UI',Tahoma,sans-serif;
+    --font-mono: 'Consolas','Menlo','Courier New',monospace; --shadow-sm: 0 1px 2px rgba(14,35,64,.04); --shadow: 0 2px 16px rgba(14,35,64,.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  .app { max-width: 1480px; margin: 0 auto; padding: 24px 32px 80px; }
+  .masthead { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--line); margin-bottom: 20px; gap: 20px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .mark { width: 52px; height: 52px; border: 1px solid var(--gold); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; letter-spacing: 2px; background: var(--surface); flex-shrink: 0; }
+  .brand-text { min-width: 0; }
+  .brand-text .eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold-2); font-weight: 700; }
+  .brand-text h1 { font-size: 24px; line-height: 1.15; color: var(--ink); margin-top: 4px; font-weight: 600; letter-spacing: .3px; }
+  .brand-text h1 em { font-style: italic; color: var(--gold-2); font-weight: 400; font-size: .9em; margin-left: 4px; }
+  .meta-right { text-align: right; }
+  .live-pill { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-4); }
+  .timestamp { font-size: 11px; color: var(--ink-3); margin-top: 6px; font-family: var(--font-mono); }
+  .sources { display: flex; gap: 6px; margin-top: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  .src-chip { font-size: 10px; letter-spacing: .8px; padding: 4px 10px; border: 1px solid var(--gold); color: var(--gold-2); background: var(--gold-soft); border-radius: 2px; font-weight: 600; }
+  .notice { background: var(--surface-2); border: 1px solid var(--line); border-left: 3px solid var(--gold); padding: 12px 16px; margin-bottom: 20px; font-size: 12.5px; color: var(--ink-2); line-height: 1.6; }
+  .notice b { color: var(--ink); }
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin-bottom: 24px; flex-wrap: wrap; }
+  .tab { padding: 12px 18px; font-size: 13px; font-weight: 600; color: var(--ink-3); background: transparent; border: none; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--gold-2); border-bottom-color: var(--gold); }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-head { margin-bottom: 18px; }
+  .page-head .eyebrow { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold-2); font-weight: 700; }
+  .page-head h2 { font-size: 20px; font-weight: 600; color: var(--ink); margin-top: 4px; }
+  .page-head .sub { font-size: 12.5px; color: var(--ink-3); margin-top: 4px; }
+  .kpi-grid { display: grid; gap: 12px; margin-bottom: 18px; }
+  .kpi-grid.cols-9 { grid-template-columns: repeat(3,1fr); }
+  .kpi-grid.cols-4 { grid-template-columns: repeat(4,1fr); }
+  .kpi-grid.cols-3 { grid-template-columns: repeat(3,1fr); }
+  .kpi { background: var(--surface); border: 1px solid var(--line); padding: 16px 18px; box-shadow: var(--shadow-sm); }
+  .kpi.hero { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%); border-color: var(--navy); color: #fff; }
+  .kpi .label { font-size: 10.5px; letter-spacing: .8px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+  .kpi.hero .label { color: rgba(255,255,255,.7); }
+  .kpi .value { font-size: 26px; font-weight: 700; color: var(--ink); margin-top: 8px; letter-spacing: -.5px; }
+  .kpi.hero .value { color: #fff; }
+  .kpi .value .cur { font-size: 16px; font-weight: 600; margin-right: 2px; color: var(--gold-2); }
+  .kpi.hero .value .cur { color: var(--sand); }
+  .kpi .value .unit { font-size: 15px; font-weight: 600; margin-left: 2px; color: var(--ink-3); }
+  .kpi .delta { font-size: 11.5px; color: var(--ink-3); margin-top: 6px; }
+  .kpi.hero .delta { color: rgba(255,255,255,.65); }
+  .grid-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 18px; }
+  .card { background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+  .card-head { padding: 16px 18px 12px; border-bottom: 1px solid var(--line); }
+  .card-head h3 { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .card-sub { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+  .chart-wrap { padding: 16px 18px; height: 280px; position: relative; }
+  .table-wrap { overflow-x: auto; }
+  table.data { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.data th { text-align: left; padding: 10px 14px; font-size: 10.5px; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-3); font-weight: 700; border-bottom: 1px solid var(--line); background: var(--surface-2); white-space: nowrap; }
+  table.data th.num { text-align: right; }
+  table.data td { padding: 9px 14px; border-bottom: 1px solid var(--line); color: var(--ink-2); white-space: nowrap; }
+  table.data td.num { text-align: right; font-family: var(--font-mono); }
+  table.data td.name { color: var(--ink); font-weight: 600; }
+  table.data tbody tr:last-child td { border-bottom: none; }
+  table.data tbody tr:hover td { background: var(--surface-2); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .pill.good { background: #EAF2EC; color: var(--success); }
+  .pill.warn { background: #FBF0E4; color: var(--warn); }
+  .pill.bad { background: #F8ECEC; color: var(--danger); }
+  .badge { font-size: 9px; letter-spacing: .5px; text-transform: uppercase; padding: 2px 7px; border-radius: 2px; border: 1px solid var(--line-2); color: var(--ink-3); font-weight: 700; margin-left: 6px; vertical-align: middle; }
+  .badge.modeled { border-color: var(--gold); color: var(--gold-2); background: var(--gold-soft); }
+  .funnel { padding: 18px; }
+  .funnel-step { display: grid; grid-template-columns: 160px 1fr 90px; align-items: center; gap: 14px; margin-bottom: 10px; }
+  .funnel-step .fs-label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+  .funnel-bar-wrap { background: var(--surface-2); height: 26px; position: relative; overflow: hidden; }
+  .funnel-bar { height: 100%; background: linear-gradient(90deg, var(--gold-2), var(--gold)); display: flex; align-items: center; padding-left: 10px; color: #fff; font-size: 11.5px; font-weight: 700; }
+  .funnel-step .fs-val { text-align: right; font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-2); font-weight: 700; }
+  .footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 11px; color: var(--ink-3); }
+  .footer .sig { font-style: italic; color: var(--gold-2); font-weight: 600; }
+  .two-col-note { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  .callout { background: var(--surface-2); border: 1px solid var(--line); padding: 14px 16px; font-size: 12px; color: var(--ink-2); line-height: 1.6; }
+  .callout b { color: var(--ink); }
+  @media (max-width: 1100px) { .app{padding:20px 24px} .kpi-grid.cols-9,.kpi-grid.cols-4,.kpi-grid.cols-3{grid-template-columns:repeat(2,1fr)} .grid-2,.two-col-note{grid-template-columns:1fr} }
+  @media (max-width: 720px) { .app{padding:16px 16px 60px} .masthead{flex-direction:column;align-items:flex-start} .meta-right{text-align:left;width:100%} .sources{justify-content:flex-start} .kpi-grid.cols-9,.kpi-grid.cols-4,.kpi-grid.cols-3{grid-template-columns:1fr} .funnel-step{grid-template-columns:1fr 70px} .funnel-bar-wrap{grid-column:1/-1} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="masthead">
+    <div class="brand"><div class="mark">M</div><div class="brand-text"><div class="eyebrow">METT Hotels &amp; Resorts</div><h1>CASA METT Sitges <em>| July 2026 Report</em></h1></div></div>
+    <div class="meta-right"><div class="live-pill"><span class="dot"></span> Static report &middot; 1 &ndash; 31 Jul 2026</div><div class="timestamp" id="timestamp">Compiled 04 Aug 2026</div><div class="sources"><span class="src-chip">GA4 &middot; /casa-mett/sitges</span><span class="src-chip">Google Ads</span></div></div>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-page="overview" type="button">Overview</button>
+    <button class="tab" data-page="paid" type="button">Google Ads</button>
+    <button class="tab" data-page="rooms" type="button">Rooms &amp; Booking Funnel</button>
+    <button class="tab" data-page="pages" type="button">Pages &amp; Landing</button>
+    <button class="tab" data-page="markets" type="button">Markets</button>
+  </div>
+
+  <!-- ===================== PAGE I — OVERVIEW ===================== -->
+  <section class="page active" id="page-overview">
+    <div class="page-head"><div class="eyebrow">Page I</div><h2>Overview</h2><div class="sub">GA4 property "CASA METT - Sitges" &middot; 1 &ndash; 31 July 2026</div></div>
+
+    <div class="kpi-grid cols-9">
+      <div class="kpi hero"><div class="label">Total revenue</div><div class="value"><span class="cur">&euro;</span>35,069.55</div><div class="delta">31 days &middot; 82 bookings</div></div>
+      <div class="kpi"><div class="label">Total bookings</div><div class="value">82</div><div class="delta">GA4 ecommerce purchases</div></div>
+      <div class="kpi"><div class="label">Avg. booking value</div><div class="value"><span class="cur">&euro;</span>427.68</div><div class="delta">Total revenue / bookings</div></div>
+      <div class="kpi"><div class="label">Paid media revenue</div><div class="value"><span class="cur">&euro;</span>35,069.55</div><div class="delta">100% of revenue, via booking engine referral</div></div>
+      <div class="kpi"><div class="label">Total sessions</div><div class="value">6,845</div><div class="delta">All channels, all users</div></div>
+      <div class="kpi"><div class="label">Website conversion rate</div><div class="value">1.20<span class="unit">%</span></div><div class="delta">82 bookings / 6,845 sessions</div></div>
+      <div class="kpi"><div class="label">Google Ads spend</div><div class="value"><span class="cur">&euro;</span>2,789.55</div><div class="delta">2 campaigns &middot; PMAX + Search</div></div>
+      <div class="kpi"><div class="label">ROAS</div><div class="value">12.6<span class="unit">&times;</span></div><div class="delta">Paid revenue / Google Ads spend</div></div>
+      <div class="kpi"><div class="label">Cost per booking</div><div class="value"><span class="cur">&euro;</span>34.02</div><div class="delta">Google Ads spend / 82 bookings</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><div><h3>Sessions by channel</h3><div class="card-sub">GA4 default channel grouping &middot; July 2026</div></div></div>
+        <div class="chart-wrap"><canvas id="chart-channels"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3>Revenue by channel</h3><div class="card-sub">Ecommerce revenue attributed by GA4 last-touch channel</div></div></div>
+        <div class="table-wrap"><table class="data"><thead><tr><th>Channel</th><th class="num">Sessions</th><th class="num">Share</th><th class="num">Revenue</th></tr></thead><tbody>
+          <tr><td class="name">Referral (paid media, via booking engine)</td><td class="num">2,355</td><td class="num">34.4%</td><td class="num">&euro;35,069.55</td></tr>
+          <tr><td class="name">Cross-network</td><td class="num">2,848</td><td class="num">41.6%</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Direct</td><td class="num">1,099</td><td class="num">16.1%</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Organic Search</td><td class="num">360</td><td class="num">5.3%</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Paid Search</td><td class="num">62</td><td class="num">0.9%</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Unassigned</td><td class="num">61</td><td class="num">0.9%</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Organic Shopping</td><td class="num">29</td><td class="num">0.4%</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Organic Social</td><td class="num">19</td><td class="num">0.3%</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">AI Assistant</td><td class="num">8</td><td class="num">0.1%</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Paid Other</td><td class="num">4</td><td class="num">0.1%</td><td class="num">&euro;0.00</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h3>Website Traffic Overview</h3><div class="card-sub">Full-period totals across all channels &middot; July 2026</div></div></div>
+      <div class="table-wrap"><table class="data"><thead><tr><th>Metric</th><th class="num">Value</th></tr></thead><tbody>
+        <tr><td class="name">Total sessions</td><td class="num">6,845</td></tr>
+        <tr><td class="name">Engaged sessions</td><td class="num">5,613</td></tr>
+        <tr><td class="name">Engagement rate</td><td class="num">82.0%</td></tr>
+        <tr><td class="name">Total events</td><td class="num">71,176</td></tr>
+        <tr><td class="name">Key events (conversions)</td><td class="num">11,919</td></tr>
+        <tr><td class="name">Total revenue</td><td class="num">&euro;35,069.55</td></tr>
+      </tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE II — GOOGLE ADS ===================== -->
+  <section class="page" id="page-paid">
+    <div class="page-head"><div class="eyebrow">Page II</div><h2>Google Ads</h2><div class="sub">Only paid channel in use &middot; Google Ads campaign export, July 2026. No Meta Ads account exists for this property.</div></div>
+
+    <div class="kpi-grid cols-4" style="grid-template-columns:repeat(6,1fr);">
+      <div class="kpi hero"><div class="label">Total spend</div><div class="value"><span class="cur">&euro;</span>2,789.55</div><div class="delta">2 active/paused campaigns</div></div>
+      <div class="kpi"><div class="label">Paid revenue</div><div class="value"><span class="cur">&euro;</span>35,069.55</div><div class="delta">82 bookings</div></div>
+      <div class="kpi"><div class="label">ROAS</div><div class="value">12.6<span class="unit">&times;</span></div><div class="delta">Paid revenue / spend</div></div>
+      <div class="kpi"><div class="label">Impressions</div><div class="value">206,739</div><div class="delta">Both campaigns combined</div></div>
+      <div class="kpi"><div class="label">Clicks</div><div class="value">8,195</div><div class="delta">CTR 3.96%</div></div>
+      <div class="kpi"><div class="label">Avg. CPC</div><div class="value"><span class="cur">&euro;</span>0.34</div><div class="delta">Blended, both campaigns</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-head"><div><h3>Campaign performance</h3><div class="card-sub">As reported by Google Ads &middot; 1 &ndash; 31 July 2026</div></div></div>
+      <div class="table-wrap"><table class="data"><thead><tr><th>Campaign</th><th>Type</th><th>Status</th><th class="num">Impr.</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">Avg. CPC</th><th class="num">Cost</th><th class="num">Conversions</th></tr></thead><tbody>
+        <tr><td class="name">CASA METT Sitges | PMAX | 3,000 EUR</td><td>Performance Max</td><td><span class="pill good">Eligible</span></td><td class="num">163,685</td><td class="num">5,144</td><td class="num">3.16%</td><td class="num">&euro;0.15</td><td class="num">&euro;789.68</td><td class="num">0.00</td></tr>
+        <tr><td class="name">CASA METT Sitges | SEM</td><td>Search</td><td><span class="pill warn">Paused</span></td><td class="num">43,054</td><td class="num">3,051</td><td class="num">7.09%</td><td class="num">&euro;0.66</td><td class="num">&euro;1,999.87</td><td class="num">910.00</td></tr>
+        <tr><td class="name" style="font-weight:700;">Total</td><td>&mdash;</td><td>&mdash;</td><td class="num" style="font-weight:700;">206,739</td><td class="num" style="font-weight:700;">8,195</td><td class="num" style="font-weight:700;">3.96%</td><td class="num" style="font-weight:700;">&euro;0.34</td><td class="num" style="font-weight:700;">&euro;2,789.55</td><td class="num" style="font-weight:700;">910.00</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><div><h3>Spend split by campaign</h3><div class="card-sub">Search vs. Performance Max</div></div></div>
+        <div class="chart-wrap"><canvas id="chart-spend-split"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3>GA4 sessions from Google Ads sources</h3><div class="card-sub">Sessions tagged with Google Ads UTMs / cpc medium, per GA4</div></div></div>
+        <div class="table-wrap"><table class="data"><thead><tr><th>Source / medium</th><th>GA4 channel</th><th class="num">Sessions</th></tr></thead><tbody>
+          <tr><td class="name">google / cpc</td><td>Cross-network</td><td class="num">2,778</td></tr>
+          <tr><td class="name">google / cpc</td><td>Paid Search</td><td class="num">62</td></tr>
+          <tr><td class="name">Google_PMAX / Google_PMAX</td><td>Unassigned</td><td class="num">10</td></tr>
+          <tr><td class="name">GoogleAds_SEM_CasaMETT</td><td>Unassigned</td><td class="num">5</td></tr>
+          <tr><td class="name">Google_PMAX / Casa METT Sitges</td><td>Unassigned</td><td class="num">5</td></tr>
+          <tr><td class="name">GoogleAds_SEM / cpc</td><td>Paid Other</td><td class="num">4</td></tr>
+          <tr><td class="name">GoogleAds / PMAX_Ongoing2025</td><td>Unassigned</td><td class="num">2</td></tr>
+          <tr><td class="name">googleads_PMAX / pmax</td><td>Unassigned</td><td class="num">1</td></tr>
+          <tr><td class="name" style="font-weight:700;">Total</td><td>&mdash;</td><td class="num" style="font-weight:700;">2,867</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE III — ROOMS & FUNNEL ===================== -->
+  <section class="page" id="page-rooms">
+    <div class="page-head"><div class="eyebrow">Page III</div><h2>Rooms &amp; booking funnel</h2><div class="sub">GA4 ecommerce by item &middot; July 2026</div></div>
+
+    <div class="kpi-grid cols-3">
+      <div class="kpi hero"><div class="label">Best-selling room</div><div class="value" style="font-size:19px;">Premium Room w/ Terrace</div><div class="delta">27 bookings &middot; &euro;12,627.90</div></div>
+      <div class="kpi"><div class="label">Items viewed &rarr; added</div><div class="value">157 <span class="unit">&rarr;</span> 592</div><div class="delta">Add-to-cart rate 377% (multi-add typical)</div></div>
+      <div class="kpi"><div class="label">Added &rarr; purchased</div><div class="value">592 <span class="unit">&rarr;</span> 82</div><div class="delta">13.9% cart-to-purchase</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-head"><div><h3>Revenue &amp; bookings by room type</h3><div class="card-sub">GA4 ecommerce purchases, item-level &middot; July 2026</div></div></div>
+      <div class="table-wrap"><table class="data"><thead><tr><th>Room / item</th><th class="num">Viewed</th><th class="num">Added to cart</th><th class="num">Purchased</th><th class="num">Revenue</th><th class="num">Avg. value</th></tr></thead><tbody>
+        <tr><td class="name">Premium Room with Terrace</td><td class="num">26</td><td class="num">172</td><td class="num">27</td><td class="num">&euro;12,627.90</td><td class="num">&euro;467.70</td></tr>
+        <tr><td class="name">Deluxe Room</td><td class="num">23</td><td class="num">118</td><td class="num">20</td><td class="num">&euro;8,389.44</td><td class="num">&euro;419.47</td></tr>
+        <tr><td class="name">Cozy Room with Terrace</td><td class="num">24</td><td class="num">104</td><td class="num">18</td><td class="num">&euro;7,314.44</td><td class="num">&euro;406.36</td></tr>
+        <tr><td class="name">Lifestyle Terrace Room</td><td class="num">8</td><td class="num">39</td><td class="num">9</td><td class="num">&euro;3,972.00</td><td class="num">&euro;441.33</td></tr>
+        <tr><td class="name">Cozy Room</td><td class="num">75</td><td class="num">141</td><td class="num">7</td><td class="num">&euro;2,465.77</td><td class="num">&euro;352.25</td></tr>
+        <tr><td class="name">Relax Massage</td><td class="num">0</td><td class="num">4</td><td class="num">1</td><td class="num">&euro;300.00</td><td class="num">&euro;300.00</td></tr>
+        <tr><td class="name">Premium Deluxe Room with Terrace</td><td class="num">1</td><td class="num">14</td><td class="num">0</td><td class="num">&euro;0.00</td><td class="num">&mdash;</td></tr>
+        <tr><td class="name" style="font-weight:700;">Total</td><td class="num" style="font-weight:700;">157</td><td class="num" style="font-weight:700;">592</td><td class="num" style="font-weight:700;">82</td><td class="num" style="font-weight:700;">&euro;35,069.55</td><td class="num" style="font-weight:700;">&euro;427.68</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><div><h3>Revenue by room type</h3><div class="card-sub">Share of &euro;35,069.55 total</div></div></div>
+        <div class="chart-wrap"><canvas id="chart-rooms"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3>Overall booking funnel</h3><div class="card-sub">Item-level view &rarr; cart &rarr; purchase, all rooms combined</div></div></div>
+        <div class="funnel">
+          <div class="funnel-step"><div class="fs-label">Items viewed</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%;">157</div></div><div class="fs-val">100%</div></div>
+          <div class="funnel-step"><div class="fs-label">Added to cart</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%;">592</div></div><div class="fs-val">377%</div></div>
+          <div class="funnel-step"><div class="fs-label">Purchased</div><div class="funnel-bar-wrap"><div class="funnel-bar" style="width:14%;">82</div></div><div class="fs-val">13.9%</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE IV — PAGES & LANDING ===================== -->
+  <section class="page" id="page-pages">
+    <div class="page-head"><div class="eyebrow">Page IV</div><h2>Pages &amp; landing pages</h2><div class="sub">GA4 page views and landing-page entries &middot; July 2026</div></div>
+
+    <div class="kpi-grid cols-3">
+      <div class="kpi hero"><div class="label">Total page views</div><div class="value">18,119</div><div class="delta">All pages/screens, July 2026</div></div>
+      <div class="kpi"><div class="label">Top landing page</div><div class="value" style="font-size:18px;">Booking engine handoff</div><div class="delta">2,961 sessions &middot; &euro;35,069.55</div></div>
+      <div class="kpi"><div class="label">On-site booking page</div><div class="value" style="font-size:18px;">/casa-mett/sitges/booking</div><div class="delta">2,959 sessions as landing page</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><div><h3>Top viewed pages</h3><div class="card-sub">By page views, July 2026</div></div></div>
+        <div class="table-wrap"><table class="data"><thead><tr><th>Page title</th><th class="num">Views</th><th class="num">Users</th><th class="num">Revenue</th></tr></thead><tbody>
+          <tr><td class="name">Reservations &ndash; Room Availability</td><td class="num">10,340</td><td class="num">2,567</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Booking &ndash; CASA METT Sitges</td><td class="num">4,421</td><td class="num">2,818</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Luxury 5 Star Hotel in Sitges (home)</td><td class="num">1,489</td><td class="num">867</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Reservations &ndash; Room Availability (next room)</td><td class="num">326</td><td class="num">107</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Reservas &ndash; Disponibilidad de habitaciones (ES)</td><td class="num">317</td><td class="num">55</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Reservations &ndash; Guest Details</td><td class="num">281</td><td class="num">57</td><td class="num">&euro;34,173.55</td></tr>
+          <tr><td class="name">Reservations &ndash; Enhance Your Stay</td><td class="num">168</td><td class="num">100</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">5-Star Luxury Lifestyle Hotel (meta title)</td><td class="num">135</td><td class="num">77</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Reservas &ndash; Disponibilidad (ES, variant)</td><td class="num">86</td><td class="num">115</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">Best Restaurant, Bars &amp; Lounges</td><td class="num">81</td><td class="num">50</td><td class="num">&euro;0.00</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3>Top landing pages</h3><div class="card-sub">Entry point of the session, GA4</div></div></div>
+        <div class="table-wrap"><table class="data"><thead><tr><th>Landing page</th><th class="num">Sessions</th><th class="num">Users</th><th class="num">Revenue</th></tr></thead><tbody>
+          <tr><td class="name">/&hellip;booking-engine/rooms</td><td class="num">2,961</td><td class="num">2,553</td><td class="num">&euro;35,069.55</td></tr>
+          <tr><td class="name">/casa-mett/sitges/booking</td><td class="num">2,959</td><td class="num">2,668</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">/casa-mett/sitges (home)</td><td class="num">456</td><td class="num">335</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">(not set)</td><td class="num">200</td><td class="num">128</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">/casa-mett/sitges/es</td><td class="num">51</td><td class="num">33</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">/casa-mett/sitges/about-us</td><td class="num">42</td><td class="num">28</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">/casa-mett/sitges/es/booking</td><td class="num">16</td><td class="num">14</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">/ (root domain)</td><td class="num">10</td><td class="num">10</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">/casa-mett/sitges/moi-spa</td><td class="num">7</td><td class="num">6</td><td class="num">&euro;0.00</td></tr>
+          <tr><td class="name">/casa-mett/sitges/offers</td><td class="num">7</td><td class="num">7</td><td class="num">&euro;0.00</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE V — MARKETS ===================== -->
+  <section class="page" id="page-markets">
+    <div class="page-head"><div class="eyebrow">Page V</div><h2>Markets &amp; audience</h2><div class="sub">GA4 country dimension &middot; July 2026</div></div>
+
+    <div class="kpi-grid cols-4">
+      <div class="kpi hero"><div class="label">Top market &middot; users</div><div class="value" style="font-size:20px;">United States</div><div class="delta">3,718 active users</div></div>
+      <div class="kpi"><div class="label">Highest revenue market</div><div class="value" style="font-size:20px;">United States</div><div class="delta">&euro;7,811.94 measured</div></div>
+      <div class="kpi"><div class="label">Total active users</div><div class="value">5,749</div><div class="delta">Sum across all countries</div></div>
+      <div class="kpi"><div class="label">Second market</div><div class="value" style="font-size:20px;">Spain</div><div class="delta">1,069 users &middot; &euro;4,598.00</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-head"><div><h3>Top markets by users &amp; revenue</h3><div class="card-sub">GA4 country dimension, top 12 by active users &middot; July 2026</div></div></div>
+      <div class="table-wrap"><table class="data"><thead><tr><th>Country</th><th class="num">Active users</th><th class="num">Engaged sessions</th><th class="num">Engagement rate</th><th class="num">Revenue</th></tr></thead><tbody>
+        <tr><td class="name">United States</td><td class="num">3,718</td><td class="num">3,272</td><td class="num">75.7%</td><td class="num">&euro;7,811.94</td></tr>
+        <tr><td class="name">Spain</td><td class="num">1,069</td><td class="num">1,230</td><td class="num">93.8%</td><td class="num">&euro;4,598.00</td></tr>
+        <tr><td class="name">United Kingdom</td><td class="num">261</td><td class="num">319</td><td class="num">93.3%</td><td class="num">&euro;5,010.77</td></tr>
+        <tr><td class="name">France</td><td class="num">119</td><td class="num">134</td><td class="num">96.4%</td><td class="num">&euro;0.00</td></tr>
+        <tr><td class="name">Singapore</td><td class="num">95</td><td class="num">65</td><td class="num">67.0%</td><td class="num">&euro;0.00</td></tr>
+        <tr><td class="name">Germany</td><td class="num">44</td><td class="num">46</td><td class="num">92.0%</td><td class="num">&euro;1,652.00</td></tr>
+        <tr><td class="name">Canada</td><td class="num">42</td><td class="num">53</td><td class="num">91.4%</td><td class="num">&euro;0.00</td></tr>
+        <tr><td class="name">Netherlands</td><td class="num">37</td><td class="num">52</td><td class="num">94.5%</td><td class="num">&euro;0.00</td></tr>
+        <tr><td class="name">Italy</td><td class="num">22</td><td class="num">27</td><td class="num">96.4%</td><td class="num">&euro;0.00</td></tr>
+        <tr><td class="name">United Arab Emirates</td><td class="num">21</td><td class="num">31</td><td class="num">81.6%</td><td class="num">&euro;0.00</td></tr>
+        <tr><td class="name">Australia</td><td class="num">20</td><td class="num">26</td><td class="num">100.0%</td><td class="num">&euro;0.00</td></tr>
+        <tr><td class="name">T&uuml;rkiye</td><td class="num">20</td><td class="num">20</td><td class="num">100.0%</td><td class="num">&euro;0.00</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h3>Users by top market</h3><div class="card-sub">Top 8 countries by active users</div></div></div>
+      <div class="chart-wrap"><canvas id="chart-markets"></canvas></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div>CASA METT Sitges &middot; Static report, 1&ndash;31 July 2026 &middot; Sources: GA4 property "CASA METT - Sitges" (3rdScreen &ndash; Clients 3.0), Google Ads account &middot; No Meta Ads account</div>
+    <div class="sig">METT Performance Reporting</div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  // Tabs
+  var tabs = document.querySelectorAll('.tab');
+  var pages = document.querySelectorAll('.page');
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('active'); });
+      pages.forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      document.getElementById('page-' + t.getAttribute('data-page')).classList.add('active');
+      Object.keys(renderedCharts).forEach(function(id){
+        if (renderedCharts[id]) { try { renderedCharts[id].resize(); } catch(e){} }
+      });
+    });
+  });
+
+  var GOLD = '#C89B94', GOLD2 = '#A67D76', NAVY = '#0E2340', SAND = '#E8D4CF', GREEN='#556B4E', BURG='#8A4A4A';
+  var PALETTE = [NAVY, GOLD, GOLD2, SAND, GREEN, BURG, '#6B7280', '#B0B7C1', '#1A3558'];
+  Chart.defaults.font.family = "'Calibri','Carlito','Segoe UI',Tahoma,sans-serif";
+  Chart.defaults.color = '#6B7280';
+
+  var renderedCharts = {};
+
+  renderedCharts.channels = new Chart(document.getElementById('chart-channels'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Cross-network','Referral','Direct','Organic Search','Paid Search','Unassigned','Organic Shopping','Organic Social','AI Assistant','Paid Other'],
+      datasets: [{ data: [2848,2355,1099,360,62,61,29,19,8,4], backgroundColor: PALETTE, borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10.5 } } } } }
+  });
+
+  renderedCharts.spendsplit = new Chart(document.getElementById('chart-spend-split'), {
+    type: 'doughnut',
+    data: {
+      labels: ['SEM (Search)','PMAX'],
+      datasets: [{ data: [1999.87, 789.68], backgroundColor: [NAVY, GOLD], borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } } }
+  });
+
+  renderedCharts.rooms = new Chart(document.getElementById('chart-rooms'), {
+    type: 'bar',
+    data: {
+      labels: ['Premium w/ Terrace','Deluxe','Cozy w/ Terrace','Lifestyle Terrace','Cozy','Relax Massage'],
+      datasets: [{ data: [12627.90, 8389.44, 7314.44, 3972.00, 2465.77, 300.00], backgroundColor: GOLD }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { color: '#E5E7EB' }, ticks: { callback: function(v){ return '€' + v.toLocaleString(); } } }, y: { grid: { display: false } } }
+    }
+  });
+
+  renderedCharts.markets = new Chart(document.getElementById('chart-markets'), {
+    type: 'bar',
+    data: {
+      labels: ['United States','Spain','United Kingdom','France','Singapore','Germany','Canada','Netherlands'],
+      datasets: [{ data: [3718,1069,261,119,95,44,42,37], backgroundColor: NAVY }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { grid: { color: '#E5E7EB' } }, x: { grid: { display: false }, ticks: { autoSkip: false, font: { size: 10.5 } } } }
+    }
+  });
+})();
+</script>
+</body>
+</html>
