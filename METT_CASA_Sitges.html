@@ -203,7 +203,7 @@
     <div class="date-popover" id="date-popover" role="dialog" aria-label="Select date range">
       <aside class="presets">
         <div class="preset-header">Quick select</div>
-        <button class="preset-item active" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">Jan 29 &ndash; Aug 5</span></button>
+        <button class="preset-item" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">Jan 29 &ndash; Aug 5</span></button>
         <button class="preset-item" data-preset="yesterday" type="button"><span class="preset-radio"></span>Yesterday</button>
         <button class="preset-item" data-preset="7" type="button"><span class="preset-radio"></span>Last 7 days</button>
         <button class="preset-item" data-preset="14" type="button"><span class="preset-radio"></span>Last 14 days</button>
@@ -212,7 +212,7 @@
         <div class="preset-divider"></div>
         <button class="preset-item" data-preset="this-week" type="button"><span class="preset-radio"></span>This week</button>
         <button class="preset-item" data-preset="last-week" type="button"><span class="preset-radio"></span>Last week</button>
-        <button class="preset-item" data-preset="this-month" type="button"><span class="preset-radio"></span>This month</button>
+        <button class="preset-item active" data-preset="this-month" type="button"><span class="preset-radio"></span>This month</button>
         <button class="preset-item" data-preset="last-month" type="button"><span class="preset-radio"></span>Last month</button>
       </aside>
       <div class="cal-area">
@@ -242,9 +242,9 @@
 <div class="kpi hero" id="kpi-total-bkg"><div class="label">Total bookings</div><div class="value">46</div><div class="delta">GA4 ecommerce purchases</div></div>
 <div class="kpi hero" id="kpi-paid-rev"><div class="label">Paid media revenue</div><div class="value"><span class="cur">€</span>47,686</div><div class="delta">Driving 82.5% of revenue</div></div>
 <div class="kpi" id="kpi-paid-bkg"><div class="label">Paid bookings</div><div class="value">38</div><div class="delta">82.3% of all bookings</div></div>
-<div class="kpi" id="kpi-total-spend"><div class="label">Total paid spend</div><div class="value"><span class="cur">€</span>7,343</div><div class="delta">Google <span class="cur">€</span>7,280 &middot; Meta <span class="cur">€</span>63 <em>(test)</em></div></div>
+<div class="kpi" id="kpi-total-spend"><div class="label">Total paid spend</div><div class="value"><span class="cur">€</span>7,281</div><div class="delta">Google <span class="cur">€</span>7,281 &middot; Meta <span class="cur">€</span>0 <em>(not live)</em></div></div>
 <div class="kpi" id="kpi-roas"><div class="label">Blended ROAS</div><div class="value">7.9<span class="unit">×</span></div><div class="delta">Growth-phase return</div></div>
-<div class="kpi" id="kpi-cpb"><div class="label">Cost per booking</div><div class="value"><span class="cur">€</span>194</div><div class="delta">Paid spend / paid bookings</div></div>
+<div class="kpi" id="kpi-cpb"><div class="label">Cost per booking</div><div class="value"><span class="cur">€</span>192</div><div class="delta">Paid spend / paid bookings</div></div>
 <div class="kpi" id="kpi-aov"><div class="label">Avg booking value</div><div class="value"><span class="cur">€</span>1,257</div><div class="delta">Luxury market positioning</div></div>
 <div class="kpi" id="kpi-cvr"><div class="label">Website conversion rate</div><div class="value">0.29<span class="unit">%</span></div><div class="delta">46 bookings / 15,901 sessions</div></div>
     </div>
@@ -252,7 +252,7 @@
       <div class="card"><div class="card-head"><div><h3>Daily revenue &amp; bookings</h3><div class="card-sub">GA4 ecommerce &middot; reconciles to €57,800.87 / 46</div></div></div><div class="chart-wrap"><canvas id="chart-rev-trend"></canvas></div></div>
       <div class="card"><div class="card-head"><div><h3>Sessions by channel</h3><div class="card-sub">/casa-mett/sitges &middot; GA4 default channel grouping</div></div></div><div class="chart-wrap"><canvas id="chart-channel"></canvas></div></div>
     </div>
-    <div class="insight"><div class="insight-mark">&ldquo;</div><p>CASA METT Sitges opened <em>1 August 2026</em>; this covers the pre-opening booking ramp. The property took <em>€57,801 from 46 advance bookings</em> on €7,343 paid spend &mdash; a blended <em>7.9× ROAS</em> at a €1,257 AOV. Paid is <em>Google-only</em> so far (Meta ran a €63 4-day test in late July). GA4 credits paid revenue to the <code>metthotelsandresorts.com</code> booking-engine referral, so paid-specific revenue is re-attributed via the house 82.5% cross-domain rule (paid revenue completes on the booking engine and last-clicks as Referral); spend, sessions and clicks are measured live.</p></div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>CASA METT Sitges opened <em>1 August 2026</em>; this covers the pre-opening booking ramp. The property took <em>€57,801 from 46 advance bookings</em> on €7,281 paid spend &mdash; a blended <em>7.9× ROAS</em> at a €1,257 AOV. Paid is <em>Google-only</em>: no METT-scoped Meta campaigns have run yet. GA4 credits paid revenue to the <code>metthotelsandresorts.com</code> booking-engine referral, so paid-specific revenue is re-attributed via the house 82.5% cross-domain rule (paid revenue completes on the booking engine and last-clicks as Referral); spend, sessions and clicks are measured live.</p></div>
     <div class="card" style="margin-top:18px;"><div class="card-head"><div><h3>Website traffic overview</h3><div class="card-sub">/casa-mett/sitges &middot; full period &middot; channel-group breakdown ranked by sessions</div></div></div>
       <div class="traffic-totals" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;padding:14px 16px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;">
         <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);margin-bottom:4px;">Users</div><div style="font-size:22px;font-weight:700;color:var(--ink);" data-base="13020" data-fmt="int" data-scale="sess">13,020</div></div>
@@ -276,34 +276,34 @@
     <div class="page-head"><div class="eyebrow">Page II</div><h2>Paid media performance</h2></div>
     <div class="section-label">Channel summary</div>
     <div class="card" style="padding:4px 0 0;"><div class="table-wrap"><table class="data"><thead><tr><th>Channel</th><th class="num">Spend</th><th class="num">Impressions</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">Share</th></tr></thead><tbody>
-        <tr><td class="name">Google Ads <span class="badge cap">Capture</span></td><td class="num" data-base="7280.35" data-fmt="eur" data-scale="google">€7,280</td><td class="num" data-base="351357" data-fmt="int" data-scale="google">351,357</td><td class="num" data-base="16649" data-fmt="int" data-scale="google">16,649</td><td class="num">4.74%</td><td class="num">€0.44</td><td class="num">99%</td></tr>
-        <tr><td class="name">Meta Ads <span class="badge gen">Test</span></td><td class="num" data-base="62.89" data-fmt="eur" data-scale="meta">€63</td><td class="num" data-base="41486" data-fmt="int" data-scale="meta">41,486</td><td class="num" data-base="133" data-fmt="int" data-scale="meta">133</td><td class="num">0.32%</td><td class="num">€0.47</td><td class="num">1%</td></tr>
-        <tr class="tot-row"><td>Total paid</td><td class="num" data-base="7343.24" data-fmt="eur" data-scale="paid">€7,343</td><td class="num" data-base="392843" data-fmt="int" data-scale="paid">392,843</td><td class="num" data-base="16782" data-fmt="int" data-scale="paid">16,782</td><td class="num">4.27%</td><td class="num">€0.44</td><td class="num">100%</td></tr>
+        <tr><td class="name">Google Ads <span class="badge cap">Capture</span></td><td class="num" data-base="7280.93" data-fmt="eur" data-scale="google">€7,281</td><td class="num" data-base="351432" data-fmt="int" data-scale="google">351,432</td><td class="num" data-base="16652" data-fmt="int" data-scale="google">16,652</td><td class="num">4.74%</td><td class="num">€0.44</td><td class="num">100%</td></tr>
+        <tr><td class="name">Meta Ads <span class="badge gen">Not live</span></td><td class="num" data-base="0" data-fmt="eur" data-scale="meta">€0</td><td class="num" data-base="0" data-fmt="int" data-scale="meta">0</td><td class="num" data-base="0" data-fmt="int" data-scale="meta">0</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">0%</td></tr>
+        <tr class="tot-row"><td>Total paid</td><td class="num" data-base="7280.93" data-fmt="eur" data-scale="paid">€7,281</td><td class="num" data-base="351432" data-fmt="int" data-scale="paid">351,432</td><td class="num" data-base="16652" data-fmt="int" data-scale="paid">16,652</td><td class="num">4.74%</td><td class="num">€0.44</td><td class="num">100%</td></tr>
       </tbody></table></div></div>
-    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Paid is <em>Google-only</em> in the pre-opening window: €6,103 on high-intent Search (May 14 &ndash; Jul 21) plus €1,178 on a Performance Max flight from Jul 21. Meta ran only a <em>€63 four-day test</em> (Jul 28 &ndash; 31). Search delivered demand capture at €0.44 CPC; the PMax flight is under review after it dumped low-quality cross-network impressions (see Creative tab).</p></div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Paid is <em>Google-only</em> in the pre-opening window: €6,103 on high-intent Search (May 14 &ndash; Jul 21) plus €1,178 on a Performance Max flight from Jul 21. <em>No METT-scoped Meta campaigns have run yet</em> — the ad account's only activity is a Balera venue campaign, which sits outside METT reporting scope. Search delivered demand capture at €0.44 CPC; the PMax flight is under review after it dumped low-quality cross-network impressions (see Creative tab).</p></div>
     <div class="section-label">Google Ads &middot; demand capture</div>
     <div class="kpi-grid cols-4">
-<div class="kpi hero" id="kpi-g-spend"><div class="label">Spend</div><div class="value"><span class="cur">€</span>7,280</div><div class="delta">189 days &middot; EUR</div></div>
-<div class="kpi" id="kpi-g-impr"><div class="label">Impressions</div><div class="value">351,357</div><div class="delta">Search + PMax</div></div>
-<div class="kpi" id="kpi-g-clicks"><div class="label">Clicks</div><div class="value">16,649</div><div class="delta"><span class="up">CTR 4.74%</span></div></div>
+<div class="kpi hero" id="kpi-g-spend"><div class="label">Spend</div><div class="value"><span class="cur">€</span>7,281</div><div class="delta">189 days &middot; EUR</div></div>
+<div class="kpi" id="kpi-g-impr"><div class="label">Impressions</div><div class="value">351,432</div><div class="delta">Search + PMax</div></div>
+<div class="kpi" id="kpi-g-clicks"><div class="label">Clicks</div><div class="value">16,652</div><div class="delta"><span class="up">CTR 4.74%</span></div></div>
 <div class="kpi" id="kpi-g-cpc"><div class="label">CPC</div><div class="value"><span class="cur">€</span>0.44</div><div class="delta">Cost / click</div></div>
     </div>
     <div class="grid-2">
       <div class="card"><div class="card-head"><div><h3>Google Ads campaigns</h3><div class="card-sub">Spend / impr / clicks measured &middot; bookings modeled to Search (PMax = 0 conversions) <span class="badge modeled">Modeled</span></div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Campaign</th><th>Type</th><th class="num">Spend</th><th class="num">Impr.</th><th class="num">Clicks</th><th class="num">Bkg*</th><th class="num">Rev*</th></tr></thead><tbody>
         <tr><td class="name">CASA METT Sitges | SEM</td><td>Search</td><td class="num" data-base="6102.5" data-fmt="eur" data-scale="google">€6,103</td><td class="num" data-base="118658" data-fmt="int" data-scale="google">118,658</td><td class="num" data-base="9074" data-fmt="int" data-scale="google">9,074</td><td class="num">38</td><td class="num">€47,686</td></tr>
-        <tr><td class="name">CASA METT Sitges | PMAX <span class="badge bad">Review</span></td><td>Performance Max</td><td class="num" data-base="1177.85" data-fmt="eur" data-scale="google">€1,178</td><td class="num" data-base="232699" data-fmt="int" data-scale="google">232,699</td><td class="num" data-base="7575" data-fmt="int" data-scale="google">7,575</td><td class="num">0</td><td class="num">€0</td></tr>
+        <tr><td class="name">CASA METT Sitges | PMAX <span class="badge bad">Review</span></td><td>Performance Max</td><td class="num" data-base="1178.42" data-fmt="eur" data-scale="google">€1,178</td><td class="num" data-base="232774" data-fmt="int" data-scale="google">232,774</td><td class="num" data-base="7578" data-fmt="int" data-scale="google">7,578</td><td class="num">0</td><td class="num">€0</td></tr>
       </tbody></table></div></div>
       <div class="card"><div class="card-head"><div><h3>Spend &middot; Search / PMax</h3><div class="card-sub">Where Google budget concentrates</div></div></div><div class="chart-wrap"><canvas id="chart-g-split"></canvas></div></div>
     </div>
-    <div class="section-label">Meta Ads &middot; pre-launch test</div>
+    <div class="section-label">Meta Ads &middot; not yet live</div>
     <div class="kpi-grid cols-4">
-<div class="kpi hero" id="kpi-m-spend"><div class="label">Spend</div><div class="value"><span class="cur">€</span>63</div><div class="delta">4-day test &middot; 28&ndash;31 Jul</div></div>
-<div class="kpi" id="kpi-m-impr"><div class="label">Impressions</div><div class="value">41,486</div><div class="delta">Reach test</div></div>
-<div class="kpi" id="kpi-m-clicks"><div class="label">Clicks</div><div class="value">133</div><div class="delta">CTR 0.32%</div></div>
-<div class="kpi" id="kpi-m-lpv"><div class="label">Conversions</div><div class="value">0</div><div class="delta">CPC €0.47</div></div>
+<div class="kpi hero" id="kpi-m-spend"><div class="label">Spend</div><div class="value"><span class="cur">€</span>0</div><div class="delta">no METT campaigns yet</div></div>
+<div class="kpi" id="kpi-m-impr"><div class="label">Impressions</div><div class="value">0</div><div class="delta">awaiting launch</div></div>
+<div class="kpi" id="kpi-m-clicks"><div class="label">Clicks</div><div class="value">0</div><div class="delta">awaiting launch</div></div>
+<div class="kpi" id="kpi-m-lpv"><div class="label">Conversions</div><div class="value">0</div><div class="delta">awaiting launch</div></div>
     </div>
-    <div class="card"><div class="card-head"><div><h3>Meta ad set breakdown</h3><div class="card-sub">Meta is not yet live &mdash; a single 4-day awareness test ran in late July; full programme to be added</div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Ad set / offer</th><th class="num">Spend</th><th class="num">LPV</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">Bkg</th><th class="num">Rev</th></tr></thead><tbody>
-        <tr><td class="name">Test flight &middot; awareness (Worldwide)</td><td class="num" data-base="62.89" data-fmt="eur" data-scale="meta">€63</td><td class="num">41,486</td><td class="num">0.32%</td><td class="num">€0.47</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+    <div class="card"><div class="card-head"><div><h3>Meta ad set breakdown</h3><div class="card-sub">Meta is not yet live for METT &mdash; the only campaign in this ad account (Balera venue activity) falls outside METT reporting scope and is excluded</div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Ad set / offer</th><th class="num">Spend</th><th class="num">LPV</th><th class="num">CTR</th><th class="num">CPC</th><th class="num">Bkg</th><th class="num">Rev</th></tr></thead><tbody>
+        <tr><td colspan="7" style="text-align:center;color:var(--ink-3);padding:18px;font-style:italic;">No METT-scoped Meta campaigns in this period &mdash; Meta reporting will populate here at launch.</td></tr>
       </tbody></table></div></div>
   </section>
 
@@ -409,8 +409,8 @@
   </section>
 
   <section class="page" id="page-creative">
-    <div class="page-head"><div class="eyebrow">Page VII</div><h2>Creative performance</h2><div class="sub">Google campaign delivery in the selected period &middot; spend, impressions &amp; CTR recompute live as you change the date range. Meta creative will appear here once its programme launches.</div></div>
-    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Paid is Google-only pre-opening, so this view tracks the two live campaigns. <em>SEM (Search)</em> carried demand capture from mid-May; the <em>Performance Max</em> flight from Jul 21 spent little but flooded cross-network placements &mdash; its 232k impressions are largely low-quality US datacenter traffic (0 conversions), the source of the June 29 and Jul 21&ndash;23 session spikes. Cards re-rank by spend for whatever window you select. <em>Recommend tightening PMax placement / geo / brand exclusions.</em></p></div>
+    <div class="page-head"><div class="eyebrow">Page VII</div><h2>Creative performance</h2><div class="sub">Google campaign delivery in the selected period &middot; spend, impressions &amp; CTR recompute live as you change the date range. Meta creative will appear here once METT-scoped Meta campaigns launch.</div></div>
+    <div class="insight"><div class="insight-mark">&ldquo;</div><p>Paid is Google-only pre-opening, so this view tracks the two live campaigns. <em>SEM (Search)</em> carried demand capture from mid-May; the <em>Performance Max</em> flight from Jul 21 spent little but flooded cross-network placements &mdash; its 233k impressions are largely low-quality US datacenter traffic (0 conversions), the source of the June 29 and Jul 21&ndash;23 session spikes. Cards re-rank by spend for whatever window you select. <em>Recommend tightening PMax placement / geo / brand exclusions.</em></p></div>
     <div class="card-sub" style="margin:0 0 12px;font-size:11px;color:var(--ink-3);letter-spacing:.5px;">Showing Google campaigns &middot; spend / impressions / CTR measured live</div>
     <div class="creative-grid" id="creative-grid"></div>
   </section>
@@ -422,7 +422,7 @@
       <div class="admin-block">
         <h4>Live data connections</h4>
         <code><span class="var">GA4</span> property 522139477 &middot; /casa-mett/sitges</code>
-        <code><span class="var">Meta Ads</span> act_1332980509035863 &middot; CASA METT Sitges <em>(pre-launch test)</em></code>
+        <code><span class="var">Meta Ads</span> act_1332980509035863 &middot; <em>no METT-scoped campaigns yet</em></code>
         <code><span class="var">Google Ads</span> 9644144552 &middot; CASA METT - Sitges</code>
         <code><span class="var">Period</span> 2026-01-29 &rarr; 2026-08-05 &middot; 189 days &middot; EUR</code>
       </div>
@@ -444,20 +444,21 @@
 <script>
 /* ============ CASA METT SITGES — LIVE DATA (Supermetrics, 29 Jan – 5 Aug 2026) ============
    GA4 522139477 · Meta act_1332980509035863 · Google Ads 9644144552 · EUR native.
-   Meta = 4-day pre-launch test flight (28–31 Jul, €62.89, 0 conversions). Paid = Google only. */
+   Meta = not yet live for METT (account's only campaign, "Balera - Engagement", is a venue campaign
+   outside METT scope and is excluded). Paid = Google only. */
 const DATES = ['2026-01-29','2026-01-30','2026-01-31','2026-02-01','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06','2026-02-07','2026-02-08','2026-02-09','2026-02-10','2026-02-11','2026-02-12','2026-02-13','2026-02-14','2026-02-15','2026-02-16','2026-02-17','2026-02-18','2026-02-19','2026-02-20','2026-02-21','2026-02-22','2026-02-23','2026-02-24','2026-02-25','2026-02-26','2026-02-27','2026-02-28','2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08','2026-03-09','2026-03-10','2026-03-11','2026-03-12','2026-03-13','2026-03-14','2026-03-15','2026-03-16','2026-03-17','2026-03-18','2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24','2026-03-25','2026-03-26','2026-03-27','2026-03-28','2026-03-29','2026-03-30','2026-03-31','2026-04-01','2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07','2026-04-08','2026-04-09','2026-04-10','2026-04-11','2026-04-12','2026-04-13','2026-04-14','2026-04-15','2026-04-16','2026-04-17','2026-04-18','2026-04-19','2026-04-20','2026-04-21','2026-04-22','2026-04-23','2026-04-24','2026-04-25','2026-04-26','2026-04-27','2026-04-28','2026-04-29','2026-04-30','2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-05-07','2026-05-08','2026-05-09','2026-05-10','2026-05-11','2026-05-12','2026-05-13','2026-05-14','2026-05-15','2026-05-16','2026-05-17','2026-05-18','2026-05-19','2026-05-20','2026-05-21','2026-05-22','2026-05-23','2026-05-24','2026-05-25','2026-05-26','2026-05-27','2026-05-28','2026-05-29','2026-05-30','2026-05-31','2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07','2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12','2026-06-13','2026-06-14','2026-06-15','2026-06-16','2026-06-17','2026-06-18','2026-06-19','2026-06-20','2026-06-21','2026-06-22','2026-06-23','2026-06-24','2026-06-25','2026-06-26','2026-06-27','2026-06-28','2026-06-29','2026-06-30','2026-07-01','2026-07-02','2026-07-03','2026-07-04','2026-07-05','2026-07-06','2026-07-07','2026-07-08','2026-07-09','2026-07-10','2026-07-11','2026-07-12','2026-07-13','2026-07-14','2026-07-15','2026-07-16','2026-07-17','2026-07-18','2026-07-19','2026-07-20','2026-07-21','2026-07-22','2026-07-23','2026-07-24','2026-07-25','2026-07-26','2026-07-27','2026-07-28','2026-07-29','2026-07-30','2026-07-31','2026-08-01','2026-08-02','2026-08-03','2026-08-04','2026-08-05'];
 const REV   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,353,0,0,0,0,0,2409,0,0,1642,0,0,0,0,0,770,0,0,0,0,0,0,1920,2685,0,640,0,0,0,826,1898,0,0,0,0,0,1154,586,0,0,0,0,0,1376.32,0,7319.84,825.44,0,0,861.77,0,0,0,0,1604,4624,0,1410,504,0,2614.5,3727,0,0,0,0,0,1037,0,3787,1702,1597,0,1652,1804,1155,1891,3426,0,0];
 const BKG   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,4,0,2,0,0,0,1,1,0,0,0,0,0,1,1,0,0,0,0,0,2,0,2,1,0,0,1,0,0,0,0,1,4,0,1,1,0,1,1,0,0,0,0,0,1,0,3,1,1,0,1,2,2,2,3,0,0];
 const SESS  = [11,8,7,14,15,24,21,11,9,8,8,16,14,33,14,15,2,15,10,11,15,6,17,14,4,11,10,9,18,10,6,12,10,21,13,5,17,7,10,12,7,20,30,15,21,16,13,35,51,22,16,23,10,29,23,22,20,6,19,20,20,11,27,25,16,13,11,14,23,14,38,20,29,18,29,76,68,36,24,20,19,36,36,22,27,34,28,25,29,37,31,48,32,22,44,47,55,46,39,25,17,30,40,59,45,71,51,50,74,97,157,126,105,129,99,118,138,105,144,77,86,60,65,65,65,83,52,78,72,79,72,66,74,63,117,98,105,72,124,106,111,58,60,72,72,87,72,87,64,59,44,937,78,157,279,306,71,266,103,108,104,92,64,92,128,150,178,102,112,89,145,101,105,1012,646,1025,296,116,108,151,126,192,124,396,477,545,383,337,224];
-const META  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11.39,19.95,21.18,10.37,0,0,0,0,0];
-const GOOG  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,101.5004,100.6125,108.3566,116.6098,93.4389,98.3568,101.9502,101.8282,102.7483,105.7268,101.2692,88.634,93.1095,107.6185,0,0,0,0,90.6601,114.815,102.0652,106.7605,102.2247,109.4164,106.7084,93.9504,80.9876,93.0654,132.2591,105.1665,110.4995,94.8131,82.5394,119.0354,91.6415,108.7025,85.4816,104.0072,127.6283,89.2612,71.3793,98.9207,101.743,106.7737,50.3744,0,0,0,36.2276,158.2686,103.1754,105.9302,104.7081,78.5076,102.8028,119.7715,100.8155,83.488,122.0299,106.0503,89.3858,89.781,118.9258,97.3356,93.6357,99.8584,73.2374,65.9699,120.0884,137.3413,96.6324,96.7976,104.3006,106.8497,1.9372,0.0439,8.8217,46.7501,120.0776,90.9185,77.3161,101.4582,66.5856,51.8861];
+const META  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const GOOG  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,101.5004,100.6125,108.3566,116.6098,93.4389,98.3568,101.9502,101.8282,102.7483,105.7268,101.2692,88.634,93.1095,107.6185,0,0,0,0,90.6601,114.815,102.0652,106.7605,102.2247,109.4164,106.7084,93.9504,80.9876,93.0654,132.2591,105.1665,110.4995,94.8131,82.5394,119.0354,91.6415,108.7025,85.4816,104.0072,127.6283,89.2612,71.3793,98.9207,101.743,106.7737,50.3744,0,0,0,36.2276,158.2686,103.1754,105.9302,104.7081,78.5076,102.8028,119.7715,100.8155,83.488,122.0299,106.0503,89.3858,89.781,118.9258,97.3356,93.6357,99.8584,73.2374,65.9699,120.0884,137.3413,96.6324,96.7976,104.3006,106.8497,1.9372,0.0439,8.8217,46.7501,120.0776,90.9185,77.3161,101.4582,66.5856,52.4661];
 const N = DATES.length;
 
 /* canonical full-period totals (reconciled to live pulls) */
 const BASE = {
-  rev:57800.87, bkg:46, spend:7343.24, meta:62.89, google:7280.35,
+  rev:57800.87, bkg:46, spend:7280.93, meta:0, google:7280.93,
   sessions:15901, users:13020, engaged:12502,
-  gImpr:351357, gClicks:16649, mImpr:41486, mClicks:133, mLPV:0,
+  gImpr:351432, gClicks:16652, mImpr:0, mClicks:0, mLPV:0,
   ctr:4.74, engRate:78.6,
   paidSess:4707, orgSess:2693, dirSess:3365, refSess:5343, paidShare:29.2
 };
@@ -470,7 +471,7 @@ const MARKETS = {labels:["United States", "United Kingdom", "Norway", "Spain", "
 
 const CREATIVES = [
   {name:"CASA METT Sitges | SEM",fmt:"Search",offer:"Google Ads \u00b7 demand capture (May 14 \u2013 Jul 21)",thumb:"",spend:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,101.5004,100.6125,108.3566,116.6098,93.4389,98.3568,101.9502,101.8282,102.7483,105.7268,101.2692,88.634,93.1095,107.6185,0,0,0,0,90.6601,114.815,102.0652,106.7605,102.2247,109.4164,106.7084,93.9504,80.9876,93.0654,132.2591,105.1665,110.4995,94.8131,82.5394,119.0354,91.6415,108.7025,85.4816,104.0072,127.6283,89.2612,71.3793,98.9207,101.743,106.7737,50.3744,0,0,0,36.2276,158.2686,103.1754,105.9302,104.7081,78.5076,102.8028,119.7715,100.8155,83.488,122.0299,106.0503,89.3858,89.781,118.9258,97.3356,93.6357,99.8584,73.2374,65.9699,49.96,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],imp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,941,1209,1282,1477,1998,1317,1780,2015,1735,2315,2086,1864,2119,2027,0,0,0,0,1436,1611,1819,2035,1495,2102,2059,1844,2002,2075,1872,1593,1477,1573,1803,1781,2052,1869,2244,2783,2387,1621,2012,2286,2246,2326,1036,0,0,0,951,2144,1657,1744,2178,2049,2156,2354,2374,2515,2990,2065,2499,2446,2621,2439,2228,1660,1482,1545,957,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],clk:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,76,81,92,133,114,137,139,144,147,149,147,144,144,158,0,0,0,0,118,158,147,157,154,161,162,151,123,137,171,171,208,191,156,198,156,178,138,153,188,154,117,157,164,169,81,0,0,0,69,181,133,134,160,129,160,160,146,125,177,158,157,141,176,145,157,200,151,128,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  {name:"CASA METT Sitges | PMAX",fmt:"Performance Max",offer:"Google Ads \u00b7 prospecting \u00b7 cross-network (from Jul 21)",thumb:"",spend:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70.1284,137.3413,96.6324,96.7976,104.3006,106.8497,1.9372,0.0439,8.8217,46.7501,120.0776,90.9185,77.3161,101.4582,66.5856,51.8861],imp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4063,86680,31527,12199,660,929,15,21,435,1773,25383,24397,10861,16489,9605,7662],clk:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,1788,955,582,418,500,11,3,32,176,588,498,660,543,386,344]}
+  {name:"CASA METT Sitges | PMAX",fmt:"Performance Max",offer:"Google Ads \u00b7 prospecting \u00b7 cross-network (from Jul 21)",thumb:"",spend:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70.1284,137.3413,96.6324,96.7976,104.3006,106.8497,1.9372,0.0439,8.8217,46.7501,120.0776,90.9185,77.3161,101.4582,66.5856,52.4661],imp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4063,86680,31527,12199,660,929,15,21,435,1773,25383,24397,10861,16489,9604,7738],clk:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,1788,955,582,418,500,11,3,32,176,588,498,660,543,386,347]}
 ];
 </script>
 <script>
@@ -508,11 +509,12 @@ const CREATIVES = [
   /* ---------- factors for the active window ---------- */
   function factors(){
     const s=selStart,e=selEnd;
-    const sF=sum(SESS,s,e)/sum(SESS,MIN,MAX);
-    const gF=sum(GOOG,s,e)/sum(GOOG,MIN,MAX);
-    const mF=sum(META,s,e)/sum(META,MIN,MAX);
+    const div=(a,b)=>b>0?a/b:0;   // guard: a source with no spend in scope must yield 0, not NaN
+    const sF=div(sum(SESS,s,e),sum(SESS,MIN,MAX));
+    const gF=div(sum(GOOG,s,e),sum(GOOG,MIN,MAX));
+    const mF=div(sum(META,s,e),sum(META,MIN,MAX));
     const pSpend=sum(GOOG,s,e)+sum(META,s,e), pAll=sum(GOOG,MIN,MAX)+sum(META,MIN,MAX);
-    return {sess:sF, google:gF, meta:mF, paid:pSpend/pAll};
+    return {sess:sF, google:gF, meta:mF, paid:div(pSpend,pAll)};
   }
 
   /* ---------- KPI refresh ---------- */
@@ -815,6 +817,8 @@ const CREATIVES = [
   });
 
   /* ============ INIT ============ */
+  /* default view = month-to-date, anchored to the latest data day (not system clock) */
+  (function(){var _e=D[MAX];var _ms=new Date(Date.UTC(_e.getUTCFullYear(),_e.getUTCMonth(),1));selStart=clampIdx(_ms);selEnd=MAX;pendStart=selStart;pendEnd=selEnd;viewY=D[selStart].getUTCFullYear();viewM=D[selStart].getUTCMonth();var maxM=D[MAX].getUTCFullYear()*12+D[MAX].getUTCMonth();if((viewY*12+viewM+1)>maxM){viewM-=1;if(viewM<0){viewM=11;viewY-=1;}}})();
   refreshLabels();updateKPIs();scaleCells();rebuildActive();
 })();
 </script>
