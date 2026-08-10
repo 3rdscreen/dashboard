@@ -478,12 +478,13 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
     <p class="sec-sub">Optimizing for <strong>app signup events</strong>, live since May 13. This campaign spans three ad sets (Car Draw, Generic, and Panini) — beyond registrations it drove <strong><span id="regSubPurch">307</span> in-app purchases worth <span id="regSubValue">$6,576</span></strong> as a side effect.</p>
     <div class="kpi-strip reg-kpi6" style="grid-template-columns:repeat(6,1fr)">
       <div class="kpi"><div class="k">Spend</div><div class="v" id="rSpend">$46.96</div><div class="s">Campaign budget</div></div>
-      <div class="kpi"><div class="k">Registrations</div><div class="v" id="rRegs">4</div><div class="s">Signup event</div></div>
+      <div class="kpi"><div class="k">Registrations</div><div class="v" id="rRegs">4</div><div class="s" id="rRegsSub">Signup event</div></div>
       <div class="kpi"><div class="k">Cost / Reg.</div><div class="v" id="rCpr">$11.74</div><div class="s">CPR</div></div>
       <div class="kpi"><div class="k">Sessions</div><div class="v" id="rSess">4,292</div><div class="s">App opens</div></div>
       <div class="kpi"><div class="k">In-App Purch.</div><div class="v" id="rPurch">30</div><div class="s" id="rPurchSub">CPP $1.57</div></div>
       <div class="kpi"><div class="k">ROAS</div><div class="v" id="rRoas" style="color:var(--green)">11.42×</div><div class="s" id="rRoasSub">$536.19 value</div></div>
     </div>
+    <div id="regCrossNote" style="margin-top:16px"></div>
     <div class="tbl-card" style="margin-top:22px">
       <div class="tbl-card-head"><h3>Ad-level performance</h3><span class="pill" id="regAdPill">4 ads · 4 registrations</span></div>
       <div class="tbl-scroll"><table>
@@ -944,6 +945,23 @@ function renderDashboard(start, end){
   document.getElementById('rPurchSub').textContent = r.purch? `CPP ${money(rCpp)}` : 'CPP —';
   document.getElementById('rRoas').textContent = rRoas.toFixed(2)+'×';
   document.getElementById('rRoasSub').textContent = `${money(r.value)} value`;
+
+  // Cross-campaign registrations (Sales + App Install also drive the signup event)
+  let _instRegs=0,_salesRegs=0;
+  DAILY.install.forEach(a=>{for(const d in a.days){ if(d>=start&&d<=end) _instRegs+=(a.days[d][8]||0); }});
+  DAILY.sales.forEach(a=>{for(const d in a.days){ if(d>=start&&d<=end) _salesRegs+=(a.days[d][6]||0); }});
+  const _otherRegs=_instRegs+_salesRegs, _allRegs=_otherRegs+r.regs;
+  document.getElementById('rRegs').textContent = int(_allRegs);
+  const _rSub=document.getElementById('rRegsSub');
+  if(_rSub) _rSub.textContent = _otherRegs>0 ? ('All campaigns \u00b7 '+int(r.regs)+' direct') : 'Signup event';
+  const _rcn=document.getElementById('regCrossNote');
+  if(_rcn){
+    if(_otherRegs>0){
+      _rcn.innerHTML='<div style="background:var(--line-2);border-left:3px solid #C79A3C;border-radius:8px;padding:12px 16px;font-size:13px;color:var(--ink-2);line-height:1.55">'+
+        (r.spend>0?'':'This dedicated campaign is currently <b>paused</b> ($0 spend). ')+
+        'Registrations are still coming in across the other campaigns \u2014 <b>'+int(_allRegs)+' total</b> this period ('+int(_salesRegs)+' from Sales, '+int(_instRegs)+' from App Install'+(r.regs>0?', '+int(r.regs)+' from this campaign':'')+'). That account-wide figure is what the <b>Overview \u2192 Registrations</b> KPI shows; the tiles above stay limited to this campaign\u2019s own spend so the paused $0 campaign isn\u2019t credited with events it didn\u2019t drive.</div>';
+    } else { _rcn.innerHTML=''; }
+  }
 
   // Registration ad-level table
   // regAds day = [impr,clicks,cost,reach,regs,sessions,purch,value]
