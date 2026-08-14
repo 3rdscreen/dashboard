@@ -691,7 +691,7 @@ let spendChart=null, roasChart=null;
 // Apple Search Ads: monthly-total exports (no daily granularity) -> prorate each period by overlap with the selected window
 const APERIODS=[
   {s:'2026-07-01',e:'2026-07-31',days:31,spend:331.28,impr:13503,taps:663,inst:796,newd:435,red:361,tapI:355,tapN:201,tapR:154,viewI:441,viewN:234,viewR:207},
-  {s:'2026-08-01',e:'2026-08-11',days:11, spend:114.16, impr:4893, taps:363,inst:450,newd:272,red:178,tapI:248,tapN:157,tapR:91, viewI:202,viewN:115, viewR:87}
+  {s:'2026-08-01',e:'2026-08-13',days:13, spend:134.21, impr:5605, taps:421,inst:517,newd:305,red:212,tapI:284,tapN:174,tapR:110, viewI:233,viewN:131, viewR:102}
 ];
 function appleAgg(start,end){
   const F=['spend','impr','taps','inst','newd','red','tapI','tapN','tapR','viewI','viewN','viewR'];
@@ -720,7 +720,7 @@ function renderApple(start,end){
   eb.innerHTML=dot+'Apple Search Ads &middot; App Installs &middot; '+lab(start)+' &ndash; '+lab(end)+est;
   const K=document.getElementById('apKpi'),Fn=document.getElementById('apFunnel'),At=document.getElementById('apAttr'),No=document.getElementById('apNote');
   if(a.spend===0&&a.inst===0){
-    K.innerHTML='<div class="kpi" style="grid-column:1/-1"><div class="k">No Apple activity in this window</div><div class="s">Apple Search Ads ran Jul 1 &ndash; Aug 11, 2026.</div></div>';
+    K.innerHTML='<div class="kpi" style="grid-column:1/-1"><div class="k">No Apple activity in this window</div><div class="s">Apple Search Ads ran Jul 1 &ndash; Aug 13, 2026.</div></div>';
     Fn.innerHTML='';At.innerHTML='';No.innerHTML='';return;
   }
   const pct=(x,d)=>d>0?((x/d)*100).toFixed(1)+'%':'\u2014';
