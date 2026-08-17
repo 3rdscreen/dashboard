@@ -1594,13 +1594,13 @@ function renderRangeView(){
 
 function renderOverviewRange(rd){
   const rws=PL.map(p=>{
-    let spend=0,sv=0,conv=0,atc=0,wR=0;
-    rd.forEach(d=>{const r=row(p.key,d);if(r&&r.spend>0){spend+=r.spend;sv+=r.sv||0;conv+=r.conv||0;atc+=r.atc||0;wR+=r.roas*r.spend;}});
-    return{...p,a:{spend,sv,conv,atc,roas:spend>0?wR/spend:0,cpo:conv>0?spend/conv:0}};
+    let spend=0,sv=0,conv=0,atc=0,wR=0,roasSp=0;
+    rd.forEach(d=>{const r=row(p.key,d);if(r&&r.spend>0){spend+=r.spend;sv+=r.sv||0;conv+=r.conv||0;atc+=r.atc||0;wR+=r.roas*r.spend;roasSp+=r.spend-(p.key==='meta'?((r.foll&&r.foll.spend)||0):0);}});
+    return{...p,a:{spend,sv,conv,atc,roasSpend:roasSp,roas:roasSp>0?sv/roasSp:0,cpo:conv>0?spend/conv:0}};
   });
-  let totSpend=0,totSV=0,totConv=0,totAtc=0,wR=0;
-  rws.forEach(p=>{totSpend+=p.a.spend;totSV+=p.a.sv;totConv+=p.a.conv;totAtc+=(p.a.atc||0);wR+=p.a.roas*p.a.spend;});
-  const blended=totSpend>0?wR/totSpend:0;
+  let totSpend=0,totSV=0,totConv=0,totAtc=0,wR=0,totRoasSp=0;
+  rws.forEach(p=>{totSpend+=p.a.spend;totSV+=p.a.sv;totConv+=p.a.conv;totAtc+=(p.a.atc||0);wR+=p.a.roas*p.a.spend;totRoasSp+=(p.a.roasSpend||0);});
+  const blended=totRoasSp>0?totSV/totRoasSp:0;
   const totCPO=totConv>0?totSpend/totConv:0;
   const sorted=(fn)=>[...rws].sort((a,b)=>fn(b.a)-fn(a.a));
   const dotRow=(p,valFn)=>`<div class="orow"><span class="orow-lbl"><span style="width:8px;height:8px;border-radius:50%;background:${p.color};display:inline-block;flex-shrink:0"></span>${p.label}</span><span class="orow-val">${p.a.spend>0?valFn(p.a):"—"}</span></div>`;
@@ -3166,15 +3166,15 @@ function buildBudgetByMarket(dateArg){
 }
 
 function renderOverview(d){
-  const rws=PL.map(p=>{const r=row(p.key,d);return{...p,r};});
+  const rws=PL.map(p=>{let r=row(p.key,d);if(r&&p.key==='meta'&&r.spend>0){const _d=r.spend-((r.foll&&r.foll.spend)||0);r=Object.assign({},r,{roas:_d>0?(r.sv||0)/_d:0});}return{...p,r};});
 
   // Aggregates
-  let allSpend=0,allSV=0,allConv=0,wRoas=0;
+  let allSpend=0,allSV=0,allConv=0,wRoas=0,allRoasSp=0;
   rws.forEach(p=>{
     const r=p.r;
-    if(r&&r.spend>0){allSpend+=r.spend;allSV+=r.sv||0;allConv+=r.conv||0;wRoas+=r.roas*r.spend;}
+    if(r&&r.spend>0){allSpend+=r.spend;allSV+=r.sv||0;allConv+=r.conv||0;wRoas+=r.roas*r.spend;allRoasSp+=r.spend-(p.key==='meta'?((r.foll&&r.foll.spend)||0):0);}
   });
-  const blendedRoas=allSpend>0?wRoas/allSpend:0;
+  const blendedRoas=allRoasSp>0?allSV/allRoasSp:0;
   const totalCPO=allConv>0?allSpend/allConv:0;
 
   // sorted helpers
@@ -3249,15 +3249,15 @@ function renderOverviewMTD(){
 
   const agg=(pk)=>{
     const all=D[pk]||[];
-    let spend=0,sv=0,conv=0,wR=0;
-    all.forEach(r=>{if(r.spend>0 && r.d.startsWith(curMon)){spend+=r.spend;sv+=(r.sv||0);conv+=(r.conv||0);wR+=r.roas*r.spend;}});
-    return{spend,sv,conv,roas:spend>0?wR/spend:0,cpo:conv>0?spend/conv:0};
+    let spend=0,sv=0,conv=0,wR=0,roasSp=0;
+    all.forEach(r=>{if(r.spend>0 && r.d.startsWith(curMon)){spend+=r.spend;sv+=(r.sv||0);conv+=(r.conv||0);wR+=r.roas*r.spend;roasSp+=r.spend-(pk==='meta'?((r.foll&&r.foll.spend)||0):0);}});
+    return{spend,sv,conv,roasSpend:roasSp,roas:roasSp>0?sv/roasSp:0,cpo:conv>0?spend/conv:0};
   };
 
   const rws=PL.map(p=>{const a=agg(p.key);return{...p,a};});
-  let totSpend=0,totSV=0,totConv=0,wR=0;
-  rws.forEach(p=>{totSpend+=p.a.spend;totSV+=p.a.sv;totConv+=p.a.conv;wR+=p.a.roas*p.a.spend;});
-  const blended=totSpend>0?wR/totSpend:0;
+  let totSpend=0,totSV=0,totConv=0,wR=0,totRoasSp=0;
+  rws.forEach(p=>{totSpend+=p.a.spend;totSV+=p.a.sv;totConv+=p.a.conv;wR+=p.a.roas*p.a.spend;totRoasSp+=(p.a.roasSpend||0);});
+  const blended=totRoasSp>0?totSV/totRoasSp:0;
   const totCPO=totConv>0?totSpend/totConv:0;
 
   const sorted=(fn)=>[...rws].sort((a,b)=>fn(b.a)-fn(a.a));
