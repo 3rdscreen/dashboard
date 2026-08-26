@@ -41,6 +41,11 @@
   .btn:hover{background:#f6f7f9;color:var(--text)}
   .btn.solid{background:var(--accent);border-color:var(--accent);color:#fff}
   .btn.solid:hover{background:#4a46c9}
+  .sync{font-size:10.5px;font-weight:650;padding:4px 9px;border-radius:20px;white-space:nowrap;border:1px solid var(--line)}
+  .sync.local{color:var(--text-dim);background:#f1f3f7}
+  .sync.live{color:var(--low);background:var(--low-bg);border-color:#cdeede}
+  .sync.saving{color:var(--med);background:var(--med-bg);border-color:#f0e2c0}
+  .sync.off{color:var(--high);background:var(--high-bg);border-color:#f0cfcb}
 
   /* Board fills the rest of the viewport */
   .board{height:calc(100% - var(--topbar));display:flex;gap:12px;padding:12px;align-items:stretch;overflow-x:auto}
@@ -158,13 +163,28 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
   @media (max-width:620px){
-    header.topbar{flex-wrap:wrap;height:auto;padding:10px 12px;gap:10px}
-    .stats{order:3;width:100%;justify-content:space-between;gap:8px}
-    .board{height:auto;min-height:calc(100% - 2px);flex-direction:column;overflow-x:visible;overflow-y:auto}
-    .col{min-width:0}
-    .add-col{min-height:52px}
-    .c-actions{position:static;opacity:1;background:none;padding-left:0}
+    header.topbar{flex-wrap:wrap;height:auto;padding:10px 12px;gap:8px}
+    .brand{flex:1 1 auto}
+    #btnFull{display:none}
+    .search{order:4;flex:1 1 100%}
+    .search input{width:100%}
+    .stats{order:5;width:100%;justify-content:space-between;gap:6px}
+    .board{height:auto;min-height:0;flex-direction:column;overflow-x:visible;overflow-y:visible;padding:10px;gap:10px}
+    .col{min-width:0;max-height:none}
+    .col-body{overflow:visible}
+    .col-tools{opacity:1}
+    .add-col{min-height:52px;width:100%}
     body{overflow:auto}
+    .row{flex-wrap:wrap;row-gap:8px;padding:11px 12px}
+    .c-name{flex:1 1 100%;order:1;white-space:normal;font-size:14px}
+    .kids-count{order:2}
+    .off-flag{order:3}
+    .badges{order:4}
+    .tag{order:5}
+    .c-actions{position:static;opacity:1;background:none;padding-left:0;order:6;margin-left:auto;gap:2px}
+    .c-actions .icon-btn{width:36px;height:36px}
+    .icon-btn svg{width:18px;height:18px}
+    .col-tools .icon-btn{width:34px;height:34px}
   }
 </style>
 </head>
@@ -172,6 +192,7 @@
 
 <header class="topbar">
   <div class="brand"><b>3RDS TEAM</b><span>Client workload</span></div>
+  <span id="syncPill" class="sync local">Local only</span>
   <div class="stats" id="stats"></div>
   <div class="spacer"></div>
   <div class="search">
@@ -222,6 +243,18 @@
 <script>
 "use strict";
 const LS_KEY="tsd_workload_board_v1";
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SHARED, LIVE SYNC  (optional — turns the board into one shared board that
+   updates for everyone in real time).
+   Paste your Firebase Realtime Database URL between the quotes below.
+   Leave it as "" to keep the board local to each browser.
+   Setup: console.firebase.google.com → Create project → Build → Realtime
+   Database → Create (pick a region) → Rules tab → set BOTH .read and .write
+   to true → Publish. Copy the database URL (looks like the example) here.
+   ───────────────────────────────────────────────────────────────────────── */
+const DB_URL=""; // e.g. "https://3rds-team-default-rtdb.firebaseio.com"
+const SHARED=!!DB_URL;
 const LOAD_W={Low:1,Medium:2,High:3};
 const LOAD_SHORT={Low:"LOW",Medium:"MED",High:"HIGH"};
 const KNOWN_PLATFORMS=["Meta","Google","TikTok","Snap","Linkedin"];
@@ -256,8 +289,8 @@ const SEED={members:[
    {name:"LePetit Beefbar",platforms:["Meta"],load:"Low"},{name:"Geneve - Khora",platforms:["Meta"],load:"Low"},
    {name:"Geneve - Alma",platforms:["Meta"],load:"Low"},{name:"DRIFT Beach",platforms:["Meta"],load:"Low"},
    {name:"AZURE Beach",platforms:["Meta"],load:"Low"},{name:"BAOLI",platforms:["Meta"],load:"Low"},
-   {name:"LRDV",platforms:["Meta"],load:"Low"},{name:"CAFFE LRDV",platforms:["Meta"],load:"Low"},
-   {name:"Cipriani",platforms:["Meta"],load:"Low"}
+   {name:"LRDV - Monaco",platforms:["Meta"],load:"Low"},{name:"CAFFE LRDV - Monaco",platforms:["Meta"],load:"Low"},
+   {name:"Cipriani - Monaco",platforms:["Meta"],load:"Low"}
  ]},
  {name:"Daniel",clients:[
    {name:"Shift Clinics",platforms:["Meta"],load:"Low"},{name:"Clinica Joelle",platforms:["Meta"],load:"Low"},
@@ -280,7 +313,46 @@ let state=load(), filter="", editing=null;
 function uid(){return Math.random().toString(36).slice(2,9)}
 function hydrate(raw){raw.members.forEach(m=>{if(!m.id)m.id=uid();m.clients.forEach(c=>{if(!c.id)c.id=uid();});});return raw;}
 function load(){try{const s=localStorage.getItem(LS_KEY);if(s)return hydrate(JSON.parse(s));}catch(e){}return hydrate(JSON.parse(JSON.stringify(SEED)));}
-function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}}
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}cloudSave();}
+
+/* ---- shared sync engine ---- */
+let cloudInit=false,saveTimer=null;
+function setSync(s){
+  const p=document.getElementById("syncPill");if(!p)return;
+  if(!SHARED){p.textContent="Local only";p.className="sync local";return;}
+  if(s==="live"){p.textContent="● Shared · Live";p.className="sync live";}
+  else if(s==="saving"){p.textContent="Saving…";p.className="sync saving";}
+  else{p.textContent="Reconnecting…";p.className="sync off";}
+}
+function cloudSave(){
+  if(!SHARED)return;
+  setSync("saving");
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    fetch(`${DB_URL}/board.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(state)})
+      .then(()=>setSync("live")).catch(()=>setSync("off"));
+  },250);
+}
+function cloudFetch(){
+  fetch(`${DB_URL}/board.json`).then(r=>r.json()).then(d=>{if(d&&d.members){state=hydrate(d);try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}render();setSync("live");}}).catch(()=>setSync("off"));
+}
+function startCloud(){
+  if(!SHARED){setSync();return;}
+  setSync("off");
+  try{
+    const es=new EventSource(`${DB_URL}/board.json`);
+    es.onopen=()=>setSync("live");
+    es.onerror=()=>setSync("off");
+    es.addEventListener("put",ev=>{
+      let msg;try{msg=JSON.parse(ev.data);}catch(e){return;}
+      if(!msg)return;
+      if(msg.data==null){ if(!cloudInit){cloudInit=true;cloudSave();} setSync("live"); return; }
+      if(msg.path==="/"&&msg.data.members){ state=hydrate(msg.data); try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){} cloudInit=true; render(); setSync("live"); }
+      else cloudFetch();
+    });
+    es.addEventListener("patch",()=>cloudFetch());
+  }catch(e){setSync("off");}
+}
 function findMember(id){return state.members.find(m=>m.id===id)}
 function score(m){return m.clients.reduce((s,c)=>s+(c.active===false?0:(LOAD_W[c.load]||1)),0)}
 function toggleActive(memberId,clientId){
@@ -566,6 +638,7 @@ const IC={
   power:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.1 14c.2-1 .65-1.75 1.4-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.75.75 1.2 1.5 1.4 2.5"/></svg>'
 };
 render();
+startCloud();
 </script>
 </body>
 </html>
