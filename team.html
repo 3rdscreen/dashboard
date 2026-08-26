@@ -88,6 +88,9 @@
   .row.nest-hot{outline:2px solid var(--accent);outline-offset:1px;background:var(--accent-soft)!important}
   .row.nest-hot .c-name{color:var(--accent)}
   .nest-slot{margin:5px 0 5px 22px;padding:9px 12px;border-left:2px solid var(--accent);background:var(--accent-soft);border-radius:8px;color:var(--accent);font-size:12px;font-weight:700;pointer-events:none;display:flex;align-items:center}
+  .drop-line{height:0;border-top:3px solid var(--accent);margin:-1.5px 6px;pointer-events:none;position:relative;z-index:5;box-shadow:0 0 0 1px rgba(91,87,216,.25)}
+  .drop-line::before{content:"";position:absolute;left:-4px;top:-5.5px;width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px #fff}
+  .drop-line::after{content:"drop here";position:absolute;right:2px;top:-9px;font-size:9.5px;font-weight:700;color:#fff;background:var(--accent);padding:1px 6px;border-radius:5px;letter-spacing:.2px}
 
   /* Compact client ROW */
   .row{
@@ -430,7 +433,7 @@ const STATUS_LABEL={light:"Light",balanced:"Balanced",over:"Overloaded"};
 const board=document.getElementById("board"), statsEl=document.getElementById("stats");
 
 function render(){
-  if(!drag){document.querySelectorAll(".drag-clone,.nest-slot").forEach(n=>n.remove());}
+  if(!drag){document.querySelectorAll(".drag-clone,.nest-slot,.drop-line").forEach(n=>n.remove());}
   const scores=state.members.map(score);
   const teamScore=scores.reduce((a,b)=>a+b,0);
   const teamClients=state.members.reduce((a,m)=>a+m.clients.length,0);
@@ -537,45 +540,24 @@ function matches(c){if(!filter)return true;const f=filter.toLowerCase();return c
 function cls(p){return p.replace(/[^A-Za-z]/g,"")}
 function esc(s){return String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]))}
 
-function moveClient(clientId,toId){
-  let from=null;
-  for(const m of state.members){if(m.clients.some(c=>c.id===clientId)){from=m;break;}}
-  if(!from)return;
-  const to=findMember(toId);
-  if(!to)return;
-  if(to.id===from.id){                              // same person: un-nest if it's currently grouped
-    const c=from.clients.find(x=>x.id===clientId);
-    if(c&&c.parentId){c.parentId=null;save();render();toast(`${c.name} ungrouped`);}
-    return;
-  }
-  const ids=[clientId,...from.clients.filter(c=>c.parentId===clientId).map(c=>c.id)];
-  const moving=from.clients.filter(c=>ids.includes(c.id));
-  from.clients=from.clients.filter(c=>!ids.includes(c.id));
-  const root=moving.find(c=>c.id===clientId);if(root)root.parentId=null;
-  to.clients.push(...moving);
-  save();render();
-  toast(`${root?root.name:"Client"}${moving.length>1?` +${moving.length-1}`:""} → ${to.name}`);
+function findOwner(clientId){ for(const m of state.members){ const c=m.clients.find(x=>x.id===clientId); if(c) return {m,c}; } return null; }
+function dropClient(clientId,toMemberId,parentId,beforeId){
+  const src=findOwner(clientId); if(!src)return;
+  const from=src.m, dragged=src.c;
+  const to=findMember(toMemberId); if(!to)return;
+  const kids=from.clients.filter(c=>c.parentId===clientId);
+  if(parentId===clientId) parentId=null;
+  if(kids.length && parentId) parentId=null;            // a group can't sit inside another group
+  const movingIds = kids.length ? [clientId,...kids.map(k=>k.id)] : [clientId];
+  const moving = from.clients.filter(c=>movingIds.includes(c.id));
+  from.clients = from.clients.filter(c=>!movingIds.includes(c.id));
+  dragged.parentId = parentId || null;
+  let idx = to.clients.length;
+  if(beforeId){ const bi=to.clients.findIndex(c=>c.id===beforeId); if(bi>=0) idx=bi; }
+  to.clients.splice(idx,0,...moving);
+  save(); render();
 }
-function nestClient(clientId,targetId){
-  if(clientId===targetId)return;
-  let from=null,dragged=null,to=null,target=null;
-  for(const m of state.members){
-    const a=m.clients.find(x=>x.id===clientId);if(a){from=m;dragged=a;}
-    const b=m.clients.find(x=>x.id===targetId);if(b){to=m;target=b;}
-  }
-  if(!dragged||!target)return;
-  const parentId=target.parentId?target.parentId:target.id;   // dropping on a child nests under its hotel
-  if(parentId===dragged.id)return;                            // can't nest under its own child
-  const kids=from.clients.filter(x=>x.parentId===dragged.id);
-  if(kids.length){moveClient(clientId,to.id);return;}         // a group can't sit inside another group
-  if(from.id===to.id&&dragged.parentId===parentId)return;     // already there
-  from.clients=from.clients.filter(x=>x.id!==dragged.id);
-  dragged.parentId=parentId;
-  to.clients.push(dragged);
-  save();render();
-  const pName=(to.clients.find(x=>x.id===parentId)||{}).name||"group";
-  toast(`${dragged.name} → under ${pName}`);
-}
+function moveClient(clientId,toId){ dropClient(clientId,toId,null,null); }
 
 /* Custom drag: floating clone stays on top, never clipped by a column */
 let drag=null;
@@ -595,10 +577,99 @@ function startDrag(e,el,clientId,fromId){
   if(e.target.closest(".c-actions"))return;        // let edit/move buttons work
   const rect=el.getBoundingClientRect();
   drag={el,clientId,fromId,rect,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,
-        offsetX:e.clientX-rect.left,offsetY:e.clientY-rect.top,active:false,clone:null,hotRow:null,hotCol:null,ph:null};
+        offsetX:e.clientX-rect.left,offsetY:e.clientY-rect.top,active:false,clone:null,
+        hotRow:null,hotCol:null,ph:null,line:null,mode:null,dropTo:null,dropParent:null,dropBefore:null,
+        lastX:e.clientX,lastY:e.clientY,scrollRAF:null};
   window.addEventListener("pointermove",onDragMove);
   window.addEventListener("pointerup",onDragUp);
   window.addEventListener("pointercancel",onDragUp);
+}
+function clearDrop(){
+  if(!drag)return;
+  if(drag.hotRow){drag.hotRow.classList.remove("nest-hot");drag.hotRow=null;}
+  if(drag.hotCol){drag.hotCol.classList.remove("drop-hot");drag.hotCol=null;}
+  if(drag.ph){drag.ph.remove();drag.ph=null;}
+  if(drag.line){drag.line.remove();drag.line=null;}
+}
+function nextSiblingId(row){
+  let n=row.nextElementSibling;
+  if(row.closest(".kids")){
+    while(n&&!n.classList.contains("row")) n=n.nextElementSibling;
+    return n?n.dataset.id:null;
+  }
+  while(n&&n.classList.contains("kids")) n=n.nextElementSibling;
+  while(n&&!n.classList.contains("row")) n=n.nextElementSibling;
+  return n?n.dataset.id:null;
+}
+function insertBeforeTop(body,y){
+  let cur=null; const units=[];
+  for(const el of body.children){
+    if(el.classList.contains("row")){ const r=el.getBoundingClientRect(); cur={id:el.dataset.id,top:r.top,bottom:r.bottom}; units.push(cur); }
+    else if(el.classList.contains("kids")&&cur){ cur.bottom=el.getBoundingClientRect().bottom; }
+  }
+  for(const u of units){ if(y<(u.top+u.bottom)/2) return u.id; }
+  return null;
+}
+function updateDrop(x,y){
+  if(!drag)return;
+  const under=document.elementFromPoint(x,y);
+  let col=under?under.closest(".col"):null;
+  const row=under?under.closest(".row"):null;
+  clearDrop();
+  drag.mode=null;
+  if(!col){                                   // released between/around columns → snap to nearest column at this height
+    let best=null,bd=1e9;
+    for(const c of document.querySelectorAll(".col")){const r=c.getBoundingClientRect();if(y>=r.top-40&&y<=r.bottom+40){const d=Math.abs(x-(r.left+r.right)/2);if(d<bd){bd=d;best=c;}}}
+    col=best;
+  }
+  if(!col)return;
+  drag.dropTo=col.dataset.id;
+  const body=col.querySelector(".col-body");
+  const draggedHasKids=state.members.some(m=>m.clients.some(c=>c.parentId===drag.clientId));
+  if(row && row.dataset.id!==drag.clientId && !row.classList.contains("dragging")){
+    const rect=row.getBoundingClientRect();
+    const rel=(y-rect.top)/rect.height;
+    const isChild=!!row.closest(".kids");
+    const rc=findOwner(row.dataset.id); const rowParent=rc?rc.c.parentId:null;
+    if(rel>0.38 && rel<0.62 && !isChild && !draggedHasKids){
+      drag.mode="nest"; drag.dropParent=row.dataset.id; drag.dropBefore=null;
+      row.classList.add("nest-hot"); drag.hotRow=row;
+      drag.ph=document.createElement("div"); drag.ph.className="nest-slot"; drag.ph.textContent="↳ group under"; row.after(drag.ph);
+    } else {
+      const before=rel<0.5;
+      drag.mode="insert";
+      drag.dropParent=(isChild && !draggedHasKids)?rowParent:null;
+      drag.dropBefore=before?row.dataset.id:nextSiblingId(row);
+      drag.line=document.createElement("div"); drag.line.className="drop-line";
+      if(drag.dropParent) drag.line.style.marginLeft="30px";
+      if(before) row.before(drag.line); else row.after(drag.line);
+    }
+  } else {
+    const beforeId=insertBeforeTop(body,y);
+    drag.mode="insert"; drag.dropParent=null; drag.dropBefore=beforeId;
+    drag.line=document.createElement("div"); drag.line.className="drop-line";
+    const add=body.querySelector(".add-client");
+    const el=beforeId?[...body.children].find(c=>c.classList.contains("row")&&c.dataset.id===beforeId):null;
+    if(el) el.before(drag.line); else if(add) body.insertBefore(drag.line,add); else body.appendChild(drag.line);
+  }
+}
+function autoScrollStep(){
+  if(!drag||!drag.active){ if(drag)drag.scrollRAF=null; return; }
+  const x=drag.lastX,y=drag.lastY,EDGE=70,MAX=16; let didScroll=false;
+  const under=document.elementFromPoint(x,y);
+  const body=under?under.closest(".col-body"):null;
+  if(body&&body.scrollHeight>body.clientHeight){
+    const r=body.getBoundingClientRect();
+    if(y<r.top+EDGE&&body.scrollTop>0){ body.scrollTop-=MAX; didScroll=true; }
+    else if(y>r.bottom-EDGE){ body.scrollTop+=MAX; didScroll=true; }
+  }
+  if(!didScroll){
+    const se=document.scrollingElement||document.documentElement;
+    if(y<EDGE&&se.scrollTop>0){ se.scrollTop-=MAX; didScroll=true; }
+    else if(y>window.innerHeight-EDGE){ se.scrollTop+=MAX; didScroll=true; }
+  }
+  if(didScroll&&drag.clone){ drag.clone.style.left=(x-drag.offsetX)+"px"; drag.clone.style.top=(y-drag.offsetY)+"px"; updateDrop(x,y); }
+  drag.scrollRAF=requestAnimationFrame(autoScrollStep);
 }
 function onDragMove(e){
   if(!drag)return;
@@ -606,48 +677,33 @@ function onDragMove(e){
     if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)<5)return; // ignore tiny moves = click
     drag.active=true;
     try{drag.el.setPointerCapture(drag.pointerId);}catch(_){}
-    const clone=drag.el.cloneNode(true);
-    clone.classList.add("drag-clone");
-    clone.style.width=drag.rect.width+"px";
-    document.body.appendChild(clone);
-    drag.clone=clone;
-    drag.el.classList.add("dragging");
-    document.body.style.userSelect="none";
+    const clone=drag.el.cloneNode(true); clone.classList.add("drag-clone"); clone.style.width=drag.rect.width+"px";
+    document.body.appendChild(clone); drag.clone=clone;
+    drag.el.classList.add("dragging"); document.body.style.userSelect="none";
+    drag.scrollRAF=requestAnimationFrame(autoScrollStep);
   }
   e.preventDefault();
+  drag.lastX=e.clientX; drag.lastY=e.clientY;
   drag.clone.style.left=(e.clientX-drag.offsetX)+"px";
   drag.clone.style.top=(e.clientY-drag.offsetY)+"px";
-  const under=document.elementFromPoint(e.clientX,e.clientY);
-  const row=under?under.closest(".row"):null;
-  const col=under?under.closest(".col"):null;
-  const nestRow=(row&&row.dataset.id!==drag.clientId&&!row.classList.contains("dragging"))?row:null;
-  if(drag.hotRow&&drag.hotRow!==nestRow){drag.hotRow.classList.remove("nest-hot");drag.hotRow=null;if(drag.ph){drag.ph.remove();drag.ph=null;}}
-  if(drag.hotCol&&(nestRow||drag.hotCol!==col)){drag.hotCol.classList.remove("drop-hot");drag.hotCol=null;}
-  if(nestRow){
-    if(drag.hotRow!==nestRow){
-      nestRow.classList.add("nest-hot");drag.hotRow=nestRow;
-      if(drag.ph)drag.ph.remove();
-      drag.ph=document.createElement("div");drag.ph.className="nest-slot";drag.ph.textContent="↳ group under";
-      nestRow.after(drag.ph);
-    }
-  }
-  else if(col){if(drag.hotCol!==col){col.classList.add("drop-hot");drag.hotCol=col;}}
+  updateDrop(e.clientX,e.clientY);
 }
 function onDragUp(){
   window.removeEventListener("pointermove",onDragMove);
   window.removeEventListener("pointerup",onDragUp);
   window.removeEventListener("pointercancel",onDragUp);
-  if(drag&&drag.active){
-    const nestRow=drag.hotRow,col=drag.hotCol;
-    if(nestRow)nestRow.classList.remove("nest-hot");
-    if(col)col.classList.remove("drop-hot");
-    if(drag.ph)drag.ph.remove();
-    if(drag.clone)drag.clone.remove();
-    document.body.style.userSelect="";
-    drag.el.classList.remove("dragging");
-    try{drag.el.releasePointerCapture(drag.pointerId);}catch(_){}
-    if(nestRow&&nestRow.dataset.id)nestClient(drag.clientId,nestRow.dataset.id);
-    else if(col&&col.dataset.id)moveClient(drag.clientId,col.dataset.id);
+  if(drag){
+    if(drag.scrollRAF)cancelAnimationFrame(drag.scrollRAF);
+    if(drag.active){
+      updateDrop(drag.lastX,drag.lastY);
+      const mode=drag.mode,to=drag.dropTo,pid=drag.dropParent,before=drag.dropBefore,cid=drag.clientId;
+      clearDrop();
+      if(drag.clone)drag.clone.remove();
+      document.body.style.userSelect="";
+      drag.el.classList.remove("dragging");
+      try{drag.el.releasePointerCapture(drag.pointerId);}catch(_){}
+      if(mode&&to) dropClient(cid,to,pid,before);
+    }
   }
   drag=null;
 }
