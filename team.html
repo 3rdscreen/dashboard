@@ -426,6 +426,7 @@ const STATUS_LABEL={light:"Light",balanced:"Balanced",over:"Overloaded"};
 const board=document.getElementById("board"), statsEl=document.getElementById("stats");
 
 function render(){
+  if(!drag){document.querySelectorAll(".drag-clone,.nest-slot").forEach(n=>n.remove());}
   const scores=state.members.map(score);
   const teamScore=scores.reduce((a,b)=>a+b,0);
   const teamClients=state.members.reduce((a,m)=>a+m.clients.length,0);
@@ -582,16 +583,18 @@ function startDrag(e,el,clientId,fromId){
   if(e.button!==0)return;                          // left button only
   if(e.target.closest(".c-actions"))return;        // let edit/move buttons work
   const rect=el.getBoundingClientRect();
-  drag={el,clientId,fromId,rect,startX:e.clientX,startY:e.clientY,
+  drag={el,clientId,fromId,rect,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,
         offsetX:e.clientX-rect.left,offsetY:e.clientY-rect.top,active:false,clone:null,hotRow:null,hotCol:null,ph:null};
   window.addEventListener("pointermove",onDragMove);
-  window.addEventListener("pointerup",onDragUp,{once:true});
+  window.addEventListener("pointerup",onDragUp);
+  window.addEventListener("pointercancel",onDragUp);
 }
 function onDragMove(e){
   if(!drag)return;
   if(!drag.active){
     if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)<5)return; // ignore tiny moves = click
     drag.active=true;
+    try{drag.el.setPointerCapture(drag.pointerId);}catch(_){}
     const clone=drag.el.cloneNode(true);
     clone.classList.add("drag-clone");
     clone.style.width=drag.rect.width+"px";
@@ -621,6 +624,8 @@ function onDragMove(e){
 }
 function onDragUp(){
   window.removeEventListener("pointermove",onDragMove);
+  window.removeEventListener("pointerup",onDragUp);
+  window.removeEventListener("pointercancel",onDragUp);
   if(drag&&drag.active){
     const nestRow=drag.hotRow,col=drag.hotCol;
     if(nestRow)nestRow.classList.remove("nest-hot");
