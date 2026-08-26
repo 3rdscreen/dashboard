@@ -46,6 +46,7 @@
   .sync.live{color:var(--low);background:var(--low-bg);border-color:#cdeede}
   .sync.saving{color:var(--med);background:var(--med-bg);border-color:#f0e2c0}
   .sync.off{color:var(--high);background:var(--high-bg);border-color:#f0cfcb}
+  .tabs{display:none}
 
   /* Board fills the rest of the viewport */
   .board{height:calc(100% - var(--topbar));display:flex;gap:12px;padding:12px;align-items:stretch;overflow-x:auto}
@@ -187,6 +188,15 @@
     .c-actions .icon-btn{width:36px;height:36px}
     .icon-btn svg{width:18px;height:18px}
     .col-tools .icon-btn{width:34px;height:34px}
+    .tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;-webkit-overflow-scrolling:touch}
+    .tab{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:20px;padding:8px 14px;font-size:13px;font-weight:600;color:var(--text-dim);white-space:nowrap;display:flex;align-items:center;gap:6px}
+    .tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+    .tab-count{font-family:var(--mono);font-size:10.5px;opacity:.85}
+    .tab-add{color:var(--accent);border-color:var(--accent);font-weight:700}
+    .col{display:none}
+    .col.active{display:flex}
+    .board.searching .col{display:flex}
+    .add-col{display:none}
   }
 </style>
 </head>
@@ -207,6 +217,8 @@
   <button class="btn" id="btnReset">Reset</button>
   <input type="file" id="fileInput" accept="application/json" style="display:none">
 </header>
+
+<nav class="tabs" id="tabs"></nav>
 
 <main class="board" id="board"></main>
 
@@ -255,8 +267,26 @@ const LS_KEY="tsd_workload_board_v1";
    Database → Create (pick a region) → Rules tab → set BOTH .read and .write
    to true → Publish. Copy the database URL (looks like the example) here.
    ───────────────────────────────────────────────────────────────────────── */
-const DB_URL=""; // e.g. "https://3rds-team-default-rtdb.firebaseio.com"
-const SHARED=!!DB_URL;
+const DB_URL="https://rdscreen-832da-default-rtdb.europe-west1.firebasedatabase.app"; // Realtime Database (used only if the Firestore config below is left blank)
+
+/* ── TO USE FIRESTORE ──────────────────────────────────────────────────────
+   Paste your web app config below (Firebase console → Project settings ⚙ →
+   General → Your apps → Web app → SDK setup & configuration → "Config").
+   Leaving projectId blank keeps the Realtime Database above instead.
+   Firestore rules must allow the board doc, e.g.:
+     match /board/{doc} { allow read, write: if true; }
+   ──────────────────────────────────────────────────────────────────────── */
+const FIRESTORE_CONFIG={
+  apiKey:"AIzaSyAnlKrVnZTwWRg7ByhCSOyFjgC79jeX8Kg",
+  authDomain:"rdscreen-832da.firebaseapp.com",
+  projectId:"rdscreen-832da",
+  storageBucket:"rdscreen-832da.firebasestorage.app",
+  messagingSenderId:"306529289197",
+  appId:"1:306529289197:web:8420c67c069903ec7e9de4"
+};
+window.__FS_CONFIG=FIRESTORE_CONFIG;
+const USE_FS=!!FIRESTORE_CONFIG.projectId;
+const SHARED=USE_FS||!!DB_URL;
 const LOAD_W={Low:1,Medium:2,High:3};
 const LOAD_SHORT={Low:"LOW",Medium:"MED",High:"HIGH"};
 const KNOWN_PLATFORMS=["Meta","Google","TikTok","Snap","Linkedin"];
@@ -311,7 +341,7 @@ const SEED={members:[
  ]}
 ]};
 
-let state=load(), filter="", editing=null;
+let state=load(), filter="", editing=null, activeTab=null;
 function uid(){return Math.random().toString(36).slice(2,9)}
 function hydrate(raw){raw.members.forEach(m=>{if(!m.id)m.id=uid();m.clients.forEach(c=>{if(!c.id)c.id=uid();});});return raw;}
 function load(){try{const s=localStorage.getItem(LS_KEY);if(s)return hydrate(JSON.parse(s));}catch(e){}return hydrate(JSON.parse(JSON.stringify(SEED)));}
@@ -328,6 +358,7 @@ function setSync(s){
 }
 function cloudSave(){
   if(!SHARED)return;
+  if(USE_FS){ setSync("saving"); if(window.__fsSave) window.__fsSave(JSON.stringify(state)); return; }
   setSync("saving");
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
@@ -340,6 +371,7 @@ function cloudFetch(){
 }
 function startCloud(){
   if(!SHARED){setSync();return;}
+  if(USE_FS){setSync("off");return;}   // Firestore is handled by the module at the bottom
   setSync("off");
   try{
     const es=new EventSource(`${DB_URL}/board.json`);
@@ -355,6 +387,11 @@ function startCloud(){
     es.addEventListener("patch",()=>cloudFetch());
   }catch(e){setSync("off");}
 }
+/* bridge for the Firestore module */
+window.applyRemote=function(obj){ if(obj&&obj.members){ state=hydrate(obj); try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){} render(); } };
+window.getStateJSON=function(){ return JSON.stringify(state); };
+window.setSyncLive=function(){ setSync("live"); };
+window.setSyncOff=function(){ setSync("off"); };
 function findMember(id){return state.members.find(m=>m.id===id)}
 function score(m){return m.clients.reduce((s,c)=>s+(c.active===false?0:(LOAD_W[c.load]||1)),0)}
 function toggleActive(memberId,clientId){
@@ -375,16 +412,24 @@ function render(){
   const teamClients=state.members.reduce((a,m)=>a+m.clients.length,0);
   const avg=state.members.length?teamScore/state.members.length:0;
   const maxScore=Math.max(1,...scores);
+  const ordered=[...state.members].sort((a,b)=>score(b)-score(a));
 
   statsEl.innerHTML="";
   addStat(teamClients,"Clients");addStat(state.members.length,"People");
   addStat(teamScore,"Load index");addStat(avg.toFixed(1),"Avg / person");
 
+  if(!state.members.some(m=>m.id===activeTab)) activeTab=ordered[0]?ordered[0].id:null;
+  const tabsEl=document.getElementById("tabs");
+  tabsEl.innerHTML=ordered.map(m=>`<button class="tab${m.id===activeTab?' active':''}" data-id="${m.id}">${esc(m.name)}<span class="tab-count">${m.clients.length}</span></button>`).join("")+`<button class="tab tab-add" title="Add member">+</button>`;
+  tabsEl.querySelectorAll(".tab[data-id]").forEach(b=>b.onclick=()=>{activeTab=b.dataset.id;render();});
+  tabsEl.querySelector(".tab-add").onclick=addMember;
+  board.classList.toggle("searching",!!filter);
+
   board.innerHTML="";
-  state.members.forEach((m,i)=>{
-    const sc=scores[i], st=statusFor(sc,avg);
+  ordered.forEach(m=>{
+    const sc=score(m), st=statusFor(sc,avg);
     const off=m.clients.filter(c=>c.active===false).length;
-    const col=document.createElement("div");col.className="col";col.dataset.id=m.id;
+    const col=document.createElement("div");col.className="col"+(m.id===activeTab?" active":"");col.dataset.id=m.id;
     const head=document.createElement("div");head.className="col-head";
     head.innerHTML=`
       <div class="row1">
@@ -578,7 +623,7 @@ function openMoveMenu(anchor,clientId,fromId){
 function closeMoveMenu(){moveMenu.classList.remove("open");}
 document.addEventListener("click",e=>{if(!moveMenu.contains(e.target))closeMoveMenu();});
 
-function addMember(){state.members.push({id:uid(),name:"New member",clients:[]});save();render();const c=board.querySelectorAll(".member-name");const last=c[c.length-1];if(last){last.focus();last.select();}}
+function addMember(){const id=uid();state.members.push({id,name:"New member",clients:[]});activeTab=id;save();render();const inp=[...board.querySelectorAll(".member-name")].pop();if(inp){inp.focus();inp.select();}}
 function deleteMember(id){const m=findMember(id);if(!m)return;const msg=m.clients.length?`Delete ${m.name} and their ${m.clients.length} client(s)? This can't be undone.`:`Delete ${m.name}?`;if(confirm(msg)){state.members=state.members.filter(x=>x.id!==id);save();render();toast(`${m.name} removed`);}}
 
 const clientOverlay=document.getElementById("clientOverlay"),platGrid=document.getElementById("platGrid");
@@ -645,6 +690,27 @@ const IC={
 };
 render();
 startCloud();
+</script>
+<script type="module">
+(async()=>{
+  const cfg=window.__FS_CONFIG;
+  if(!cfg||!cfg.projectId)return;
+  try{
+    const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const {getFirestore,doc,onSnapshot,setDoc}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const db=getFirestore(initializeApp(cfg));
+    const ref=doc(db,"board","state");
+    let t=null;
+    window.__fsSave=(json)=>{clearTimeout(t);t=setTimeout(()=>{setDoc(ref,{json,ts:Date.now()}).then(()=>window.setSyncLive&&window.setSyncLive()).catch(()=>window.setSyncOff&&window.setSyncOff());},250);};
+    onSnapshot(ref,(snap)=>{
+      if(snap.metadata.hasPendingWrites)return;      // ignore our own just-sent write
+      if(!snap.exists()){ if(window.__fsSave&&window.getStateJSON) window.__fsSave(window.getStateJSON()); return; }
+      const d=snap.data();
+      if(d&&d.json){ try{ window.applyRemote&&window.applyRemote(JSON.parse(d.json)); }catch(e){} }
+      window.setSyncLive&&window.setSyncLive();
+    },()=>{ window.setSyncOff&&window.setSyncOff(); });
+  }catch(e){ window.setSyncOff&&window.setSyncOff(); }
+})();
 </script>
 </body>
 </html>
