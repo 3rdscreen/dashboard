@@ -83,6 +83,7 @@
   .col.drop-hot{outline:2px dashed var(--accent);outline-offset:-4px}
   .row.nest-hot{outline:2px solid var(--accent);outline-offset:1px;background:var(--accent-soft)!important}
   .row.nest-hot .c-name{color:var(--accent)}
+  .nest-slot{margin:5px 0 5px 22px;padding:9px 12px;border-left:2px solid var(--accent);background:var(--accent-soft);border-radius:8px;color:var(--accent);font-size:12px;font-weight:700;pointer-events:none;display:flex;align-items:center}
 
   /* Compact client ROW */
   .row{
@@ -381,7 +382,7 @@ function cloudSave(){
   saveTimer=setTimeout(()=>{
     fetch(`${DB_URL}/board.json`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(state)})
       .then(()=>setSync("live")).catch(()=>setSync("off"));
-  },250);
+  },5000);
 }
 function cloudFetch(){
   fetch(`${DB_URL}/board.json`).then(r=>r.json()).then(d=>{if(d&&d.members){state=hydrate(d);try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}render();setSync("live");}}).catch(()=>setSync("off"));
@@ -582,7 +583,7 @@ function startDrag(e,el,clientId,fromId){
   if(e.target.closest(".c-actions"))return;        // let edit/move buttons work
   const rect=el.getBoundingClientRect();
   drag={el,clientId,fromId,rect,startX:e.clientX,startY:e.clientY,
-        offsetX:e.clientX-rect.left,offsetY:e.clientY-rect.top,active:false,clone:null,hotRow:null,hotCol:null};
+        offsetX:e.clientX-rect.left,offsetY:e.clientY-rect.top,active:false,clone:null,hotRow:null,hotCol:null,ph:null};
   window.addEventListener("pointermove",onDragMove);
   window.addEventListener("pointerup",onDragUp,{once:true});
 }
@@ -606,9 +607,16 @@ function onDragMove(e){
   const row=under?under.closest(".row"):null;
   const col=under?under.closest(".col"):null;
   const nestRow=(row&&row.dataset.id!==drag.clientId&&!row.classList.contains("dragging"))?row:null;
-  if(drag.hotRow&&drag.hotRow!==nestRow){drag.hotRow.classList.remove("nest-hot");drag.hotRow=null;}
+  if(drag.hotRow&&drag.hotRow!==nestRow){drag.hotRow.classList.remove("nest-hot");drag.hotRow=null;if(drag.ph){drag.ph.remove();drag.ph=null;}}
   if(drag.hotCol&&(nestRow||drag.hotCol!==col)){drag.hotCol.classList.remove("drop-hot");drag.hotCol=null;}
-  if(nestRow){if(drag.hotRow!==nestRow){nestRow.classList.add("nest-hot");drag.hotRow=nestRow;}}
+  if(nestRow){
+    if(drag.hotRow!==nestRow){
+      nestRow.classList.add("nest-hot");drag.hotRow=nestRow;
+      if(drag.ph)drag.ph.remove();
+      drag.ph=document.createElement("div");drag.ph.className="nest-slot";drag.ph.textContent="↳ group under";
+      nestRow.after(drag.ph);
+    }
+  }
   else if(col){if(drag.hotCol!==col){col.classList.add("drop-hot");drag.hotCol=col;}}
 }
 function onDragUp(){
@@ -617,6 +625,7 @@ function onDragUp(){
     const nestRow=drag.hotRow,col=drag.hotCol;
     if(nestRow)nestRow.classList.remove("nest-hot");
     if(col)col.classList.remove("drop-hot");
+    if(drag.ph)drag.ph.remove();
     if(drag.clone)drag.clone.remove();
     document.body.style.userSelect="";
     if(nestRow&&nestRow.dataset.id)nestClient(drag.clientId,nestRow.dataset.id);
@@ -715,6 +724,8 @@ const IC={
 pushHistory();
 render();
 startCloud();
+window.addEventListener("beforeunload",()=>{window.__fsFlush&&window.__fsFlush();});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&window.__fsFlush)window.__fsFlush();});
 </script>
 <script type="module">
 (async()=>{
@@ -725,8 +736,10 @@ startCloud();
     const {getFirestore,doc,onSnapshot,setDoc}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
     const db=getFirestore(initializeApp(cfg));
     const ref=doc(db,"board","state");
-    let t=null;
-    window.__fsSave=(json)=>{clearTimeout(t);t=setTimeout(()=>{setDoc(ref,{json,ts:Date.now()}).then(()=>window.setSyncLive&&window.setSyncLive()).catch(()=>window.setSyncOff&&window.setSyncOff());},250);};
+    let t=null,pending=null;
+    const flush=()=>{ if(pending==null)return; const j=pending; pending=null; clearTimeout(t); setDoc(ref,{json:j,ts:Date.now()}).then(()=>window.setSyncLive&&window.setSyncLive()).catch(()=>window.setSyncOff&&window.setSyncOff()); };
+    window.__fsSave=(json)=>{ pending=json; clearTimeout(t); t=setTimeout(flush,5000); };
+    window.__fsFlush=flush;
     onSnapshot(ref,(snap)=>{
       if(snap.metadata.hasPendingWrites)return;      // ignore our own just-sent write
       if(!snap.exists()){ const j=window.getSeedJSON&&window.getSeedJSON(); if(j){ window.applyRemote&&window.applyRemote(JSON.parse(j)); window.__fsSave&&window.__fsSave(j); } return; }
