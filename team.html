@@ -39,6 +39,7 @@
   .search input::placeholder{color:var(--text-faint)}
   .btn{border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:12.5px;font-weight:550;background:#fff;color:var(--text-dim);transition:.12s;white-space:nowrap}
   .btn:hover{background:#f6f7f9;color:var(--text)}
+  .btn:disabled{opacity:.38;cursor:default;background:#fff;color:var(--text-dim)}
   .btn.solid{background:var(--accent);border-color:var(--accent);color:#fff}
   .btn.solid:hover{background:#4a46c9}
   .sync{font-size:10.5px;font-weight:650;padding:4px 9px;border-radius:20px;white-space:nowrap;border:1px solid var(--line)}
@@ -94,8 +95,9 @@
     box-shadow:0 14px 34px rgba(20,25,35,.30);transform:rotate(1.3deg);opacity:.98;cursor:grabbing}
   .row.Low{border-left-color:var(--low)} .row.Medium{border-left-color:var(--med)} .row.High{border-left-color:var(--high)}
   .row.is-parent{background:#fcfcff}
-  .kids{margin:2px 0 2px 16px;padding-left:10px;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:4px}
-  .kids .row{background:#fbfcfe}
+  .kids{margin:4px 0 9px 22px;padding-left:14px;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:5px}
+  .kids .row{background:#fff}
+  .kids .row .c-name,.kids .row .badges,.kids .row .tag{opacity:1}
   .kids-count{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text-dim);background:#eef1f6;border:1px solid var(--line-soft);padding:1px 6px;border-radius:20px;flex:0 0 auto}
   .row.off{background:#f7f8fa;border-left-color:#cfd5de!important}
   .row.off .c-name{text-decoration:line-through}
@@ -212,10 +214,9 @@
     <input id="search" type="text" placeholder="Find client…" autocomplete="off">
   </div>
   <button class="btn solid" id="btnFull">⛶ Fullscreen</button>
-  <button class="btn" id="btnExport">Backup</button>
-  <button class="btn" id="btnImport">Restore</button>
+  <button class="btn" id="btnUndo" title="Undo (Ctrl+Z)" disabled>↶ Undo</button>
+  <button class="btn" id="btnRedo" title="Redo (Ctrl+Shift+Z)" disabled>↷ Redo</button>
   <button class="btn" id="btnReset">Reset</button>
-  <input type="file" id="fileInput" accept="application/json" style="display:none">
 </header>
 
 <nav class="tabs" id="tabs"></nav>
@@ -345,7 +346,23 @@ let state=load(), filter="", editing=null, activeTab=null;
 function uid(){return Math.random().toString(36).slice(2,9)}
 function hydrate(raw){raw.members.forEach(m=>{if(!m.id)m.id=uid();m.clients.forEach(c=>{if(!c.id)c.id=uid();});});return raw;}
 function load(){try{const s=localStorage.getItem(LS_KEY);if(s)return hydrate(JSON.parse(s));}catch(e){}return hydrate(JSON.parse(JSON.stringify(SEED)));}
-function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}cloudSave();}
+let history=[], hi=-1;
+function persist(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}cloudSave();}
+function save(){pushHistory();persist();}
+function pushHistory(){
+  const snap=JSON.stringify(state);
+  if(hi>=0&&history[hi]===snap)return;
+  history=history.slice(0,hi+1);history.push(snap);hi=history.length-1;
+  if(history.length>80){history.shift();hi--;}
+  updateHistButtons();
+}
+function updateHistButtons(){
+  const u=document.getElementById("btnUndo"),r=document.getElementById("btnRedo");
+  if(u)u.disabled=hi<=0;
+  if(r)r.disabled=hi>=history.length-1;
+}
+function doUndo(){if(hi<=0)return;hi--;state=hydrate(JSON.parse(history[hi]));persist();render();updateHistButtons();toast("Undone");}
+function doRedo(){if(hi>=history.length-1)return;hi++;state=hydrate(JSON.parse(history[hi]));persist();render();updateHistButtons();toast("Redone");}
 
 /* ---- shared sync engine ---- */
 let cloudInit=false,saveTimer=null;
@@ -388,7 +405,7 @@ function startCloud(){
   }catch(e){setSync("off");}
 }
 /* bridge for the Firestore module */
-window.applyRemote=function(obj){ if(obj&&obj.members){ state=hydrate(obj); try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){} render(); } };
+window.applyRemote=function(obj){ if(obj&&obj.members){ state=hydrate(obj); try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){} pushHistory(); render(); } };
 window.getStateJSON=function(){ return JSON.stringify(state); };
 window.getSeedJSON=function(){ return JSON.stringify(hydrate(JSON.parse(JSON.stringify(SEED)))); };
 window.setSyncLive=function(){ setSync("live"); };
@@ -668,6 +685,13 @@ document.getElementById("clientSave").onclick=()=>{
 document.getElementById("clientDelete").onclick=()=>{const m=findMember(editing.memberId);if(m&&editing.clientId){m.clients=m.clients.filter(x=>x.id!==editing.clientId);save();render();}closeClient();};
 clientOverlay.addEventListener("click",e=>{if(e.target===clientOverlay)closeClient();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeClient();closeMoveMenu();}});
+document.addEventListener("keydown",e=>{
+  if((e.ctrlKey||e.metaKey)&&!/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)){
+    const k=e.key.toLowerCase();
+    if(k==="z"&&!e.shiftKey){e.preventDefault();doUndo();}
+    else if((k==="z"&&e.shiftKey)||k==="y"){e.preventDefault();doRedo();}
+  }
+});
 document.getElementById("search").addEventListener("input",e=>{filter=e.target.value;render();});
 
 /* Fullscreen */
@@ -675,10 +699,9 @@ const btnFull=document.getElementById("btnFull");
 btnFull.onclick=()=>{if(!document.fullscreenElement){(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen).call(document.documentElement);}else{(document.exitFullscreen||document.webkitExitFullscreen).call(document);}};
 document.addEventListener("fullscreenchange",()=>{btnFull.innerHTML=document.fullscreenElement?"⛶ Exit":"⛶ Fullscreen";});
 
-document.getElementById("btnExport").onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="workload-board-"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);toast("Backup downloaded");};
-document.getElementById("btnImport").onclick=()=>document.getElementById("fileInput").click();
-document.getElementById("fileInput").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d.members)throw 0;state=hydrate(d);save();render();toast("Board restored");}catch(err){toast("Couldn't read that file");}};rd.readAsText(f);e.target.value="";};
-document.getElementById("btnReset").onclick=()=>{if(confirm("Reset to the original team.xlsx data? Current changes will be lost (Backup first if unsure).")){state=hydrate(JSON.parse(JSON.stringify(SEED)));save();render();toast("Reset to original");}};
+document.getElementById("btnUndo").onclick=()=>doUndo();
+document.getElementById("btnRedo").onclick=()=>doRedo();
+document.getElementById("btnReset").onclick=()=>{if(confirm("Reset to the original built-in roster? This overwrites the shared board for everyone.")){state=hydrate(JSON.parse(JSON.stringify(SEED)));save();render();toast("Reset to original");}};
 
 let toastT;function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),1900);}
 
@@ -689,6 +712,7 @@ const IC={
   move:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>',
   power:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.1 14c.2-1 .65-1.75 1.4-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.75.75 1.2 1.5 1.4 2.5"/></svg>'
 };
+pushHistory();
 render();
 startCloud();
 </script>
