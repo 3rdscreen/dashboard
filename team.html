@@ -390,6 +390,7 @@ function startCloud(){
 /* bridge for the Firestore module */
 window.applyRemote=function(obj){ if(obj&&obj.members){ state=hydrate(obj); try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){} render(); } };
 window.getStateJSON=function(){ return JSON.stringify(state); };
+window.getSeedJSON=function(){ return JSON.stringify(hydrate(JSON.parse(JSON.stringify(SEED)))); };
 window.setSyncLive=function(){ setSync("live"); };
 window.setSyncOff=function(){ setSync("off"); };
 function findMember(id){return state.members.find(m=>m.id===id)}
@@ -704,7 +705,7 @@ startCloud();
     window.__fsSave=(json)=>{clearTimeout(t);t=setTimeout(()=>{setDoc(ref,{json,ts:Date.now()}).then(()=>window.setSyncLive&&window.setSyncLive()).catch(()=>window.setSyncOff&&window.setSyncOff());},250);};
     onSnapshot(ref,(snap)=>{
       if(snap.metadata.hasPendingWrites)return;      // ignore our own just-sent write
-      if(!snap.exists()){ if(window.__fsSave&&window.getStateJSON) window.__fsSave(window.getStateJSON()); return; }
+      if(!snap.exists()){ const j=window.getSeedJSON&&window.getSeedJSON(); if(j){ window.applyRemote&&window.applyRemote(JSON.parse(j)); window.__fsSave&&window.__fsSave(j); } return; }
       const d=snap.data();
       if(d&&d.json){ try{ window.applyRemote&&window.applyRemote(JSON.parse(d.json)); }catch(e){} }
       window.setSyncLive&&window.setSyncLive();
