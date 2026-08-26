@@ -633,9 +633,10 @@ function onDragUp(){
     if(drag.ph)drag.ph.remove();
     if(drag.clone)drag.clone.remove();
     document.body.style.userSelect="";
+    drag.el.classList.remove("dragging");
+    try{drag.el.releasePointerCapture(drag.pointerId);}catch(_){}
     if(nestRow&&nestRow.dataset.id)nestClient(drag.clientId,nestRow.dataset.id);
     else if(col&&col.dataset.id)moveClient(drag.clientId,col.dataset.id);
-    else drag.el.classList.remove("dragging");
   }
   drag=null;
 }
