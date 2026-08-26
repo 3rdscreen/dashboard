@@ -542,7 +542,12 @@ function moveClient(clientId,toId){
   for(const m of state.members){if(m.clients.some(c=>c.id===clientId)){from=m;break;}}
   if(!from)return;
   const to=findMember(toId);
-  if(!to||to.id===from.id)return;                 // same person: leave grouping as-is
+  if(!to)return;
+  if(to.id===from.id){                              // same person: un-nest if it's currently grouped
+    const c=from.clients.find(x=>x.id===clientId);
+    if(c&&c.parentId){c.parentId=null;save();render();toast(`${c.name} ungrouped`);}
+    return;
+  }
   const ids=[clientId,...from.clients.filter(c=>c.parentId===clientId).map(c=>c.id)];
   const moving=from.clients.filter(c=>ids.includes(c.id));
   from.clients=from.clients.filter(c=>!ids.includes(c.id));
