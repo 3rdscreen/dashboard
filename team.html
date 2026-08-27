@@ -424,7 +424,9 @@ function toggleActive(memberId,clientId){
   const m=findMember(memberId);if(!m)return;
   const c=m.clients.find(x=>x.id===clientId);if(!c)return;
   c.active=(c.active===false);            // off -> on, on -> off
-  save();render();toast(`${c.name} turned ${c.active?"on":"off"}`);
+  const kids=m.clients.filter(x=>x.parentId===clientId);
+  kids.forEach(k=>k.active=c.active);     // a hotel's on/off cascades to its grouped clients
+  save();render();toast(`${c.name} turned ${c.active?"on":"off"}${kids.length?` (+${kids.length})`:""}`);
 }
 function offLast(list){return list.filter(c=>c.active!==false).concat(list.filter(c=>c.active===false));}
 function statusFor(sc,avg){if(avg<=0)return"light";const r=sc/avg;if(r>1.15)return"over";if(r<0.85)return"light";return"balanced";}
