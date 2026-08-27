@@ -61,6 +61,9 @@
   .avatar img{width:100%;height:100%;object-fit:cover;display:block}
   .avatar:hover{border-color:var(--accent)}
   .tab-av{width:18px;height:18px;border-radius:50%;object-fit:cover;flex:0 0 auto}
+  body.locked .c-actions,body.locked .col-tools,body.locked .add-client,body.locked .add-col,body.locked .tab-add,body.locked #btnUndo,body.locked #btnRedo,body.locked #btnReset{display:none!important}
+  body.locked .member-name,body.locked .avatar{pointer-events:none}
+  body.locked .row{cursor:default}
   .member-name{
     font-size:15px;font-weight:650;letter-spacing:-.2px;flex:1;border:1px solid transparent;border-radius:7px;
     padding:3px 5px;margin:-3px -5px;background:transparent;color:var(--text);outline:none;min-width:0;
@@ -221,6 +224,7 @@
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b93a3" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
     <input id="search" type="text" placeholder="Find client…" autocomplete="off">
   </div>
+  <button class="btn solid" id="btnLock">🔒 Unlock</button>
   <button class="btn solid" id="btnFull">⛶ Fullscreen</button>
   <button class="btn" id="btnUndo" title="Undo (Ctrl+Z)" disabled>↶ Undo</button>
   <button class="btn" id="btnRedo" title="Redo (Ctrl+Shift+Z)" disabled>↷ Redo</button>
@@ -351,6 +355,8 @@ const SEED={members:[
 ]};
 
 let state=load(), filter="", editing=null, activeTab=null;
+const EDIT_PASS="ibra1982";
+let locked=true; try{if(sessionStorage.getItem("tsd_unlocked")==="1")locked=false;}catch(e){}
 function uid(){return Math.random().toString(36).slice(2,9)}
 function hydrate(raw){raw.members.forEach(m=>{if(!m.id)m.id=uid();m.clients.forEach(c=>{if(!c.id)c.id=uid();});});return raw;}
 function load(){try{const s=localStorage.getItem(LS_KEY);if(s)return hydrate(JSON.parse(s));}catch(e){}return hydrate(JSON.parse(JSON.stringify(SEED)));}
@@ -369,8 +375,20 @@ function updateHistButtons(){
   if(u)u.disabled=hi<=0;
   if(r)r.disabled=hi>=history.length-1;
 }
-function doUndo(){if(hi<=0)return;hi--;state=hydrate(JSON.parse(history[hi]));persist();render();updateHistButtons();toast("Undone");}
-function doRedo(){if(hi>=history.length-1)return;hi++;state=hydrate(JSON.parse(history[hi]));persist();render();updateHistButtons();toast("Redone");}
+function doUndo(){ if(locked)return;if(hi<=0)return;hi--;state=hydrate(JSON.parse(history[hi]));persist();render();updateHistButtons();toast("Undone");}
+function doRedo(){ if(locked)return;if(hi>=history.length-1)return;hi++;state=hydrate(JSON.parse(history[hi]));persist();render();updateHistButtons();toast("Redone");}
+function unlock(){
+  if(!locked){ locked=true; try{sessionStorage.removeItem("tsd_unlocked");}catch(e){} updateLockUI(); render(); toast("Locked — view only"); return; }
+  const p=prompt("Enter password to edit the board:");
+  if(p===null)return;
+  if(p===EDIT_PASS){ locked=false; try{sessionStorage.setItem("tsd_unlocked","1");}catch(e){} updateLockUI(); render(); toast("Unlocked — editing enabled"); }
+  else toast("Wrong password");
+}
+function updateLockUI(){
+  document.body.classList.toggle("locked",locked);
+  const b=document.getElementById("btnLock");
+  if(b){ b.textContent=locked?"🔒 Unlock":"🔓 Lock"; b.className="btn"+(locked?" solid":""); }
+}
 
 /* ---- shared sync engine ---- */
 let cloudInit=false,saveTimer=null;
@@ -420,7 +438,7 @@ window.setSyncLive=function(){ setSync("live"); };
 window.setSyncOff=function(){ setSync("off"); };
 function findMember(id){return state.members.find(m=>m.id===id)}
 function score(m){return m.clients.reduce((s,c)=>s+(c.active===false?0:(LOAD_W[c.load]||1)),0)}
-function toggleActive(memberId,clientId){
+function toggleActive(memberId,clientId){ if(locked)return;
   const m=findMember(memberId);if(!m)return;
   const c=m.clients.find(x=>x.id===clientId);if(!c)return;
   c.active=(c.active===false);            // off -> on, on -> off
@@ -463,7 +481,7 @@ function render(){
     head.innerHTML=`
       <div class="row1">
         <button class="avatar" data-act="avatar" title="Change photo">${m.avatar?`<img src="${m.avatar}" alt="">`:`<span>${esc(initials(m.name))}</span>`}</button>
-        <input class="member-name" value="${esc(m.name)}" spellcheck="false" aria-label="Member name">
+        <input class="member-name" ${locked?"readonly":""} value="${esc(m.name)}" spellcheck="false" aria-label="Member name">
         <div class="col-tools">
           <button class="icon-btn" title="Add client" data-act="add">${IC.plus}</button>
           <button class="icon-btn" title="Remove person" data-act="delcol">${IC.trash}</button>
@@ -478,7 +496,7 @@ function render(){
       </div>`;
     col.appendChild(head);
     const nm=head.querySelector(".member-name");
-    nm.addEventListener("change",()=>{m.name=nm.value.trim()||"Unnamed";save();render();});
+    nm.addEventListener("change",()=>{if(locked)return;m.name=nm.value.trim()||"Unnamed";save();render();});
     nm.addEventListener("keydown",e=>{if(e.key==="Enter")nm.blur();});
     head.querySelector('[data-act="add"]').onclick=()=>openClient(m.id,null);
     head.querySelector('[data-act="delcol"]').onclick=()=>deleteMember(m.id);
@@ -563,7 +581,7 @@ function moveClient(clientId,toId){ dropClient(clientId,toId,null,null); }
 
 /* Custom drag: floating clone stays on top, never clipped by a column */
 let drag=null;
-function deleteClient(memberId,clientId){
+function deleteClient(memberId,clientId){ if(locked)return;
   const m=findMember(memberId);if(!m)return;
   const c=m.clients.find(x=>x.id===clientId);if(!c)return;
   const kids=m.clients.filter(x=>x.parentId===clientId);
@@ -573,7 +591,7 @@ function deleteClient(memberId,clientId){
     m.clients=m.clients.filter(x=>x.id!==clientId);save();render();toast(`${c.name} removed`);
   }
 }
-function startDrag(e,el,clientId,fromId){
+function startDrag(e,el,clientId,fromId){ if(locked)return;
   if(e.pointerType!=="mouse")return;              // touch/pen use the ↔ Move menu
   if(e.button!==0)return;                          // left button only
   if(e.target.closest(".c-actions"))return;        // let edit/move buttons work
@@ -710,7 +728,7 @@ function onDragUp(){
   drag=null;
 }
 const moveMenu=document.getElementById("moveMenu");
-function openMoveMenu(anchor,clientId,fromId){
+function openMoveMenu(anchor,clientId,fromId){ if(locked)return;
   const r=anchor.getBoundingClientRect();
   moveMenu.innerHTML=`<div class="mm-head">Move to</div>`+state.members.map(m=>`<button ${m.id===fromId?"disabled":""} data-to="${m.id}">${esc(m.name)}</button>`).join("");
   moveMenu.querySelectorAll("button[data-to]").forEach(b=>{b.onclick=()=>{moveClient(clientId,b.dataset.to);closeMoveMenu();};});
@@ -725,9 +743,9 @@ function openMoveMenu(anchor,clientId,fromId){
 function closeMoveMenu(){moveMenu.classList.remove("open");}
 document.addEventListener("click",e=>{if(!moveMenu.contains(e.target))closeMoveMenu();});
 
-function addMember(){const id=uid();state.members.push({id,name:"New member",clients:[]});activeTab=id;save();render();const inp=[...board.querySelectorAll(".member-name")].pop();if(inp){inp.focus();inp.select();}}
+function addMember(){ if(locked)return;const id=uid();state.members.push({id,name:"New member",clients:[]});activeTab=id;save();render();const inp=[...board.querySelectorAll(".member-name")].pop();if(inp){inp.focus();inp.select();}}
 function initials(name){return (name||"").split(/[\s\/]+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"?";}
-function pickAvatar(memberId){
+function pickAvatar(memberId){ if(locked)return;
   const inp=document.createElement("input");inp.type="file";inp.accept="image/*";
   inp.onchange=()=>{const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>resizeAvatar(rd.result,d=>{const m=findMember(memberId);if(m){m.avatar=d;save();render();toast("Photo updated");}});rd.readAsDataURL(f);};
   inp.click();
@@ -738,7 +756,7 @@ function resizeAvatar(dataUrl,cb){
   img.onerror=()=>toast("Couldn't read that image");
   img.src=dataUrl;
 }
-function deleteMember(id){const m=findMember(id);if(!m)return;const msg=m.clients.length?`Delete ${m.name} and their ${m.clients.length} client(s)? This can't be undone.`:`Delete ${m.name}?`;if(confirm(msg)){state.members=state.members.filter(x=>x.id!==id);save();render();toast(`${m.name} removed`);}}
+function deleteMember(id){ if(locked)return;const m=findMember(id);if(!m)return;const msg=m.clients.length?`Delete ${m.name} and their ${m.clients.length} client(s)? This can't be undone.`:`Delete ${m.name}?`;if(confirm(msg)){state.members=state.members.filter(x=>x.id!==id);save();render();toast(`${m.name} removed`);}}
 
 const clientOverlay=document.getElementById("clientOverlay"),platGrid=document.getElementById("platGrid");
 let modalPlatforms=[],modalLoad="Low";
@@ -748,7 +766,7 @@ function buildPlatToggles(){
     b.onclick=()=>{if(modalPlatforms.includes(p))modalPlatforms=modalPlatforms.filter(x=>x!==p);else modalPlatforms.push(p);buildPlatToggles();};platGrid.appendChild(b);});
 }
 function setLoadUI(){document.querySelectorAll("#loadChoice button").forEach(b=>{b.className="";if(b.dataset.load===modalLoad)b.classList.add("on",modalLoad);});}
-function openClient(memberId,clientId){
+function openClient(memberId,clientId){ if(locked)return;
   editing={memberId,clientId};const m=findMember(memberId);const c=clientId?m.clients.find(x=>x.id===clientId):null;
   document.getElementById("clientTitle").textContent=c?"Edit client":"Add client";
   document.getElementById("clientSub").textContent=(c?"Under ":"Adding to ")+m.name;
@@ -770,6 +788,7 @@ document.getElementById("platAdd").onclick=()=>{const inp=document.getElementByI
 document.getElementById("platCustom").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();document.getElementById("platAdd").click();}});
 document.getElementById("clientCancel").onclick=closeClient;
 document.getElementById("clientSave").onclick=()=>{
+  if(locked){closeClient();return;}
   const name=document.getElementById("clientName").value.trim();if(!name){document.getElementById("clientName").focus();return;}
   const m=findMember(editing.memberId);if(!m){closeClient();return;}
   const pf=document.getElementById("parentField");
@@ -795,9 +814,10 @@ const btnFull=document.getElementById("btnFull");
 btnFull.onclick=()=>{if(!document.fullscreenElement){(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen).call(document.documentElement);}else{(document.exitFullscreen||document.webkitExitFullscreen).call(document);}};
 document.addEventListener("fullscreenchange",()=>{btnFull.innerHTML=document.fullscreenElement?"⛶ Exit":"⛶ Fullscreen";});
 
+document.getElementById("btnLock").onclick=unlock;
 document.getElementById("btnUndo").onclick=()=>doUndo();
 document.getElementById("btnRedo").onclick=()=>doRedo();
-document.getElementById("btnReset").onclick=()=>{if(confirm("Reset to the original built-in roster? This overwrites the shared board for everyone.")){state=hydrate(JSON.parse(JSON.stringify(SEED)));save();render();toast("Reset to original");}};
+document.getElementById("btnReset").onclick=()=>{if(locked){toast("Unlock to edit");return;}if(confirm("Reset to the original built-in roster? This overwrites the shared board for everyone.")){state=hydrate(JSON.parse(JSON.stringify(SEED)));save();render();toast("Reset to original");}};
 
 let toastT;function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),1900);}
 
@@ -810,6 +830,7 @@ const IC={
 };
 pushHistory();
 render();
+updateLockUI();
 startCloud();
 window.addEventListener("beforeunload",()=>{window.__fsFlush&&window.__fsFlush();});
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&window.__fsFlush)window.__fsFlush();});
