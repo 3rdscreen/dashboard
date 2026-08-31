@@ -1370,8 +1370,9 @@ function drawTrendLine(elId, rows, accent){
   rows.forEach(function(r,i){var cy=yI(r.inst);
     s+='<circle cx="'+X(i).toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="3.6" fill="#fff" stroke="'+accent+'" stroke-width="2.2"/>';
     s+='<text x="'+X(i).toFixed(1)+'" y="'+(cy-10).toFixed(1)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="'+accent+'">'+r.inst+'</text>';});
-  // x labels: date + CPI
-  rows.forEach(function(r,i){var dt=new Date(r.d+'T00:00:00Z');
+  // x labels: date + CPI — thin out so labels never overlap when many days are in view
+  var lblEvery=Math.max(1,Math.ceil(n/12));
+  rows.forEach(function(r,i){if(i%lblEvery!==0 && i!==n-1)return; var dt=new Date(r.d+'T00:00:00Z');
     s+='<text x="'+X(i).toFixed(1)+'" y="'+(padT+ch+20)+'" text-anchor="middle" font-size="11.5" font-weight="600" fill="#3d4658">'+MS3[dt.getUTCMonth()]+' '+dt.getUTCDate()+'</text>';
     s+='<text x="'+X(i).toFixed(1)+'" y="'+(padT+ch+36)+'" text-anchor="middle" font-size="10.5" fill="#9aa2b1">'+(r.cpi==null?'\u2014':usd2(r.cpi))+'</text>';});
   s+='<line x1="'+padL+'" y1="'+(padT+ch)+'" x2="'+(W-padR)+'" y2="'+(padT+ch)+'" stroke="#cfd5e0" stroke-width="1"/>';
@@ -1393,8 +1394,13 @@ function renderTikTokTrend(start,end){
 
 
 
-// Initial render: full MTD range
-renderDashboard('2026-08-01','2026-08-30');
+// Initial render: rolling last 30 days (through the latest complete data day)
+(function(){
+  var _dk=Object.keys(DAILY.acctReg).sort(); var _end=_dk[_dk.length-1];
+  var _e=new Date(_end+'T00:00:00Z'); var _s=new Date(_e.getTime()-29*864e5);
+  var _f=function(d){return d.toISOString().slice(0,10);};
+  renderDashboard(_f(_s), _f(_e));
+})();
 (function(){
   const keys=Object.keys(TIKTOK_DAILY).sort(); const lo=keys[0], hi=keys[keys.length-1];
   const cf=document.getElementById('tkcFrom'), ct=document.getElementById('tkcTo');
@@ -1423,7 +1429,7 @@ renderDashboard('2026-08-01','2026-08-30');
   // opens on the latest report month — not a stale earlier one.
   const _today = new Date(TODAY_MS);
   let vy = _today.getUTCFullYear(), vm = _today.getUTCMonth();
-  let psMs=Date.UTC(2026,7,1), peMs=Date.UTC(2026,7,30), hovMs=null;   // selected start/end + hover preview, as UTC ms
+  let psMs=TODAY_MS-29*864e5, peMs=TODAY_MS, hovMs=null;   // selected start/end + hover preview (rolling last 30 days), as UTC ms
 
   const pop=document.getElementById('calPop');
   const trigger=document.getElementById('periodTrigger');
