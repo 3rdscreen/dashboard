@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3rdScreen · Task Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EBEEF2;
+    --surface:#FFFFFF;
+    --surface-2:#F4F6F9;
+    --ink:#161A21;
+    --ink-soft:#3A424E;
+    --muted:#6B7482;
+    --line:#DDE2E9;
+    --line-strong:#C7CEd8;
+    --fresh:#128A5B;
+    --fresh-bg:#E3F5EC;
+    --warn:#B9791A;
+    --warn-bg:#FBF0DA;
+    --over:#D23B3F;
+    --over-bg:#FBE4E4;
+    --lowp:#7A8494;
+    --focus:#2563EB;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(20,24,33,.06), 0 6px 20px -12px rgba(20,24,33,.25);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    font-size:14px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Bricolage Grotesque',sans-serif;margin:0;letter-spacing:-.01em}
+  button{font-family:inherit;cursor:pointer}
+  .mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+
+  /* ---------- Header ---------- */
+  header{
+    background:var(--ink);
+    color:#fff;
+    padding:14px 22px;
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    position:sticky;top:0;z-index:40;
+  }
+  .brand{display:flex;align-items:center;gap:11px}
+  .logo{
+    width:34px;height:34px;border-radius:9px;
+    background:linear-gradient(135deg,#fff,#c9d2e0);
+    color:var(--ink);display:grid;place-items:center;
+    font-family:'Bricolage Grotesque';font-weight:800;font-size:15px;
+  }
+  .brand h1{font-size:16px;color:#fff;font-weight:700}
+  .brand span{display:block;font-family:'Inter';font-size:11px;color:#95A0B2;font-weight:500;letter-spacing:0}
+  .head-right{margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .today{font-size:12px;color:#AEB7C6}
+  .alert-pill{
+    display:flex;align-items:center;gap:7px;
+    background:rgba(210,59,63,.16);color:#FFB4B5;
+    border:1px solid rgba(210,59,63,.35);
+    padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;
+  }
+  .alert-pill.clear{background:rgba(18,138,91,.16);color:#8EE7BE;border-color:rgba(18,138,91,.35)}
+  .alert-dot{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px rgba(255,180,181,.2)}
+  .btn-new{
+    background:#fff;color:var(--ink);border:none;
+    padding:9px 15px;border-radius:9px;font-weight:600;font-size:13px;
+    display:flex;align-items:center;gap:7px;
+  }
+  .btn-new:hover{background:#E7ECF3}
+  .btn-new svg{width:15px;height:15px}
+  .data-badge{font-size:11px;font-weight:600;color:#AEB7C6;border:1px solid rgba(255,255,255,.18);padding:5px 11px;border-radius:999px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .data-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#E0A100;flex:0 0 auto}
+  .data-badge.live{color:#8EE7BE;border-color:rgba(18,138,91,.4)}
+  .data-badge.live::before{background:#3ED89B}
+  .src-banner{display:none;background:var(--warn-bg);color:#8a5a12;border-bottom:1px solid #f0d9a8;padding:9px 22px;font-size:12.5px;line-height:1.4;text-align:center}
+  .src-banner.show{display:block}
+
+  main{max-width:1340px;margin:0 auto;padding:22px}
+
+  .section-label{
+    display:flex;align-items:baseline;gap:10px;margin:4px 2px 12px;
+  }
+  .section-label h2{font-size:17px;font-weight:700}
+  .section-label p{margin:0;color:var(--muted);font-size:12.5px}
+
+  /* ---------- Engagement strip ---------- */
+  .health{
+    display:flex;gap:12px;overflow-x:auto;padding:4px 2px 14px;
+    scrollbar-width:thin;
+  }
+  .client-card{
+    flex:0 0 224px;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:10px;position:relative;
+  }
+  .client-card.over{border-color:#F0BFC0}
+  .client-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .client-name{font-weight:600;font-size:14px;line-height:1.25}
+  .tag{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--surface-2);color:var(--ink-soft);white-space:nowrap;border:1px solid var(--line)}
+  .client-owner{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+  .days-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px}
+  .days-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:5px 9px;border-radius:8px;font-size:12px;font-weight:600;
+  }
+  .days-chip .n{font-size:13px}
+  .fresh{background:var(--fresh-bg);color:var(--fresh)}
+  .warn{background:var(--warn-bg);color:var(--warn)}
+  .over{background:var(--over-bg);color:var(--over)}
+  .pulse{width:8px;height:8px;border-radius:50%;background:currentColor}
+  .check-btn{
+    border:1px solid var(--line-strong);background:var(--surface);
+    border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:600;color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .check-btn:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .check-btn.done{background:var(--fresh-bg);border-color:transparent;color:var(--fresh);cursor:default}
+
+  /* ---------- Avatars ---------- */
+  .av{
+    width:24px;height:24px;border-radius:50%;flex:0 0 auto;
+    display:grid;place-items:center;color:#fff;font-size:10.5px;font-weight:700;
+    font-family:'Inter';border:1.5px solid #fff;
+  }
+  .av.lg{width:28px;height:28px;font-size:11.5px}
+
+  /* ---------- Filter bar ---------- */
+  .filters{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    margin:26px 2px 14px;padding-bottom:2px;
+  }
+  .who{display:flex;align-items:center;gap:6px}
+  .chip-person{
+    display:flex;align-items:center;gap:7px;background:var(--surface);
+    border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 5px;
+    font-size:12.5px;font-weight:600;color:var(--ink-soft);
+  }
+  .chip-person[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip-person[aria-pressed="true"] .av{border-color:var(--ink)}
+  .legend{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:11.5px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .pdot{width:9px;height:9px;border-radius:3px}
+  .p-high{background:var(--over)} .p-med{background:var(--warn)} .p-low{background:var(--lowp)}
+
+  /* ---------- Board ---------- */
+  .boardbar{display:flex;justify-content:flex-end;margin:0 2px 12px}
+  .viewswitch{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+  .viewswitch button{border:none;background:none;padding:6px 13px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--muted)}
+  .viewswitch button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .board{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .col{background:transparent;display:flex;flex-direction:column;gap:11px;min-height:120px}
+  .col-head{display:flex;align-items:center;gap:9px;padding:2px 4px}
+  .col-head h3{font-size:13.5px;font-weight:700;color:var(--ink-soft)}
+  .col-count{background:var(--line);color:var(--ink-soft);border-radius:999px;font-size:11px;font-weight:700;padding:1px 8px;font-family:'Inter'}
+  .col-body{display:flex;flex-direction:column;gap:11px;padding:6px;border-radius:12px;border:1.5px dashed transparent;min-height:80px;transition:background .12s,border-color .12s}
+  .col-body.drop{background:rgba(37,99,235,.06);border-color:#B9CBF5}
+
+  .task{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:13px 13px 12px;box-shadow:var(--shadow);position:relative;cursor:grab;
+    border-left:4px solid var(--line);
+  }
+  .task:active{cursor:grabbing}
+  .task.pl-high{border-left-color:var(--over)}
+  .task.pl-med{border-left-color:var(--warn)}
+  .task.pl-low{border-left-color:var(--lowp)}
+  .task.dragging{opacity:.45}
+  .task-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px}
+  .task-client{font-size:11px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .prio{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;text-transform:capitalize}
+  .prio.high{background:var(--over-bg);color:var(--over)}
+  .prio.medium{background:var(--warn-bg);color:var(--warn)}
+  .prio.low{background:var(--surface-2);color:var(--lowp)}
+  .task-title{font-size:13.5px;font-weight:600;line-height:1.35;margin-bottom:9px}
+  .subs{display:flex;flex-direction:column;gap:5px;margin:2px 0 10px}
+  .sub{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft)}
+  .sub input{width:15px;height:15px;accent-color:var(--ink);cursor:pointer;flex:0 0 auto}
+  .sub.done label{color:var(--muted);text-decoration:line-through}
+  .sub label{cursor:pointer}
+  .progress{height:5px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-bottom:10px}
+  .progress i{display:block;height:100%;background:var(--fresh);border-radius:99px;transition:width .2s}
+  .task-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .due{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px}
+  .due.soon{color:var(--over);font-weight:600}
+  .due svg{width:13px;height:13px}
+  .subcount{font-size:11px;color:var(--muted);font-weight:500}
+
+  .empty{color:var(--muted);font-size:12.5px;text-align:center;padding:22px 8px;border:1.5px dashed var(--line);border-radius:12px}
+  .top-right{display:flex;align-items:center;gap:6px}
+  .foot-right{display:flex;align-items:center;gap:9px;margin-left:auto}
+  .task-foot{flex-wrap:wrap}
+  .icon-btn{border:none;background:none;color:var(--muted);padding:3px;border-radius:6px;line-height:0}
+  .icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+  .icon-btn svg{width:15px;height:15px}
+  .status-switch{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px}
+  .status-switch button{border:none;background:none;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer}
+  .status-switch button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .flag{display:inline-flex;align-items:center;gap:5px;background:var(--over);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;width:fit-content}
+  .flag svg{width:11px;height:11px}
+  .modal-foot .danger{margin-right:auto;color:var(--over);border-color:#F0BFC0}
+
+  /* ---------- Modal ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(20,24,33,.5);display:none;place-items:center;z-index:60;padding:20px}
+  .overlay.open{display:grid}
+  .modal{background:var(--surface);border-radius:16px;width:100%;max-width:460px;box-shadow:0 30px 60px -20px rgba(0,0,0,.4);overflow:hidden}
+  .modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .modal-head h3{font-size:16px}
+  .modal-head button{border:none;background:none;font-size:22px;color:var(--muted);line-height:1;padding:0 4px}
+  .modal-body{padding:18px 20px;display:flex;flex-direction:column;gap:13px;max-height:64vh;overflow:auto}
+  .field label{display:block;font-size:11.5px;font-weight:600;color:var(--ink-soft);margin-bottom:5px}
+  .field input,.field select,.field textarea{
+    width:100%;border:1px solid var(--line-strong);border-radius:9px;padding:9px 11px;
+    font-family:inherit;font-size:13px;color:var(--ink);background:var(--surface);
+  }
+  .field textarea{resize:vertical;min-height:64px}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--focus);outline-offset:1px;border-color:transparent}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .hint{font-size:11px;color:var(--muted);margin-top:4px}
+  .modal-foot{padding:15px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:9px}
+  .btn-ghost{background:var(--surface-2);border:1px solid var(--line);color:var(--ink-soft);padding:9px 15px;border-radius:9px;font-weight:600;font-size:13px}
+  .btn-primary{background:var(--ink);color:#fff;border:none;padding:9px 17px;border-radius:9px;font-weight:600;font-size:13px}
+  .btn-primary:hover{background:#000}
+
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+  @media (max-width:900px){
+    .board{grid-template-columns:1fr}
+    .legend{width:100%;margin-left:0}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">3S</div>
+    <div>
+      <h1>Task Board</h1>
+      <span>3rdScreen Digital</span>
+    </div>
+  </div>
+  <div class="head-right">
+    <div class="today" id="today"></div>
+    <div class="data-badge" id="dataBadge" title="Where the client list comes from">Sample data</div>
+    <div class="alert-pill" id="alertPill"><span class="alert-dot"></span><span id="alertText">—</span></div>
+    <button class="btn-new" onclick="openModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      New task
+    </button>
+  </div>
+</header>
+
+<div class="src-banner" id="srcBanner"></div>
+
+<main>
+  <!-- ENGAGEMENT -->
+  <div class="section-label">
+    <h2>Client check-ins</h2>
+    <p>Every account gets a touch each week. 5 working days without one turns it red.</p>
+  </div>
+  <div class="health" id="health"></div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <div class="who" id="who"></div>
+    <div class="legend">
+      <span><i class="pdot p-high"></i>High</span>
+      <span><i class="pdot p-med"></i>Medium</span>
+      <span><i class="pdot p-low"></i>Low</span>
+    </div>
+  </div>
+
+  <!-- BOARD -->
+  <div class="boardbar"><div class="viewswitch" id="viewswitch"></div></div>
+  <div class="board" id="board"></div>
+</main>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="modal-head">
+      <h3 id="mTitle">New task</h3>
+      <button onclick="closeModal()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>Task</label><input id="fTitle" placeholder="e.g. Add Meta pixel to client website"></div>
+      <div class="grid2">
+        <div class="field"><label>Client</label><select id="fClient"></select></div>
+        <div class="field"><label>Owner</label><select id="fOwner"></select></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Priority</label>
+          <select id="fPrio"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select>
+        </div>
+        <div class="field"><label>Status</label>
+          <select id="fStatus"><option value="todo" selected>To do</option><option value="doing">In progress</option><option value="done">Done</option></select>
+        </div>
+      </div>
+      <div class="field"><label>Due date</label><input id="fDue" type="date"></div>
+      <div class="field"><label>Checklist</label><textarea id="fSubs" placeholder="One step per line&#10;Link catalog in Ads Manager&#10;Add pixel to website&#10;Verify events"></textarea>
+        <div class="hint">Each line becomes a tickable sub-step.</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost danger" id="mDelete" onclick="deleteTask()" style="display:none">Delete</button>
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="mSave" onclick="saveTask()">Add task</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Data ---------- */
+const team = [
+  {id:'daniel', name:'Daniel',  color:'#D2703B'},
+  {id:'andrew', name:'Andrew',  color:'#8A4FD8'},
+  {id:'charbel',name:'Charbel', color:'#0E9488'},
+  {id:'issa',   name:'ISSA',    color:'#3B6FE0'},
+  {id:'malass', name:'Malass',  color:'#C0392B'},
+];
+const DAY = 86400000, now = Date.now();
+const ago = d => now - d*DAY;
+
+const clients = [
+  {id:'peak',   name:'Peak Supplements',      type:'Ecom',       owner:'daniel', last:ago(8)},
+  {id:'marina', name:'Marina Bay Lounge',     type:'Restaurant', owner:'andrew', last:ago(9)},
+  {id:'lumiere',name:'Lumière Boutique Hotel',type:'Hotel',      owner:'andrew', last:ago(6)},
+  {id:'green',  name:'GreenLeaf Skincare',    type:'Ecom',       owner:'charbel',last:ago(4)},
+  {id:'atlas',  name:'Atlas Real Estate',     type:'Lifestyle',  owner:'daniel', last:ago(3)},
+  {id:'nova',   name:'Nova Kitchen',          type:'Restaurant', owner:'charbel',last:ago(2)},
+  {id:'cedar',  name:'Cedar & Co',            type:'Ecom',       owner:'issa',   last:ago(1)},
+];
+
+let tasks = [
+  {id:1, title:'Link product catalog in Meta Ads Manager', client:'peak', owner:'daniel', prio:'high', status:'doing', due:dstr(1),
+    subs:[{t:'Create catalog in Commerce Manager',d:true},{t:'Connect product data feed',d:false},{t:'Assign catalog to ad account',d:false}]},
+  {id:2, title:'Add Meta pixel / tag to client website', client:'peak', owner:'daniel', prio:'high', status:'todo', due:dstr(2),
+    subs:[{t:'Generate pixel code',d:false},{t:'Send install steps to client dev',d:false},{t:'Verify events in Events Manager',d:false}]},
+  {id:3, title:'Launch Google Ads search campaign', client:'nova', owner:'charbel', prio:'medium', status:'todo', due:dstr(1),
+    subs:[{t:'Keyword research',d:true},{t:'Build search campaign',d:false},{t:'Set daily budget',d:false}]},
+  {id:4, title:'Meta ads went live — monitor first 48h', client:'nova', owner:'charbel', prio:'high', status:'doing', due:dstr(0),
+    subs:[{t:'Confirm delivery started',d:true},{t:'Check CPM vs benchmark',d:false}]},
+  {id:5, title:'Set up conversion tracking', client:'marina', owner:'andrew', prio:'high', status:'todo', due:dstr(3), subs:[]},
+  {id:6, title:'Weekly creative refresh', client:'cedar', owner:'issa', prio:'low', status:'todo', due:dstr(4), subs:[]},
+  {id:7, title:'Send monthly performance report', client:'green', owner:'charbel', prio:'medium', status:'todo', due:dstr(4), subs:[]},
+  {id:8, title:'Finish Meta Business Manager setup', client:'lumiere', owner:'andrew', prio:'medium', status:'done', due:dstr(-2),
+    subs:[{t:'Create Business Manager',d:true},{t:'Add ad account',d:true},{t:'Assign pixel',d:true}]},
+];
+let uid = 100, filter = null, view = 'status';
+
+/* ---------- Helpers ---------- */
+function dstr(off){const d=new Date(now+off*DAY);return d.toISOString().slice(0,10);}
+function person(id){return team.find(t=>t.id===id);}
+function client(id){return clients.find(c=>c.id===id)||{name:'—',type:'',owner:team[0].id};}
+function avatar(id,cls=''){const p=person(id)||team[0];if(!p)return '';return `<span class="av ${cls}" style="background:${p.color}" title="${p.name}">${initials(p.name)}</span>`;}
+function bizDaysSince(ts){let c=0,d=new Date(ts);d.setHours(0,0,0,0);const e=new Date(now);e.setHours(0,0,0,0);while(d<e){d.setDate(d.getDate()+1);const w=d.getDay();if(w!==0&&w!==6)c++;}return c;}
+function freshClass(d){return d>=5?'over':d>=3?'warn':'fresh';}
+
+/* ---------- Render: header date + alerts ---------- */
+function renderHeader(){
+  const d=new Date(now);
+  document.getElementById('today').textContent=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const overdue=clients.filter(c=>bizDaysSince(c.last)>=5).length;
+  const pill=document.getElementById('alertPill'), txt=document.getElementById('alertText');
+  if(overdue){pill.className='alert-pill';txt.textContent=`${overdue} client${overdue>1?'s':''} overdue for a check-in`;}
+  else{pill.className='alert-pill clear';txt.innerHTML='All clients checked in this week';}
+}
+
+/* ---------- Render: engagement strip ---------- */
+function renderHealth(){
+  const el=document.getElementById('health');
+  const sorted=[...clients].sort((a,b)=>bizDaysSince(b.last)-bizDaysSince(a.last));
+  el.innerHTML=sorted.map(c=>{
+    const d=bizDaysSince(c.last), fc=freshClass(d);
+    const done=d===0;
+    return `<div class="client-card ${fc==='over'?'over':''}">
+      ${fc==='over'?`<div class="flag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 3.5L16 11H5"/></svg>Needs check-in</div>`:''}
+      <div class="client-top">
+        <div class="client-name">${c.name}</div>
+        <span class="tag">${c.type}</span>
+      </div>
+      <div class="client-owner">${avatar(c.owner)} ${person(c.owner).name}</div>
+      <div class="days-row">
+        <span class="days-chip ${fc}"><span class="pulse"></span><span class="n mono">${d}</span> working day${d===1?'':'s'} ago</span>
+        <button class="check-btn ${done?'done':''}" ${done?'':`onclick="checkIn('${c.id}')"`}>${done?'✓ Done':'Check in'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function checkIn(id){client(id).last=now;renderHealth();renderHeader();}
+
+/* ---------- Render: people filter ---------- */
+function renderWho(){
+  const el=document.getElementById('who');
+  el.innerHTML=`<button class="chip-person" aria-pressed="${filter===null}" onclick="setFilter(null)">Everyone</button>`+
+    team.map(t=>`<button class="chip-person" aria-pressed="${filter===t.id}" onclick="setFilter('${t.id}')">${avatar(t.id)} ${t.name}</button>`).join('');
+}
+function setFilter(id){filter=id;renderWho();renderBoard();}
+
+/* ---------- Render: board ---------- */
+const VIEWS=[['status','Status'],['priority','Priority'],['person','Person']];
+function renderViewswitch(){
+  document.getElementById('viewswitch').innerHTML=VIEWS.map(([k,l])=>
+    `<button aria-pressed="${view===k}" onclick="setView('${k}')">${l}</button>`).join('');
+}
+function setView(v){view=v;renderViewswitch();renderBoard();}
+function columns(){
+  if(view==='priority')return[['high','High'],['medium','Medium'],['low','Low']].map(([k,l])=>({k,l,match:t=>t.prio===k}));
+  if(view==='person')return team.map(p=>({k:p.id,l:p.name,match:t=>t.owner===p.id}));
+  return[['todo','To do'],['doing','In progress'],['done','Done']].map(([k,l])=>({k,l,match:t=>t.status===k}));
+}
+function renderBoard(){
+  const board=document.getElementById('board');
+  const cols=columns();
+  board.style.gridTemplateColumns=`repeat(${cols.length},minmax(0,1fr))`;
+  board.innerHTML=cols.map(col=>{
+    const list=tasks.filter(t=>col.match(t) && (!filter||t.owner===filter));
+    const cards=list.length?list.map(taskCard).join(''):`<div class="empty">Nothing here yet</div>`;
+    return `<div class="col">
+      <div class="col-head"><h3>${col.l}</h3><span class="col-count">${list.length}</span></div>
+      <div class="col-body"
+        ondragover="event.preventDefault();this.classList.add('drop')"
+        ondragleave="this.classList.remove('drop')"
+        ondrop="drop(event,'${col.k}')">${cards}</div>
+    </div>`;
+  }).join('');
+}
+function taskCard(t){
+  const c=client(t.client);
+  const total=t.subs.length, done=t.subs.filter(s=>s.d).length;
+  const pct=total?Math.round(done/total*100):0;
+  const dueDays=Math.round((new Date(t.due)-now)/DAY);
+  const soon=dueDays<=1 && t.status!=='done';
+  const dueLabel=dueDays<0?'Overdue':dueDays===0?'Due today':dueDays===1?'Due tomorrow':`Due ${new Date(t.due).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}`;
+  const subsHtml=total?`<div class="subs">${t.subs.map((s,i)=>`
+      <div class="sub ${s.d?'done':''}">
+        <input type="checkbox" ${s.d?'checked':''} onchange="toggleSub(${t.id},${i})" id="s${t.id}-${i}">
+        <label for="s${t.id}-${i}">${s.t}</label>
+      </div>`).join('')}</div>
+    <div class="progress"><i style="width:${pct}%"></i></div>`:'';
+  return `<div class="task pl-${t.prio}" draggable="true" ondragstart="drag(event,${t.id})" ondragend="this.classList.remove('dragging')">
+    <div class="task-top">
+      <span class="task-client">${c.name}</span>
+      <span class="top-right">
+        <span class="prio ${t.prio}">${t.prio}</span>
+        <button class="icon-btn" title="Edit" aria-label="Edit task" onclick="openEdit(${t.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+      </span>
+    </div>
+    <div class="task-title">${t.title}</div>
+    ${subsHtml}
+    <div class="task-foot">
+      <span class="status-switch">${[['todo','To do'],['doing','Doing'],['done','Done']].map(([k,l])=>`<button aria-pressed="${t.status===k}" onclick="setStatus(${t.id},'${k}')">${l}</button>`).join('')}</span>
+      <span class="foot-right">
+        <span class="due ${soon?'soon':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${dueLabel}${total?` · ${done}/${total}`:''}</span>
+        ${avatar(t.owner)}
+      </span>
+    </div>
+  </div>`;
+}
+function toggleSub(id,i){const t=tasks.find(x=>x.id===id);t.subs[i].d=!t.subs[i].d;renderBoard();}
+
+/* ---------- Drag & drop ---------- */
+let dragId=null;
+function drag(e,id){dragId=id;e.target.classList.add('dragging');}
+function drop(e,key){
+  e.preventDefault();
+  document.querySelectorAll('.col-body').forEach(c=>c.classList.remove('drop'));
+  const t=tasks.find(x=>x.id===dragId);
+  if(t){ if(view==='priority')t.prio=key; else if(view==='person')t.owner=key; else t.status=key; renderBoard(); }
+}
+
+/* ---------- Modal: add / edit / delete ---------- */
+let editingId=null;
+const $=id=>document.getElementById(id);
+function fillSelects(){
+  $('fClient').innerHTML=clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  $('fOwner').innerHTML=team.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+}
+function openModal(){
+  editingId=null;fillSelects();
+  $('mTitle').textContent='New task';$('mSave').textContent='Add task';$('mDelete').style.display='none';
+  $('fTitle').value='';$('fSubs').value='';$('fPrio').value='medium';$('fStatus').value='todo';$('fDue').value=dstr(1);
+  $('overlay').classList.add('open');$('fTitle').focus();
+}
+function openEdit(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  editingId=id;fillSelects();
+  $('mTitle').textContent='Edit task';$('mSave').textContent='Save changes';$('mDelete').style.display='inline-block';
+  $('fTitle').value=t.title;$('fClient').value=t.client;$('fOwner').value=t.owner;
+  $('fPrio').value=t.prio;$('fStatus').value=t.status;$('fDue').value=t.due;
+  $('fSubs').value=t.subs.map(s=>s.t).join('\n');
+  $('overlay').classList.add('open');
+}
+function closeModal(){$('overlay').classList.remove('open');editingId=null;}
+function saveTask(){
+  const title=$('fTitle').value.trim();
+  if(!title){$('fTitle').focus();return;}
+  const prev=editingId?tasks.find(x=>x.id===editingId).subs:[];
+  const subs=$('fSubs').value.split('\n').map(s=>s.trim()).filter(Boolean)
+    .map(t=>({t,d:(prev.find(p=>p.t===t)||{}).d||false}));
+  const data={title,client:$('fClient').value,owner:$('fOwner').value,
+    prio:$('fPrio').value,status:$('fStatus').value,due:$('fDue').value||dstr(1),subs};
+  if(editingId){Object.assign(tasks.find(x=>x.id===editingId),data);}
+  else{tasks.unshift({id:++uid,...data});}
+  closeModal();renderBoard();
+}
+function deleteTask(){if(editingId){tasks=tasks.filter(t=>t.id!==editingId);}closeModal();renderBoard();}
+function setStatus(id,s){const t=tasks.find(x=>x.id===id);if(t){t.status=s;renderBoard();}}
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+/* ---------- Firebase: read team + clients live in the browser ---------- */
+const PALETTE=['#3B6FE0','#8A4FD8','#0E9488','#D2703B','#C0392B','#2E7D32','#6D4AFF','#0091A8'];
+function slug(s){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')||'x';}
+function initials(name){const w=String(name).trim().split(/[\s/]+/).filter(Boolean);
+  return (w.length>1?(w[0][0]+w[1][0]):String(name).slice(0,2)).toUpperCase();}
+function setTeam(names){
+  const list=[...new Set(names.map(n=>String(n).trim()).filter(Boolean))];
+  if(!list.length||list.length>15) return false;
+  const prevColor=Object.fromEntries(team.map(t=>[t.name.toLowerCase(),t.color]));
+  team.length=0;
+  list.forEach((name,i)=>team.push({id:slug(name),name,color:prevColor[name.toLowerCase()]||PALETTE[i%PALETTE.length]}));
+  return true;
+}
+function mapOwner(o){
+  if(!o) return team[0]?team[0].id:'x';
+  const s=String(o).toLowerCase();
+  const hit=team.find(t=>t.id===s||t.name.toLowerCase()===s||s.includes(t.id)||t.name.toLowerCase().includes(s));
+  return hit?hit.id:(team[0]?team[0].id:'x');
+}
+// Team names: pulled from the member columns of your board/state doc.
+function extractTeam(state){
+  if(!state||typeof state!=='object') return [];
+  for(const key of ['team','members','people','users','staff','columns','board']){
+    const v=state[key];
+    if(Array.isArray(v)&&v.some(x=>x&&(x.name||x.title))) return v.map(x=>x.name||x.title).filter(Boolean);
+    if(v&&typeof v==='object'&&!Array.isArray(v)){
+      const names=Object.values(v).map(x=>x&&(x.name||x.title)).filter(Boolean);
+      if(names.length) return names;
+    }
+  }
+  return [];
+}
+// Clients: pulled out of the same doc (name + type + who handles it).
+function collectClients(state){
+  if(!state||typeof state!=='object') return [];
+  let raw=[];
+  if(Array.isArray(state.clients)) raw=state.clients;
+  else{
+    const found=[]; const visit=v=>{ if(!v||typeof v!=='object')return;
+      if(typeof v.name==='string'&&(v.type||v.load!==undefined||v.category)) found.push(v);
+      (Array.isArray(v)?v:Object.values(v)).forEach(visit);
+    }; visit(state); raw=found;
+  }
+  const seen=new Set(), out=[];
+  raw.forEach((c,i)=>{ const name=c.name||c.title; if(!name||seen.has(name))return; seen.add(name);
+    out.push({id:c.id||('c'+i), name, type:c.type||c.category||'Client',
+      rawOwner:c.owner||c.member||c.handler||'', last:c.lastCheckIn?new Date(c.lastCheckIn).getTime():now});
+  });
+  return out;
+}
+window.onFirebaseState=function(state){
+  let names=extractTeam(state);
+  const cl=collectClients(state);
+  if(!names.length) names=cl.map(c=>c.rawOwner).filter(Boolean);
+  const teamChanged=setTeam(names);
+  if(teamChanged) filter=null;
+  if(cl.length){ clients.length=0; cl.forEach(c=>clients.push({id:c.id,name:c.name,type:c.type,owner:mapOwner(c.rawOwner),last:c.last})); }
+  if(teamChanged||cl.length){ renderWho(); renderHealth(); renderHeader(); renderBoard(); setDataStatus(true,clients.length); }
+  else { setDataStatus(false,0,'parsed-empty'); }
+};
+function friendly(reason){
+  const r=(reason||'').toLowerCase();
+  if(r.includes('permission')||r.includes('insufficient'))
+    return "Connected to Firebase, but its security rules are blocking the read. The clients are there — the page just needs permission (that's the rules / sign-in step).";
+  if(r.includes('parsed-empty'))
+    return "Connected to Firebase, but I couldn't find the client list inside board/state. Send me a screenshot of that document expanded and I'll match the reader to it exactly.";
+  return "This in-chat preview can't reach Firebase — that's a sandbox limit, not a problem with the file. Download it and open it in your own browser to load your real team and clients.";
+}
+function setDataStatus(live,count,reason){
+  const b=document.getElementById('dataBadge'), banner=document.getElementById('srcBanner');
+  if(b){ if(live){b.classList.add('live');b.textContent=`Live · ${count} clients`;}
+    else{b.classList.remove('live');b.textContent='Sample data';} }
+  if(banner){ if(live){banner.classList.remove('show');banner.textContent='';}
+    else{banner.textContent=friendly(reason);banner.classList.add('show');} }
+}
+window.setDataStatus=setDataStatus;
+
+/* ---------- Init ---------- */
+renderHeader();renderHealth();renderWho();renderViewswitch();renderBoard();
+</script>
+
+<!-- Firebase connection — runs in YOUR browser when hosted. Paste your web config below. -->
+<script type="module">
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAnlKrVnZTwWRg7ByhCSOyFjgC79jeX8Kg",
+    authDomain: "rdscreen-832da.firebaseapp.com",
+    projectId: "rdscreen-832da",
+    storageBucket: "rdscreen-832da.firebasestorage.app",
+    messagingSenderId: "306529289197",
+    appId: "1:306529289197:web:8420c67c069903ec7e9de4"
+  };
+  try {
+    const SOURCES = [
+      { app:"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js", fs:"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js" },
+      { app:"https://cdn.jsdelivr.net/npm/firebase@10.12.2/app/+esm", fs:"https://cdn.jsdelivr.net/npm/firebase@10.12.2/firestore/+esm" },
+      { app:"https://esm.sh/firebase@10.12.2/app", fs:"https://esm.sh/firebase@10.12.2/firestore" }
+    ];
+    let fb, lastErr;
+    for (const s of SOURCES) {
+      try { fb = { ...(await import(s.app)), ...(await import(s.fs)) }; break; }
+      catch (e) { lastErr = e; }
+    }
+    if (!fb) throw lastErr || new Error("Couldn't load Firebase from any source");
+    const { initializeApp, getFirestore, doc, onSnapshot, collection, getDocs } = fb;
+    const db = getFirestore(initializeApp(FIREBASE_CONFIG));
+    // Source A: your team dashboard document (board/state) — clients are pulled out of it.
+    onSnapshot(doc(db, "board", "state"),
+      snap => window.onFirebaseState && window.onFirebaseState(snap.data()),
+      err => window.setDataStatus && window.setDataStatus(false, 0, err.message)
+    );
+    // Source B: a dedicated "clients" collection, if one exists. Non-empty results win.
+    try {
+      const cs = await getDocs(collection(db, "clients"));
+      if (!cs.empty) window.onFirebaseState && window.onFirebaseState({ clients: cs.docs.map(d => ({ id: d.id, ...d.data() })) });
+    } catch (_) {}
+  } catch (e) {
+    console.warn("[TaskBoard] Showing sample clients —", e.message);
+    window.setDataStatus && window.setDataStatus(false, 0, e.message);
+  }
+</script>
+</body>
+</html>
