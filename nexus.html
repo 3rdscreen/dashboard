@@ -104,6 +104,17 @@
   .mdue{font-size:13px}.mdue.od{color:#dc2626;font-weight:600}.mdue.today{color:#b45309;font-weight:600}
   .mnote{margin-top:8px;width:100%}
   .mnote input{width:100%;border:1px solid var(--bd);border-radius:9px;padding:8px 10px;font:inherit;min-height:40px}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:8px 12px}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border:1px solid var(--bd);border-radius:999px;background:#fff;font-size:13px;color:#374151;cursor:pointer;white-space:nowrap;min-height:40px}
+  .chip .c{font-weight:700}
+  .chip.active{background:#111827;color:#fff;border-color:#111827}
+  .chip.warn .c{color:#ef4444}
+  .chip.active.warn .c{color:#fff}
+  .msearch{padding:10px 12px 2px}
+  .msearch input{width:100%;border:1px solid var(--bd);border-radius:10px;padding:12px;font:inherit;min-height:46px}
+  .mclear{padding:2px 12px 4px}
+  .mclear button{background:none;border:none;color:#6b7280;font:inherit;text-decoration:underline;cursor:pointer;padding:6px 0}
 
   @media (max-width:760px){
     .app{display:block;height:auto}
@@ -126,6 +137,8 @@
     .filters #addTask{display:none}
     .wl{overflow-x:auto}
     .bottomnav{display:flex}
+    .valabel{display:none}
+    .viewas select{border:1px solid var(--bd);border-radius:999px;background:#f8fafc;font-weight:600;padding:8px 12px}
   }
 </style>
 </head>
@@ -142,7 +155,7 @@
       <h1 id="pageTitle">Tasks</h1>
       <div class="spacer"></div>
       <div class="viewas">
-        View as
+        <span class="valabel">View as</span>
         <select id="roleSwitch"></select>
       </div>
     </div>
@@ -158,7 +171,7 @@
 const iso = off => { const d=new Date(); d.setDate(d.getDate()+off); return d.toISOString().slice(0,10); };
 
 const employees = [
-  {id:'ibr', name:'Ibra',    role:'owner',  manager:null, title:'COO'},
+  {id:'ibr', name:'Ibra',    role:'owner',  manager:null},
   {id:'and', name:'Andrew',  role:'senior', manager:'ibr'},
   {id:'dan', name:'Daniel',  role:'senior', manager:'ibr'},
   {id:'cha', name:'Charbel', role:'executive', manager:'ibr'},
@@ -265,7 +278,7 @@ function summarize(ts){const wk=startOfWeek();return{
 /* ---------------- role-scoped visibility (mirrors RLS) ---------------- */
 let identityId = 'ibr';          // who am I viewing as
 let view = 'tasks';
-let filters = {q:'',emp:'',status:'',priority:'',client:'',overdue:false};
+let filters = {q:'',emp:'',status:'',priority:'',client:'',overdue:false,quick:''};
 let sort = {key:'due', dir:1};
 
 function directReports(id){return employees.filter(e=>e.manager===id).map(e=>e.id);}
@@ -295,10 +308,10 @@ const statusClass = s => ({'To Do':'s-todo','In Progress':'s-prog','Waiting':'s-
 
 function renderChrome(){
   const me=empById(identityId);
-  $('#whoami').textContent = me.name+' · '+(me.title||me.role);
+  $('#whoami').textContent = me.title ? (me.name+' · '+me.title) : me.name;
   // role switch
   const rs=$('#roleSwitch');
-  rs.innerHTML = employees.map(e=>`<option value="${e.id}" ${e.id===identityId?'selected':''}>${e.name} (${e.title||e.role})</option>`).join('');
+  rs.innerHTML = employees.map(e=>`<option value="${e.id}" ${e.id===identityId?'selected':''}>${e.name}${e.title? ' · '+e.title : ''}</option>`).join('');
   // nav
   const items=navItems();
   if(!items.find(i=>i[0]===view)) view=items[0][0];
@@ -324,9 +337,9 @@ function workloadTable(people,ts){
       done:mine.filter(t=>t.completed&&t.completed>=wk).length, load:computeLoad(mine)};
   });
   return `<div class="lbl">Team workload</div><div class="wl"><table>
-    <thead><tr><th>Employee</th><th>Role</th><th>Reports To</th><th class="n">Open</th><th class="n">Due</th><th class="n">Overdue</th><th class="n">Wait</th><th class="n">Review</th><th class="n">Done/wk</th><th class="n">Load</th></tr></thead>
+    <thead><tr><th>Employee</th><th>Reports To</th><th class="n">Open</th><th class="n">Due</th><th class="n">Overdue</th><th class="n">Wait</th><th class="n">Review</th><th class="n">Done/wk</th><th class="n">Load</th></tr></thead>
     <tbody>${rows.map(r=>`<tr>
-      <td>${r.p.name}</td><td style="text-transform:capitalize;color:#6b7280">${r.p.role}</td><td style="color:#6b7280">${nameOf(r.p.manager)}</td>
+      <td>${r.p.name}</td><td style="color:#6b7280">${nameOf(r.p.manager)}</td>
       <td class="n">${r.open}</td><td class="n">${r.due}</td><td class="n ${r.od?'redtext':''}">${r.od}</td>
       <td class="n">${r.wait}</td><td class="n">${r.rev}</td><td class="n">${r.done}</td>
       <td class="n">${pill('l-'+r.load,r.load)}</td></tr>`).join('')}</tbody></table></div>`;
@@ -357,6 +370,12 @@ function applyFilters(list){
     if(filters.priority && t.priority!==filters.priority) return false;
     if(filters.client && t.client!==filters.client) return false;
     if(filters.overdue && !isOverdue(t)) return false;
+    if(filters.quick==='open'    && t.status==='Done') return false;
+    if(filters.quick==='today'   && !isDueToday(t)) return false;
+    if(filters.quick==='overdue' && !isOverdue(t)) return false;
+    if(filters.quick==='waiting' && t.status!=='Waiting') return false;
+    if(filters.quick==='review'  && t.status!=='Review') return false;
+    if(filters.quick==='done'    && t.status!=='Done') return false;
     return true;
   });
   v.sort((a,b)=>{const x=(a[sort.key]??'')+'',y=(b[sort.key]??'')+'';return x<y?-sort.dir:x>y?sort.dir:0;});
@@ -417,7 +436,7 @@ function orgView(){
   const build=(mgr)=>{
     const kids=employees.filter(e=>e.manager===mgr);
     if(!kids.length) return '';
-    return `<ul>${kids.map(k=>`<li><span class="nm">${k.name}</span> <span class="rl">— ${k.title||k.role}</span>${build(k.id)}</li>`).join('')}</ul>`;
+    return `<ul>${kids.map(k=>`<li><span class="nm">${k.name}</span>${k.title? ' <span class="rl">— '+k.title+'</span>' : ''}${build(k.id)}</li>`).join('')}</ul>`;
   };
   return `<div class="org">${build(null)}</div>`;
 }
@@ -430,6 +449,25 @@ function completedView(){
 }
 
 const isMobile = () => window.matchMedia('(max-width:760px)').matches;
+
+function statChips(ts){
+  const s=summarize(ts);
+  const items=[['open','Open',s.open,false],['today','Today',s.dueToday,false],['overdue','Overdue',s.overdue,true],
+               ['waiting','Waiting',s.waiting,false],['review','Review',s.review,false],['done','Done',s.done,false]];
+  return `<div class="chips" id="statchips">${items.map(([k,l,v,w])=>
+    `<button class="chip ${filters.quick===k?'active':''} ${w?'warn':''}" data-quick="${k}"><span class="c">${v}</span> ${l}</button>`).join('')}</div>`;
+}
+function personChips(){
+  const people=visiblePeople().filter(p=>p.role!=='owner');
+  if(people.length<=1) return '';
+  return `<div class="chips" id="personchips">
+    <button class="chip ${!filters.emp?'active':''}" data-emp="">Everyone</button>
+    ${people.map(p=>`<button class="chip ${filters.emp===p.id?'active':''}" data-emp="${p.id}">${p.name}</button>`).join('')}
+  </div>`;
+}
+function mobileSearch(){ return `<div class="msearch"><input id="f-q" placeholder="Search tasks…" value="${filters.q}"/></div>`; }
+function mobileClear(){ return (filters.q||filters.emp||filters.quick)
+  ? `<div class="mclear"><button id="mclear-btn">Clear filters</button></div>` : ''; }
 
 function mobileCards(manage, listOverride, showFilters){
   if(showFilters===undefined) showFilters=true;
@@ -450,7 +488,7 @@ function mobileCards(manage, listOverride, showFilters){
       <div class="mtop"><span class="mclient">${t.client||'—'}</span>${statusSel}</div>
       <div class="mttl ${done?'mdone':''}">${t.title}</div>
       <div class="mrow">${prio}${due}${meta}</div>
-      ${notes}</div>`;
+      ${manage?'':notes}</div>`;
   }).join('');
   return `${showFilters?filterBar(manage):''}<div class="mcards">${cards||'<div class="empty">No tasks match these filters.</div>'}</div>`;
 }
@@ -462,9 +500,17 @@ function render(){
   const ts=visibleTasks();
   let html='';
   if(view==='tasks'){
-    html += summaryBar(ts);
-    if(manage && !isMobile()){ const wl=visiblePeople().filter(p=>p.role!=='owner'); html += workloadTable(wl.length?wl:visiblePeople(),ts); }
-    html += isMobile()? mobileCards(manage) : grid(manage);
+    if(isMobile()){
+      html += statChips(ts);
+      html += mobileSearch();
+      html += personChips();
+      html += mobileClear();
+      html += mobileCards(manage, applyFilters(visibleTasks()), false);
+    } else {
+      html += summaryBar(ts);
+      if(manage){ const wl=visiblePeople().filter(p=>p.role!=='owner'); html += workloadTable(wl.length?wl:visiblePeople(),ts); }
+      html += grid(manage);
+    }
   } else if(view==='review'){
     filters={...filters}; // keep
     const saved=visibleTasks;
@@ -510,7 +556,10 @@ function wire(){
   document.querySelectorAll('#nav a').forEach(a=>a.onclick=()=>{view=a.dataset.view;render();});
   document.querySelectorAll('#bottomnav a').forEach(a=>a.onclick=()=>{view=a.dataset.view;render();});
   const fab=$('#fab'); if(fab) fab.onclick=addTask;
-  $('#roleSwitch').onchange=e=>{identityId=e.target.value;view='tasks';filters={q:'',emp:'',status:'',priority:'',client:'',overdue:false};render();};
+  document.querySelectorAll('#statchips .chip').forEach(c=>c.onclick=()=>{const q=c.dataset.quick;filters.quick=(filters.quick===q?'':q);render();});
+  document.querySelectorAll('#personchips .chip').forEach(c=>c.onclick=()=>{filters.emp=c.dataset.emp;render();});
+  const mcl=$('#mclear-btn'); if(mcl) mcl.onclick=()=>{filters.q='';filters.emp='';filters.quick='';render();};
+  $('#roleSwitch').onchange=e=>{identityId=e.target.value;view='tasks';filters={q:'',emp:'',status:'',priority:'',client:'',overdue:false,quick:''};render();};
 
   // filters
   const q=$('#f-q'); if(q) q.oninput=e=>{filters.q=e.target.value;softRegrid();};
@@ -519,7 +568,7 @@ function wire(){
   const fp=$('#f-priority'); if(fp) fp.onchange=e=>{filters.priority=e.target.value;softRegrid();};
   const fc=$('#f-client'); if(fc) fc.onchange=e=>{filters.client=e.target.value;softRegrid();};
   const fo=$('#f-overdue'); if(fo) fo.onchange=e=>{filters.overdue=e.target.checked;softRegrid();};
-  const fclr=$('#f-clear'); if(fclr) fclr.onclick=()=>{filters={q:'',emp:'',status:'',priority:'',client:'',overdue:false};render();};
+  const fclr=$('#f-clear'); if(fclr) fclr.onclick=()=>{filters={q:'',emp:'',status:'',priority:'',client:'',overdue:false,quick:''};render();};
   const add=$('#addTask'); if(add) add.onclick=addTask;
 
   // sortable headers
