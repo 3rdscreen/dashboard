@@ -337,9 +337,9 @@ function workloadTable(people,ts){
       done:mine.filter(t=>t.completed&&t.completed>=wk).length, load:computeLoad(mine)};
   });
   return `<div class="lbl">Team workload</div><div class="wl"><table>
-    <thead><tr><th>Employee</th><th>Reports To</th><th class="n">Open</th><th class="n">Due</th><th class="n">Overdue</th><th class="n">Wait</th><th class="n">Review</th><th class="n">Done/wk</th><th class="n">Load</th></tr></thead>
+    <thead><tr><th>Employee</th><th class="n">Open</th><th class="n">Due</th><th class="n">Overdue</th><th class="n">Wait</th><th class="n">Review</th><th class="n">Done/wk</th><th class="n">Load</th></tr></thead>
     <tbody>${rows.map(r=>`<tr>
-      <td>${r.p.name}</td><td style="color:#6b7280">${nameOf(r.p.manager)}</td>
+      <td>${r.p.name}</td>
       <td class="n">${r.open}</td><td class="n">${r.due}</td><td class="n ${r.od?'redtext':''}">${r.od}</td>
       <td class="n">${r.wait}</td><td class="n">${r.rev}</td><td class="n">${r.done}</td>
       <td class="n">${pill('l-'+r.load,r.load)}</td></tr>`).join('')}</tbody></table></div>`;
