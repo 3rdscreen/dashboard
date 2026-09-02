@@ -722,7 +722,7 @@ let snapAdsPeriod='latest';
 let googleCampsPeriod='latest';
 let metaMBPeriod='yest';
 let metaMBDay='';
-let metaMBPk='meta';
+let metaMBPk='meta'; let follPeriod='yest', follDay='', follPk='meta', follFrom=null, follTo=null;
 
 function _googCountryKey(name){
   const n=(name||'').toUpperCase();
@@ -4062,20 +4062,38 @@ function perfRowSignal(name, agg, geo=''){
   </tr>`;
 }
 
-function renderGranular(pk, dates) {
-  const ds = Array.isArray(dates) ? dates : [dates];
-  const label = ds.length===1 ? ds[0] : `${ds[0]} – ${ds[ds.length-1]}`;
-  if (pk !== 'meta') return renderGranularOther(pk, ds, label);
 
-  const gran = GRANULAR.meta;
-  const adsets = gran.adsets || {};
-  const ads = gran.ads || {};
-  let html = '';
-  let followerHtml = ''; // collected separately, appended at end
+function follDatesLabel(pk,d,p){
+  const all=ALL_DATES; const di=all.indexOf(d); const endIdx=di>=0?di:all.length-1; const last=all[endIdx]; const curMon=last.replace(/ \d+$/,'');
+  if(p==='7d'){const ds=all.slice(Math.max(0,endIdx-6),endIdx+1);return{dts:ds,label:`LAST 7 DAYS (${ds[0]}\u2013${last})`};}
+  if(p==='30d'){const ds=all.slice(Math.max(0,endIdx-29),endIdx+1);return{dts:ds,label:`LAST 30 DAYS (${ds[0]}\u2013${last})`};}
+  if(p==='mtd'){const ds=all.slice(0,endIdx+1).filter(x=>x.startsWith(curMon));return{dts:ds,label:`MTD ${curMon} 1\u2013${last}`};}
+  if(p==='custom'){const all2=ALL_DATES; let i0=follFrom?all2.indexOf(follFrom):-1,i1=follTo?all2.indexOf(follTo):-1; if(i0<0)i0=Math.max(0,all2.length-7); if(i1<0)i1=all2.length-1; if(i0>i1){const t=i0;i0=i1;i1=t;} const ds=all2.slice(i0,i1+1);return{dts:ds,label:`${all2[i0]} \u2192 ${all2[i1]}`};}
+  return{dts:[d],label:`${d}`};
+}
+function setFollPeriod(p){
+  follPeriod=p;
+  if(p==='custom'){ const all=ALL_DATES; if(!follFrom)follFrom=all[Math.max(0,all.length-7)]; if(!follTo)follTo=all[all.length-1]; }
+  reRenderFoll();
+}
+function onFollCustom(){ const fs=document.getElementById('foll-from'),ts=document.getElementById('foll-to'); if(fs)follFrom=fs.value; if(ts)follTo=ts.value; reRenderFoll(); }
+function reRenderFoll(){ const card=document.getElementById('foll-card'); if(!card)return; const tmp=document.createElement('div'); tmp.innerHTML=buildFollowersCard(follPk,follDay); card.replaceWith(tmp.firstElementChild); }
+function buildFollowersCard(pk, __anchorDay){
+  follPk=pk; follDay=__anchorDay;
+  const {dts,label}=follDatesLabel(pk,__anchorDay,follPeriod);
+  const ds=dts;
+  const adsets=(GRANULAR.meta&&GRANULAR.meta.adsets)||{};
+  const __all=ALL_DATES;
+  if(follPeriod==='custom'){ if(!follFrom)follFrom=__all[Math.max(0,__all.length-7)]; if(!follTo)follTo=__all[__all.length-1]; }
+  const __pills=[['yest',__anchorDay],['7d','7 Days'],['30d','30 Days'],['mtd','MTD'],['custom','Custom']];
+  const __follBtns=__pills.map(function(pr){var k=pr[0],lbl=pr[1];var a=(k===follPeriod);return '<button onclick="setFollPeriod(\''+k+'\')" id="foll-btn-'+k+'" style="font-size:11px;padding:3px 11px;border-radius:20px;border:1px solid '+(a?'#1a1a1a':'#d0d0c8')+';background:'+(a?'#1a1a1a':'#fff')+';color:'+(a?'#fff':'#444')+';cursor:pointer;transition:all .15s">'+lbl+'</button>';}).join('');
+  const __opts=function(sel){return [].concat(__all).reverse().map(function(dd){return '<option value="'+dd+'"'+(dd===sel?' selected':'')+'>'+dd+'</option>';}).join('');};
+  const __follCustomUI='<div id="foll-custom" style="display:'+(follPeriod==='custom'?'flex':'none')+';justify-content:flex-end;gap:8px;align-items:center;margin-bottom:10px"><span style="font-size:10px;font-weight:700;color:#888;letter-spacing:.06em">FROM</span><select id="foll-from" onchange="onFollCustom()" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer">'+__opts(follFrom)+'</select><span style="font-size:10px;font-weight:700;color:#888;letter-spacing:.06em">TO</span><select id="foll-to" onchange="onFollCustom()" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer">'+__opts(follTo)+'</select></div>';
+  const __hdr='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px"><div style="display:flex;align-items:center;gap:10px"><div class="clbl" style="margin-bottom:0">FOLLOWERS & BRAND AWARENESS \u2014 <strong class="cperiod" id="foll-label">'+label+'</strong></div><span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:#e8f0fe;color:#1877F2;letter-spacing:.04em">META BRAND</span></div><div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap"><span style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.05em">PERIOD</span>'+__follBtns+'</div></div>'+__follCustomUI;
+  let followerHtml='';
+  const followerRecs = ds.map(function(d){return (adsets[META_FOLLOWERS_KEY]||[]).find(function(x){return x.d===d;});}).filter(Boolean);
+  if(!followerRecs.length){ return '<div class="cc" id="foll-card" style="margin-top:4px;border-top:2px solid #1877F2">'+__hdr+'<div style="color:#aaa;font-size:12px;padding:8px 2px">No followers spend in '+label+'.</div></div>'; }
 
-  // ── FOLLOWERS / BRAND AWARENESS campaign — rich widget (rendered at bottom)
-  const followerRecs = ds.map(d=>(adsets[META_FOLLOWERS_KEY]||[]).find(x=>x.d===d)).filter(Boolean);
-  if (followerRecs.length) {
     const fSpend = followerRecs.reduce((s,r)=>s+(r.spend||0),0);
     const fVisits = followerRecs.reduce((s,r)=>s+(r.conv||0),0);
     const fPurchases = followerRecs.reduce((s,r)=>s+(r.purchase_conv||0),0);
@@ -4109,11 +4127,7 @@ function renderGranular(pk, dates) {
       const visibleRecs = followerRecs.filter(r=>r.spend>0);
 
       const chartId = "fol-trend-"+Math.random().toString(36).slice(2,7);
-      followerHtml = `<div class="cc" style="margin-top:4px;border-top:2px solid #1877F2">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <div class="clbl" style="margin-bottom:0">FOLLOWERS & BRAND AWARENESS — ${label}</div>
-          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:#e8f0fe;color:#1877F2;letter-spacing:.04em">META BRAND</span>
-        </div>
+      followerHtml = `<div class="cc" id="foll-card" style="margin-top:4px;border-top:2px solid #1877F2">${__hdr}
 
         <!-- KPI Row -->
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
@@ -4229,7 +4243,23 @@ function renderGranular(pk, dates) {
         }
       });
     }
-  }
+  
+  return followerHtml;
+}
+
+function renderGranular(pk, dates) {
+  const ds = Array.isArray(dates) ? dates : [dates];
+  const label = ds.length===1 ? ds[0] : `${ds[0]} – ${ds[ds.length-1]}`;
+  if (pk !== 'meta') return renderGranularOther(pk, ds, label);
+
+  const gran = GRANULAR.meta;
+  const adsets = gran.adsets || {};
+  const ads = gran.ads || {};
+  let html = '';
+  let followerHtml = ''; // collected separately, appended at end
+
+  // ── FOLLOWERS / BRAND AWARENESS campaign — rich widget (rendered at bottom)
+  followerHtml = buildFollowersCard(pk, ds[ds.length-1]);
 
   // ── SALES CAMPAIGNS table
   const campRows = META_CAMPS.map(c => {
