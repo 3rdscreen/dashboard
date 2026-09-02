@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEXUS by 3RDS</title>
+<style>
+  :root{
+    --bd:#e5e7eb; --head:#f8fafc; --muted:#6b7280; --ink:#111827; --line:#f1f3f5;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);font-size:13px;background:#fff}
+  .app{display:flex;height:100vh}
+  /* sidebar */
+  aside{width:176px;flex:0 0 176px;border-right:1px solid var(--bd);background:var(--head);display:flex;flex-direction:column}
+  .brand{padding:12px;border-bottom:1px solid var(--bd)}
+  .brand b{font-size:14px}
+  .brand small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+  nav{padding:8px 0;flex:1}
+  nav a{display:block;padding:6px 12px;color:#4b5563;text-decoration:none;font-size:13px;cursor:pointer}
+  nav a:hover{background:#fff}
+  nav a.active{background:#fff;color:#111;font-weight:600;border-left:2px solid #111827}
+  .sb-foot{padding:12px;color:var(--muted);font-size:11px;border-top:1px solid var(--bd)}
+  /* main */
+  main{flex:1;overflow:auto;min-width:0}
+  .topbar{display:flex;align-items:center;gap:12px;padding:9px 16px;border-bottom:1px solid var(--bd)}
+  .topbar h1{font-size:14px;margin:0;font-weight:600}
+  .spacer{flex:1}
+  .viewas{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .viewas select{font:inherit;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:#fff}
+  .banner{background:#fffbeb;border-bottom:1px solid #fde68a;color:#92400e;font-size:11.5px;padding:6px 16px}
+  /* summary */
+  .summary{display:flex;gap:0;padding:10px 16px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+  .summary .m{display:flex;flex-direction:column;min-width:82px;padding:0 14px;border-left:1px solid var(--line)}
+  .summary .m:first-child{border-left:none;padding-left:0}
+  .summary .m b{font-size:18px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums}
+  .summary .m span{color:var(--muted);font-size:11px;margin-top:2px;white-space:nowrap}
+  .summary .m b.warn{color:#dc2626}
+  /* section label */
+  .lbl{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:#9ca3af;padding:10px 16px 2px}
+  /* tables */
+  table{border-collapse:collapse;width:100%}
+  th,td{padding:6px 8px;white-space:nowrap;font-size:12px}
+  .grid thead th{position:sticky;top:0;background:var(--head);border-bottom:1px solid var(--bd);text-align:left;color:#6b7280;font-weight:500;cursor:pointer;user-select:none;z-index:2}
+  .grid tbody td{border-bottom:1px solid var(--line)}
+  .grid tbody tr:hover{background:#fcfdff}
+  .wl{padding:0 16px 10px}
+  .wl table td,.wl table th{padding:4px 8px}
+  .wl thead th{color:#6b7280;font-weight:500;text-align:left;border-bottom:1px solid var(--bd)}
+  .wl tbody td{border-bottom:1px solid var(--line)}
+  .r{text-align:right}
+  .n{text-align:left;min-width:58px;padding-right:20px;font-variant-numeric:tabular-nums}
+  .wl table{width:auto;min-width:auto}
+  .wl th,.wl td{padding-right:20px}
+  .redtext{color:#dc2626;font-weight:600}
+  /* cells */
+  .cell{width:100%;border:none;background:transparent;font:inherit;color:inherit;padding:2px 0;outline:none}
+  select.cell{cursor:pointer;-webkit-appearance:none;appearance:none}
+  td.editable:hover{background:#eff6ff;outline:1px solid #dbeafe}
+  td.od{background:#fef2f2}
+  td.today{background:#fffbeb}
+  tr.done{opacity:.55}
+  tr.done .title{text-decoration:line-through}
+  .pill{display:inline-flex;align-items:center;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600}
+  .p-Low{background:#ecfdf5;color:#047857}.p-Medium{background:#fffbeb;color:#b45309}.p-High{background:#fef2f2;color:#b91c1c}
+  .s-todo{background:#f3f4f6;color:#4b5563}.s-prog{background:#eff6ff;color:#1d4ed8}.s-wait{background:#f5f3ff;color:#6d28d9}.s-rev{background:#fffbeb;color:#92400e}.s-done{background:#ecfdf5;color:#047857}
+  .l-Low{background:#d1fae5;color:#065f46}.l-Medium{background:#ffedd5;color:#9a3412}.l-High{background:#fee2e2;color:#991b1b}
+  /* filter bar */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 16px;border-bottom:1px solid var(--bd);font-size:12px}
+  .filters input[type=text],.filters select{font:inherit;padding:4px 6px;border:1px solid var(--bd);border-radius:6px;background:#fff}
+  .filters label{display:flex;align-items:center;gap:4px;color:#4b5563}
+  .btn{background:#111827;color:#fff;border:none;border-radius:6px;padding:5px 10px;font:inherit;font-weight:600;cursor:pointer}
+  .btn.ghost{background:#fff;color:#374151;border:1px solid var(--bd);font-weight:500}
+  .save{font-size:11px;color:#9ca3af;min-width:64px}
+  .save.ok{color:#059669}
+  /* org */
+  .org{padding:14px 18px}
+  .org ul{list-style:none;margin:0;padding-left:18px;border-left:1px solid var(--bd)}
+  .org>ul{border-left:none;padding-left:0}
+  .org li{padding:3px 0}
+  .org .nm{font-weight:600}
+  .org .rl{color:#6b7280}
+  .empty{padding:26px;text-align:center;color:#9ca3af}
+  .warnbadge{margin-left:4px;color:#ef4444;font-weight:700}
+
+  /* ---------- mobile ---------- */
+  .topbrand{display:none}
+  .bottomnav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bd);z-index:30}
+  .bottomnav a{flex:1;text-align:center;padding:9px 4px 8px;font-size:11px;color:#6b7280;text-decoration:none;cursor:pointer}
+  .bottomnav a.active{color:#111827;font-weight:600;box-shadow:inset 0 2px 0 #111827}
+  .fab{display:none;position:fixed;right:16px;bottom:76px;z-index:31;width:52px;height:52px;border-radius:50%;background:#111827;color:#fff;border:none;font-size:26px;line-height:1;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.22);cursor:pointer}
+  .mcards{padding:10px 12px}
+  .mcard{border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff}
+  .mcard.done{opacity:.55}
+  .mtop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .mclient{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mttl{font-size:15px;font-weight:600;margin:8px 0}
+  .mttl.mdone{text-decoration:line-through}
+  .mrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .mmeta{font-size:12px;color:#6b7280;margin-left:auto}
+  .mstatus{font-size:12px;font-weight:600;padding:8px 10px;border:1px solid var(--bd);border-radius:9px;background:#f8fafc;min-height:40px}
+  .mprio{font-size:12px;padding:8px 10px;border:1px solid var(--bd);border-radius:9px;min-height:40px}
+  .mdue{font-size:13px}.mdue.od{color:#dc2626;font-weight:600}.mdue.today{color:#b45309;font-weight:600}
+  .mnote{margin-top:8px;width:100%}
+  .mnote input{width:100%;border:1px solid var(--bd);border-radius:9px;padding:8px 10px;font:inherit;min-height:40px}
+
+  @media (max-width:760px){
+    .app{display:block;height:auto}
+    aside{display:none}
+    main{height:auto;overflow:visible;padding-bottom:78px}
+    .topbar{position:sticky;top:0;background:#fff;z-index:6;flex-wrap:wrap;gap:8px;padding:10px 14px}
+    .topbrand{display:inline-flex;align-items:baseline;gap:6px;font-size:16px;font-weight:700}
+    .topbrand span{font-size:10px;color:#9ca3af;font-weight:500}
+    .topbar h1{font-size:12.5px;color:#6b7280;font-weight:600;order:5;width:100%;margin:0}
+    .spacer{display:none}
+    .viewas{margin-left:auto;font-size:11px}
+    .viewas select{padding:7px 8px;min-height:38px}
+    .banner{font-size:11px}
+    .summary{flex-wrap:nowrap;overflow-x:auto;gap:16px}
+    .summary::-webkit-scrollbar{display:none}
+    .filters{flex-wrap:nowrap;overflow-x:auto;gap:8px}
+    .filters::-webkit-scrollbar{display:none}
+    .filters input[type=text]{min-width:130px}
+    .filters select,.filters input[type=text]{min-height:38px}
+    .filters #addTask{display:none}
+    .wl{overflow-x:auto}
+    .bottomnav{display:flex}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><b>NEXUS</b> <span style="font-size:11px;color:#9ca3af">by 3RDS</span><small id="whoami">Owner</small></div>
+    <nav id="nav"></nav>
+    <div class="sb-foot">Visual preview · sample data<br/>no database connected</div>
+  </aside>
+  <main>
+    <div class="topbar">
+      <b class="topbrand">NEXUS <span>by 3RDS</span></b>
+      <h1 id="pageTitle">Tasks</h1>
+      <div class="spacer"></div>
+      <div class="viewas">
+        View as
+        <select id="roleSwitch"></select>
+      </div>
+    </div>
+    <div class="banner">Preview only — data lives in the page and resets on refresh. This is the real UI/UX; the full version is backed by Supabase + row-level security.</div>
+    <div id="content"></div>
+  </main>
+</div>
+<nav class="bottomnav" id="bottomnav"></nav>
+<button class="fab" id="fab" title="Add task">+</button>
+
+<script>
+/* ---------------- sample data (mirrors the seed) ---------------- */
+const iso = off => { const d=new Date(); d.setDate(d.getDate()+off); return d.toISOString().slice(0,10); };
+
+const employees = [
+  {id:'ibr', name:'Ibra',    role:'owner',  manager:null, title:'COO'},
+  {id:'and', name:'Andrew',  role:'senior', manager:'ibr'},
+  {id:'dan', name:'Daniel',  role:'senior', manager:'ibr'},
+  {id:'cha', name:'Charbel', role:'executive', manager:'ibr'},
+  {id:'iss', name:'ISSA',    role:'executive', manager:'dan'},
+  {id:'mal', name:'Malass',  role:'executive', manager:'and'},
+  {id:'pet', name:'Peter',   role:'executive', manager:'and'},
+];
+const clients = [
+  // Andrew
+  'NOKNOK','BeBeach','Giulia','White AD','Mez JBR','Bazaar','StudioA','METT Barcelona',
+  '1925 Vemeturia','Alabrada','METT Singapore','SIRENE Beach','METT Marbella',
+  'Ammos Marbella','Azure Marbella','Isola Marbella',
+  // Daniel
+  'Shift Clinics','Clinica Joelle','AESTRA Design','Mood & Stage - Bahrain','Arabian Group - Syria',
+  'Special Events','Special Events - UAE','Special Events - Kids','Special Events - Beirut',
+  'Dream Dubai','SushiSamba Dubai','SushiSamba AD','eCom 605','eCom Depeche Mode',
+  'e-Com SeaSide','eCom AndreaWazen','e-Com wtrBoost',
+  // Charbel
+  'Iris Beirut','Clap Beirut','BDP Beirut','ForSpa - Beirut','Mez Beirut','BDP Beach',
+  'Robertos Dubai','Billionaire Dubai','Tapasake','BeefBar','LePetit Beefbar',
+  'Geneve - Khora','Geneve - Alma','DRIFT Beach - Dubai','BAOLI - Dubai','Ammos Dubai','LRDV - Monaco',
+  'CAFFE LRDV - Monaco','Cipriani - Monaco','AZURE Beach - Dubai',
+  // ISSA
+  'JIC','Isola','Raise','Joe Backyard','212 Lebanon','Omoda & Jacoo','LAMO & Delizie',
+  'MOTT32 Dubai','HANU Dubai','SignorSassi','Attiko Dubai','Royal Marrakech - Bahrain',
+  // Malass
+  'CREATE Agency','Cipriani Dubai','Cipriani Dolci - Riyadh','Gaia Dubai','Epik & Mood Dubai',
+];
+
+let TID = 1;
+const mk = (title,who,client,priority,status,due)=>({
+  id:'t'+(TID++), title, assigned:who, client, priority, status,
+  due:iso(due), waiting: status==='Waiting'?'Client reply':'', mnotes:'', enotes:'',
+  updated: iso(0), completed: status==='Done'? iso(due) : null
+});
+let tasks = [
+  // Andrew — overloaded (High)
+  mk('Meta campaign refresh','and','NOKNOK','High','In Progress',-1),
+  mk('Google Ads audit','and','Mez JBR','Medium','To Do',1),
+  mk('New creative batch','and','METT Barcelona','High','In Progress',0),
+  mk('Monthly report','and','SIRENE Beach','Medium','Review',2),
+  mk('Launch summer promo','and','METT Marbella','High','To Do',3),
+  mk('Snap ads setup','and','White AD','Low','To Do',5),
+  mk('Landing page QA','and','StudioA','Medium','To Do',4),
+  mk('Audience research','and','METT Singapore','Low','To Do',6),
+  mk('Pixel fix','and','Bazaar','Medium','Waiting',2),
+  mk('August recap','and','NOKNOK','Low','Done',-2),
+  // Daniel — overloaded (High)
+  mk('Fix product feed','dan','eCom 605','High','In Progress',-2),
+  mk('Meta catalog setup','dan','eCom Depeche Mode','High','To Do',1),
+  mk('Google Shopping audit','dan','SushiSamba Dubai','Medium','To Do',2),
+  mk('Event promo push','dan','Special Events - UAE','Medium','In Progress',0),
+  mk('Clinic lead campaign','dan','Clinica Joelle','Low','To Do',4),
+  mk('Bahrain launch','dan','Mood & Stage - Bahrain','Medium','Waiting',3),
+  mk('Creative refresh','dan','Dream Dubai','Medium','To Do',5),
+  mk('Weekly report','dan','AESTRA Design','Low','Review',1),
+  mk('UTM setup','dan','Dream Dubai','Low','Done',-1),
+  // Charbel — overloaded (High)
+  mk('Grand opening campaign','cha','Iris Beirut','High','In Progress',-1),
+  mk('Meta ads scale','cha','BDP Beach','High','To Do',1),
+  mk('Seasonal creative','cha','BDP Beirut','High','In Progress',0),
+  mk('Report + insights','cha','Tapasake','Medium','Review',2),
+  mk('Menu launch promo','cha','BeefBar','Low','To Do',4),
+  mk('Influencer brief','cha','Billionaire Dubai','Low','Waiting',3),
+  mk('Google setup','cha','Robertos Dubai','Low','To Do',5),
+  mk('Leads export','cha','Ammos Dubai','Low','Done',-1),
+  // ISSA — light (Low)
+  mk('Monthly report','iss','MOTT32 Dubai','Low','To Do',4),
+  mk('Meta refresh','iss','SignorSassi','Medium','In Progress',3),
+  mk('Content plan','iss','212 Lebanon','Low','To Do',6),
+  mk('Campaign setup','iss','Omoda & Jacoo','Low','To Do',5),
+  mk('Report sent','iss','HANU Dubai','Low','Done',-2),
+  // Peter — new, executive under Andrew (Low)
+  mk('Meta setup','pet','Isola Marbella','Low','To Do',5),
+  mk('Creative brief','pet','Azure Marbella','Medium','In Progress',3),
+  mk('Weekly report','pet','Ammos Marbella','Low','Review',2),
+  // Malass — light (Low)
+  mk('Brand launch','mal','CREATE Agency','High','In Progress',3),
+  mk('Meta setup','mal','Cipriani Dubai','Low','To Do',5),
+  mk('Riyadh promo','mal','Cipriani Dolci - Riyadh','Low','To Do',6),
+];
+
+/* ---------------- compute helpers ---------------- */
+const TODAY = iso(0);
+const empById = id => employees.find(e=>e.id===id);
+const nameOf  = id => (empById(id)||{}).name || '—';
+const isActive  = t => t.status!=='Done';
+const isOverdue = t => t.status!=='Done' && t.due && t.due < TODAY;
+const isDueToday= t => t.status!=='Done' && t.due===TODAY;
+function computeLoad(ts){
+  const a=ts.filter(isActive).length, o=ts.filter(isOverdue).length, d=ts.filter(isDueToday).length;
+  if(a>=8||o>=1||d>=2) return 'High';
+  if(a>=5) return 'Medium';
+  return 'Low';
+}
+function startOfWeek(){const d=new Date();const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.toISOString().slice(0,10);}
+function summarize(ts){const wk=startOfWeek();return{
+  open:ts.filter(isActive).length, dueToday:ts.filter(isDueToday).length, overdue:ts.filter(isOverdue).length,
+  waiting:ts.filter(t=>t.status==='Waiting').length, review:ts.filter(t=>t.status==='Review').length,
+  done:ts.filter(t=>t.completed&&t.completed>=wk).length };}
+
+/* ---------------- role-scoped visibility (mirrors RLS) ---------------- */
+let identityId = 'ibr';          // who am I viewing as
+let view = 'tasks';
+let filters = {q:'',emp:'',status:'',priority:'',client:'',overdue:false};
+let sort = {key:'due', dir:1};
+
+function directReports(id){return employees.filter(e=>e.manager===id).map(e=>e.id);}
+function visibleTasks(){
+  const me = empById(identityId);
+  if(me.role==='owner'||me.role==='admin') return tasks.slice();
+  if(me.role==='senior'){const team=new Set([me.id,...directReports(me.id)]);return tasks.filter(t=>team.has(t.assigned));}
+  return tasks.filter(t=>t.assigned===me.id); // executive
+}
+function visiblePeople(){
+  const me = empById(identityId);
+  if(me.role==='owner'||me.role==='admin') return employees.filter(e=>e.role!=='owner'? true:true);
+  if(me.role==='senior') return employees.filter(e=>e.id===me.id||e.manager===me.id);
+  return [me];
+}
+function navItems(){
+  const me=empById(identityId);
+  if(me.role==='owner'||me.role==='admin') return [['tasks','Tasks'],['clients','Clients'],['team','Team'],['organization','Organization'],['completed','Completed']];
+  if(me.role==='senior') return [['tasks','My Team'],['review','Needs Review'],['completed','Completed']];
+  return [['tasks','My Tasks'],['completed','Completed']];
+}
+
+/* ---------------- rendering ---------------- */
+const $ = s => document.querySelector(s);
+function pill(cls,txt){return `<span class="pill ${cls}">${txt}</span>`;}
+const statusClass = s => ({'To Do':'s-todo','In Progress':'s-prog','Waiting':'s-wait','Review':'s-rev','Done':'s-done'}[s]);
+
+function renderChrome(){
+  const me=empById(identityId);
+  $('#whoami').textContent = me.name+' · '+(me.title||me.role);
+  // role switch
+  const rs=$('#roleSwitch');
+  rs.innerHTML = employees.map(e=>`<option value="${e.id}" ${e.id===identityId?'selected':''}>${e.name} (${e.title||e.role})</option>`).join('');
+  // nav
+  const items=navItems();
+  if(!items.find(i=>i[0]===view)) view=items[0][0];
+  const navHtml = items.map(([k,l])=>`<a data-view="${k}" class="${k===view?'active':''}">${l}</a>`).join('');
+  $('#nav').innerHTML = navHtml;
+  $('#bottomnav').innerHTML = navHtml;
+  const titles={tasks:me.role==='owner'||me.role==='admin'?'Tasks · whole agency':(me.role==='senior'?'My Team':'My Tasks'),clients:'Clients',team:'Team',organization:'Organization',completed:'Completed',review:'Needs Review'};
+  $('#pageTitle').textContent = titles[view]||'Tasks';
+}
+
+function summaryBar(ts){
+  const s=summarize(ts);
+  const m=(v,l,warn)=>`<div class="m"><b class="${warn&&v>0?'warn':''}">${v}</b><span>${l}</span></div>`;
+  return `<div class="summary">${m(s.open,'Open')}${m(s.dueToday,'Due Today')}${m(s.overdue,'Overdue',true)}${m(s.waiting,'Waiting')}${m(s.review,'In Review')}${m(s.done,'Done / wk')}</div>`;
+}
+
+function workloadTable(people,ts){
+  const rows=people.map(p=>{
+    const mine=ts.filter(t=>t.assigned===p.id);
+    const wk=startOfWeek();
+    return {p, open:mine.filter(isActive).length, due:mine.filter(isDueToday).length, od:mine.filter(isOverdue).length,
+      wait:mine.filter(t=>t.status==='Waiting').length, rev:mine.filter(t=>t.status==='Review').length,
+      done:mine.filter(t=>t.completed&&t.completed>=wk).length, load:computeLoad(mine)};
+  });
+  return `<div class="lbl">Team workload</div><div class="wl"><table>
+    <thead><tr><th>Employee</th><th>Role</th><th>Reports To</th><th class="n">Open</th><th class="n">Due</th><th class="n">Overdue</th><th class="n">Wait</th><th class="n">Review</th><th class="n">Done/wk</th><th class="n">Load</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td>${r.p.name}</td><td style="text-transform:capitalize;color:#6b7280">${r.p.role}</td><td style="color:#6b7280">${nameOf(r.p.manager)}</td>
+      <td class="n">${r.open}</td><td class="n">${r.due}</td><td class="n ${r.od?'redtext':''}">${r.od}</td>
+      <td class="n">${r.wait}</td><td class="n">${r.rev}</td><td class="n">${r.done}</td>
+      <td class="n">${pill('l-'+r.load,r.load)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function filterBar(manage){
+  const opt=(v,txt,sel)=>`<option value="${v}" ${sel?'selected':''}>${txt}</option>`;
+  const people=visiblePeople();
+  return `<div class="filters">
+    <input type="text" id="f-q" placeholder="Search…" value="${filters.q}" style="width:150px"/>
+    ${manage?`<select id="f-emp"><option value="">All employees</option>${people.map(p=>opt(p.id,p.name,filters.emp===p.id)).join('')}</select>`:''}
+    <select id="f-status"><option value="">All status</option>${['To Do','In Progress','Waiting','Review','Done'].map(s=>opt(s,s,filters.status===s)).join('')}</select>
+    <select id="f-priority"><option value="">All priority</option>${['Low','Medium','High'].map(p=>opt(p,p,filters.priority===p)).join('')}</select>
+    <select id="f-client"><option value="">All clients</option>${clients.map(c=>opt(c,c,filters.client===c)).join('')}</select>
+    <label><input type="checkbox" id="f-overdue" ${filters.overdue?'checked':''}/> Overdue</label>
+    <button class="btn ghost" id="f-clear">Clear</button>
+    <div class="spacer" style="flex:1"></div>
+    <span class="save" id="saveState"></span>
+    ${manage?`<button class="btn" id="addTask">+ Add task</button>`:''}
+  </div>`;
+}
+
+function applyFilters(list){
+  let v=list.filter(t=>{
+    if(filters.q && !((t.title+' '+(t.waiting||'')).toLowerCase().includes(filters.q.toLowerCase()))) return false;
+    if(filters.emp && t.assigned!==filters.emp) return false;
+    if(filters.status && t.status!==filters.status) return false;
+    if(filters.priority && t.priority!==filters.priority) return false;
+    if(filters.client && t.client!==filters.client) return false;
+    if(filters.overdue && !isOverdue(t)) return false;
+    return true;
+  });
+  v.sort((a,b)=>{const x=(a[sort.key]??'')+'',y=(b[sort.key]??'')+'';return x<y?-sort.dir:x>y?sort.dir:0;});
+  return v;
+}
+
+function grid(manage){
+  const list=applyFilters(visibleTasks());
+  const th=(k,l)=>`<th data-sort="${k}">${l}${sort.key===k?(sort.dir===1?' ↑':' ↓'):''}</th>`;
+  const head = manage
+    ? th('client','Client')+th('title','Task')+th('assigned','Employee')+th('priority','Priority')+th('due','Deadline')+th('status','Status')+th('waiting','Waiting On')+`<th>Manager Notes</th>`+th('updated','Updated')
+    : th('client','Client')+th('title','Task')+th('priority','Priority')+th('due','Deadline')+th('status','Status')+th('waiting','Waiting On')+`<th>My Notes</th>`;
+  const body = list.map(t=>{
+    const od=isOverdue(t),today=isDueToday(t),done=t.status==='Done';
+    const sel=(field,options,val)=>`<select class="cell" data-id="${t.id}" data-field="${field}">${options.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}</select>`;
+    const empSel=`<select class="cell" data-id="${t.id}" data-field="assigned">${employees.map(e=>`<option value="${e.id}" ${e.id===t.assigned?'selected':''}>${e.name}</option>`).join('')}</select>`;
+    const cliSel=`<select class="cell" data-id="${t.id}" data-field="client">${clients.map(c=>`<option ${c===t.client?'selected':''}>${c}</option>`).join('')}</select>`;
+    const dateCell=`<input type="date" class="cell" data-id="${t.id}" data-field="due" value="${t.due||''}"/>`;
+    const titleCell=manage?`<input class="cell title" data-id="${t.id}" data-field="title" value="${t.title.replace(/"/g,'&quot;')}"/>`:`<span class="title">${t.title}</span>`;
+    const waitCell=`<input class="cell" data-id="${t.id}" data-field="waiting" value="${(t.waiting||'').replace(/"/g,'&quot;')}"/>`;
+    const notesField=manage?'mnotes':'enotes';
+    const notesCell=`<input class="cell" data-id="${t.id}" data-field="${notesField}" value="${(t[notesField]||'').replace(/"/g,'&quot;')}"/>`;
+    if(manage){
+      return `<tr class="${done?'done':''}">
+        <td class="editable">${cliSel}</td>
+        <td class="editable" style="min-width:220px">${titleCell}</td>
+        <td class="editable">${empSel}</td>
+        <td class="editable">${sel('priority',['Low','Medium','High'],t.priority)}</td>
+        <td class="editable ${od?'od':today?'today':''}">${dateCell}${od?'<span class="warnbadge" title="Overdue">!</span>':''}</td>
+        <td class="editable">${sel('status',['To Do','In Progress','Waiting','Review','Done'],t.status)}</td>
+        <td class="editable" style="min-width:120px">${waitCell}</td>
+        <td class="editable" style="min-width:150px">${notesCell}</td>
+        <td style="color:#9ca3af">${(t.updated||'').slice(5)}</td></tr>`;
+    }
+    return `<tr class="${done?'done':''}">
+      <td>${t.client}</td>
+      <td style="min-width:220px"><span class="title">${t.title}</span></td>
+      <td>${pill('p-'+t.priority,t.priority)}</td>
+      <td class="${od?'od':today?'today':''}"><span class="${od?'redtext':''}">${t.due||'—'}</span>${od?'<span class="warnbadge">!</span>':''}</td>
+      <td class="editable">${sel('status',['To Do','In Progress','Waiting','Review','Done'],t.status)}</td>
+      <td class="editable" style="min-width:120px">${waitCell}</td>
+      <td class="editable" style="min-width:150px">${notesCell}</td></tr>`;
+  }).join('');
+  return `${filterBar(manage)}<div style="overflow:auto"><table class="grid"><thead><tr>${head}</tr></thead>
+    <tbody>${body || `<tr><td colspan="9" class="empty">No tasks match these filters.</td></tr>`}</tbody></table></div>`;
+}
+
+function clientsView(){
+  const ts=visibleTasks();
+  const rows=clients.map(c=>{const s=summarize(ts.filter(t=>t.client===c));return`<tr>
+    <td>${c}</td><td class="n">${s.open}</td><td class="n ${s.overdue?'redtext':''}">${s.overdue}</td><td class="n">${s.review}</td><td class="n">${s.done}</td></tr>`;}).join('');
+  return `<div class="wl" style="padding-top:12px"><table>
+    <thead><tr><th>Client</th><th class="n">Open</th><th class="n">Overdue</th><th class="n">Review</th><th class="n">Done/wk</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function orgView(){
+  const build=(mgr)=>{
+    const kids=employees.filter(e=>e.manager===mgr);
+    if(!kids.length) return '';
+    return `<ul>${kids.map(k=>`<li><span class="nm">${k.name}</span> <span class="rl">— ${k.title||k.role}</span>${build(k.id)}</li>`).join('')}</ul>`;
+  };
+  return `<div class="org">${build(null)}</div>`;
+}
+
+function completedView(){
+  const ts=visibleTasks().filter(t=>t.status==='Done').sort((a,b)=>(b.completed||'').localeCompare(a.completed||''));
+  const rows=ts.map(t=>`<tr><td>${t.title}</td><td style="color:#6b7280">${nameOf(t.assigned)}</td><td style="color:#9ca3af">${t.completed||''}</td></tr>`).join('');
+  return `<div class="wl" style="padding-top:12px"><table><thead><tr><th>Task</th><th>Employee</th><th>Completed</th></tr></thead>
+    <tbody>${rows||`<tr><td colspan="3" class="empty">Nothing completed yet.</td></tr>`}</tbody></table></div>`;
+}
+
+const isMobile = () => window.matchMedia('(max-width:760px)').matches;
+
+function mobileCards(manage, listOverride, showFilters){
+  if(showFilters===undefined) showFilters=true;
+  const data = listOverride || applyFilters(visibleTasks());
+  const cards = data.map(t=>{
+    const od=isOverdue(t), today=isDueToday(t), done=t.status==='Done';
+    const statusSel=`<select class="cell mstatus" data-id="${t.id}" data-field="status">${['To Do','In Progress','Waiting','Review','Done'].map(s=>`<option ${s===t.status?'selected':''}>${s}</option>`).join('')}</select>`;
+    const prio = manage
+      ? `<select class="cell mprio" data-id="${t.id}" data-field="priority">${['Low','Medium','High'].map(p=>`<option ${p===t.priority?'selected':''}>${p}</option>`).join('')}</select>`
+      : pill('p-'+t.priority,t.priority);
+    const due = manage
+      ? `<span class="mdue ${od?'od':today?'today':''}"><input type="date" class="cell" style="border:1px solid var(--bd);border-radius:9px;padding:7px 9px;min-height:40px" data-id="${t.id}" data-field="due" value="${t.due||''}"/></span>`
+      : `<span class="mdue ${od?'od':today?'today':''}">${t.due||'—'}${od?' !':''}</span>`;
+    const meta = manage ? `<span class="mmeta">${nameOf(t.assigned)}</span>` : '';
+    const nf = manage?'mnotes':'enotes';
+    const notes = `<div class="mnote"><input class="cell" data-id="${t.id}" data-field="${nf}" value="${(t[nf]||'').replace(/"/g,'&quot;')}" placeholder="${manage?'Manager note…':'My note…'}"/></div>`;
+    return `<div class="mcard ${done?'done':''}">
+      <div class="mtop"><span class="mclient">${t.client||'—'}</span>${statusSel}</div>
+      <div class="mttl ${done?'mdone':''}">${t.title}</div>
+      <div class="mrow">${prio}${due}${meta}</div>
+      ${notes}</div>`;
+  }).join('');
+  return `${showFilters?filterBar(manage):''}<div class="mcards">${cards||'<div class="empty">No tasks match these filters.</div>'}</div>`;
+}
+
+function render(){
+  renderChrome();
+  const me=empById(identityId);
+  const manage = me.role!=='executive';
+  const ts=visibleTasks();
+  let html='';
+  if(view==='tasks'){
+    html += summaryBar(ts);
+    if(manage && !isMobile()){ const wl=visiblePeople().filter(p=>p.role!=='owner'); html += workloadTable(wl.length?wl:visiblePeople(),ts); }
+    html += isMobile()? mobileCards(manage) : grid(manage);
+  } else if(view==='review'){
+    filters={...filters}; // keep
+    const saved=visibleTasks;
+    html += `<div class="lbl" style="padding-bottom:6px">Review queue — your team's tasks awaiting sign-off</div>`;
+    html += isMobile()? mobileCards(manage, visibleTasks().filter(t=>t.status==='Review'), false) : reviewGrid();
+  } else if(view==='clients'){ html += clientsView(); }
+  else if(view==='team'){ html += workloadTable(employees.filter(e=>e.role!=='owner'),tasks); }
+  else if(view==='organization'){ html += orgView(); }
+  else if(view==='completed'){ html += completedView(); }
+  $('#content').innerHTML = html;
+  const fab=$('#fab'); if(fab) fab.style.display = (manage && isMobile() && view==='tasks') ? 'flex' : 'none';
+  wire();
+}
+
+function reviewGrid(){
+  const list=visibleTasks().filter(t=>t.status==='Review');
+  const body=list.map(t=>{
+    const sel=(field,options,val)=>`<select class="cell" data-id="${t.id}" data-field="${field}">${options.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}</select>`;
+    return `<tr>
+      <td>${t.client}</td><td style="min-width:220px">${t.title}</td><td>${nameOf(t.assigned)}</td>
+      <td>${pill('p-'+t.priority,t.priority)}</td><td>${t.due}</td>
+      <td class="editable">${sel('status',['To Do','In Progress','Waiting','Review','Done'],t.status)}</td>
+      <td class="editable" style="min-width:160px"><input class="cell" data-id="${t.id}" data-field="mnotes" value="${(t.mnotes||'').replace(/"/g,'&quot;')}" placeholder="Manager note…"/></td></tr>`;
+  }).join('');
+  return `<div style="overflow:auto"><table class="grid"><thead><tr><th>Client</th><th>Task</th><th>Employee</th><th>Priority</th><th>Deadline</th><th>Status</th><th>Manager Notes</th></tr></thead>
+    <tbody>${body||`<tr><td colspan="7" class="empty">Nothing awaiting review.</td></tr>`}</tbody></table></div>`;
+}
+
+/* ---------------- interactions ---------------- */
+function flashSave(){const el=$('#saveState');if(!el)return;el.textContent='Saving…';el.classList.remove('ok');
+  setTimeout(()=>{el.textContent='Saved ✓';el.classList.add('ok');setTimeout(()=>{if(el)el.textContent='';},900);},250);}
+
+function update(id,field,value){
+  const t=tasks.find(x=>x.id===id); if(!t)return;
+  t[field]=value; t.updated=iso(0);
+  if(field==='status'){ t.completed = value==='Done'? iso(0) : null; }
+  flashSave();
+  // re-render live so summary + workload reflect the change
+  render();
+}
+
+function wire(){
+  document.querySelectorAll('#nav a').forEach(a=>a.onclick=()=>{view=a.dataset.view;render();});
+  document.querySelectorAll('#bottomnav a').forEach(a=>a.onclick=()=>{view=a.dataset.view;render();});
+  const fab=$('#fab'); if(fab) fab.onclick=addTask;
+  $('#roleSwitch').onchange=e=>{identityId=e.target.value;view='tasks';filters={q:'',emp:'',status:'',priority:'',client:'',overdue:false};render();};
+
+  // filters
+  const q=$('#f-q'); if(q) q.oninput=e=>{filters.q=e.target.value;softRegrid();};
+  const fe=$('#f-emp'); if(fe) fe.onchange=e=>{filters.emp=e.target.value;softRegrid();};
+  const fs=$('#f-status'); if(fs) fs.onchange=e=>{filters.status=e.target.value;softRegrid();};
+  const fp=$('#f-priority'); if(fp) fp.onchange=e=>{filters.priority=e.target.value;softRegrid();};
+  const fc=$('#f-client'); if(fc) fc.onchange=e=>{filters.client=e.target.value;softRegrid();};
+  const fo=$('#f-overdue'); if(fo) fo.onchange=e=>{filters.overdue=e.target.checked;softRegrid();};
+  const fclr=$('#f-clear'); if(fclr) fclr.onclick=()=>{filters={q:'',emp:'',status:'',priority:'',client:'',overdue:false};render();};
+  const add=$('#addTask'); if(add) add.onclick=addTask;
+
+  // sortable headers
+  document.querySelectorAll('.grid thead th[data-sort]').forEach(th=>th.onclick=()=>{
+    const k=th.dataset.sort; if(sort.key===k) sort.dir*=-1; else {sort.key=k;sort.dir=1;} render();
+  });
+
+  // editable cells
+  document.querySelectorAll('.cell').forEach(el=>{
+    const id=el.dataset.id, field=el.dataset.field;
+    if(el.tagName==='SELECT'||el.type==='date'){ el.onchange=()=>update(id,field,el.value); }
+    else { el.onblur=()=>{const cur=(tasks.find(x=>x.id===id)||{})[field]||'';if(el.value!==cur)update(id,field,el.value);};
+           el.onkeydown=e=>{if(e.key==='Enter')el.blur();}; }
+  });
+}
+
+// re-render just the grid area for snappy filtering without losing focus context
+function softRegrid(){ render(); const q=$('#f-q'); if(q && document.activeElement!==q){/*noop*/} }
+
+function addTask(){
+  const me=empById(identityId);
+  const who = me.role==='executive'? me.id : (me.role==='senior'? me.id : 'and');
+  tasks.unshift({id:'t'+(TID++),title:'New task',assigned:who,client:clients[0],priority:'Medium',status:'To Do',
+    due:iso(3),waiting:'',mnotes:'',enotes:'',updated:iso(0),completed:null});
+  flashSave(); render();
+}
+
+render();
+window.matchMedia('(max-width:760px)').addEventListener('change', render);
+</script>
+</body>
+</html>
