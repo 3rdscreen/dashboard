@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEXUS by 3RDS</title>
+<style>
+  :root{
+    --bd:#e5e7eb; --head:#f8fafc; --muted:#6b7280; --ink:#111827; --line:#f1f3f5;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);font-size:13px;background:#fff}
+  .app{display:flex;height:100vh}
+  /* sidebar */
+  aside{width:176px;flex:0 0 176px;border-right:1px solid var(--bd);background:var(--head);display:flex;flex-direction:column}
+  .brand{padding:12px;border-bottom:1px solid var(--bd)}
+  .brand b{font-size:14px}
+  .brand small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+  nav{padding:8px 0;flex:1}
+  nav a{display:block;padding:6px 12px;color:#4b5563;text-decoration:none;font-size:13px;cursor:pointer}
+  nav a:hover{background:#fff}
+  nav a.active{background:#fff;color:#111;font-weight:600;border-left:2px solid #111827}
+  .sb-foot{padding:12px;color:var(--muted);font-size:11px;border-top:1px solid var(--bd)}
+  /* main */
+  main{flex:1;overflow:auto;min-width:0}
+  .topbar{display:flex;align-items:center;gap:12px;padding:9px 16px;border-bottom:1px solid var(--bd)}
+  .topbar h1{font-size:14px;margin:0;font-weight:600}
+  .spacer{flex:1}
+  .viewas{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .viewas select{font:inherit;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:#fff}
+  .banner{background:#fffbeb;border-bottom:1px solid #fde68a;color:#92400e;font-size:11.5px;padding:6px 16px}
+  /* summary */
+  .summary{display:flex;gap:0;padding:10px 16px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+  .summary .m{display:flex;flex-direction:column;min-width:82px;padding:0 14px;border-left:1px solid var(--line)}
+  .summary .m:first-child{border-left:none;padding-left:0}
+  .summary .m b{font-size:18px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums}
+  .summary .m span{color:var(--muted);font-size:11px;margin-top:2px;white-space:nowrap}
+  .summary .m b.warn{color:#dc2626}
+  /* section label */
+  .lbl{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:#9ca3af;padding:10px 16px 2px}
+  /* tables */
+  table{border-collapse:collapse;width:100%}
+  th,td{padding:6px 8px;white-space:nowrap;font-size:12px}
+  .grid thead th{position:sticky;top:0;background:var(--head);border-bottom:1px solid var(--bd);text-align:left;color:#6b7280;font-weight:500;cursor:pointer;user-select:none;z-index:2}
+  .grid tbody td{border-bottom:1px solid var(--line)}
+  .grid tbody tr:hover{background:#fcfdff}
+  .wl{padding:0 16px 10px}
+  .wl table td,.wl table th{padding:8px 12px}
+  .wl thead th{color:#6b7280;font-weight:500;text-align:left;border-bottom:1px solid var(--bd)}
+  .wl tbody td{border-bottom:1px solid var(--line)}
+  .r{text-align:right}
+  .n{text-align:left;min-width:70px;padding-right:14px;font-variant-numeric:tabular-nums}
+  .wl table{width:100%;max-width:1200px;font-size:13px}
+  .wl th:first-child,.wl td:first-child{padding-left:0}
+  .redtext{color:#dc2626;font-weight:600}
+  /* cells */
+  .cell{width:100%;border:none;background:transparent;font:inherit;color:inherit;padding:2px 0;outline:none}
+  select.cell{cursor:pointer;-webkit-appearance:none;appearance:none}
+  td.editable:hover{background:#eff6ff;outline:1px solid #dbeafe}
+  td.od{background:#fef2f2}
+  td.today{background:#fffbeb}
+  tr.done{opacity:.55}
+  tr.done .title{text-decoration:line-through}
+  .pill{display:inline-flex;align-items:center;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600}
+  .p-Low{background:#ecfdf5;color:#047857}.p-Medium{background:#fffbeb;color:#b45309}.p-High{background:#fef2f2;color:#b91c1c}
+  .s-todo{background:#f3f4f6;color:#4b5563}.s-prog{background:#eff6ff;color:#1d4ed8}.s-wait{background:#f5f3ff;color:#6d28d9}.s-rev{background:#fffbeb;color:#92400e}.s-done{background:#ecfdf5;color:#047857}
+  .l-Low{background:#d1fae5;color:#065f46}.l-Medium{background:#ffedd5;color:#9a3412}.l-High{background:#fee2e2;color:#991b1b}
+  /* filter bar */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 16px;border-bottom:1px solid var(--bd);font-size:12px}
+  .filters input[type=text],.filters select{font:inherit;padding:4px 6px;border:1px solid var(--bd);border-radius:6px;background:#fff}
+  .filters label{display:flex;align-items:center;gap:4px;color:#4b5563}
+  .btn{background:#111827;color:#fff;border:none;border-radius:6px;padding:5px 10px;font:inherit;font-weight:600;cursor:pointer}
+  .btn.ghost{background:#fff;color:#374151;border:1px solid var(--bd);font-weight:500}
+  .save{font-size:11px;color:#9ca3af;min-width:64px}
+  .save.ok{color:#059669}
+  /* org */
+  .org{padding:14px 18px}
+  .org ul{list-style:none;margin:0;padding-left:18px;border-left:1px solid var(--bd)}
+  .org>ul{border-left:none;padding-left:0}
+  .org li{padding:3px 0}
+  .org .nm{font-weight:600}
+  .org .rl{color:#6b7280}
+  .empty{padding:26px;text-align:center;color:#9ca3af}
+  .warnbadge{margin-left:4px;color:#ef4444;font-weight:700}
+
+  /* ---------- mobile ---------- */
+  .topbrand{display:none}
+  .bottomnav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bd);z-index:30}
+  .bottomnav a{flex:1;text-align:center;padding:9px 4px 8px;font-size:11px;color:#6b7280;text-decoration:none;cursor:pointer}
+  .bottomnav a.active{color:#111827;font-weight:600;box-shadow:inset 0 2px 0 #111827}
+  .fab{display:none;position:fixed;right:16px;bottom:76px;z-index:31;width:52px;height:52px;border-radius:50%;background:#111827;color:#fff;border:none;font-size:26px;line-height:1;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.22);cursor:pointer}
+  .mcards{padding:10px 12px}
+  .mcard{border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff}
+  .mcard.done{opacity:.55}
+  .mtop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .mclient{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mttl{font-size:15px;font-weight:600;margin:8px 0}
+  .mttl.mdone{text-decoration:line-through}
+  .mrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .mmeta{font-size:12px;color:#6b7280;margin-left:auto}
+  .mstatus{font-size:12px;font-weight:600;padding:8px 10px;border:1px solid var(--bd);border-radius:9px;background:#f8fafc;min-height:40px}
+  .mprio{font-size:12px;padding:8px 10px;border:1px solid var(--bd);border-radius:9px;min-height:40px}
+  .mdue{font-size:13px}.mdue.od{color:#dc2626;font-weight:600}.mdue.today{color:#b45309;font-weight:600}
+  .mnote{margin-top:8px;width:100%}
+  .mnote input{width:100%;border:1px solid var(--bd);border-radius:9px;padding:8px 10px;font:inherit;min-height:40px}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:8px 12px}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border:1px solid var(--bd);border-radius:999px;background:#fff;font-size:13px;color:#374151;cursor:pointer;white-space:nowrap;min-height:40px}
+  .chip .c{font-weight:700}
+  .chip.active{background:#111827;color:#fff;border-color:#111827}
+  .chip.warn .c{color:#ef4444}
+  .chip.active.warn .c{color:#fff}
+  .msearch{padding:10px 12px 2px}
+  .msearch input{width:100%;border:1px solid var(--bd);border-radius:10px;padding:12px;font:inherit;min-height:46px}
+  .mclear{padding:2px 12px 4px}
+  .mclear button{background:none;border:none;color:#6b7280;font:inherit;text-decoration:underline;cursor:pointer;padding:6px 0}
+
+  @media (max-width:760px){
+    .app{display:block;height:auto}
+    aside{display:none}
+    main{height:auto;overflow:visible;padding-bottom:78px}
+    .topbar{position:sticky;top:0;background:#fff;z-index:6;flex-wrap:wrap;gap:8px;padding:10px 14px}
+    .topbrand{display:inline-flex;align-items:baseline;gap:6px;font-size:16px;font-weight:700}
+    .topbrand span{font-size:10px;color:#9ca3af;font-weight:500}
+    .topbar h1{font-size:12.5px;color:#6b7280;font-weight:600;order:5;width:100%;margin:0}
+    .spacer{display:none}
+    .viewas{margin-left:auto;font-size:11px}
+    .viewas select{padding:7px 8px;min-height:38px}
+    .banner{font-size:11px}
+    .summary{flex-wrap:nowrap;overflow-x:auto;gap:16px}
+    .summary::-webkit-scrollbar{display:none}
+    .filters{flex-wrap:nowrap;overflow-x:auto;gap:8px}
+    .filters::-webkit-scrollbar{display:none}
+    .filters input[type=text]{min-width:130px}
+    .filters select,.filters input[type=text]{min-height:38px}
+    .filters #addTask{display:none}
+    .wl{overflow-x:auto}
+    .bottomnav{display:flex}
+    .valabel{display:none}
+    .viewas select{border:1px solid var(--bd);border-radius:999px;background:#f8fafc;font-weight:600;padding:8px 12px}
+  }
+  /* ================= MOBILE APP LAYER ================= */
+  .mapp{display:none}
+  .toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:9px 16px;border-radius:999px;font-size:13px;font-weight:600;z-index:60;opacity:0;transition:opacity .18s;pointer-events:none}
+  .toast.show{opacity:1}
+  .mhead{position:sticky;top:0;z-index:12;background:#fff;border-bottom:1px solid var(--bd);padding:10px 14px}
+  .mhead-top{display:flex;align-items:center;gap:10px}
+  .mbrand2{font-weight:800;font-size:17px;letter-spacing:.4px}
+  .mbrand2 span{font-size:10px;color:#9ca3af;font-weight:600;margin-left:5px}
+  .mhead-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .iconbtn{width:40px;height:40px;border:1px solid var(--bd);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#374151}
+  .midselect{border:1px solid var(--bd);border-radius:999px;background:#f8fafc;font:inherit;font-weight:600;padding:8px 12px;min-height:40px;max-width:140px}
+  .mhead-sub{font-size:12px;color:#64748b;margin-top:7px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .msearchwrap{padding:9px 0 1px}
+  .msearchwrap input{width:100%;border:1px solid var(--bd);border-radius:10px;padding:12px;font:inherit;min-height:44px}
+  .mfilters{display:flex;gap:8px;overflow-x:auto;padding:10px 14px;border-bottom:1px solid var(--line)}
+  .mfilters::-webkit-scrollbar{display:none}
+  .fchip{flex:0 0 auto;padding:9px 14px;border:1px solid var(--bd);border-radius:999px;background:#fff;font-size:13px;color:#334155;cursor:pointer;white-space:nowrap;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+  .fchip .c{font-weight:700;font-variant-numeric:tabular-nums}
+  .fchip.active{background:#111827;color:#fff;border-color:#111827}
+  .fchip.warn .c{color:#dc2626}
+  .fchip.warn.active{background:#dc2626;border-color:#dc2626}
+  .fchip.warn.active .c{color:#fff}
+  .fbtn{margin-left:auto;font-weight:600}
+  .mlist{padding:12px}
+  .tcard{border:1px solid var(--bd);border-radius:13px;background:#fff;padding:13px;margin-bottom:11px;cursor:pointer;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+  .tcard:active{background:#fafafa}
+  .tcard.done{opacity:.5}
+  .tcard-top{display:flex;gap:8px;align-items:flex-start}
+  .tcard-client{flex:1;min-width:0;font-size:11.5px;font-weight:700;color:#334155;letter-spacing:.03em;line-height:1.35;white-space:normal;word-break:break-word;overflow-wrap:anywhere;text-transform:uppercase}
+  .tcard-emp{flex:0 0 auto;font-size:11px;color:#475569;background:#f1f5f9;border-radius:6px;padding:3px 8px;white-space:nowrap}
+  .tcard-title{font-size:15px;font-weight:600;color:#0f172a;margin:7px 0 11px;line-height:1.32;white-space:normal;word-break:break-word;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .tcard.done .tcard-title{text-decoration:line-through}
+  .tcard-meta{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .tcard-meta .dot{color:#cbd5e1}
+  .meta-due{font-size:13px;color:#475569}
+  .meta-due.od{color:#dc2626;font-weight:700}
+  .meta-due.today{color:#b45309;font-weight:700}
+  .statuschip{font-size:12px;font-weight:600;padding:7px 11px;border-radius:999px;border:none;cursor:pointer;min-height:34px}
+  .grouphead{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 8px}
+  .grouphead .gh-name{font-size:14px;font-weight:700}
+  .grouphead .gh-sub{font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px}
+  .rowlist{padding:10px 12px 20px}
+  .rrow{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--bd);border-radius:13px;background:#fff;margin-bottom:9px;cursor:pointer;min-height:58px;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+  .rrow:active{background:#fafafa}
+  .rrow .rname{flex:1;min-width:0;font-weight:600;font-size:14px;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+  .rrow .rstat{font-size:12px;color:#64748b;display:flex;gap:12px;align-items:center;flex:0 0 auto}
+  .rrow .rstat b{color:#0f172a;font-variant-numeric:tabular-nums}
+  .rrow .rstat .od b,.rrow .rstat .od{color:#dc2626}
+  /* bottom sheet */
+  .sheet-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end}
+  .sheet-wrap[hidden]{display:none}
+  .sheet-overlay{position:absolute;inset:0;background:rgba(15,23,42,.45)}
+  .sheet{position:relative;width:100%;background:#fff;border-radius:20px 20px 0 0;max-height:88vh;overflow:auto;padding:6px 18px 26px;animation:sheetUp .2s ease-out}
+  @keyframes sheetUp{from{transform:translateY(24px)}to{transform:translateY(0)}}
+  .sheet .grab{width:40px;height:4px;background:#e2e8f0;border-radius:2px;margin:8px auto 14px}
+  .sheet h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin:4px 0 10px;font-weight:700}
+  .sheet .sclient{font-size:11.5px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:.03em;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+  .sheet .stitle{font-size:18px;font-weight:700;margin:3px 0 14px;line-height:1.3;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+  .opt{display:flex;align-items:center;gap:10px;padding:15px 14px;border:1px solid var(--bd);border-radius:12px;margin-bottom:9px;font-size:15px;cursor:pointer;min-height:52px}
+  .opt.sel{border-color:#111827;background:#f8fafc;font-weight:700}
+  .sheet label{display:block;font-size:12px;color:#64748b;margin:12px 0 5px;font-weight:600}
+  .sheet input,.sheet select,.sheet textarea{width:100%;border:1px solid var(--bd);border-radius:11px;padding:13px;font:inherit;min-height:48px;background:#fff}
+  .sheet textarea{min-height:96px;resize:vertical}
+  .sheet .primary{width:100%;background:#111827;color:#fff;border:none;border-radius:12px;padding:15px;font:inherit;font-weight:700;margin-top:16px;min-height:52px;cursor:pointer}
+  .sheet .ghostbtn{width:100%;background:#fff;border:1px solid var(--bd);border-radius:12px;padding:13px;font:inherit;margin-top:9px;min-height:48px;cursor:pointer}
+  .sheet .drow{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .sheet .drow .k{color:#64748b;flex:0 0 auto}
+  .sheet .drow .v{font-weight:600;text-align:right;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+
+  @media (max-width:760px){
+    .topbar{display:none}
+    .banner{display:none}
+    .mapp{display:block}
+    main{padding-bottom:82px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><b>NEXUS</b> <span style="font-size:11px;color:#9ca3af">by 3RDS</span><small id="whoami">Owner</small></div>
+    <nav id="nav"></nav>
+    <div class="sb-foot">Visual preview · sample data<br/>no database connected</div>
+  </aside>
+  <main>
+    <div class="topbar">
+      <b class="topbrand">NEXUS <span>by 3RDS</span></b>
+      <h1 id="pageTitle">Tasks</h1>
+      <div class="spacer"></div>
+      <div class="viewas">
+        <span class="valabel">View as</span>
+        <select id="roleSwitch"></select>
+      </div>
+    </div>
+    <div class="banner">Preview only — data lives in the page and resets on refresh. This is the real UI/UX; the full version is backed by Supabase + row-level security.</div>
+    <div id="content"></div>
+  </main>
+</div>
+<nav class="bottomnav" id="bottomnav"></nav>
+<button class="fab" id="fab" title="Add task">+</button>
+<div class="toast" id="toast"></div>
+<div class="sheet-wrap" id="sheet" hidden><div class="sheet-overlay"></div><div class="sheet" id="sheetBody"></div></div>
+
+<script>
+/* ---------------- sample data (mirrors the seed) ---------------- */
+const iso = off => { const d=new Date(); d.setDate(d.getDate()+off); return d.toISOString().slice(0,10); };
+
+const employees = [
+  {id:'ibr', name:'Ibra',    role:'owner',  manager:null},
+  {id:'and', name:'Andrew',  role:'senior', manager:'ibr'},
+  {id:'dan', name:'Daniel',  role:'senior', manager:'ibr'},
+  {id:'cha', name:'Charbel', role:'executive', manager:'ibr'},
+  {id:'iss', name:'ISSA',    role:'executive', manager:'dan'},
+  {id:'mal', name:'Malass',  role:'executive', manager:'and'},
+  {id:'pet', name:'Peter',   role:'executive', manager:'and'},
+];
+const clients = [
+  // Andrew
+  'NOKNOK','BeBeach','Giulia','White AD','Mez JBR','Bazaar','StudioA','METT Barcelona',
+  '1925 Vemeturia','Alabrada','METT Singapore','SIRENE Beach','METT Marbella',
+  'Ammos Marbella','Azure Marbella','Isola Marbella',
+  'METT Bodrum','Folie - Bodrum','YMH','Aura Beach','CASA METT - Sitges','Balera','LITS - Kenya','Billionaire - Kenya',
+  // Daniel
+  'Shift Clinics','Clinica Joelle','AESTRA Design','Mood & Stage - Bahrain','Arabian Group - Syria',
+  'Special Events','Special Events - UAE','Special Events - Kids','Special Events - Beirut',
+  'Dream Dubai','SushiSamba Dubai','SushiSamba AD','eCom 605','eCom Depeche Mode',
+  'e-Com SeaSide','eCom AndreaWazen','e-Com wtrBoost',
+  'eCom MaisonRemie','eCom Objeti','eCom OOK','eCom Baladi','eCom EyeCandy',
+  // Charbel
+  'Iris Beirut','Clap Beirut','BDP Beirut','ForSpa - Beirut','Mez Beirut','BDP Beach',
+  'Robertos Dubai','Billionaire Dubai','Tapasake','BeefBar','LePetit Beefbar',
+  'Geneve - Khora','Geneve - Alma','DRIFT Beach - Dubai','BAOLI - Dubai','Ammos Dubai','LRDV - Monaco',
+  'CAFFE LRDV - Monaco','Cipriani - Monaco','AZURE Beach - Dubai',
+  // ISSA
+  'JIC','Isola','Raise','Joe Backyard','212 Lebanon','Omoda & Jacoo','LAMO & Delizie',
+  'MOTT32 Dubai','HANU Dubai','SignorSassi','Attiko Dubai','Royal Marrakech - Bahrain',
+  // Malass
+  'CREATE Agency','Cipriani Dubai','Cipriani Dolci - Riyadh','Gaia Dubai','Epik & Mood Dubai',
+];
+
+let TID = 1;
+const mk = (title,who,client,priority,status,due)=>({
+  id:'t'+(TID++), title, assigned:who, client, priority, status,
+  due:iso(due), waiting: status==='Waiting'?'Client reply':'', mnotes:'', enotes:'',
+  updated: iso(0), completed: status==='Done'? iso(due) : null
+});
+let tasks = [
+  // Andrew — overloaded (High)
+  mk('Meta campaign refresh','and','NOKNOK','High','In Progress',-1),
+  mk('Google Ads audit','and','Mez JBR','Medium','To Do',1),
+  mk('New creative batch','and','METT Barcelona','High','In Progress',0),
+  mk('Monthly report','and','SIRENE Beach','Medium','Review',2),
+  mk('Launch summer promo','and','METT Marbella','High','To Do',3),
+  mk('Snap ads setup','and','White AD','Low','To Do',5),
+  mk('Landing page QA','and','StudioA','Medium','To Do',4),
+  mk('Audience research','and','METT Singapore','Low','To Do',6),
+  mk('Pixel fix','and','Bazaar','Medium','Waiting',2),
+  mk('August recap','and','NOKNOK','Low','Done',-2),
+  // Daniel — overloaded (High)
+  mk('Fix product feed','dan','eCom 605','High','In Progress',-2),
+  mk('Meta catalog setup','dan','eCom Depeche Mode','High','To Do',1),
+  mk('Google Shopping audit','dan','SushiSamba Dubai','Medium','To Do',2),
+  mk('Event promo push','dan','Special Events - UAE','Medium','In Progress',0),
+  mk('Clinic lead campaign','dan','Clinica Joelle','Low','To Do',4),
+  mk('Bahrain launch','dan','Mood & Stage - Bahrain','Medium','Waiting',3),
+  mk('Creative refresh','dan','Dream Dubai','Medium','To Do',5),
+  mk('Weekly report','dan','AESTRA Design','Low','Review',1),
+  mk('UTM setup','dan','Dream Dubai','Low','Done',-1),
+  // Charbel — overloaded (High)
+  mk('Grand opening campaign','cha','Iris Beirut','High','In Progress',-1),
+  mk('Meta ads scale','cha','BDP Beach','High','To Do',1),
+  mk('Seasonal creative','cha','BDP Beirut','High','In Progress',0),
+  mk('Report + insights','cha','Tapasake','Medium','Review',2),
+  mk('Menu launch promo','cha','BeefBar','Low','To Do',4),
+  mk('Influencer brief','cha','Billionaire Dubai','Low','Waiting',3),
+  mk('Google setup','cha','Robertos Dubai','Low','To Do',5),
+  mk('Leads export','cha','Ammos Dubai','Low','Done',-1),
+  // ISSA — light (Low)
+  mk('Monthly report','iss','MOTT32 Dubai','Low','To Do',4),
+  mk('Meta refresh','iss','SignorSassi','Medium','In Progress',3),
+  mk('Content plan','iss','212 Lebanon','Low','To Do',6),
+  mk('Campaign setup','iss','Omoda & Jacoo','Low','To Do',5),
+  mk('Report sent','iss','HANU Dubai','Low','Done',-2),
+  // Peter — new, executive under Andrew (Low)
+  mk('Meta setup','pet','Isola Marbella','Low','To Do',5),
+  mk('Creative brief','pet','Azure Marbella','Medium','In Progress',3),
+  mk('Weekly report','pet','Ammos Marbella','Low','Review',2),
+  // Malass — light (Low)
+  mk('Brand launch','mal','CREATE Agency','High','In Progress',3),
+  mk('Meta setup','mal','Cipriani Dubai','Low','To Do',5),
+  mk('Riyadh promo','mal','Cipriani Dolci - Riyadh','Low','To Do',6),
+];
+
+/* ---------------- compute helpers ---------------- */
+const TODAY = iso(0);
+const empById = id => employees.find(e=>e.id===id);
+const nameOf  = id => (empById(id)||{}).name || '—';
+const isActive  = t => t.status!=='Done';
+const isOverdue = t => t.status!=='Done' && t.due && t.due < TODAY;
+const isDueToday= t => t.status!=='Done' && t.due===TODAY;
+function computeLoad(ts){
+  const a=ts.filter(isActive).length, o=ts.filter(isOverdue).length, d=ts.filter(isDueToday).length;
+  if(a>=8||o>=1||d>=2) return 'High';
+  if(a>=5) return 'Medium';
+  return 'Low';
+}
+function startOfWeek(){const d=new Date();const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return d.toISOString().slice(0,10);}
+function summarize(ts){const wk=startOfWeek();return{
+  open:ts.filter(isActive).length, dueToday:ts.filter(isDueToday).length, overdue:ts.filter(isOverdue).length,
+  waiting:ts.filter(t=>t.status==='Waiting').length, review:ts.filter(t=>t.status==='Review').length,
+  done:ts.filter(t=>t.completed&&t.completed>=wk).length };}
+
+/* ---------------- role-scoped visibility (mirrors RLS) ---------------- */
+let identityId = 'ibr';          // who am I viewing as
+let view = 'tasks';
+let filters = {q:'',emp:'',status:'',priority:'',client:'',overdue:false,quick:''};
+let sort = {key:'due', dir:1};
+let searchOpen=false;
+
+function directReports(id){return employees.filter(e=>e.manager===id).map(e=>e.id);}
+function visibleTasks(){
+  const me = empById(identityId);
+  if(me.role==='owner'||me.role==='admin') return tasks.slice();
+  if(me.role==='senior'){const team=new Set([me.id,...directReports(me.id)]);return tasks.filter(t=>team.has(t.assigned));}
+  return tasks.filter(t=>t.assigned===me.id); // executive
+}
+function visiblePeople(){
+  const me = empById(identityId);
+  if(me.role==='owner'||me.role==='admin') return employees.filter(e=>e.role!=='owner'? true:true);
+  if(me.role==='senior') return employees.filter(e=>e.id===me.id||e.manager===me.id);
+  return [me];
+}
+function navItems(){
+  const me=empById(identityId);
+  if(me.role==='owner'||me.role==='admin') return [['tasks','Tasks'],['clients','Clients'],['team','Team'],['organization','Organization'],['completed','Completed']];
+  if(me.role==='senior') return [['tasks','My Team'],['review','Needs Review'],['completed','Completed']];
+  return [['tasks','My Tasks'],['completed','Completed']];
+}
+
+/* ---------------- rendering ---------------- */
+const $ = s => document.querySelector(s);
+function pill(cls,txt){return `<span class="pill ${cls}">${txt}</span>`;}
+const statusClass = s => ({'To Do':'s-todo','In Progress':'s-prog','Waiting':'s-wait','Review':'s-rev','Done':'s-done'}[s]);
+
+function renderChrome(){
+  const me=empById(identityId);
+  $('#whoami').textContent = me.title ? (me.name+' · '+me.title) : me.name;
+  // role switch
+  const rs=$('#roleSwitch');
+  rs.innerHTML = employees.map(e=>`<option value="${e.id}" ${e.id===identityId?'selected':''}>${e.name}${e.title? ' · '+e.title : ''}</option>`).join('');
+  // nav
+  const items=navItems();
+  if(!items.find(i=>i[0]===view)) view=items[0][0];
+  const navHtml = items.map(([k,l])=>`<a data-view="${k}" class="${k===view?'active':''}">${l}</a>`).join('');
+  $('#nav').innerHTML = navHtml;
+  $('#bottomnav').innerHTML = navHtml;
+  const titles={tasks:me.role==='owner'||me.role==='admin'?'Tasks · whole agency':(me.role==='senior'?'My Team':'My Tasks'),clients:'Clients',team:'Team',organization:'Organization',completed:'Completed',review:'Needs Review'};
+  $('#pageTitle').textContent = titles[view]||'Tasks';
+}
+
+function summaryBar(ts){
+  const s=summarize(ts);
+  const m=(v,l,warn)=>`<div class="m"><b class="${warn&&v>0?'warn':''}">${v}</b><span>${l}</span></div>`;
+  return `<div class="summary">${m(s.open,'Open')}${m(s.dueToday,'Due Today')}${m(s.overdue,'Overdue',true)}${m(s.waiting,'Waiting')}${m(s.review,'In Review')}${m(s.done,'Done / wk')}</div>`;
+}
+
+function workloadTable(people,ts){
+  const rows=people.map(p=>{
+    const mine=ts.filter(t=>t.assigned===p.id);
+    const wk=startOfWeek();
+    return {p, open:mine.filter(isActive).length, due:mine.filter(isDueToday).length, od:mine.filter(isOverdue).length,
+      wait:mine.filter(t=>t.status==='Waiting').length, rev:mine.filter(t=>t.status==='Review').length,
+      done:mine.filter(t=>t.completed&&t.completed>=wk).length, load:computeLoad(mine)};
+  });
+  return `<div class="lbl">Team workload</div><div class="wl"><table>
+    <thead><tr><th>Employee</th><th class="n">Open</th><th class="n">Due</th><th class="n">Overdue</th><th class="n">Wait</th><th class="n">Review</th><th class="n">Done/wk</th><th class="n">Load</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td>${r.p.name}</td>
+      <td class="n">${r.open}</td><td class="n">${r.due}</td><td class="n ${r.od?'redtext':''}">${r.od}</td>
+      <td class="n">${r.wait}</td><td class="n">${r.rev}</td><td class="n">${r.done}</td>
+      <td class="n">${pill('l-'+r.load,r.load)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function filterBar(manage){
+  const opt=(v,txt,sel)=>`<option value="${v}" ${sel?'selected':''}>${txt}</option>`;
+  const people=visiblePeople();
+  return `<div class="filters">
+    <input type="text" id="f-q" placeholder="Search…" value="${filters.q}" style="width:150px"/>
+    ${manage?`<select id="f-emp"><option value="">All employees</option>${people.map(p=>opt(p.id,p.name,filters.emp===p.id)).join('')}</select>`:''}
+    <select id="f-status"><option value="">All status</option>${['To Do','In Progress','Waiting','Review','Done'].map(s=>opt(s,s,filters.status===s)).join('')}</select>
+    <select id="f-priority"><option value="">All priority</option>${['Low','Medium','High'].map(p=>opt(p,p,filters.priority===p)).join('')}</select>
+    <select id="f-client"><option value="">All clients</option>${clients.map(c=>opt(c,c,filters.client===c)).join('')}</select>
+    <label><input type="checkbox" id="f-overdue" ${filters.overdue?'checked':''}/> Overdue</label>
+    <button class="btn ghost" id="f-clear">Clear</button>
+    <div class="spacer" style="flex:1"></div>
+    <span class="save" id="saveState"></span>
+    ${manage?`<button class="btn" id="addTask">+ Add task</button>`:''}
+  </div>`;
+}
+
+function applyFilters(list){
+  let v=list.filter(t=>{
+    if(filters.q){ const hay=(t.title+' '+(t.waiting||'')+' '+(t.client||'')+' '+nameOf(t.assigned)).toLowerCase(); if(!hay.includes(filters.q.toLowerCase())) return false; }
+    if(filters.emp && t.assigned!==filters.emp) return false;
+    if(filters.status && t.status!==filters.status) return false;
+    if(filters.priority && t.priority!==filters.priority) return false;
+    if(filters.client && t.client!==filters.client) return false;
+    if(filters.overdue && !isOverdue(t)) return false;
+    if(filters.quick==='open'    && t.status==='Done') return false;
+    if(filters.quick==='today'   && !isDueToday(t)) return false;
+    if(filters.quick==='overdue' && !isOverdue(t)) return false;
+    if(filters.quick==='waiting' && t.status!=='Waiting') return false;
+    if(filters.quick==='review'  && t.status!=='Review') return false;
+    if(filters.quick==='done'    && t.status!=='Done') return false;
+    return true;
+  });
+  v.sort((a,b)=>{const x=(a[sort.key]??'')+'',y=(b[sort.key]??'')+'';return x<y?-sort.dir:x>y?sort.dir:0;});
+  return v;
+}
+
+function grid(manage){
+  const list=applyFilters(visibleTasks());
+  const th=(k,l)=>`<th data-sort="${k}">${l}${sort.key===k?(sort.dir===1?' ↑':' ↓'):''}</th>`;
+  const head = manage
+    ? th('client','Client')+th('title','Task')+th('assigned','Employee')+th('priority','Priority')+th('due','Deadline')+th('status','Status')+th('waiting','Waiting On')+`<th>Manager Notes</th>`+th('updated','Updated')
+    : th('client','Client')+th('title','Task')+th('priority','Priority')+th('due','Deadline')+th('status','Status')+th('waiting','Waiting On')+`<th>My Notes</th>`;
+  const body = list.map(t=>{
+    const od=isOverdue(t),today=isDueToday(t),done=t.status==='Done';
+    const sel=(field,options,val)=>`<select class="cell" data-id="${t.id}" data-field="${field}">${options.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}</select>`;
+    const empSel=`<select class="cell" data-id="${t.id}" data-field="assigned">${employees.map(e=>`<option value="${e.id}" ${e.id===t.assigned?'selected':''}>${e.name}</option>`).join('')}</select>`;
+    const cliSel=`<select class="cell" data-id="${t.id}" data-field="client">${clients.map(c=>`<option ${c===t.client?'selected':''}>${c}</option>`).join('')}</select>`;
+    const dateCell=`<input type="date" class="cell" data-id="${t.id}" data-field="due" value="${t.due||''}"/>`;
+    const titleCell=manage?`<input class="cell title" data-id="${t.id}" data-field="title" value="${t.title.replace(/"/g,'&quot;')}"/>`:`<span class="title">${t.title}</span>`;
+    const waitCell=`<input class="cell" data-id="${t.id}" data-field="waiting" value="${(t.waiting||'').replace(/"/g,'&quot;')}"/>`;
+    const notesField=manage?'mnotes':'enotes';
+    const notesCell=`<input class="cell" data-id="${t.id}" data-field="${notesField}" value="${(t[notesField]||'').replace(/"/g,'&quot;')}"/>`;
+    if(manage){
+      return `<tr class="${done?'done':''}">
+        <td class="editable">${cliSel}</td>
+        <td class="editable" style="min-width:220px">${titleCell}</td>
+        <td class="editable">${empSel}</td>
+        <td class="editable">${sel('priority',['Low','Medium','High'],t.priority)}</td>
+        <td class="editable ${od?'od':today?'today':''}">${dateCell}${od?'<span class="warnbadge" title="Overdue">!</span>':''}</td>
+        <td class="editable">${sel('status',['To Do','In Progress','Waiting','Review','Done'],t.status)}</td>
+        <td class="editable" style="min-width:120px">${waitCell}</td>
+        <td class="editable" style="min-width:150px">${notesCell}</td>
+        <td style="color:#9ca3af">${(t.updated||'').slice(5)}</td></tr>`;
+    }
+    return `<tr class="${done?'done':''}">
+      <td>${t.client}</td>
+      <td style="min-width:220px"><span class="title">${t.title}</span></td>
+      <td>${pill('p-'+t.priority,t.priority)}</td>
+      <td class="${od?'od':today?'today':''}"><span class="${od?'redtext':''}">${t.due||'—'}</span>${od?'<span class="warnbadge">!</span>':''}</td>
+      <td class="editable">${sel('status',['To Do','In Progress','Waiting','Review','Done'],t.status)}</td>
+      <td class="editable" style="min-width:120px">${waitCell}</td>
+      <td class="editable" style="min-width:150px">${notesCell}</td></tr>`;
+  }).join('');
+  return `${filterBar(manage)}<div style="overflow:auto"><table class="grid"><thead><tr>${head}</tr></thead>
+    <tbody>${body || `<tr><td colspan="9" class="empty">No tasks match these filters.</td></tr>`}</tbody></table></div>`;
+}
+
+function clientsView(){
+  const ts=visibleTasks();
+  const rows=clients.map(c=>{const s=summarize(ts.filter(t=>t.client===c));return`<tr>
+    <td>${c}</td><td class="n">${s.open}</td><td class="n ${s.overdue?'redtext':''}">${s.overdue}</td><td class="n">${s.review}</td><td class="n">${s.done}</td></tr>`;}).join('');
+  return `<div class="wl" style="padding-top:12px"><table>
+    <thead><tr><th>Client</th><th class="n">Open</th><th class="n">Overdue</th><th class="n">Review</th><th class="n">Done/wk</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function orgView(){
+  const build=(mgr)=>{
+    const kids=employees.filter(e=>e.manager===mgr);
+    if(!kids.length) return '';
+    return `<ul>${kids.map(k=>`<li><span class="nm">${k.name}</span>${k.title? ' <span class="rl">— '+k.title+'</span>' : ''}${build(k.id)}</li>`).join('')}</ul>`;
+  };
+  return `<div class="org">${build(null)}</div>`;
+}
+
+function completedView(){
+  const ts=visibleTasks().filter(t=>t.status==='Done').sort((a,b)=>(b.completed||'').localeCompare(a.completed||''));
+  const rows=ts.map(t=>`<tr><td>${t.title}</td><td style="color:#6b7280">${nameOf(t.assigned)}</td><td style="color:#9ca3af">${t.completed||''}</td></tr>`).join('');
+  return `<div class="wl" style="padding-top:12px"><table><thead><tr><th>Task</th><th>Employee</th><th>Completed</th></tr></thead>
+    <tbody>${rows||`<tr><td colspan="3" class="empty">Nothing completed yet.</td></tr>`}</tbody></table></div>`;
+}
+
+const isMobile = () => window.matchMedia('(max-width:760px)').matches;
+
+function statChips(ts){
+  const s=summarize(ts);
+  const items=[['open','Open',s.open,false],['today','Today',s.dueToday,false],['overdue','Overdue',s.overdue,true],
+               ['waiting','Waiting',s.waiting,false],['review','Review',s.review,false],['done','Done',s.done,false]];
+  return `<div class="chips" id="statchips">${items.map(([k,l,v,w])=>
+    `<button class="chip ${filters.quick===k?'active':''} ${w?'warn':''}" data-quick="${k}"><span class="c">${v}</span> ${l}</button>`).join('')}</div>`;
+}
+function personChips(){
+  const people=visiblePeople().filter(p=>p.role!=='owner');
+  if(people.length<=1) return '';
+  return `<div class="chips" id="personchips">
+    <button class="chip ${!filters.emp?'active':''}" data-emp="">Everyone</button>
+    ${people.map(p=>`<button class="chip ${filters.emp===p.id?'active':''}" data-emp="${p.id}">${p.name}</button>`).join('')}
+  </div>`;
+}
+function mobileSearch(){ return `<div class="msearch"><input id="f-q" placeholder="Search tasks…" value="${filters.q}"/></div>`; }
+function mobileClear(){ return (filters.q||filters.emp||filters.quick)
+  ? `<div class="mclear"><button id="mclear-btn">Clear filters</button></div>` : ''; }
+
+function mobileCards(manage, listOverride, showFilters){
+  if(showFilters===undefined) showFilters=true;
+  const data = listOverride || applyFilters(visibleTasks());
+  const cards = data.map(t=>{
+    const od=isOverdue(t), today=isDueToday(t), done=t.status==='Done';
+    const statusSel=`<select class="cell mstatus" data-id="${t.id}" data-field="status">${['To Do','In Progress','Waiting','Review','Done'].map(s=>`<option ${s===t.status?'selected':''}>${s}</option>`).join('')}</select>`;
+    const prio = manage
+      ? `<select class="cell mprio" data-id="${t.id}" data-field="priority">${['Low','Medium','High'].map(p=>`<option ${p===t.priority?'selected':''}>${p}</option>`).join('')}</select>`
+      : pill('p-'+t.priority,t.priority);
+    const due = manage
+      ? `<span class="mdue ${od?'od':today?'today':''}"><input type="date" class="cell" style="border:1px solid var(--bd);border-radius:9px;padding:7px 9px;min-height:40px" data-id="${t.id}" data-field="due" value="${t.due||''}"/></span>`
+      : `<span class="mdue ${od?'od':today?'today':''}">${t.due||'—'}${od?' !':''}</span>`;
+    const meta = manage ? `<span class="mmeta">${nameOf(t.assigned)}</span>` : '';
+    const nf = manage?'mnotes':'enotes';
+    const notes = `<div class="mnote"><input class="cell" data-id="${t.id}" data-field="${nf}" value="${(t[nf]||'').replace(/"/g,'&quot;')}" placeholder="${manage?'Manager note…':'My note…'}"/></div>`;
+    return `<div class="mcard ${done?'done':''}">
+      <div class="mtop"><span class="mclient">${t.client||'—'}</span>${statusSel}</div>
+      <div class="mttl ${done?'mdone':''}">${t.title}</div>
+      <div class="mrow">${prio}${due}${meta}</div>
+      ${manage?'':notes}</div>`;
+  }).join('');
+  return `${showFilters?filterBar(manage):''}<div class="mcards">${cards||'<div class="empty">No tasks match these filters.</div>'}</div>`;
+}
+
+/* ================= MOBILE ENGINE ================= */
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(d){ if(!d) return '—'; const p=d.split('-'); return MONTHS[(+p[1])-1]+' '+(+p[2]); }
+function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showToast(m){ const el=$('#toast'); if(!el) return; el.textContent=m; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),1100); }
+function openSheet(inner){ $('#sheetBody').innerHTML='<div class="grab"></div>'+inner; $('#sheet').hidden=false; }
+function closeSheet(){ $('#sheet').hidden=true; }
+
+function mobileNavItems(me){
+  if(me.role==='owner'||me.role==='admin') return [['tasks','Tasks'],['team','Team'],['clients','Clients'],['more','More']];
+  if(me.role==='senior') return [['mytasks','My Tasks'],['team','My Team'],['review','Review'],['more','More']];
+  return [['mytasks','My Tasks'],['completed','Completed']];
+}
+function subLabel(me){ return ({tasks:'Tasks',mytasks:'My Tasks',team:me.role==='senior'?'My Team':'Team',clients:'Clients',review:'Needs Review',completed:'Completed',organization:'Organization'})[view]||'Tasks'; }
+function teamTasks(me){ const ids=new Set([me.id,...directReports(me.id)]); return tasks.filter(t=>ids.has(t.assigned)); }
+function listForView(me){
+  if(view==='tasks') return (me.role==='owner'||me.role==='admin')? tasks.slice() : tasks.filter(t=>t.assigned===identityId);
+  if(view==='mytasks') return tasks.filter(t=>t.assigned===identityId);
+  if(view==='review') return visibleTasks().filter(t=>t.status==='Review');
+  if(view==='completed') return visibleTasks().filter(t=>t.status==='Done');
+  return visibleTasks();
+}
+function passQS(t){
+  if(filters.quick==='today'&&!isDueToday(t))return false;
+  if(filters.quick==='overdue'&&!isOverdue(t))return false;
+  if(filters.quick==='waiting'&&t.status!=='Waiting')return false;
+  if(filters.quick==='review'&&t.status!=='Review')return false;
+  if(filters.q){const hay=(t.title+' '+(t.client||'')+' '+nameOf(t.assigned)).toLowerCase(); if(!hay.includes(filters.q.toLowerCase()))return false;}
+  return true;
+}
+function taskCard(t,me){
+  const od=isOverdue(t), today=isDueToday(t), done=t.status==='Done';
+  const manager=me.role!=='executive';
+  const emp = manager? `<span class="tcard-emp">${esc(nameOf(t.assigned))}</span>`:'';
+  return `<div class="tcard ${done?'done':''}" data-open="${t.id}">
+    <div class="tcard-top"><div class="tcard-client">${esc(t.client||'—')}</div>${emp}</div>
+    <div class="tcard-title">${esc(t.title)}</div>
+    <div class="tcard-meta">
+      <span class="pill p-${t.priority}">${t.priority}</span><span class="dot">•</span>
+      <span class="meta-due ${od?'od':today?'today':''}">${fmtDate(t.due)}</span><span class="dot">•</span>
+      <button class="statuschip ${statusClass(t.status)}" data-status="${t.id}">${t.status}</button>
+    </div></div>`;
+}
+function chipBar(base){
+  const s=summarize(base);
+  const chips=[['','All',null],['today','Today',s.dueToday],['overdue','Overdue',s.overdue],['waiting','Waiting',s.waiting],['review','Review',s.review]];
+  return `<div class="mfilters">`+chips.map(([k,l,v])=>`<button class="fchip ${filters.quick===k?'active':''} ${k==='overdue'?'warn':''}" data-quick="${k}">${l}${v!=null?` <span class="c">${v}</span>`:''}</button>`).join('');
+}
+function taskListMobile(me){
+  const base=listForView(me);
+  let c=chipBar(base)+`<button class="fchip fbtn" id="mFiltersBtn">Filters</button></div>`;
+  const list=applyFilters(base);
+  const cards=list.length? list.map(t=>taskCard(t,me)).join('') : `<div class="empty">No tasks here.</div>`;
+  return c+`<div class="mlist" id="mlist">${cards}</div>`;
+}
+function ownerTeam(){
+  const rows=employees.filter(e=>e.role!=='owner').map(p=>{
+    const mine=tasks.filter(t=>t.assigned===p.id), open=mine.filter(isActive).length, od=mine.filter(isOverdue).length, load=computeLoad(mine);
+    return `<div class="rrow" data-emp="${p.id}"><div class="rname">${esc(p.name)}</div>
+      <div class="rstat"><span><b>${open}</b> open</span><span class="${od?'od':''}"><b>${od}</b> overdue</span>${pill('l-'+load,load)}</div></div>`;
+  }).join('');
+  return `<div class="rowlist">${rows}</div>`;
+}
+function ownerClients(){
+  const data=clients.map(c=>({c,s:summarize(tasks.filter(t=>t.client===c))}));
+  data.sort((a,b)=> b.s.open-a.s.open || a.c.localeCompare(b.c));
+  const rows=data.map(({c,s})=>`<div class="rrow" data-client="${esc(c)}"><div class="rname">${esc(c)}</div>
+    <div class="rstat"><span><b>${s.open}</b> open</span><span class="${s.overdue?'od':''}"><b>${s.overdue}</b> od</span><span><b>${s.waiting}</b> wait</span></div></div>`).join('');
+  return `<div class="rowlist">${rows}</div>`;
+}
+function seniorTeam(me){
+  const reports=employees.filter(e=>e.manager===me.id);
+  let out=chipBar(teamTasks(me))+`</div>`;
+  [me,...reports].forEach(p=>{
+    const all=tasks.filter(t=>t.assigned===p.id);
+    const mine=all.filter(passQS);
+    const open=all.filter(isActive).length, load=computeLoad(all);
+    out+=`<div class="grouphead"><div class="gh-name">${esc(p.name)}${p.id===me.id?' · me':''}</div><div class="gh-sub">${open} open ${pill('l-'+load,load)}</div></div>`;
+    out+=`<div class="mlist" style="padding-top:2px">`+(mine.length?mine.map(t=>taskCard(t,me)).join(''):`<div class="empty" style="padding:4px 0 10px">No tasks</div>`)+`</div>`;
+  });
+  return out;
+}
+function drow(k,v){ return `<div class="drow"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`; }
+function statusSheet(id){
+  const t=tasks.find(x=>x.id===id); if(!t)return;
+  openSheet(`<h3>Update status</h3><div class="sclient">${esc(t.client||'')}</div><div class="stitle">${esc(t.title)}</div>`+
+    ['To Do','In Progress','Waiting','Review','Done'].map(sx=>`<div class="opt ${sx===t.status?'sel':''}" data-setstatus="${id}|${sx}"><span class="pill ${statusClass(sx)}">${sx}</span></div>`).join(''));
+}
+function noteSheet(id){
+  const t=tasks.find(x=>x.id===id); if(!t)return; const me=empById(identityId); const field=me.role==='executive'?'enotes':'mnotes';
+  openSheet(`<h3>${field==='mnotes'?'Manager note':'Note'}</h3><div class="sclient">${esc(t.client||'')}</div><div class="stitle">${esc(t.title)}</div>
+    <textarea id="noteText" placeholder="Write a note…">${esc(t[field]||'')}</textarea>
+    <button class="primary" data-savenote="${id}|${field}">Save note</button>`);
+}
+function detailSheet(id){
+  const t=tasks.find(x=>x.id===id); if(!t)return; const me=empById(identityId); const manager=me.role!=='executive'; const od=isOverdue(t);
+  let d=`<div class="sclient">${esc(t.client||'')}</div><div class="stitle">${esc(t.title)}</div>`;
+  if(manager) d+=drow('Assigned to',nameOf(t.assigned));
+  d+=drow('Priority',t.priority)+drow('Deadline',fmtDate(t.due)+(od?' · overdue':''))+drow('Status',t.status)+drow('Waiting on',t.waiting||'—');
+  d+=drow(manager?'Manager notes':'My notes',(manager?t.mnotes:t.enotes)||'—');
+  d+=`<button class="primary" data-status="${id}">Change status</button><button class="ghostbtn" data-note="${id}">${manager?'Edit manager note':'Edit note'}</button>`;
+  openSheet(d);
+}
+function quickAddSheet(me){
+  const manager=me.role!=='executive';
+  openSheet(`<h3>New task</h3>
+    <label>Client</label><select id="qaClient">${clients.map(c=>`<option>${esc(c)}</option>`).join('')}</select>
+    <label>Task</label><input id="qaTitle" placeholder="What needs doing?"/>
+    ${manager?`<label>Assign to</label><select id="qaEmp">${employees.filter(e=>e.role!=='owner').map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')}</select>`:''}
+    <label>Priority</label><select id="qaPrio"><option>Low</option><option selected>Medium</option><option>High</option></select>
+    <label>Deadline</label><input type="date" id="qaDue" value="${iso(3)}"/>
+    <button class="primary" id="qaCreate">Create task</button>`);
+}
+function filtersSheet(me){
+  const manager=me.role!=='executive';
+  openSheet(`<h3>Filters</h3>
+    ${manager?`<label>Employee</label><select id="flEmp"><option value="">All</option>${employees.filter(e=>e.role!=='owner').map(e=>`<option value="${e.id}" ${filters.emp===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select>`:''}
+    <label>Client</label><select id="flClient"><option value="">All</option>${clients.map(c=>`<option ${filters.client===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
+    <label>Priority</label><select id="flPrio"><option value="">All</option>${['Low','Medium','High'].map(p=>`<option ${filters.priority===p?'selected':''}>${p}</option>`).join('')}</select>
+    <label>Status</label><select id="flStatus"><option value="">All</option>${['To Do','In Progress','Waiting','Review','Done'].map(sx=>`<option ${filters.status===sx?'selected':''}>${sx}</option>`).join('')}</select>
+    <button class="primary" id="flApply">Apply filters</button><button class="ghostbtn" id="flClear">Clear all</button>`);
+}
+function moreSheet(me){
+  const extra=(me.role==='owner'||me.role==='admin')?[['organization','Organization view'],['completed','Completed']]:[['completed','Completed']];
+  openSheet(`<h3>More</h3>`+extra.map(([k,l])=>`<div class="opt" data-goto="${k}">${l}</div>`).join(''));
+}
+function wireCards(){
+  document.querySelectorAll('.tcard[data-open]').forEach(el=>el.onclick=()=>detailSheet(el.dataset.open));
+  document.querySelectorAll('#content .statuschip[data-status]').forEach(el=>el.onclick=ev=>{ev.stopPropagation(); statusSheet(el.dataset.status);});
+}
+function wireMobile(me){
+  const rs=$('#roleSwitchM'); if(rs) rs.onchange=e=>{identityId=e.target.value; view=''; filters={q:'',emp:'',status:'',priority:'',client:'',overdue:false,quick:''}; searchOpen=false; window.scrollTo(0,0); render();};
+  const sb=$('#mSearchBtn'); if(sb) sb.onclick=()=>{searchOpen=!searchOpen; if(!searchOpen) filters.q=''; render();};
+  const mq=$('#mq'); if(mq){ mq.oninput=()=>{filters.q=mq.value; const el=$('#mlist'); if(el){ el.innerHTML=applyFilters(listForView(me)).map(t=>taskCard(t,me)).join('')||'<div class="empty">No tasks here.</div>'; wireCards(); } }; mq.focus(); const L=mq.value.length; try{mq.setSelectionRange(L,L);}catch(_){} }
+  document.querySelectorAll('#bottomnav a').forEach(a=>a.onclick=()=>{const v=a.dataset.mview; if(v==='more'){moreSheet(me);return;} view=v; filters.emp=''; filters.client=''; filters.quick=''; window.scrollTo(0,0); render();});
+  const fab=$('#fab'); if(fab) fab.onclick=()=>quickAddSheet(me);
+  document.querySelectorAll('.mfilters .fchip[data-quick]').forEach(c=>c.onclick=()=>{filters.quick=c.dataset.quick; render();});
+  const fbtn=$('#mFiltersBtn'); if(fbtn) fbtn.onclick=()=>filtersSheet(me);
+  document.querySelectorAll('.rrow[data-emp]').forEach(el=>el.onclick=()=>{filters.emp=el.dataset.emp; view='tasks'; window.scrollTo(0,0); render();});
+  document.querySelectorAll('.rrow[data-client]').forEach(el=>el.onclick=()=>{filters.client=el.dataset.client; view='tasks'; window.scrollTo(0,0); render();});
+  wireCards();
+}
+function renderMobile(){
+  const me=empById(identityId);
+  const items=mobileNavItems(me);
+  if(!items.find(i=>i[0]===view)) view=items[0][0];
+  let h=`<div class="mapp"><div class="mhead"><div class="mhead-top">
+    <div class="mbrand2">NEXUS<span>by 3RDS</span></div>
+    <div class="mhead-actions"><button class="iconbtn" id="mSearchBtn">⌕</button>
+      <select class="midselect" id="roleSwitchM">${employees.map(e=>`<option value="${e.id}" ${e.id===identityId?'selected':''}>${esc(e.name)}</option>`).join('')}</select>
+    </div></div>
+    <div class="mhead-sub">${subLabel(me)}</div>
+    ${searchOpen?`<div class="msearchwrap"><input id="mq" placeholder="Search client, task, or person…" value="${esc(filters.q)}"/></div>`:''}
+    </div>`;
+  if(view==='team' && (me.role==='owner'||me.role==='admin')) h+=ownerTeam();
+  else if(view==='team' && me.role==='senior') h+=seniorTeam(me);
+  else if(view==='clients') h+=ownerClients();
+  else if(view==='organization') h+=orgView();
+  else h+=taskListMobile(me);
+  h+=`</div>`;
+  $('#content').innerHTML=h;
+  $('#bottomnav').innerHTML=items.map(([k,l])=>`<a data-mview="${k}" class="${k===view?'active':''}">${l}</a>`).join('');
+  const showFab=(me.role==='owner'||me.role==='admin')&&view==='tasks';
+  $('#fab').style.display=showFab?'flex':'none';
+  wireMobile(me);
+}
+
+function render(){
+  renderChrome();
+  if(isMobile()){ return renderMobile(); }
+  const me=empById(identityId);
+  const manage = me.role!=='executive';
+  const ts=visibleTasks();
+  let html='';
+  if(view==='tasks'){
+    if(isMobile()){
+      html += statChips(ts);
+      html += mobileSearch();
+      html += personChips();
+      html += mobileClear();
+      html += mobileCards(manage, applyFilters(visibleTasks()), false);
+    } else {
+      html += summaryBar(ts);
+      if(manage){ const wl=visiblePeople().filter(p=>p.role!=='owner'); html += workloadTable(wl.length?wl:visiblePeople(),ts); }
+      html += grid(manage);
+    }
+  } else if(view==='review'){
+    filters={...filters}; // keep
+    const saved=visibleTasks;
+    html += `<div class="lbl" style="padding-bottom:6px">Review queue — your team's tasks awaiting sign-off</div>`;
+    html += isMobile()? mobileCards(manage, visibleTasks().filter(t=>t.status==='Review'), false) : reviewGrid();
+  } else if(view==='clients'){ html += clientsView(); }
+  else if(view==='team'){ html += workloadTable(employees.filter(e=>e.role!=='owner'),tasks); }
+  else if(view==='organization'){ html += orgView(); }
+  else if(view==='completed'){ html += completedView(); }
+  $('#content').innerHTML = html;
+  const fab=$('#fab'); if(fab) fab.style.display = (manage && isMobile() && view==='tasks') ? 'flex' : 'none';
+  wire();
+}
+
+function reviewGrid(){
+  const list=visibleTasks().filter(t=>t.status==='Review');
+  const body=list.map(t=>{
+    const sel=(field,options,val)=>`<select class="cell" data-id="${t.id}" data-field="${field}">${options.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join('')}</select>`;
+    return `<tr>
+      <td>${t.client}</td><td style="min-width:220px">${t.title}</td><td>${nameOf(t.assigned)}</td>
+      <td>${pill('p-'+t.priority,t.priority)}</td><td>${t.due}</td>
+      <td class="editable">${sel('status',['To Do','In Progress','Waiting','Review','Done'],t.status)}</td>
+      <td class="editable" style="min-width:160px"><input class="cell" data-id="${t.id}" data-field="mnotes" value="${(t.mnotes||'').replace(/"/g,'&quot;')}" placeholder="Manager note…"/></td></tr>`;
+  }).join('');
+  return `<div style="overflow:auto"><table class="grid"><thead><tr><th>Client</th><th>Task</th><th>Employee</th><th>Priority</th><th>Deadline</th><th>Status</th><th>Manager Notes</th></tr></thead>
+    <tbody>${body||`<tr><td colspan="7" class="empty">Nothing awaiting review.</td></tr>`}</tbody></table></div>`;
+}
+
+/* ---------------- interactions ---------------- */
+function flashSave(){const el=$('#saveState');if(!el)return;el.textContent='Saving…';el.classList.remove('ok');
+  setTimeout(()=>{el.textContent='Saved ✓';el.classList.add('ok');setTimeout(()=>{if(el)el.textContent='';},900);},250);}
+
+function update(id,field,value){
+  const t=tasks.find(x=>x.id===id); if(!t)return;
+  t[field]=value; t.updated=iso(0);
+  if(field==='status'){ t.completed = value==='Done'? iso(0) : null; }
+  flashSave(); showToast('Saved ✓');
+  // re-render live so summary + workload reflect the change (keep scroll on mobile)
+  const y=window.scrollY; render(); if(isMobile()) window.scrollTo(0,y);
+}
+
+function wire(){
+  document.querySelectorAll('#nav a').forEach(a=>a.onclick=()=>{view=a.dataset.view;render();});
+  document.querySelectorAll('#bottomnav a').forEach(a=>a.onclick=()=>{view=a.dataset.view;render();});
+  const fab=$('#fab'); if(fab) fab.onclick=addTask;
+  document.querySelectorAll('#statchips .chip').forEach(c=>c.onclick=()=>{const q=c.dataset.quick;filters.quick=(filters.quick===q?'':q);render();});
+  document.querySelectorAll('#personchips .chip').forEach(c=>c.onclick=()=>{filters.emp=c.dataset.emp;render();});
+  const mcl=$('#mclear-btn'); if(mcl) mcl.onclick=()=>{filters.q='';filters.emp='';filters.quick='';render();};
+  $('#roleSwitch').onchange=e=>{identityId=e.target.value;view='tasks';filters={q:'',emp:'',status:'',priority:'',client:'',overdue:false,quick:''};render();};
+
+  // filters
+  const q=$('#f-q'); if(q) q.oninput=e=>{filters.q=e.target.value;softRegrid();};
+  const fe=$('#f-emp'); if(fe) fe.onchange=e=>{filters.emp=e.target.value;softRegrid();};
+  const fs=$('#f-status'); if(fs) fs.onchange=e=>{filters.status=e.target.value;softRegrid();};
+  const fp=$('#f-priority'); if(fp) fp.onchange=e=>{filters.priority=e.target.value;softRegrid();};
+  const fc=$('#f-client'); if(fc) fc.onchange=e=>{filters.client=e.target.value;softRegrid();};
+  const fo=$('#f-overdue'); if(fo) fo.onchange=e=>{filters.overdue=e.target.checked;softRegrid();};
+  const fclr=$('#f-clear'); if(fclr) fclr.onclick=()=>{filters={q:'',emp:'',status:'',priority:'',client:'',overdue:false,quick:''};render();};
+  const add=$('#addTask'); if(add) add.onclick=addTask;
+
+  // sortable headers
+  document.querySelectorAll('.grid thead th[data-sort]').forEach(th=>th.onclick=()=>{
+    const k=th.dataset.sort; if(sort.key===k) sort.dir*=-1; else {sort.key=k;sort.dir=1;} render();
+  });
+
+  // editable cells
+  document.querySelectorAll('.cell').forEach(el=>{
+    const id=el.dataset.id, field=el.dataset.field;
+    if(el.tagName==='SELECT'||el.type==='date'){ el.onchange=()=>update(id,field,el.value); }
+    else { el.onblur=()=>{const cur=(tasks.find(x=>x.id===id)||{})[field]||'';if(el.value!==cur)update(id,field,el.value);};
+           el.onkeydown=e=>{if(e.key==='Enter')el.blur();}; }
+  });
+}
+
+// re-render just the grid area for snappy filtering without losing focus context
+function softRegrid(){ render(); const q=$('#f-q'); if(q && document.activeElement!==q){/*noop*/} }
+
+function addTask(){
+  const me=empById(identityId);
+  const who = me.role==='executive'? me.id : (me.role==='senior'? me.id : 'and');
+  tasks.unshift({id:'t'+(TID++),title:'New task',assigned:who,client:clients[0],priority:'Medium',status:'To Do',
+    due:iso(3),waiting:'',mnotes:'',enotes:'',updated:iso(0),completed:null});
+  flashSave(); render();
+}
+
+render();
+window.matchMedia('(max-width:760px)').addEventListener('change', render);
+
+document.getElementById('sheet').addEventListener('click',(e)=>{
+  if(e.target.closest('.sheet-overlay')||e.target.closest('.grab')){ closeSheet(); return; }
+  const setS=e.target.closest('[data-setstatus]'); if(setS){ const a=setS.dataset.setstatus.split('|'); closeSheet(); update(a[0],'status',a[1]); return; }
+  const goTo=e.target.closest('[data-goto]'); if(goTo){ view=goTo.dataset.goto; closeSheet(); window.scrollTo(0,0); render(); return; }
+  const chg=e.target.closest('[data-status]'); if(chg){ statusSheet(chg.dataset.status); return; }
+  const nt=e.target.closest('[data-note]'); if(nt){ noteSheet(nt.dataset.note); return; }
+  const sv=e.target.closest('[data-savenote]'); if(sv){ const a=sv.dataset.savenote.split('|'); const v=($('#noteText')||{}).value||''; closeSheet(); update(a[0],a[1],v); return; }
+  if(e.target.id==='qaCreate'){ const client=$('#qaClient').value; const title=($('#qaTitle').value||'').trim()||'New task'; const prio=$('#qaPrio').value; const due=$('#qaDue').value||iso(3); const emp=$('#qaEmp')?$('#qaEmp').value:identityId;
+    tasks.unshift({id:'t'+(TID++),title,assigned:emp,client,priority:prio,status:'To Do',due,waiting:'',mnotes:'',enotes:'',updated:iso(0),completed:null});
+    closeSheet(); showToast('Task created'); window.scrollTo(0,0); render(); return; }
+  if(e.target.id==='flApply'){ filters.emp=$('#flEmp')?$('#flEmp').value:''; filters.client=$('#flClient').value; filters.priority=$('#flPrio').value; filters.status=$('#flStatus').value; closeSheet(); render(); return; }
+  if(e.target.id==='flClear'){ filters.emp='';filters.client='';filters.priority='';filters.status='';filters.quick=''; closeSheet(); render(); return; }
+});
+</script>
+</body>
+</html>
