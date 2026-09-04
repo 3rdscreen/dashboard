@@ -1129,7 +1129,7 @@ function buildSnapAdsHTML(ads, adNames, ds, label, periodOverride){
       const conv = m.conv;
       const cpo=conv>0?Math.round(m.spend/conv*100)/100:0;
       return {displayName:dn, agg:{spend:m.spend,sv:m.sv,conv:conv,atc:m.atc,roas,cpo}};
-    }).filter(r=>!r.off||r.agg.spend>0).sort((a,b)=>b.agg.spend-a.agg.spend);
+    }).filter(r=>!r.off||r.agg.conv>0).sort((a,b)=>b.agg.spend-a.agg.spend);
     if (!rows.length) return;
 
     if(showDayBreakdownSnap){
@@ -1300,7 +1300,7 @@ function buildTTAdsHTML(ads, adNames, ds, label, periodOverride){
       const roas=m.spend>0?Math.round(m.sv/m.spend*100)/100:0;
       const cpo=m.conv>0?Math.round(m.spend/m.conv*100)/100:0;
       return {displayName:dn, off:!!m.off, agg:{spend:m.spend,sv:m.sv,conv:m.conv,atc:m.atc,roas,cpo}};
-    }).filter(r=>!r.off||r.agg.spend>0).sort((a,b)=>b.agg.spend-a.agg.spend);
+    }).filter(r=>!r.off||r.agg.conv>0).sort((a,b)=>b.agg.spend-a.agg.spend);
     if (!rows.length) return;
 
     // Populate hover cache from breakdown data (same seenDates logic as table)
@@ -1478,7 +1478,7 @@ function reRenderMetaAds(){
       const roas=m.spend>0?Math.round(m.sv/m.spend*100)/100:0;
       const cpo=m.conv>0?Math.round(m.spend/m.conv*100)/100:0;
       return {displayName:dn, off:!!m.off, agg:{spend:m.spend,sv:m.sv,conv:m.conv,atc:m.atc,roas,cpo}};
-    }).filter(r=>!r.off||r.agg.spend>0).sort((a,b)=>b.agg.spend-a.agg.spend);
+    }).filter(r=>!r.off||r.agg.conv>0).sort((a,b)=>b.agg.spend-a.agg.spend);
   }
 
   const showDayBreakdown = metaAdsPeriod==='7d' || metaAdsPeriod==='3d';
