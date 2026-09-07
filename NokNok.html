@@ -1453,10 +1453,10 @@ function renderTikTokTrend(start,end){
 
 
 
-// Initial render: rolling last 30 days (through the latest complete data day)
+// Initial render: current month-to-date (through the latest complete data day)
 (function(){
   var _dk=Object.keys(DAILY.acctReg).sort(); var _end=_dk[_dk.length-1];
-  var _e=new Date(_end+'T00:00:00Z'); var _s=new Date(_e.getTime()-29*864e5);
+  var _e=new Date(_end+'T00:00:00Z'); var _s=new Date(Date.UTC(_e.getUTCFullYear(), _e.getUTCMonth(), 1));
   var _f=function(d){return d.toISOString().slice(0,10);};
   renderDashboard(_f(_s), _f(_e));
 })();
@@ -1483,12 +1483,12 @@ function renderTikTokTrend(start,end){
   const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   // Use plain day-number keys (UTC midnight ms) to avoid timezone/closure issues
   const MIN_MS = Date.UTC(2026,4,1);    // May 1 2026
-  const TODAY_MS = Date.UTC(2026,7,30); // report through Jun 16
+  const TODAY_MS = Date.UTC(2026,8,6); // latest complete data day
   // View defaults to the month of TODAY_MS (not hardcoded), so the calendar always
   // opens on the latest report month — not a stale earlier one.
   const _today = new Date(TODAY_MS);
   let vy = _today.getUTCFullYear(), vm = _today.getUTCMonth();
-  let psMs=TODAY_MS-29*864e5, peMs=TODAY_MS, hovMs=null;   // selected start/end + hover preview (rolling last 30 days), as UTC ms
+  let psMs=Date.UTC(2026,8,1), peMs=TODAY_MS, hovMs=null;   // selected start/end + hover preview (current month-to-date), as UTC ms
 
   const pop=document.getElementById('calPop');
   const trigger=document.getElementById('periodTrigger');
