@@ -1509,8 +1509,11 @@ function renderTikTokTrend(start,end){
   // Build the grid ONCE per month view. Day cells carry data-ms; classes are painted separately.
   function buildGrid(){
     monthEl.textContent=MONTHS[vm]+' '+vy;
-    prevB.disabled=(vy<2026||(vy===2026&&vm<=4));
-    nextB.disabled=(vy>2026||(vy===2026&&vm>=7)); // data through July 2026
+    var _minD=new Date(MIN_MS), _maxD=new Date(TODAY_MS);
+    var _minY=_minD.getUTCFullYear(), _minM=_minD.getUTCMonth();
+    var _maxY=_maxD.getUTCFullYear(), _maxM=_maxD.getUTCMonth();
+    prevB.disabled=(vy<_minY||(vy===_minY&&vm<=_minM));
+    nextB.disabled=(vy>_maxY||(vy===_maxY&&vm>=_maxM)); // up to latest data month
     grid.innerHTML='';
     DOW.forEach(d=>{const e=document.createElement('div');e.className='cal-dow';e.textContent=d;grid.appendChild(e);});
     const firstDow=new Date(Date.UTC(vy,vm,1)).getUTCDay(); // 0=Sun
