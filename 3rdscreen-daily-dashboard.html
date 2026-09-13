@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3rdScreen — Daily Performance Dashboard</title>
+<style>
+  :root{
+    --bg:#FFFFFF; --paper:#FFFFFF; --shell:#f6f5f3; --line:#E8E8E8; --line2:#DcDcDc;
+    --ink:#1c1b19; --muted:#8b867c; --muted2:#a8a297;
+    --accent:#A01C1C; --accent-d:#8a1717;
+    --scale:#2f7d5b; --scale-bg:#e9f3ee;
+    --stable:#3a4a63; --stable-bg:#eef1f6;
+    --watch:#b07514; --watch-bg:#fbf1df;
+    --alert:#A01C1C; --alert-bg:#f7e9e9;
+    --sans:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--shell);color:var(--ink);font-family:var(--sans);line-height:1.42;-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1,"lnum" 1}
+  .wrap{max-width:1320px;margin:0 auto;padding:0 18px}
+
+  /* header — house identity: white, red rule, real logo top-left */
+  header.top{background:var(--bg);border-bottom:2px solid var(--accent)}
+  .rhead{max-width:1320px;margin:0 auto;padding:16px 18px 14px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;gap:14px;align-items:center}
+  .logo-img{height:56px;width:auto;display:block}
+  .brand-div{width:1px;align-self:stretch;background:var(--line2);margin:2px 0}
+  .brand .client{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+  .brand .subtitle{font-size:12px;color:var(--muted);margin-top:2px}
+  .rhead-r{text-align:right}
+  .rhead-r .kicker{font-size:9px;letter-spacing:.32em;color:var(--muted);font-weight:700}
+  .rhead-r .mo{font-size:14px;color:var(--accent);font-weight:700;margin-top:3px}
+  .datestrip{max-width:1320px;margin:0 auto;padding:0 18px 12px;font-size:12px;color:var(--muted)}
+  .datestrip b{color:var(--ink)}
+
+  /* section labels — red uppercase, house style */
+  .slabel{display:flex;align-items:center;gap:10px;margin:20px 0 10px}
+  .slabel .txt{font-size:9.5px;letter-spacing:.22em;font-weight:700;color:var(--accent);text-transform:uppercase;white-space:nowrap}
+  .slabel .rule{flex:1;height:1px;background:var(--line2)}
+
+  /* overview tiles */
+  .ov{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px;margin-top:4px}
+  .tile{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:12px 13px}
+  .tile .k{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+  .tile .v{font-size:25px;font-weight:800;margin-top:3px;color:var(--ink);letter-spacing:-.02em}
+  .tile .s{font-size:10.5px;color:var(--muted2);margin-top:1px}
+  .tile.accent{border-color:var(--accent);border-left:3px solid var(--accent)}
+  .tile.accent .v{color:var(--accent)}
+  .tile.warn .v{color:var(--watch)} .tile.bad .v{color:var(--alert)}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:10px}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+  .bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0 2px}
+  .bar .lab{font-size:11px;color:var(--muted);font-weight:700;margin-right:2px;text-transform:uppercase;letter-spacing:.05em}
+  .chip{border:1px solid var(--line2);background:#fff;color:var(--ink);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:.12s}
+  .chip:hover{border-color:var(--accent)}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* client cards */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:10px 0 30px}
+  .c{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;border-top:3px solid var(--stable)}
+  .c[data-st="scale"]{border-top-color:var(--scale)} .c[data-st="stable"]{border-top-color:var(--stable)}
+  .c[data-st="watch"]{border-top-color:var(--watch)} .c[data-st="alert"]{border-top-color:var(--alert)}
+  .ch{padding:12px 14px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .nm{font-size:15px;font-weight:800;color:var(--ink);line-height:1.15;letter-spacing:-.01em}
+  .meta{font-size:10px;color:var(--muted2);margin-top:2px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .pill{font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:5px;white-space:nowrap;text-transform:uppercase;letter-spacing:.05em}
+  .pill.scale{background:var(--scale-bg);color:var(--scale)} .pill.stable{background:var(--stable-bg);color:var(--stable)}
+  .pill.watch{background:var(--watch-bg);color:var(--watch)} .pill.alert{background:var(--alert-bg);color:var(--alert)}
+  .reco{margin:10px 14px 0;background:var(--shell);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:9px 11px;font-size:12.5px;color:#33302b;font-weight:500}
+  .reco b{color:var(--ink)}
+  .trio{display:grid;grid-template-columns:1fr 1fr 1fr;margin:12px 14px 0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .trio .cell{padding:8px 6px;text-align:center;border-right:1px solid var(--line)}
+  .trio .cell:last-child{border-right:0}
+  .trio .cell.hi{background:#faf8f6}
+  .trio .lab{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .trio .big{font-size:19px;font-weight:800;color:var(--ink);margin-top:2px;line-height:1;letter-spacing:-.02em}
+  .trio .sub{font-size:9.5px;color:var(--muted2);margin-top:2px}
+  .trio.res .big{font-size:16px}.trio.spend .big{font-size:13.5px}
+  .metrow{display:flex;margin:10px 14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .metrow .m{flex:1;padding:7px 4px;text-align:center;border-right:1px solid var(--line)}
+  .metrow .m:last-child{border-right:0}
+  .metrow .l{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700}
+  .metrow .n{font-size:14px;font-weight:800;color:var(--ink);margin-top:1px}
+  .delta{font-size:10px;font-weight:800;padding:1px 5px;border-radius:5px;display:inline-block;margin-top:2px}
+  .up{color:var(--scale);background:var(--scale-bg)} .dn{color:var(--alert);background:var(--alert-bg)} .flat{color:var(--muted);background:#f0eeeb}
+
+  /* cvr bar — MTD vs healthy average */
+  .cvr{margin:11px 14px 13px}
+  .cvr .top{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-weight:700;margin-bottom:14px}
+  .cvr .top b{color:var(--ink)}
+  .track{position:relative;height:9px;border-radius:5px;overflow:visible;display:flex}
+  .track .z1{background:#eccf9a}.track .z2{background:#cdd6e2}.track .z3{background:#a8d4c1}
+  .track .z1{border-radius:5px 0 0 5px}.track .z3{border-radius:0 5px 5px 0}
+  .marker{position:absolute;top:-4px;width:3px;height:17px;background:var(--ink);border-radius:2px;transform:translateX(-1.5px);z-index:2}
+  .mlabel{position:absolute;top:-15px;transform:translateX(-50%);font-size:9px;font-weight:800;color:var(--ink);white-space:nowrap}
+  .healthy{position:absolute;top:-2px;height:13px;width:0;border-left:2px dashed var(--scale);z-index:1}
+  .hlabel{position:absolute;bottom:-15px;transform:translateX(-50%);font-size:8.5px;font-weight:700;color:var(--scale);white-space:nowrap}
+  .cvr .cap{font-size:10.5px;color:var(--muted);margin-top:20px}
+  .cvr .cap b{color:var(--ink)}
+
+  .exp{margin:auto 14px 13px;text-align:center}
+  .exp button{width:100%;border:1px solid var(--line2);background:#fff;color:var(--ink);border-radius:7px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;transition:.12s}
+  .exp button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* modal */
+  .ov-bg{position:fixed;inset:0;background:rgba(28,27,25,.5);display:none;z-index:50;padding:24px}
+  .ov-bg.show{display:flex;align-items:flex-start;justify-content:center}
+  .modal{background:var(--shell);border-radius:12px;max-width:1000px;width:100%;margin:14px auto;max-height:92vh;overflow:auto;box-shadow:0 18px 50px rgba(0,0,0,.3)}
+  .mh{position:sticky;top:0;background:var(--bg);border-bottom:2px solid var(--accent);padding:15px 20px;display:flex;justify-content:space-between;align-items:center;z-index:3}
+  .mh h2{margin:0;font-size:18px;letter-spacing:-.01em} .mh .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .mh .x{background:var(--shell);border:1px solid var(--line2);color:var(--ink);width:32px;height:32px;border-radius:7px;font-size:16px;cursor:pointer}
+  .mbody{padding:16px 20px 26px}
+  .diag{background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:13px 15px;font-size:13px;color:#33302b;margin-bottom:16px}
+  .diag b{color:var(--ink)}
+  .sec-t{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--accent);margin:16px 0 9px}
+
+  /* funnel viz */
+  .funnel{background:#fff;border:1px solid var(--line);border-radius:9px;padding:14px 16px 6px}
+  .fstage{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+  .fstage .flab{width:130px;flex:0 0 auto;font-size:11px;font-weight:700;color:var(--ink)}
+  .fstage .flab small{display:block;font-size:9px;color:var(--muted);font-weight:600}
+  .fbar-wrap{flex:1;background:#f0eeeb;border-radius:4px;height:26px;position:relative;overflow:hidden}
+  .fbar{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:9px;color:#fff;font-weight:800;font-size:12px;min-width:34px}
+  .fstep{display:flex;align-items:center;gap:8px;margin:1px 0 5px 142px;font-size:10.5px;color:var(--muted)}
+  .fstep .rate{font-weight:800}
+  .stepbadge{font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.03em}
+  .sb-good{background:var(--scale-bg);color:var(--scale)} .sb-ok{background:var(--stable-bg);color:var(--stable)} .sb-leak{background:var(--alert-bg);color:var(--alert)}
+  .fnote{font-size:11px;color:var(--muted);font-style:italic;margin:8px 2px 2px}
+
+  /* client-meeting agenda */
+  .agenda{background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .arow{display:flex;border-top:1px solid var(--line)}
+  .arow:first-child{border-top:0}
+  .acat{width:158px;flex:0 0 auto;background:#faf8f6;padding:10px 12px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);border-right:1px solid var(--line);display:flex;align-items:flex-start;gap:6px}
+  .acat .ai{font-size:12px;line-height:1}
+  .atext{padding:10px 12px;font-size:12.5px;color:#33302b}
+  .atext b{color:var(--ink)}
+  .abadge{display:inline-block;font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.03em;margin-right:6px;vertical-align:1px}
+  .ab-up{background:var(--scale-bg);color:var(--scale)}.ab-down{background:var(--alert-bg);color:var(--alert)}
+  .ab-hold{background:var(--stable-bg);color:var(--stable)}.ab-fix{background:var(--watch-bg);color:var(--watch)}
+  @media(max-width:680px){.acat{width:112px}}
+
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:12px}
+  th{background:var(--accent);color:#fff;text-align:left;padding:8px 9px;font-size:9.5px;text-transform:uppercase;letter-spacing:.03em;font-weight:600}
+  th.r,td.r{text-align:right}
+  td{padding:8px 9px;border-top:1px solid var(--line);vertical-align:top}
+  tr:nth-child(even) td{background:#faf8f6}
+  .adnm{font-weight:700;color:var(--ink);max-width:230px}
+  .adnm .cmp{display:block;font-size:10px;color:var(--muted2);font-weight:500;margin-top:1px}
+  .adnm .adreco{font-size:11px;color:#54504a;font-weight:500;margin-top:3px}
+  .tag2{font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:5px;white-space:nowrap}
+  .t-scale{background:var(--scale-bg);color:var(--scale)} .t-keep{background:#f0eeeb;color:var(--muted)}
+  .t-refresh{background:var(--watch-bg);color:var(--watch)} .t-stop{background:var(--alert-bg);color:var(--alert)} .t-track{background:var(--stable-bg);color:var(--stable)}
+
+  .footnote{font-size:11px;color:var(--muted);margin:6px 0 30px;line-height:1.6;border-top:1px solid var(--line);padding-top:14px}
+  .footnote b{color:var(--ink)}
+  footer.foot{border-top:1px solid var(--line2);background:#fff}
+  .foot-in{max-width:1320px;margin:0 auto;padding:10px 18px;display:flex;justify-content:space-between;font-size:9px;letter-spacing:.04em;color:var(--muted)}
+  .foot-in b{color:var(--accent);font-weight:700}
+  @media(max-width:1080px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:680px){
+    .wrap{padding:0 10px}
+    .grid{grid-template-columns:repeat(2,1fr);gap:10px}
+    .ch{padding:11px 10px 0}.nm{font-size:13px}.meta{font-size:8.5px}
+    .pill{font-size:8px;padding:2px 5px}
+    .reco{font-size:11px;margin:9px 10px 0;padding:8px 9px}
+    .trio{margin:10px 10px 0}.trio .cell{padding:7px 3px}.trio .big{font-size:15px}.trio .lab{font-size:8px}.trio .sub{font-size:8px}
+    .trio.res .big{font-size:13px}.trio.spend .big{font-size:11px}
+    .metrow{margin:9px 10px 0}.metrow .n{font-size:12px}.metrow .l{font-size:8px}
+    .delta{font-size:9px;padding:1px 4px}
+    .cvr{margin:10px 10px 12px}.cvr .top{font-size:8.5px}.cvr .cap{font-size:9px}.mlabel{font-size:7.5px}.hlabel{font-size:7px}
+    .exp{margin:auto 10px 12px}.exp button{font-size:10.5px;padding:7px}
+    .modal{margin:6px auto}.mbody{padding:14px 12px 22px}
+    .fstage .flab{width:88px;font-size:10px}.fstage .flab small{font-size:8.5px}.fstep{margin-left:100px}
+    .acat{width:100px;font-size:8.5px}
+   }
+   @media(max-width:380px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="rhead">
+    <div class="brand">
+      <img class="logo-img" id="logo" alt="3rdScreen Digital">
+      <div class="brand-div"></div>
+      <div>
+        <div class="client">Daily Performance</div>
+        <div class="subtitle">Meta Ads · ecommerce + lead accounts · team decision view</div>
+      </div>
+    </div>
+    <div class="rhead-r"><div class="kicker">DAILY DASHBOARD</div><div class="mo" id="mo"></div></div>
+  </div>
+  <div class="datestrip">Yesterday = <b id="d-yest"></b> · 7-day = <b id="d-7d"></b> · Month-to-date = <b id="d-mtd"></b> · pulled via Meta MCP</div>
+</header>
+
+<div class="wrap">
+  <div class="slabel"><span class="txt">Performance Snapshot</span><span class="rule"></span></div>
+  <div class="ov" id="ov"></div>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--scale)"></i>Scale — 7-day ROAS &gt; 3.5, push budget</span>
+    <span><i class="dot" style="background:var(--stable)"></i>Stable — holding target</span>
+    <span><i class="dot" style="background:var(--watch)"></i>Watch — softening, act soon</span>
+    <span><i class="dot" style="background:var(--alert)"></i>Alert — needs a fix now</span>
+  </div>
+
+  <div class="bar">
+    <span class="lab">Filter</span>
+    <span class="chip on" data-f="all">All</span>
+    <span class="chip" data-f="ecomm">Ecommerce</span>
+    <span class="chip" data-f="leads">Leads</span>
+    <span class="chip" data-f="alert">Needs attention</span>
+    <span class="chip" data-f="scale">Scale ready</span>
+    <span class="lab" style="margin-left:8px">Sort</span>
+    <span class="chip on" data-s="status">Priority</span>
+    <span class="chip" data-s="roas">ROAS / CPL</span>
+    <span class="chip" data-s="spend">Spend</span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="footnote">
+    <b>How to read this.</b> Hero numbers are <b>yesterday vs last 7 days vs month-to-date</b> — today's decision in the context of the trend. Ecommerce leads on <b>ROAS</b> and website purchases; lead accounts on <b>cost per lead</b> and website leads. The arrow compares yesterday to the 7-day average.<br><br>
+    <b>Conversion rate bar</b> shows this month's rate (results ÷ landing-page views) with the <b>healthy average</b> for that business marked as the dashed green line — so you see at a glance whether the account is above or below where it should be. Bands are directional industry estimates, not Meta-verified.<br><br>
+    <b>Scale-ready</b> means the account's <b>last-7-day</b> ROAS is above 3.5 — a strong single day isn't enough. Individual ad sets above target can still be scaled inside an account that isn't.<br><br>
+    <b>Full-funnel</b> (inside each ecommerce client) traces landing-page views → adds to cart → checkouts initiated → purchases, and flags the exact step where people drop off — so a weak account can be diagnosed as a product-page, cart, checkout, or purchase-completion issue rather than guessed at.<br><br>
+    <b>WTRBOOST</b> is excluded — its ad account is currently <i>Unsettled</i> and not queryable via Meta MCP. Currencies are native per account (Andrea Wazen = SGD, AESTRA = EUR, rest USD); per-client figures stay native, and the overview ad-spend total is a rough blend converted to USD (SGD×0.78, EUR×1.08) for a quick glance.
+  </div>
+</div>
+
+<footer class="foot"><div class="foot-in"><span>Prepared by <b>3rdScreen Digital</b> · connect · engage · convert</span><span id="foot-r"></span></div></footer>
+
+<div class="ov-bg" id="modal"><div class="modal"><div class="mh"><div><h2 id="m-title"></h2><div class="sub" id="m-sub"></div></div><button class="x" onclick="closeM()">✕</button></div><div class="mbody" id="m-body"></div></div></div>
+
+<script>
+/* real 3rdScreen mark (transparency-keyed, from the report engine LOGO_B64) */
+const LOGO_B64="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Uf733ntPAPCXlJTkmK4QozmlWAghjh49iqVLl94KwDlkyBA+fPhwtNkdnustgvU81cyqa3QwsyqltIpGnQrD4JiU1ubG6Z6fbB1os7Wbetq7dmpraw0ikmPHjt0cEREhORAqE4pBZ6xYsaLPY489dsff//53mZubq3fq1KmsMccyWpCSmZ+fr5+KtTDL4gkANlPfb2zYTOPPform2ZJDQMyMqKio6tMajMxMeXl5DADTpk17JzY21kCguRA3xx2ZWVRUVMg33njj/44ePTrs888/14uLi53tUbympKSw+b0OM/NaAKsArG1irAKwlpl3AT/2Xjxpup+q2lqwzkpNTY3+zDPPvHRa64xB/eqUiRMnHunevXv+7t27JzOzRBNlf82DSUII3rBhQ+dbbrnlvddffz151KhRkFK2u/IaGRkZBgD8/e9/XwxgcSguJK/Xi//+978AgJPNyUtLS4VVE6ipeVrxkAkJCXTllVf628UNTFpaGhGRf8qUKYtjYmLIaogegr9LANDfeeedAddcc80/CwoKdCJS2nklA2rhOGmUk5MDZqZXX33Vd/DgwZD/rlevXvzII4+0j3zVvLw8A4D4/e9//1rPnj1/MPWiUAsyqbW1tXpeXt6cJ5544lmbzaaH0oL2dNZeWjhOJhiJiNhut7vKyspgdqJo6k8Ms9D/1wB2tQswEhGnpaWJuLi4o+eee+6TTqeTmFkGW2PNWNfqwYMH/U899dRv//KXvzxrGkFKuNxvyy3fu+++WwsuZGDWFtLMMDWDmbutXbv2EvMgiGYkFwshcP75568jIqPdBEqkp6dLAPT6668vHD169CEApKqqDFFcQwih7d692//ss8/e9o9//GOe3W7Xw4BskTEJZrYlJSXZly1bZs/MzNQyMzO1jz/+OHrWrFnKnXfeGcnMuO666/6xefPmrgjkKlEz4BZJSUm46KKLFjJzbLtZjNzcXHXTpk3RAPD888/f1LNnT0agvAmHkIYQHObu69WrFz/22GNPR0VFAYE+La0CpJXUf+GFF84w83SaTVEFwF26dOGZM2cOsNxRJ2kpjyu4VlGUV202W2NAVcrLy8dcddVVC82mUHoIDeV1APKKK65YxcyOJUuW2NV2xBmNffv2Gd98841z7Nixr3/zzTfTFi5ceK1hGHpjJeAa4pCqqmp79uzx//Of/7zjlltusT//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";
+
+const DATES={yest:"Fri 12 Sep 2026",d7:"6–12 Sep 2026",mtd:"1–12 Sep 2026",mo:"September 2026"};
+const CUR={USD:"$",SGD:"S$",EUR:"€"};
+
+/* windows: [spend, roas(null=no purchases), results, ctr%, freq, lpv]
+   funnel (ecomm, MTD): [lpv, addToCart, checkoutsInitiated, purchases]
+   healthy = healthy-average conversion rate (%) ; bench = colour-zone edges */
+const CLIENTS=[
+ {id:"255888560471577",name:"One of A Kin",type:"ecomm",cur:"USD",vertical:"Modest fashion / abaya · GCC",st:"stable",
+  bench:{low:1.2,good:2.5},healthy:2.2,
+  reco:"Solid ~2.5× and yesterday spiked to 4.2 — but <b>7-day ROAS (2.6) is below the 3.5 scale bar</b>, so optimize, don't scale the account. Do scale the ad sets already over target (KSA catalog 4.4×) and fix the cart→checkout leak.",
+  diag:"Yesterday's ROAS (4.22) ran well above the 7-day (2.58) and MTD (2.55) — a genuinely good day, so lean in. The MTD funnel is healthy: <b>9,070 landing-page views → 2,333 adds to cart (25.7%) → 497 checkouts (21.3% of carts) → 247 purchases (49.7% of checkouts)</b>. Add-to-cart demand is excellent and checkout→purchase is strong; the one real leak is <b>cart→checkout</b> (only ~1 in 5 carts starts checkout), so cart retargeting, shipping-cost transparency and a saved-cart reminder are the upside. Creative-wise, UGC and KSA National-Day angles lead (ROAS 5–6.7x); the 571 'BeatTheHeat' men's video drags (CTR 0.46%). Frequency is climbing to 3.5 — queue fresh creative.",
+  yest:[2081.10,4.217971,31,1.11,1.51,618],d7:[16126.34,2.5757,141,1.15,2.84,4910],mtd:[29681.62,2.545754,247,1.17,3.45,9053],
+  funnel:[9070,2333,497,247],
+  ads:[
+   ["EN_Men_Product-page_catalog","Catalogue_Sales_GCC",1597.18,2.61,15,106.48,1.39,2.63,641.21],
+   ["EN_Women_Product-page_catalog","Catalogue_Sales_GCC",1561.85,1.45,8,195.23,1.79,2.72,448.97],
+   ["EN_All_Product-page_catalog","Catalogue_Sales_GCC",1390.14,1.43,7,198.59,1.57,3.07,590.51],
+   ["567_Mask_BeatTheHeat video","KUW-QAT-BH_ASC",740.13,1.12,3,246.71,0.89,2.05,298.54],
+   ["EN_Plus-Size_catalog","Catalogue_Sales_GCC",630.21,3.19,5,126.04,1.47,2.13,205.03],
+   ["565_UGC26_Wm video","UAE_ASC",625.78,5.07,17,36.81,1.09,1.51,176.49],
+   ["571_BeatTheHeat_Mn video","KUW-QAT-BH_ASC",595.25,1.02,2,297.63,0.46,1.88,333.93],
+   ["EN_Women_Catalog KSA Nat'l Day","Catalogue_Sales_GCC",419.58,6.18,8,52.45,1.26,2.60,419.19]]},
+
+ {id:"607365084588376",name:"Andrea Wazen",type:"ecomm",cur:"SGD",vertical:"Luxury footwear · GCC/LB",st:"alert",
+  bench:{low:0.8,good:1.5},healthy:1.0,
+  reco:"Funnel breaks at landing→cart — only <b>0.5% add to cart</b>. Checkout converts fine, so it's the product page / price / add-to-cart step, not checkout.",
+  diag:"The funnel pinpoints the problem. Of <b>6,750 landing-page views only 31 reached add-to-cart (0.5%)</b> — but from there it behaves normally: 12 checkouts (39% of carts) and 4 purchases (33% of checkouts). So the leak is entirely at <b>landing→cart</b>, not checkout. That means the issue lives on the product pages — the add-to-cart button/event, price presentation, or PDP load — not a broken checkout, and not a blanket tracking failure (checkout and purchase both register). Action: open a product page and confirm add-to-cart works and fires its event, review how price/shipping is shown, and split the profile-visit Traffic campaign's budget out so the sales funnel reads clean. CTR (2.3%) proves the ads pull; the fix is on-site before the cart.",
+  yest:[256.39,null,0,2.07,1.30,429],d7:[1490.08,4.151019,4,2.32,2.07,3588],mtd:[2684.93,2.303729,4,2.38,2.46,6737],
+  funnel:[6750,31,12,4],
+  ads:[
+   ["CAROL SPOT MOTIF","AW | Sales | GCC",462.61,null,0,null,2.09,1.72,255.97],
+   ["KATY WRAP Watersnake | Carousel 2","AW | Sales | GCC",203.50,6.15,1,203.50,2.52,1.74,77.38],
+   ["Catalogue | WaterSnake","AW | Sales | LB",157.15,5.68,2,78.58,2.44,2.95,60.62],
+   ["Catalogue | WaterSnake","AW | Sales | GCC",127.68,null,0,null,2.59,1.63,24.98],
+   ["BARBY WATERSNAKE | Carousel","AW | Sales | GCC",106.56,null,0,null,2.47,1.36,26.72],
+   ["CAROL SPOT MOTIF (retarget)","AW | Sales | GCC",57.91,69.78,1,57.91,4.23,1.43,18.21],
+   ["Reel | CAROL SPOT MOTIF","AW | Traffic (profile visits)",64.30,null,0,null,3.56,1.11,64.30]]},
+
+ {id:"10155807354086912",name:"Seaside Avenue",type:"ecomm",cur:"USD",vertical:"Footwear retail · Lebanon",st:"scale",
+  bench:{low:1.0,good:2.0},healthy:1.6,
+  reco:"<b>Scale-ready</b> — 7-day ROAS <b>3.68</b> (above the 3.5 bar). Scale the winning ad sets (Static Women 5.1×, Men 6.6×); the biggest extra unlock is recovering abandoned carts (only 8% reach checkout).",
+  diag:"The most consistent account: ROAS 3.24 yesterday, 3.68 last 7d, 3.61 MTD, CTR ~3%. The funnel shows where the money is left: <b>7,404 landing-page views → 2,579 adds to cart (34.8%) → only 197 checkouts (7.6% of carts) → 100 purchases (50.8% of checkouts)</b>. Demand and checkout-completion are both strong; the leak is <b>cart→checkout</b> — heavy abandonment. That's pure upside: cart retargeting, a free-shipping threshold, and a shorter cart/checkout path should lift purchases without more spend. Frequency (3.95) is high — rotate fresh creative to protect CTR.",
+  yest:[98.48,3.239236,6,2.94,1.77,380],d7:[721.13,3.681028,51,3.12,3.35,3490],mtd:[1439.47,3.607925,100,2.83,3.95,7376],
+  funnel:[7404,2579,197,100],
+  ads:[
+   ["Sale All | Aug 26","Sales | LB | Women",100.48,4.35,13,7.73,3.48,1.77,35.52],
+   ["Catalogue - Summer thin heels","Sales | LB | Women",95.53,3.87,8,11.94,3.53,3.70,40.02],
+   ["Catalogue - Flats 2026","Sales | LB | Women",37.55,6.23,4,9.39,3.25,3.06,18.11],
+   ["2.0","Sales | LB | Men",35.42,7.28,2,17.71,1.90,2.25,7.40],
+   ["Catalog - Clearance 60%","Sales | LB | Women",34.80,0.86,1,34.80,3.04,2.53,13.06],
+   ["ballerinas - Sep 26","Sales | LB | Women",33.44,10.78,11,3.04,2.02,1.64,12.99],
+   ["Cruz - Aug 2026","Sales | LB | Men",29.40,6.87,3,9.80,1.24,2.04,18.17]]},
+
+ {id:"461134172978196",name:"Baladi Baby",type:"ecomm",cur:"USD",vertical:"Baby & kids ecommerce · UAE/Oman",st:"watch",
+  bench:{low:1.5,good:2.5},healthy:2.2,
+  reco:"ROAS under 1.7, dipped to <b>0.91</b> yesterday. CTR low (1.5%) so the click is the weak point; funnel itself is roughly healthy.",
+  diag:"ROAS is 1.44 MTD and fell to 0.91 yesterday on a light-spend day — a soft trend, not a crisis. The funnel is broadly healthy: <b>912 landing-page views → 184 adds to cart (20.2%) → 59 checkouts (32.1% of carts) → 18 purchases (30.5% of checkouts)</b>, each step in a reasonable range. The real weak point is upstream — <b>CTR ~1.5%</b>, the lowest of the ecommerce roster — so too few clicks enter the funnel in the first place, and there's a mild checkout-completion leak (31%) worth watching. Priority is a creative test (stronger hooks / UGC) to lift CTR; pause 'Reels Sep 3' (ROAS 0.85).",
+  yest:[58.21,0.905858,1,1.51,1.43,46],d7:[489.91,1.678737,10,1.54,2.63,507],mtd:[890.51,1.439175,16,1.60,3.31,904],
+  funnel:[912,184,59,18],
+  ads:[
+   ["Reels - Aug 24, 2026","Sales | OM_UAE",179.57,1.96,4,44.89,1.96,1.31,71.43],
+   ["Reels - Sep 3, 2026","Sales | OM_UAE",101.02,0.85,2,50.51,1.32,1.58,33.92],
+   ["catalogue - Swaddles Only","Sales | OM_UAE",44.40,2.33,2,22.20,1.38,1.94,16.67],
+   ["Reels - Sep 10, 2026","Sales | OM_UAE",32.93,null,0,null,1.06,1.65,32.93],
+   ["Reels - 21 Feb 2026","Sales | OM_UAE",32.36,null,0,null,0.95,1.18,13.13],
+   ["catalogue - curated newborn set","Sales | OM_UAE",27.03,7.66,1,27.03,1.51,1.62,6.32],
+   ["catalogue - Newborn Essentials","Sales | OM_UAE",18.62,null,0,null,1.47,1.48,5.04]]},
+
+ {id:"823300276575290",name:"Maison Remie",type:"ecomm",cur:"USD",vertical:"Tableware / home · LB",st:"alert",
+  bench:{low:0.7,good:1.5},healthy:1.2,
+  reco:"<b>27 checkouts started, 0 completed</b> — the break is only at checkout→purchase. Test a live order and the confirmation event; the ads work.",
+  diag:"The funnel makes this precise: <b>1,365 landing-page views → 92 adds to cart (6.7%) → 27 checkouts initiated → 0 completed purchases</b>. Add-to-cart and checkout events both fire, so this is <b>not</b> a dead account or a blanket tracking failure — the break is entirely at the <b>final step, checkout→purchase</b>. Either orders aren't completing (payment method / COD / a checkout error) or the Purchase event on the order-confirmation page isn't firing. Action: place one real test order and watch the thank-you page — if the order goes through but no Purchase registers, it's the confirmation event; if the order itself fails, it's payment/checkout. Creative is strong (5.1% CTR, healthy add-to-cart) — fix the last step and this account converts.",
+  yest:[25.10,null,0,4.56,1.26,45],d7:[404.54,null,0,5.21,2.08,795],mtd:[756.30,null,0,5.14,2.46,1364],
+  funnel:[1365,92,27,0],
+  ads:[
+   ["Pic | Serving Platter Pink 50% off","Sales | 3RDS",85.73,null,0,null,5.76,1.28,9.43],
+   ["Pic - Sharashib Collection","Sales | 3RDS",74.10,null,0,null,3.68,1.77,39.27],
+   ["Reels - 23 July 2026","Sales | 3RDS",66.20,null,0,null,5.48,1.35,10.13],
+   ["Pic - Sharashib Collection (2)","Sales | 3RDS",54.83,null,0,null,7.71,1.39,21.36],
+   ["Reels - 07 Aug 2026","Sales | 3RDS",39.56,null,0,null,5.68,1.41,7.73],
+   ["Reels - 13 Aug 2026","Sales | 3RDS",22.20,null,0,null,3.93,1.60,6.52]]},
+
+ {id:"1040541858432400",name:"Objeti",type:"ecomm",cur:"USD",vertical:"Home / furniture / decor · LB",st:"alert",
+  bench:{low:0.7,good:1.5},healthy:1.2,
+  reco:"Only <b>2.3% of visits add to cart</b> — the leak is landing→cart (page/price), not the ad. Concentrate on the Fatboy catalog (the only converter).",
+  diag:"ROAS has slid from 1.12 (7d) to 0.71 (MTD), below breakeven. The funnel locates the leak at the top: <b>1,419 landing-page views → only 33 adds to cart (2.3%) → 10 checkouts (30% of carts) → 3 purchases (30% of checkouts)</b>. Downstream steps are normal; the problem is <b>landing→cart</b>. A high CTR (3.5%) with a 2.3% add-to-cart means the ad promises more than the product page/price delivers — a message-to-PDP or pricing mismatch on high-consideration home goods. Action: align creative to the exact products/prices on the page, review shipping shown on-page, and concentrate budget on the 'Fatboy' catalog (the only line generating purchases).",
+  yest:[43.94,null,0,3.12,1.25,114],d7:[264.08,1.117086,2,3.54,2.05,683],mtd:[568.32,0.712627,3,3.52,2.61,1417],
+  funnel:[1419,33,10,3],
+  ads:[
+   ["Catalog | Fatboy","Sales | LB | 3RDS",122.70,2.40,2,61.35,4.21,2.20,51.53],
+   ["Reel | Zafferano | 07 Sep","Sales | LB | 3RDS",29.20,null,0,null,2.05,1.67,17.44],
+   ["Catalog | Lighting","Sales | LB | 3RDS",27.17,null,0,null,3.99,2.00,1.98],
+   ["Catalog | Fermob","Sales | LB | 3RDS",14.01,null,0,null,4.66,1.74,6.05],
+   ["Reel | Petit | 23 Aug","Sales | LB | 3RDS",13.38,null,0,null,2.24,1.43,0.90],
+   ["Reel | Lighting | 03 Aug","Traffic (profile visits)",15.37,null,0,null,3.16,1.41,0.67]]},
+
+ {id:"538616739997239",name:"Depechemode",type:"ecomm",cur:"USD",vertical:"Fashion · LB",st:"scale",
+  bench:{low:1.0,good:2.0},healthy:1.8,
+  reco:"Star account — ROAS <b>8.6</b> MTD on tiny spend, CTR 6%. Scale the winning catalogs; widen audience as frequency is 3.5.",
+  diag:"Best efficiency on the roster: ROAS 10.5 (7d) and 8.6 (MTD) at CTR 6%+, but on only $186 MTD spend — volume is being left on the table. The funnel is healthy for its size: <b>1,387 landing-page views → 137 adds to cart (9.9%) → 17 checkouts → 8 purchases (47% of checkouts)</b>; the mild leak is cart→checkout, normal at this scale. Yesterday's ROAS reads 2.59 but that's a single purchase on $25 — small-sample noise, not a decline (cost per purchase is steady ~$23). The 'essentiel' catalog is exceptional (ROAS 14). Because the audience is small, frequency is already 3.55 — scale by widening targeting, not just raising budget.",
+  yest:[25.70,2.587549,1,5.32,1.86,153],d7:[137.01,10.499234,7,5.72,3.19,960],mtd:[183.15,8.610429,8,6.05,3.55,1369],
+  funnel:[1387,137,17,8],
+  ads:[
+   ["Catalogue - essentiel","Sales | LB | 3RDS",59.73,14.00,4,14.93,7.29,2.15,59.73],
+   ["Catalogue - cardigans","Sales | LB | 3RDS",43.84,8.03,2,21.92,6.38,2.16,43.84],
+   ["Catalogue - Luje","Sales | LB | 3RDS",33.44,7.48,1,33.44,3.78,2.01,10.51]]},
+
+ {id:"1785804829472683",name:"Arabian Exhibition Group",type:"leads",cur:"USD",vertical:"Exhibitions / B2B leads · GCC",st:"stable",
+  bench:{low:1.5,good:3.0},healthy:2.5,
+  reco:"Cost per lead improving (<b>$7.6</b> yesterday vs $13.3 MTD). But frequency hit 4.1 — expand audience before CPL climbs back.",
+  diag:"Lead cost is trending the right way: CPL $13.28 MTD → $10.00 last 7d → $7.56 yesterday, on steady CTR (~1.6%). The risk is <b>audience saturation</b> — frequency has reached 4.09 MTD and will eventually push CPL back up. Both active Buildex-Exhibitor ads are healthy (~$10 CPL). Lead-form conversion (landing→lead 1.3% MTD) sits below the healthy ~2.5%, so the landing page / form length is worth a look. Action: broaden targeting or add a fresh angle now, while CPL is low, and tighten the lead form.",
+  yest:[30.25,4,148,1.67,1.52],d7:[209.92,21,1104,1.55,3.01],mtd:[385.14,29,2190,1.61,4.09],
+  ads:[
+   ["Reel 1.0 | 07 Aug 2026","Buildex Exhibitors | Leads",169.55,17,9.97,1.48,2.74,82.75],
+   ["Reel 1.0 | Aug 14, 2026","Buildex Exhibitors | Leads",40.37,4,10.09,1.87,1.94,16.52]]},
+
+ {id:"3925496654358938",name:"AESTRA design",type:"leads",cur:"EUR",vertical:"Interior design leads · GCC/CIS",st:"watch",
+  bench:{low:1.5,good:3.0},healthy:2.5,
+  reco:"Blended CPL high (€<b>65</b>) because ~55% of spend goes to profile-visit posts with almost no leads. Shift to the €20-CPL reel; pause the €94 one.",
+  diag:"The headline CPL (€64.58 MTD) is misleading. About half the spend sits in two 'Instagram Post' campaigns optimised for <b>profile visits</b> (€267 + €176 in 7d) that produce almost no website leads — they inflate the blend. Inside the actual lead campaigns the spread is wide: 'Reel – Jul 25' is the winner at <b>€19.86 CPL</b> (6 leads), while 'Reel – 21 July' is bleeding at €94 for 1 lead. On the lead campaigns alone, landing→lead conversion (3.2%) is above the healthy ~2.5%, so intent is there. Action: move budget to the Jul-25 reel, pause the €94 reel, and report the profile-visit spend separately so lead cost is read on its own. CTR on the lead reels is 4–6% — creative isn't the problem; allocation is.",
+  yest:[43.73,1,45,5.50,1.24],d7:[792.04,11,336,1.45,2.58],mtd:[1356.11,21,650,1.54,3.20],
+  ads:[
+   ["Instagram Post (profile visits)","Awareness — not lead-gen",267.42,1,0.09,1.10,2.51,36.53],
+   ["Instagram Post (profile visits)","Awareness — not lead-gen",175.83,0,0.07,1.79,1.77,0.00],
+   ["Reel - 21 July 2026 | 2","Aestra | Leads | Website",153.90,3,51.30,6.21,1.61,56.92],
+   ["Reel - Jul 25, 2026","Aestra | Leads | Website",99.30,6,19.86,4.55,1.33,36.03],
+   ["Reel - 21 July 2026","Aestra | Leads | Website",94.01,1,94.01,3.01,1.47,49.61]]}
+];
+
+/* ---------- client-meeting agenda (talking points per account) ----------
+   each row: [category-icon, category, badge-class|"", badge-text|"", html] */
+const MEETING={
+ "255888560471577":[
+  ["📈","Budget","ab-hold","Hold / optimize","Account 7-day ROAS 2.6 is below the 3.5 scale bar — don't lift the whole account budget on a strong yesterday. Scale only the ad sets over target (below) and shift spend off the weak ones."],
+  ["🌍","Geo / audience","","","Shift spend toward <b>UAE</b> (UGC ROAS 5.1) and <b>KSA</b> (National-Day ROAS 6.2); trim <b>Kuwait/Qatar/Bahrain</b> (571 video ROAS 1.0, CTR 0.46%)."],
+  ["🛒","Website / funnel","ab-fix","Cart page","One leak: only ~21% of carts start checkout. Add cart retargeting, a saved-cart reminder and clearer shipping cost — no full-site work needed."],
+  ["🎬","Creative & assets","","","Retire the 571 BeatTheHeat men's video (CTR 0.46%). Brief 3–4 new UGC hooks (best-performing format) before frequency (3.5) fatigues."],
+  ["🔍","Competitive & strategy","","","Track GCC modest-fashion competitors for seasonal/National-Day angles; keep the UGC + catalog mix as the core strategy."]],
+ "607365084588376":[
+  ["📈","Budget","ab-hold","Hold","Don't cut on ROAS yet — first split the profile-visit Traffic campaign (7,600$) out of the sales budget so ROAS reads cleanly."],
+  ["🛒","Website / funnel","ab-fix","Product page","<b>Priority.</b> Only 0.5% of visits add to cart; checkout converts fine. Dev to verify the add-to-cart button + event on product pages and review price/PDP load — not checkout."],
+  ["🎬","Creative & assets","","","Creative is working (CTR 2.3%) — keep it. Add UGC to complement the carousels."],
+  ["🌍","Geo / audience","","","LB catalog converts (ROAS 5.7); GCC is spotty. Once add-to-cart is fixed, weight budget to the converting markets."],
+  ["🔍","Competitive & strategy","","","Benchmark luxury-footwear competitor PDPs; consider a bundle/offer to lift both add-to-cart rate and AOV."]],
+ "10155807354086912":[
+  ["📈","Budget","ab-up","Increase","Scale-ready: 7-day ROAS 3.68 &gt; 3.5. Push daily budget on the Scale ad sets below; hold 'Catalog | Women' (freq 3.7). Pair with cart recovery for the biggest lift."],
+  ["🛒","Website / funnel","ab-fix","Cart page","<b>Priority.</b> 35% add to cart but only 8% reach checkout. Simplify the cart, add a free-shipping threshold and cart retargeting. Checkout→purchase is fine."],
+  ["🎬","Creative & assets","","","Frequency 3.95 — rotate fresh creative to protect CTR. Pause 'Clearance 60%' (ROAS 0.86)."],
+  ["🌍","Geo / audience","","","Lebanon-only — no geo shift; focus on cart recovery and creative refresh."],
+  ["🔍","Competitive & strategy","","","Watch LB footwear promos; test bundle offers to raise AOV and lift ROAS further."]],
+ "461134172978196":[
+  ["📈","Budget","ab-hold","Hold","ROAS 1.44 and dipped yesterday — don't scale until CTR and ROAS recover."],
+  ["🎬","Creative & assets","ab-fix","Priority","CTR ~1.5% is the lowest on the roster — the click is the bottleneck. Provide stronger hooks / UGC, and build a creative testing plan. Pause 'Reels Sep 3' (ROAS 0.85)."],
+  ["🛒","Website / funnel","","","Funnel steps are roughly healthy; watch checkout completion (31%). No site rebuild — fix creative first."],
+  ["🌍","Geo / audience","","","UAE + Oman — hold; once creative lifts CTR, concentrate on the stronger market."],
+  ["🔍","Competitive & strategy","","","Competitive analysis of UAE baby-brand creative angles to feed the UGC testing plan."]],
+ "823300276575290":[
+  ["📈","Budget","ab-down","Cap","Cap/pause scaling — spending with 0 completed purchases. Hold budget flat until checkout is fixed."],
+  ["🛒","Website / funnel","ab-fix","Checkout page","<b>The whole conversation.</b> 27 checkouts started, 0 completed. Place a live test order: if it completes but no Purchase registers → confirmation-page event; if it fails → payment / COD / checkout error."],
+  ["🎬","Creative & assets","ab-hold","Don't touch","Creative is strong (5.1% CTR, healthy add-to-cart). Change nothing here — the problem is the last step."],
+  ["🌍","Geo / audience","","","Lebanon — no geo action until the checkout path is proven."],
+  ["🔍","Competitive & strategy","","","Hold competitive/creative work until conversion is fixed, then revisit offer and AOV."]],
+ "1040541858432400":[
+  ["📈","Budget","ab-down","Reduce / focus","ROAS 0.71 (below breakeven) — reduce and concentrate budget on the 'Fatboy' catalog (the only line generating purchases)."],
+  ["🛒","Website / funnel","ab-fix","Product page","Only 2.3% add to cart — leak is landing→cart. Review pricing and shipping shown on-page and PDP load; checkout steps are normal."],
+  ["🎬","Creative & assets","","","Ads pull (CTR 3.5%) but over-promise vs the product page — provide product-accurate creative. Restart the stalled 'Lighting' and 'Petit' ads or replace them."],
+  ["🌍","Geo / audience","","","Lebanon — no geo shift; the fix is on-site + creative-to-PDP match."],
+  ["🔍","Competitive & strategy","","","Competitive analysis of LB home-decor pricing; consider an intro offer to lift add-to-cart on high-consideration items."]],
+ "538616739997239":[
+  ["📈","Budget","ab-up","Increase","<b>Underspending.</b> ROAS 8.6 on only $186 MTD — raise daily budget, led by the 'essentiel' catalog (ROAS 14)."],
+  ["🌍","Geo / audience","ab-fix","Widen","Frequency 3.5 on a small audience — scale by widening targeting (lookalikes / new interests), not just budget, or CPMs will climb."],
+  ["🛒","Website / funnel","","","Mild cart→checkout leak — fine for now; revisit after scaling."],
+  ["🎬","Creative & assets","","","Working (CTR 6%). Provide more catalog plus a couple of UGC pieces to support the wider audience."],
+  ["🔍","Competitive & strategy","","","Scale in steps and watch efficiency as budget rises; this is the model account to replicate."]],
+ "1785804829472683":[
+  ["📈","Budget","ab-hold","Hold / nudge","CPL low ($7.6 yesterday) — maintain, small increases OK while cost stays down."],
+  ["🌍","Geo / audience","ab-fix","Expand","Frequency 4.1 — audience saturating. Broaden targeting / add markets now, before CPL climbs back."],
+  ["🛒","Website / funnel","ab-fix","Lead form","Landing→lead 1.3% vs healthy ~2.5% — shorten the form and tighten the landing page."],
+  ["🎬","Creative & assets","","","Both reels healthy (~$10 CPL). Provide 1–2 fresh reels to reset frequency."],
+  ["🔍","Competitive & strategy","","","Competitive analysis of rival exhibitions' lead offers/incentives to sharpen the hook."]],
+ "3925496654358938":[
+  ["📈","Budget","ab-fix","Reallocate","~55% of spend is in profile-visit posts with almost no leads. Move it to the lead reels: scale 'Reel – Jul 25' (€20 CPL), pause 'Reel – 21 July' (€94)."],
+  ["📊","Reporting","","","Separate the awareness (profile-visit) spend from lead reporting so the true cost per lead is visible."],
+  ["🛒","Website / funnel","","","Landing→lead 3.2% is above healthy — the site/form is fine; the issue is budget allocation."],
+  ["🎬","Creative & assets","","","Lead reels are strong (CTR 4–6%) — provide more in that exact style; retire the profile-visit posts as lead drivers."],
+  ["🔍","Competitive & strategy","","","Competitive analysis of interior-design lead funnels across GCC/CIS; concentrate on the best-converting markets."]]
+};
+
+const ADSETS={
+ "255888560471577":{type:"ecomm",rows:[
+   ["UAE ASC — Prospecting","UAE_Sales_ASC",2099.80,3.24,32,65.62,0.86,2.57],
+   ["KSA National Day — Catalog","Catalogue_Sales_GCC",680.97,4.37,10,68.10,1.20,3.11],
+   ["KSA National Day — ASC","KSA_Sales_ASC",1820.32,3.02,22,82.74,1.10,2.81],
+   ["GCC Retargeting+Prospecting — Catalog","Catalogue_Sales_GCC",5576.09,2.11,40,139.40,1.51,4.12],
+   ["KUW-QAT-BH — ASC","KUW-QAT-BH_Sales_ASC",2799.81,1.85,17,164.69,0.75,3.24]]},
+ "538616739997239":{type:"ecomm",rows:[
+   ["Broad | Women | LB | Ongoing","Depechemode | Sales",137.01,10.50,7,19.57,5.72,3.19]]},
+ "10155807354086912":{type:"ecomm",rows:[
+   ["Static | Women | LB | Ongoing","Sales | LB | Women",209.75,5.12,28,7.49,2.88,2.79],
+   ["Classic Sneakers | Men | LB","Sales | LB | Men",69.99,6.57,5,14.00,1.52,2.79],
+   ["Catalog | Women | LB | May","Sales | LB | Women",251.03,3.67,16,15.69,3.25,3.65]]},
+ "1785804829472683":{type:"leads",rows:[
+   ["Website Leads | Buildex Exhibitors","Buildex | Leads | 3RDS",209.92,21,10.00,1.55,3.01]]}
+};
+function adsetVerdict(t,r){
+  if(t==='ecomm'){const roas=r[3],freq=r[7];
+    if(roas>=3&&freq<3.3)return['Scale','t-scale'];
+    if(roas<2||freq>=4)return['Trim','t-refresh'];
+    return['Hold','t-keep'];}
+  const cpl=r[4],freq=r[6];
+  if(cpl<=15&&freq<3.3)return['Scale','t-scale'];
+  if(cpl>30||freq>=4.2)return['Trim','t-refresh'];
+  return['Hold','t-keep'];
+}
+function scaleAgendaRow(c){
+  const A=ADSETS[c.id];if(!A)return null;const isEc=A.type==='ecomm';
+  const scale=[],hold=[],trim=[];
+  A.rows.forEach(r=>{const v=adsetVerdict(A.type,r)[0];const nm=r[0];
+    if(v==='Scale')scale.push(isEc?`<b>${nm}</b> (ROAS ${f2(r[3])}×, freq ${f2(r[7])})`:`<b>${nm}</b> (CPL ${money(r[4],c.cur)}, freq ${f2(r[6])})`);
+    else if(v==='Hold')hold.push(nm);else trim.push(nm);});
+  let t="";
+  if(scale.length)t+="Put daily budget into "+scale.join("; ")+". ";
+  if(hold.length)t+="Hold "+hold.join(", ")+". ";
+  if(trim.length)t+="Trim / fix "+trim.join(", ")+". ";
+  t+="Step daily budget +20–30% every 3–4 days while ROAS/CPL holds; widen the audience if frequency passes ~3.3.";
+  return ["🚀","Scale — by ad set","ab-up","By ad set",t];
+}
+function adsetTable(c){
+  const A=ADSETS[c.id];if(!A)return '';const isEc=A.type==='ecomm';
+  const head=isEc?`<th>Ad set</th><th class="r">Spend 7d</th><th class="r">ROAS</th><th class="r">Purch</th><th class="r">Cost/P</th><th class="r">CTR</th><th class="r">Freq</th><th>Scale?</th>`
+    :`<th>Ad set</th><th class="r">Spend 7d</th><th class="r">Leads</th><th class="r">CPL</th><th class="r">CTR</th><th class="r">Freq</th><th>Scale?</th>`;
+  const rows=A.rows.map(r=>{const vv=adsetVerdict(A.type,r);
+    if(isEc)return `<tr><td class="adnm">${r[0]}<span class="cmp">${r[1]}</span></td><td class="r num">${money0(r[2],c.cur)}</td><td class="r num">${f2(r[3])}×</td><td class="r num">${r[4]}</td><td class="r num">${money(r[5],c.cur)}</td><td class="r num">${r[6].toFixed(2)}%</td><td class="r num">${f2(r[7])}</td><td><span class="tag2 ${vv[1]}">${vv[0]}</span></td></tr>`;
+    return `<tr><td class="adnm">${r[0]}<span class="cmp">${r[1]}</span></td><td class="r num">${money0(r[2],c.cur)}</td><td class="r num">${r[3]}</td><td class="r num">${money(r[4],c.cur)}</td><td class="r num">${r[5].toFixed(2)}%</td><td class="r num">${f2(r[6])}</td><td><span class="tag2 ${vv[1]}">${vv[0]}</span></td></tr>`;
+  }).join('');
+  return `<div class="sec-t">Ad sets — where to scale (daily-budget model)</div><div style="overflow-x:auto"><table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+/* ---------- helpers ---------- */
+const f0=n=>Math.round(n).toLocaleString('en-US');
+const f2=n=>n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const money=(v,c)=>CUR[c]+f2(v);
+const money0=(v,c)=>CUR[c]+f0(v);
+const cpr=(s,r)=>r>0?s/r:null;
+const cvr=(r,l)=>l>0?100*r/l:0;
+const roasTxt=v=>v==null?"—":f2(v)+"×";
+const statusRank=s=>({alert:0,watch:1,scale:2,stable:3})[s];
+function deltaBadge(y,avg,goodUp){
+  if(y==null||avg==null||avg===0)return '<span class="delta flat">n/a</span>';
+  const d=100*(y-avg)/avg;const better=goodUp?d>=0:d<=0;
+  const cls=Math.abs(d)<4?'flat':(better?'up':'dn');
+  const arrow=d>1?'▲':(d<-1?'▼':'▬');
+  return `<span class="delta ${cls}">${arrow} ${d>=0?'+':''}${d.toFixed(0)}%</span>`;
+}
+
+/* per-ad recommendation engine */
+function adReco(c,ad){
+  const isLead=c.type==='leads';
+  let spend7,res,ratio,cprv,ctr,freq,spend3,isTraffic=false;
+  if(isLead){spend7=ad[2];res=ad[3];cprv=ad[4];ctr=ad[5];freq=ad[6];spend3=ad[7];isTraffic=/profile|awareness/i.test(ad[1]);}
+  else{spend7=ad[2];ratio=ad[3];res=ad[4];cprv=ad[5];ctr=ad[6];freq=ad[7];spend3=ad[8];isTraffic=/traffic|profile/i.test(ad[1]);}
+  const dailyPrior=(spend7-spend3)/4,daily3=spend3/3;
+  if(spend7>=15&&dailyPrior>2&&daily3<0.15*dailyPrior)
+    return ["t-stop","Stalled ~72h","Barely spending for 3 days — restart it or swap in a fresh hook so budget isn't stuck."];
+  if(isTraffic)
+    return ["t-keep","Awareness","Optimised for profile visits, not sales/leads — judge on reach, keep out of the ROAS/CPL read."];
+  if((res===0||res==null)&&spend7>=35&&!isLead)
+    return ["t-track","Cart, no buy","Spend of "+money0(spend7,c.cur)+" with no purchase — check where it drops in the funnel (cart/checkout)."];
+  if((res===0||res==null)&&spend7>=35&&isLead)
+    return ["t-stop","No lead","0 leads on "+money0(spend7,c.cur)+" — pause and reallocate to a converting ad."];
+  if(!isLead&&ratio!=null&&ratio>=4)return ["t-scale","Scale","ROAS "+f2(ratio)+"× — top performer, push more budget here."];
+  if(isLead&&cprv!=null&&cprv<=15&&res>=3)return ["t-scale","Scale","CPL "+money(cprv,c.cur)+" — best cost per lead, add budget."];
+  if(ctr!=null&&ctr<0.8)return ["t-refresh","Refresh","CTR "+ctr.toFixed(2)+"% — creative isn't hooking, replace it."];
+  if(!isLead&&ratio!=null&&ratio<1)return ["t-refresh","Weak ROAS","ROAS "+f2(ratio)+"× (below breakeven) — refresh creative or pause."];
+  if(isLead&&cprv!=null&&cprv>30)return ["t-refresh","High CPL","CPL "+money(cprv,c.cur)+" — well above target, pause or rework."];
+  if(freq!=null&&freq>3.2)return ["t-refresh","Fatigue","Frequency "+f2(freq)+" — rotate creative before cost rises."];
+  return ["t-keep","Healthy","Performing in range — keep running and monitor."];
+}
+
+/* ---------- render ---------- */
+document.getElementById('logo').src="data:image/png;base64,"+LOGO_B64;
+document.getElementById('d-yest').textContent=DATES.yest;
+document.getElementById('d-7d').textContent=DATES.d7;
+document.getElementById('d-mtd').textContent=DATES.mtd;
+document.getElementById('mo').textContent=DATES.mo;
+document.getElementById('foot-r').textContent="9 accounts · Meta · "+DATES.mo;
+
+(function(){
+  const ec=CLIENTS.filter(c=>c.type==='ecomm'),ld=CLIENTS.filter(c=>c.type==='leads');
+  const sumIdx=(a,i,w)=>a.reduce((s,c)=>s+(c[w][i]||0),0);
+  const purchY=sumIdx(ec,2,'yest'),purch7=sumIdx(ec,2,'d7'),purchM=sumIdx(ec,2,'mtd');
+  const leadY=ld.reduce((s,c)=>s+c.yest[1],0),lead7=ld.reduce((s,c)=>s+c.d7[1],0),leadM=ld.reduce((s,c)=>s+c.mtd[1],0);
+  const alerts=CLIENTS.filter(c=>c.st==='alert').length,watch=CLIENTS.filter(c=>c.st==='watch').length,scale=CLIENTS.filter(c=>c.st==='scale').length;
+  const FX={USD:1,SGD:0.78,EUR:1.08};
+  const spendUSD=w=>CLIENTS.reduce((s,c)=>s+c[w][0]*FX[c.cur],0);
+  const spM=spendUSD('mtd'),spY=spendUSD('yest');
+  const usd0=v=>'$'+Math.round(v).toLocaleString('en-US');
+  const tiles=[
+   {k:"Active clients",v:CLIENTS.length,s:ec.length+" ecommerce · "+ld.length+" leads",cls:"accent"},
+   {k:"Ad spend · MTD",v:usd0(spM),s:"≈ USD blend · "+usd0(spY)+" yest"},
+   {k:"Purchases yest.",v:purchY,s:purch7+" last 7d · "+purchM+" MTD"},
+   {k:"Leads yest.",v:leadY,s:lead7+" last 7d · "+leadM+" MTD"},
+   {k:"Scale-ready",v:scale,s:"7-day ROAS &gt; 3.5"},
+   {k:"Watch",v:watch,s:"softening — act soon",cls:"warn"},
+   {k:"Needs a fix",v:alerts,s:"funnel / ROAS issues",cls:"bad"}
+  ];
+  document.getElementById('ov').innerHTML=tiles.map(t=>`<div class="tile ${t.cls||''}"><div class="k">${t.k}</div><div class="v num">${t.v}</div><div class="s">${t.s}</div></div>`).join('');
+})();
+
+let curFilter='all',curSort='status';
+function passFilter(c){
+  if(curFilter==='all')return true;
+  if(curFilter==='ecomm')return c.type==='ecomm';
+  if(curFilter==='leads')return c.type==='leads';
+  if(curFilter==='alert')return c.st==='alert'||c.st==='watch';
+  if(curFilter==='scale')return c.st==='scale';
+}
+function sortClients(a,b){
+  if(curSort==='status')return statusRank(a.st)-statusRank(b.st);
+  if(curSort==='spend')return b.mtd[0]-a.mtd[0];
+  if(curSort==='roas'){
+    const av=a.type==='ecomm'?(a.mtd[1]||-1):-1/((a.mtd[0]/a.mtd[1])||1);
+    const bv=b.type==='ecomm'?(b.mtd[1]||-1):-1/((b.mtd[0]/b.mtd[1])||1);
+    return bv-av;
+  }
+}
+function cvrBar(c){
+  const val=c.type==='ecomm'?cvr(c.mtd[2],c.mtd[5]):cvr(c.mtd[1],c.mtd[2]);
+  const lo=c.bench.low,gd=c.bench.good,hv=c.healthy,scaleMax=Math.max(gd*1.6,hv*1.3);
+  const pos=v=>Math.min(100,Math.max(0,100*v/scaleMax));
+  const z1=pos(lo),z2=pos(gd),hpos=pos(hv),mpos=pos(val);
+  const lx=q=>q<14?'translateX(-6%)':q>86?'translateX(-94%)':'translateX(-50%)';
+  let verdict,vc;const diff=val-hv;
+  if(diff>=-0.001){verdict="at / above healthy";vc="var(--scale)";}
+  else if(val>=lo){verdict="below healthy";vc="var(--watch)";}
+  else{verdict="well below healthy";vc="var(--alert)";}
+  const resLabel=c.type==='ecomm'?'purchases ÷ LPV':'leads ÷ LPV';
+  return `<div class="cvr">
+    <div class="top"><span>Conversion rate <span style="color:var(--muted2)">(${resLabel}) · MTD vs healthy avg</span></span><b class="num">${val.toFixed(2)}%</b></div>
+    <div class="track">
+      <div class="z1" style="width:${z1}%"></div><div class="z2" style="width:${z2-z1}%"></div><div class="z3" style="width:${100-z2}%"></div>
+      <div class="marker" style="left:${mpos}%"><span class="mlabel" style="transform:${lx(mpos)}">MTD ${val.toFixed(2)}%</span></div>
+      <div class="healthy" style="left:${hpos}%"><span class="hlabel" style="transform:${lx(hpos)}">healthy ${hv}%</span></div>
+    </div>
+    <div class="cap">MTD <b class="num">${val.toFixed(2)}%</b> vs healthy avg <b class="num">${hv}%</b> — <b style="color:${vc}">${verdict}</b></div>
+  </div>`;
+}
+function card(c){
+  const isEc=c.type==='ecomm';
+  const heroLab=isEc?'ROAS':'Cost / lead';
+  const hero=w=>isEc?roasTxt(c[w][1]):(c[w][1]>0?money(c[w][0]/c[w][1],c.cur):'—');
+  const yv=isEc?c.yest[1]:(c.yest[1]>0?c.yest[0]/c.yest[1]:null);
+  const av=isEc?c.d7[1]:(c.d7[1]>0?c.d7[0]/c.d7[1]:null);
+  const hd=deltaBadge(yv,av,isEc);
+  const resLab=isEc?'Purchases':'Leads';
+  const rY=isEc?c.yest[2]:c.yest[1],r7=isEc?c.d7[2]:c.d7[1],rM=isEc?c.mtd[2]:c.mtd[1];
+  const cprV=isEc?cpr(c.mtd[0],c.mtd[2]):(c.mtd[1]>0?c.mtd[0]/c.mtd[1]:null);
+  const cprLab=isEc?'Cost / purch (MTD)':'CPL (MTD)';
+  return `<div class="c" data-st="${c.st}" data-type="${c.type}">
+    <div class="ch"><div><div class="nm">${c.name}</div><div class="meta">${c.vertical} · ${c.cur}</div></div><span class="pill ${c.st}">${c.st}</span></div>
+    <div class="reco">${c.reco}</div>
+    <div class="trio">
+      <div class="cell hi"><div class="lab">${heroLab} · Yest</div><div class="big num">${hero('yest')}</div><div>${hd}</div></div>
+      <div class="cell"><div class="lab">Last 7d</div><div class="big num">${hero('d7')}</div><div class="sub">avg</div></div>
+      <div class="cell"><div class="lab">MTD</div><div class="big num">${hero('mtd')}</div><div class="sub">month</div></div>
+    </div>
+    <div class="trio res">
+      <div class="cell hi"><div class="lab">${resLab} · Yest</div><div class="big num">${f0(rY)}</div></div>
+      <div class="cell"><div class="lab">Last 7d</div><div class="big num">${f0(r7)}</div></div>
+      <div class="cell"><div class="lab">MTD</div><div class="big num">${f0(rM)}</div></div>
+    </div>
+    <div class="trio spend">
+      <div class="cell hi"><div class="lab">Spend · Yest</div><div class="big num">${money0(c.yest[0],c.cur)}</div></div>
+      <div class="cell"><div class="lab">Last 7d</div><div class="big num">${money0(c.d7[0],c.cur)}</div></div>
+      <div class="cell"><div class="lab">MTD</div><div class="big num">${money0(c.mtd[0],c.cur)}</div></div>
+    </div>
+    <div class="metrow">
+      <div class="m"><div class="l">${cprLab}</div><div class="n num">${cprV!=null?money(cprV,c.cur):'—'}</div></div>
+      <div class="m"><div class="l">CTR (MTD)</div><div class="n num">${c.mtd[3].toFixed(2)}%</div></div>
+      <div class="m"><div class="l">Freq (MTD)</div><div class="n num">${c.mtd[4].toFixed(2)}</div></div>
+    </div>
+    ${cvrBar(c)}
+    <div class="exp"><button onclick="openM('${c.id}')">View funnel, ads &amp; recommendations →</button></div>
+  </div>`;
+}
+function renderGrid(){
+  const list=CLIENTS.filter(passFilter).sort(sortClients);
+  document.getElementById('grid').innerHTML=list.map(card).join('')||'<p style="color:var(--muted);padding:20px">No clients match this filter.</p>';
+}
+renderGrid();
+document.querySelectorAll('.chip[data-f]').forEach(ch=>ch.onclick=()=>{document.querySelectorAll('.chip[data-f]').forEach(x=>x.classList.remove('on'));ch.classList.add('on');curFilter=ch.dataset.f;renderGrid();});
+document.querySelectorAll('.chip[data-s]').forEach(ch=>ch.onclick=()=>{document.querySelectorAll('.chip[data-s]').forEach(x=>x.classList.remove('on'));ch.classList.add('on');curSort=ch.dataset.s;renderGrid();});
+
+/* funnel viz — ecommerce: LPV -> ATC -> IC -> Purchase */
+function stepBadge(rate,good,ok){
+  if(rate>=good)return ['sb-good','healthy'];
+  if(rate>=ok)return ['sb-ok','watch'];
+  return ['sb-leak','leak'];
+}
+function funnelHtml(c){
+  const [lpv,atc,ic,pur]=c.funnel;
+  const home=/home|furniture|tableware|decor/i.test(c.vertical);
+  const atcGood=home?5:8,atcOk=home?2.5:4;
+  const stages=[
+    {l:"Landing-page views",s:"clicked & loaded",v:lpv,col:"#6b6660"},
+    {l:"Adds to cart",s:"product-page interest",v:atc,col:"#c98a2f"},
+    {l:"Checkouts initiated",s:"entered checkout",v:ic,col:"#3a6ea5"},
+    {l:"Purchases",s:"completed order",v:pur,col:"var(--scale)"}
+  ];
+  const max=lpv||1;
+  let rows="";
+  stages.forEach((st,i)=>{
+    const w=Math.max(2,100*st.v/max);
+    rows+=`<div class="fstage"><div class="flab">${st.l}<small>${st.s}</small></div>
+      <div class="fbar-wrap"><div class="fbar" style="width:${w}%;background:${st.col}"><span class="num">${f0(st.v)}</span></div></div></div>`;
+    if(i<stages.length-1){
+      const nxt=stages[i+1].v,rate=st.v>0?100*nxt/st.v:0;
+      let bc,bt;
+      if(i===0){[bc,bt]=stepBadge(rate,atcGood,atcOk);}
+      else if(i===1){[bc,bt]=stepBadge(rate,35,20);}
+      else{[bc,bt]=stepBadge(rate,30,15);}
+      const lbl=["view → cart","cart → checkout","checkout → purchase"][i];
+      rows+=`<div class="fstep"><span class="rate num">${rate.toFixed(1)}%</span><span>${lbl}</span><span class="stepbadge ${bc}">${bt}</span></div>`;
+    }
+  });
+  const overall=lpv>0?100*pur/lpv:0;
+  return `<div class="funnel">${rows}<div class="fnote">Overall landing-page-view → purchase: <b class="num">${overall.toFixed(2)}%</b> · healthy avg for this business ≈ <b class="num">${c.healthy}%</b>. Green = healthy step, blue = watch, red = the leak to fix first.</div></div>`;
+}
+
+function openM(id){
+  const c=CLIENTS.find(x=>x.id===id);const isEc=c.type==='ecomm';
+  document.getElementById('m-title').textContent=c.name;
+  document.getElementById('m-sub').textContent=c.vertical+" · account "+c.id+" · "+c.cur;
+  const hero=w=>isEc?roasTxt(c[w][1]):(c[w][1]>0?money(c[w][0]/c[w][1],c.cur):'—');
+  const heroLab=isEc?'ROAS':'Cost / lead';
+  const rows=c.ads.map(ad=>{
+    const [tagc,tagt,txt]=adReco(c,ad);
+    if(isEc){const [nm,cmp,s7,ro,res,cprv,ctr,freq,s3]=ad;
+      return `<tr><td class="adnm">${nm}<span class="cmp">${cmp}</span><div class="adreco">${txt}</div></td>
+        <td class="r num">${money0(s7,c.cur)}</td><td class="r num">${money0(s3,c.cur)}</td>
+        <td class="r num">${ro==null?'—':f2(ro)+'×'}</td><td class="r num">${res==null?0:res}</td>
+        <td class="r num">${cprv==null?'—':money(cprv,c.cur)}</td><td class="r num">${ctr==null?'—':ctr.toFixed(2)+'%'}</td>
+        <td class="r num">${freq==null?'—':f2(freq)}</td><td><span class="tag2 ${tagc}">${tagt}</span></td></tr>`;
+    }else{const [nm,cmp,s7,lds,cpl,ctr,freq,s3]=ad;
+      return `<tr><td class="adnm">${nm}<span class="cmp">${cmp}</span><div class="adreco">${txt}</div></td>
+        <td class="r num">${money0(s7,c.cur)}</td><td class="r num">${money0(s3,c.cur)}</td>
+        <td class="r num">${lds==null?0:lds}</td><td class="r num">${cpl==null?'—':money(cpl,c.cur)}</td>
+        <td class="r num">${ctr==null?'—':ctr.toFixed(2)+'%'}</td><td class="r num">${freq==null?'—':f2(freq)}</td>
+        <td><span class="tag2 ${tagc}">${tagt}</span></td></tr>`;
+    }
+  }).join('');
+  const head=isEc
+    ?`<th>Ad / recommendation</th><th class="r">Spend 7d</th><th class="r">Spend 3d</th><th class="r">ROAS</th><th class="r">Purch</th><th class="r">Cost/P</th><th class="r">CTR</th><th class="r">Freq</th><th>Action</th>`
+    :`<th>Ad / recommendation</th><th class="r">Spend 7d</th><th class="r">Spend 3d</th><th class="r">Leads</th><th class="r">CPL</th><th class="r">CTR</th><th class="r">Freq</th><th>Action</th>`;
+  const funnelBlock=isEc?`<div class="sec-t">Full funnel — month to date</div>${funnelHtml(c)}`:'';
+  let ag=(MEETING[c.id]||[]).slice();{const sr=scaleAgendaRow(c);if(sr)ag.splice(1,0,sr);}
+  const agendaBlock=ag.length?`<div class="sec-t">Take to the client meeting</div><div class="agenda">`+
+    ag.map(r=>`<div class="arow"><div class="acat"><span class="ai">${r[0]}</span><span>${r[1]}</span></div>
+      <div class="atext">${r[2]?`<span class="abadge ${r[2]}">${r[3]}</span>`:''}${r[4]}</div></div>`).join('')+
+    `</div>`:'';
+  document.getElementById('m-body').innerHTML=`
+    <div class="diag">${c.diag}</div>
+    ${agendaBlock}
+    ${funnelBlock}
+    ${adsetTable(c)}
+    <div class="sec-t">${heroLab} — yesterday ${hero('yest')} · 7-day ${hero('d7')} · MTD ${hero('mtd')}</div>
+    <div class="sec-t">Active ads (last 7 days · top by spend) — "Spend 3d" flags ads that have stalled</div>
+    <div style="overflow-x:auto"><table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  document.getElementById('modal').classList.add('show');document.body.style.overflow='hidden';
+}
+function closeM(){document.getElementById('modal').classList.remove('show');document.body.style.overflow='';}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeM();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM();});
+</script>
+</body>
+</html>
