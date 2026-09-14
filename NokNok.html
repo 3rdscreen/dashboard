@@ -558,7 +558,7 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
       <div class="card" style="padding:20px 22px;margin-bottom:22px">
         <div style="font-weight:700;color:var(--navy);margin-bottom:4px">Android vs iOS</div>
         <div class="tbl-scroll"><table class="xtable" id="gTable"></table></div>
-        <div class="gnote">Android carries almost all installs at a far lower CPI; iOS stays SKAN-limited &mdash; low volume, higher CPI. PMax paces to a $30/day budget but can spend up to ~2&times; on high-opportunity days.</div>
+        <div class="gnote">Android carries almost all installs at a far lower CPI; iOS stays SKAN-limited &mdash; low volume, higher CPI. PMax paces to a $70/day budget across both campaigns.</div>
       </div>
 
       <div class="card" style="padding:20px 22px;margin-bottom:22px">
@@ -1333,6 +1333,9 @@ function renderOverview(start,end){
   function rows(list,tot,fmtv){return list.map(function(r){const pct=shr(r[2],tot);return '<div class="sharerow"><div class="lbl">'+D(r[1])+r[0]+'</div><div class="sharebar"><i style="width:'+pct.toFixed(1)+'%;background:'+r[1]+'"></i></div><div class="val">'+fmtv(r[2])+' &middot; '+pct.toFixed(1)+'%</div></div>';}).join('');}
   const spList=[['Meta','#1877F2',mTotSpend],['Google','#EA4335',gSpend],['TikTok','#111',tSpend],['Apple','#555',aSpend]];
   const inList=[['Meta','#1877F2',mInstalls],['Google','#EA4335',gInst],['TikTok','#111',tInst],['Apple','#555',aInst]];
+  // Meta daily budget (fixed target)
+  var metaBudget=115;
+  var totBudget=metaBudget+70+40+10;
   const body=
   '<div class="kpi-strip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px">'+
     '<div class="kpi"><div class="k">Total Spend</div><div class="v">'+usd0(totSpend)+'</div><div class="s">All platforms</div></div>'+
@@ -1343,11 +1346,11 @@ function renderOverview(start,end){
   '</div>'+
   '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:4px">Platform breakdown</div>'+
     '<div class="tbl-scroll"><table class="xtable"><thead><tr><th>Platform</th><th>Status</th><th class="num">Spend</th><th class="num">Daily budget</th><th class="num">Installs</th><th class="num">Cost / Install</th></tr></thead><tbody>'+
-    '<tr><td class="plat">'+D('#1877F2')+'Meta</td><td>'+pill(mTotSpend)+'</td><td class="num">'+usd2(mTotSpend)+'</td><td class="num">'+'$232'+'</td><td class="num">'+n0(mInstalls)+'</td><td class="num">'+cpi(mInstSpend,mInstalls)+'</td></tr>'+
-    '<tr><td class="plat">'+D('#EA4335')+'Google</td><td>'+pill(gSpend)+'</td><td class="num">'+usd2(gSpend)+'</td><td class="num">'+'$30'+'</td><td class="num">'+n0(gInst)+'</td><td class="num">'+cpi(gSpend,gInst)+'</td></tr>'+
+    '<tr><td class="plat">'+D('#1877F2')+'Meta</td><td>'+pill(mTotSpend)+'</td><td class="num">'+usd2(mTotSpend)+'</td><td class="num">'+usd0(metaBudget)+'</td><td class="num">'+n0(mInstalls)+'</td><td class="num">'+cpi(mInstSpend,mInstalls)+'</td></tr>'+
+    '<tr><td class="plat">'+D('#EA4335')+'Google</td><td>'+pill(gSpend)+'</td><td class="num">'+usd2(gSpend)+'</td><td class="num">'+'$70'+'</td><td class="num">'+n0(gInst)+'</td><td class="num">'+cpi(gSpend,gInst)+'</td></tr>'+
     '<tr><td class="plat">'+D('#111')+'TikTok</td><td>'+pill(tSpend)+'</td><td class="num">'+usd2(tSpend)+'</td><td class="num">'+'$40'+'</td><td class="num">'+n0(tInst)+'</td><td class="num">'+cpi(tSpend,tInst)+'</td></tr>'+
     '<tr><td class="plat">'+D('#555')+'Apple</td><td>'+pill(aSpend)+'</td><td class="num">'+usd2(aSpend)+'</td><td class="num">'+'$10'+'</td><td class="num">'+n0(aInst)+'</td><td class="num">'+cpi(aSpend,aInst)+'</td></tr>'+
-    '<tr class="tot"><td>Total</td><td></td><td class="num">'+usd2(totSpend)+'</td><td class="num">'+'$312'+'</td><td class="num">'+n0(totInstalls)+'</td><td class="num">'+blended+'</td></tr>'+
+    '<tr class="tot"><td>Total</td><td></td><td class="num">'+usd2(totSpend)+'</td><td class="num">'+usd0(totBudget)+'</td><td class="num">'+n0(totInstalls)+'</td><td class="num">'+blended+'</td></tr>'+
     '</tbody></table></div></div>'+
   '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">Spend share</div>'+rows(spList,totSpend,usd0)+'</div>'+
   '<div class="card" style="padding:20px 22px"><div style="font-weight:700;color:var(--navy);margin-bottom:10px">App-install share</div>'+rows(inList,totInstalls,n0)+'</div>';
