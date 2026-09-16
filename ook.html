@@ -1180,9 +1180,10 @@ function reRenderSnapAds(){
   if(snapAdsPeriod==='7d')      adsDates=allDs.slice(-7);
   else if(snapAdsPeriod==='3d') adsDates=allDs.slice(-3);
   else if(snapAdsPeriod==='latest') adsDates=allDs.slice(-1);
+    else if(snapAdsPeriod==='30d') adsDates=allDs.slice(-30);
   else {
-    // Default: latest data update day
-    adsDates=allDs.slice(-1);
+    // Default: report range if set, else latest
+    adsDates=(window.ADS_RANGE&&window.ADS_RANGE.length)?window.ADS_RANGE:allDs.slice(-1);
   }
   const gran=GRANULAR.snap; if(!gran) return;
   const ads=gran.ads||{}; const adNames=Object.keys(ads);
@@ -1191,7 +1192,7 @@ function reRenderSnapAds(){
   const lbl=periodTxt||baseLbl;
   document.getElementById('snap-ads-inner').innerHTML=buildSnapAdsHTML(ads,adNames,adsDates,lbl,snapAdsPeriod)||'<p style="color:#aaa;font-size:12px">No ads data</p>';
   document.getElementById('snap-ads-label').textContent='Ads — '+lbl;
-  ['latest','7d','3d'].forEach(p=>{
+  ['latest','7d','3d','30d'].forEach(p=>{
     const btn=document.getElementById('snap-ads-btn-'+p);
     if(!btn) return;
     const active=snapAdsPeriod===p;
@@ -1374,9 +1375,10 @@ function reRenderTTAds(){
   if(ttAdsPeriod==='7d')      adsDates = allDs.slice(-7);
   else if(ttAdsPeriod==='3d') adsDates = allDs.slice(-3);
   else if(ttAdsPeriod==='latest') adsDates = allDs.slice(-1);
+    else if(ttAdsPeriod==='30d') adsDates=allDs.slice(-30);
   else {
-    // Default: latest data update day
-    adsDates = allDs.slice(-1);
+    // Default: report range if set, else latest
+    adsDates = (window.ADS_RANGE&&window.ADS_RANGE.length)?window.ADS_RANGE:allDs.slice(-1);
   }
   const gran=GRANULAR.tiktok; if(!gran) return;
   const ads=gran.ads||{};
@@ -1386,7 +1388,7 @@ function reRenderTTAds(){
   const lbl=periodTxt||baseLbl;
   document.getElementById('tt-ads-inner').innerHTML=buildTTAdsHTML(ads,adNames,adsDates,lbl,ttAdsPeriod)||'<p style="color:#aaa;font-size:12px">No ads data</p>';
   document.getElementById('tt-ads-label').textContent='Ads — '+lbl;
-  ['latest','7d','3d'].forEach(p=>{
+  ['latest','7d','3d','30d'].forEach(p=>{
     const btn=document.getElementById('tt-ads-btn-'+p);
     if(!btn) return;
     const active=ttAdsPeriod===p;
@@ -1405,9 +1407,10 @@ function reRenderMetaAds(){
   if(metaAdsPeriod==='7d')      adsDates = allDs.slice(-7);
   else if(metaAdsPeriod==='3d') adsDates = allDs.slice(-3);
   else if(metaAdsPeriod==='latest') adsDates = allDs.slice(-1);
+    else if(metaAdsPeriod==='30d') adsDates=allDs.slice(-30);
   else {
-    // Default: latest data update day
-    adsDates = allDs.slice(-1);
+    // Default: report range if set, else latest
+    adsDates = (window.ADS_RANGE&&window.ADS_RANGE.length)?window.ADS_RANGE:allDs.slice(-1);
   }
   // Rebuild ads inner HTML
   const gran = GRANULAR.meta; if(!gran) return;
@@ -1564,7 +1567,7 @@ function reRenderMetaAds(){
   // Update inner content
   document.getElementById('meta-ads-inner').innerHTML = adsHTML2 || '<p style="color:#aaa;font-size:12px">No ads data</p>';
   // Update button styles
-  ['latest','7d','3d'].forEach(p=>{
+  ['latest','7d','3d','30d'].forEach(p=>{
     const btn=document.getElementById('meta-ads-btn-'+p);
     if(!btn) return;
     const active=metaAdsPeriod===p;
@@ -4248,6 +4251,7 @@ function buildFollowersCard(pk, __anchorDay){
 
 function renderGranular(pk, dates) {
   const ds = Array.isArray(dates) ? dates : [dates];
+  window.ADS_RANGE = ds; if(pk==='meta') metaAdsPeriod='';
   const label = ds.length===1 ? ds[0] : `${ds[0]} – ${ds[ds.length-1]}`;
   if (pk !== 'meta') return renderGranularOther(pk, ds, label);
 
@@ -4371,6 +4375,7 @@ function renderGranular(pk, dates) {
           style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid ${metaAdsPeriod==='latest'?'#1a1a1a':'#d0d0c8'};background:${metaAdsPeriod==='latest'?'#1a1a1a':'#fff'};color:${metaAdsPeriod==='latest'?'#fff':'#444'};cursor:pointer;transition:all .15s">${ALL_DATES[ALL_DATES.length-1]||'Latest'}</button>
         <button onclick="metaAdsPeriod=metaAdsPeriod==='7d'?'latest':'7d';reRenderMetaAds()" id="meta-ads-btn-7d"
           style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:${metaAdsPeriod==='7d'?'#1a1a1a':'#fff'};color:${metaAdsPeriod==='7d'?'#fff':'#444'};cursor:pointer;transition:all .15s">Last 7 days</button>
+            <button onclick="metaAdsPeriod=metaAdsPeriod==='30d'?'latest':'30d';reRenderMetaAds()" id="meta-ads-btn-30d" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 30 days</button>
         <button onclick="metaAdsPeriod=metaAdsPeriod==='3d'?'latest':'3d';reRenderMetaAds()" id="meta-ads-btn-3d"
           style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:${metaAdsPeriod==='3d'?'#1a1a1a':'#fff'};color:${metaAdsPeriod==='3d'?'#fff':'#444'};cursor:pointer;transition:all .15s">Last 3 days</button>
       </div>
@@ -4505,6 +4510,7 @@ function buildGoogleBudgetWidget() {
 
 function renderGranularOther(pk, ds, label) {
   const gran = GRANULAR[pk];
+  window.ADS_RANGE = ds;
   if (!gran) return '';
   let html = '';
 
@@ -4516,7 +4522,7 @@ function renderGranularOther(pk, ds, label) {
     const _gAll = dates();
     const _gCurMon = _gAll[_gAll.length-1].replace(/ \d+$/,'');
     const _gMtd = _gAll.filter(d=>d.startsWith(_gCurMon));
-    const _gLatest = _gAll.slice(-1);
+    const _gLatest = (window.ADS_RANGE&&window.ADS_RANGE.length)?window.ADS_RANGE:_gAll.slice(-1);
     const campRowsHTML = `<table class="gtbl">${tblHdr(["Campaign",...GOOGLE_HDR])}<tbody>${buildGoogleCampsHTML(GRANULAR.google.campaigns, _gLatest, 'latest')}</tbody></table>`;
     const _gPills = ['latest','7d','14d','30d','mtd','custom'];
     const _gLbls = {'latest':(_gAll[_gAll.length-1]||'Latest'),'7d':'7d','14d':'14d','30d':'30d','mtd':'MTD','custom':'Custom'};
@@ -4570,9 +4576,9 @@ function renderGranularOther(pk, ds, label) {
   // For TikTok: grouped by market with period filter buttons
   if (pk === 'tiktok' && adNames.length) {
     const allDsAll = dates();
-    const ttInitDs = allDsAll.slice(-1);
+    const ttInitDs = ds;
     const ttInitLbl = ttInitDs.length ? ttInitDs[0]+' – '+ttInitDs[ttInitDs.length-1] : label;
-    ttAdsPeriod = 'latest';
+    ttAdsPeriod = '';
     const ttAdsHTML = buildTTAdsHTML(ads, adNames, ttInitDs, ttInitLbl, 'latest');
     if (ttAdsHTML) {
       html += `<div class="cc" style="margin-top:4px" id="tt-ads-card">
@@ -4584,6 +4590,7 @@ function renderGranularOther(pk, ds, label) {
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #1a1a1a;background:#1a1a1a;color:#fff;cursor:pointer;transition:all .15s">${allDsAll.slice(-1)[0]||'Latest'}</button>
             <button onclick="ttAdsPeriod=ttAdsPeriod==='7d'?'latest':'7d';reRenderTTAds()" id="tt-ads-btn-7d"
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 7 days</button>
+            <button onclick="ttAdsPeriod=ttAdsPeriod==='30d'?'latest':'30d';reRenderTTAds()" id="tt-ads-btn-30d" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 30 days</button>
             <button onclick="ttAdsPeriod=ttAdsPeriod==='3d'?'latest':'3d';reRenderTTAds()" id="tt-ads-btn-3d"
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 3 days</button>
           </div>
@@ -4594,9 +4601,9 @@ function renderGranularOther(pk, ds, label) {
 
   } else if (pk === 'snap' && adNames.length) {
     const allDsAllS = dates();
-    const snapInitDs = allDsAllS.slice(-1);
+    const snapInitDs = ds;
     const snapInitLbl = snapInitDs.length ? snapInitDs[0]+' – '+snapInitDs[snapInitDs.length-1] : label;
-    snapAdsPeriod = 'latest';
+    snapAdsPeriod = '';
     const snapAdsHTML = buildSnapAdsHTML(ads, adNames, snapInitDs, snapInitLbl, 'latest');
     if (snapAdsHTML) {
       html += `<div class="cc" style="margin-top:4px" id="snap-ads-card">
@@ -4608,6 +4615,7 @@ function renderGranularOther(pk, ds, label) {
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #1a1a1a;background:#1a1a1a;color:#fff;cursor:pointer;transition:all .15s">${allDsAllS.slice(-1)[0]||'Latest'}</button>
             <button onclick="snapAdsPeriod=snapAdsPeriod==='7d'?'latest':'7d';reRenderSnapAds()" id="snap-ads-btn-7d"
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 7 days</button>
+            <button onclick="snapAdsPeriod=snapAdsPeriod==='30d'?'latest':'30d';reRenderSnapAds()" id="snap-ads-btn-30d" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 30 days</button>
             <button onclick="snapAdsPeriod=snapAdsPeriod==='3d'?'latest':'3d';reRenderSnapAds()" id="snap-ads-btn-3d"
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 3 days</button>
           </div>
