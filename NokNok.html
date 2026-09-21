@@ -627,6 +627,18 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
         </table></div>
       </div>
     </section>
+    <section class="sec">
+      <div class="sec-head"><span class="sec-num" style="color:var(--gold)">★</span><h2 class="sec-title">Top creatives</h2></div>
+      <p class="sec-sub">Best-performing FD ads by campaign. Thumbnails are served directly from Meta's creative CDN.</p>
+      <div class="creative-block">
+        <div class="creative-block-title"><span class="icon acq">📲</span>App Install · top by installs</div>
+        <div class="creative-grid" id="fdInstCreativeGrid"></div>
+      </div>
+      <div class="creative-block">
+        <div class="creative-block-title"><span class="icon conv">💸</span>Sales · top by purchases</div>
+        <div class="creative-grid" id="fdSalesCreativeGrid"></div>
+      </div>
+    </section>
   </div><!-- /tab-metafd -->
 
 
@@ -912,6 +924,21 @@ function renderTikTok(start,end){
   curStart=start; curEnd=end; drawTkTrend();
 }
 
+function renderFDCreatives(){
+  if(typeof FD_DAILY==='undefined' || !FD_DAILY.campaigns) return;
+  var agg=function(names){ var o={cost:0,inst:0,purch:0,value:0}; names.forEach(function(nm){ var days=FD_DAILY.campaigns[nm]||{}; for(var d in days){ var r=days[d]; o.cost+=r[2]; if(nm.indexOf('Sales')<0) o.inst+=r[4]; else { o.purch+=r[4]; o.value+=r[5]; } } }); return o; };
+  var ci=agg(['App Installs · Android','App Installs · iOS']); var cs=agg(['Sales']);
+  var thumbs=FD_DAILY.thumbs||{}; var nm=FD_DAILY.adname||'FD creative'; var region=FD_DAILY.region||'';
+  var empty='<div style="grid-column:1/-1;text-align:center;color:var(--ink-3);padding:30px;font-size:13.5px">No activity yet</div>';
+  var card=function(thumb,stats){
+    var t=thumb?'<img class="cc-thumb" src="'+thumb+'" alt="" referrerpolicy="no-referrer" onerror="this.onerror=null;this.style.background=&#39;linear-gradient(135deg,#e7eaf0,#f1f3f8)&#39;;this.removeAttribute(&#39;src&#39;)" loading="lazy">':'<div class="cc-thumb" style="background:linear-gradient(135deg,#f1f3f8,#e7eaf0);aspect-ratio:1"></div>';
+    return '<div class="creative-card rank-1"><div class="rank-badge r1">1</div>'+t+'<div class="cc-body"><div class="cc-name">'+nm+'</div><div class="cc-set">'+region+'</div><div class="cc-stats">'+stats+'</div></div></div>';
+  };
+  var ig=document.getElementById('fdInstCreativeGrid');
+  if(ig){ if(ci.inst>0){ var cpi=ci.cost/ci.inst; ig.innerHTML=card(thumbs['App Installs · iOS']||thumbs['App Installs · Android'],'<div><div class="stat-v">'+ci.inst+'</div><div class="stat-l">Installs</div></div><div><div class="stat-v">$'+cpi.toFixed(2)+'</div><div class="stat-l">CPI</div></div><div><div class="stat-v">$'+ci.cost.toFixed(2)+'</div><div class="stat-l">Spend</div></div>'); } else ig.innerHTML=empty; }
+  var sg=document.getElementById('fdSalesCreativeGrid');
+  if(sg){ if(cs.purch>0){ var roas=cs.cost?cs.value/cs.cost:0; sg.innerHTML=card(thumbs['Sales'],'<div><div class="stat-v">'+cs.purch+'</div><div class="stat-l">Purch</div></div><div><div class="stat-v">$'+Math.round(cs.value).toLocaleString()+'</div><div class="stat-l">Value</div></div><div><div class="stat-v hi">'+roas.toFixed(2)+'×</div><div class="stat-l">ROAS</div></div>'); } else sg.innerHTML=empty; }
+}
 function renderMetaFD(start, end){
   if(typeof FD_DAILY==='undefined') return;
   var order=['App Installs · Android','App Installs · iOS','Sales'];
@@ -992,6 +1019,7 @@ function renderMetaFD(start, end){
       }
     }
   }catch(e){}
+  try{ renderFDCreatives(); }catch(e){}
 }
 function renderDashboard(start, end){
   try{ renderOverview(start, end); }catch(e){}
