@@ -606,13 +606,24 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
       </div>
     </section>
     <section class="sec">
-      <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">Campaigns</h2></div>
-      <p class="sec-sub">The <strong>Food Delivery (FD)</strong> line launched <strong>Sep 18, 2026</strong> with three campaigns &mdash; App Installs (Android &amp; iOS) and a Sales campaign &mdash; mirroring the Grocery (GR) setup. Figures fill in as the campaigns ramp.</p>
+      <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">App Install campaigns</h2></div>
+      <p class="sec-sub">Android &amp; iOS app-install campaigns for the <strong>Zouk / Ajaltoun / Jounieh</strong> launch region.</p>
       <div class="tbl-card">
-        <div class="tbl-card-head"><h3>Campaign performance</h3><span class="pill" id="fdPill">&mdash;</span></div>
+        <div class="tbl-card-head"><h3>Android vs iOS</h3><span class="pill" id="fdInstPill">&mdash;</span></div>
         <div class="tbl-scroll"><table>
-          <thead><tr><th>Campaign</th><th>Active</th><th>Spend</th><th>Impr.</th><th>Clicks</th><th>Installs</th><th>Purchases</th><th>Revenue</th></tr></thead>
-          <tbody id="fdBody"></tbody>
+          <thead><tr><th>Campaign</th><th>Active</th><th>Spend</th><th>Impr.</th><th>Clicks</th><th>Installs</th><th>CPI</th></tr></thead>
+          <tbody id="fdInstBody"></tbody>
+        </table></div>
+      </div>
+    </section>
+    <section class="sec">
+      <div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">Sales campaign</h2></div>
+      <p class="sec-sub">The FD Sales campaign and its creative &mdash; in-app purchases, revenue, and ROAS.</p>
+      <div class="tbl-card">
+        <div class="tbl-card-head"><h3>Sales ad set</h3><span class="pill" id="fdSalesPill">&mdash;</span></div>
+        <div class="tbl-scroll"><table>
+          <thead><tr><th>Ad set</th><th>Active</th><th>Spend</th><th>Impr.</th><th>Clicks</th><th>Purchases</th><th>Revenue</th><th>ROAS</th></tr></thead>
+          <tbody id="fdSalesBody"></tbody>
         </table></div>
       </div>
     </section>
@@ -933,22 +944,36 @@ function renderMetaFD(start, end){
   setTxt('fdfPurch',int(T.purch)); setTxt('fdfPurchSub','CPP '+(cpp>0?usd2(cpp):'\u2014'));
   setTxt('fdfValue',usd2(T.rev)); setTxt('fdfValueSub','AOV '+(aov>0?usd2(aov):'\u2014'));
   setTxt('fdfRoas',sroas>0?sroas.toFixed(2)+'×':'\u2014'); setTxt('fdfCfb',cfb>0?usd2(cfb):'\u2014');
-  var body=document.getElementById('fdBody');
-  if(body){
-    var html=rows.map(function(r){
-      var stt='<span class="pill-live">&#9679; Active</span>';
-      var box=r.tu?'<img src="'+r.tu+'" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.removeAttribute(&#39;src&#39;);this.style.background=&#39;linear-gradient(135deg,#e7eaf0,#f1f3f8)&#39;" style="width:34px;height:34px;border-radius:7px;object-fit:cover;flex-shrink:0;box-shadow:0 1px 3px rgba(11,37,69,.15)">':'<div style="width:34px;height:34px;border-radius:7px;background:linear-gradient(135deg,#e7eaf0,#f1f3f8);flex-shrink:0"></div>';
-      return '<tr><td><div style="display:flex;align-items:center;gap:10px">'+box+'<div style="line-height:1.25"><div>'+r.nm+'</div><div style="font-size:10.5px;color:var(--ink-4)">'+(FD_DAILY.region||'')+'</div></div></div></td><td style="text-align:left">'+stt+'</td>'+
-        '<td>'+usd2(r.cost)+'</td><td>'+int(r.impr)+'</td><td>'+int(r.clk)+'</td>'+
-        '<td>'+(r.isSales?'\u2014':int(r.inst))+'</td>'+
-        '<td>'+(r.isSales?int(r.purch):'\u2014')+'</td>'+
-        '<td>'+(r.isSales?usd2(r.rev):'\u2014')+'</td></tr>';
+  var thumbCell=function(nm,tu,sub){
+    var box=tu?'<img src="'+tu+'" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.removeAttribute(&#39;src&#39;);this.style.background=&#39;linear-gradient(135deg,#e7eaf0,#f1f3f8)&#39;" style="width:34px;height:34px;border-radius:7px;object-fit:cover;flex-shrink:0;box-shadow:0 1px 3px rgba(11,37,69,.15)">':'<div style="width:34px;height:34px;border-radius:7px;background:linear-gradient(135deg,#e7eaf0,#f1f3f8);flex-shrink:0"></div>';
+    return '<td><div style="display:flex;align-items:center;gap:10px">'+box+'<div style="line-height:1.25"><div>'+nm+'</div><div style="font-size:10.5px;color:var(--ink-4)">'+sub+'</div></div></div></td>';
+  };
+  var live='<span class="pill-live">&#9679; Active</span>';
+  // 02 App Install
+  var ib=document.getElementById('fdInstBody');
+  if(ib){
+    var iRows=rows.filter(function(r){return !r.isSales;});
+    var ihtml=iRows.map(function(r){
+      var cpi_=r.inst>0?usd2(r.cost/r.inst):'\u2014';
+      return '<tr>'+thumbCell(r.nm.replace('App Installs · ','')+' · App Install',r.tu,FD_DAILY.region||'')+'<td style="text-align:left">'+live+'</td>'+
+        '<td>'+usd2(r.cost)+'</td><td>'+int(r.impr)+'</td><td>'+int(r.clk)+'</td><td>'+int(r.inst)+'</td><td>'+cpi_+'</td></tr>';
     }).join('');
-    html+='<tr class="total"><td>TOTAL</td><td>\u2014</td><td>'+usd2(T.spend)+'</td><td>'+int(T.impr)+'</td><td>'+int(T.clk)+'</td><td>'+int(T.inst)+'</td><td>'+int(T.purch)+'</td><td>'+usd2(T.rev)+'</td></tr>';
-    body.innerHTML=html;
+    ihtml+='<tr class="total"><td>TOTAL</td><td>\u2014</td><td>'+usd2(T.instSpend)+'</td><td>'+int(iRows.reduce(function(s,r){return s+r.impr;},0))+'</td><td>'+int(iRows.reduce(function(s,r){return s+r.clk;},0))+'</td><td>'+int(T.inst)+'</td><td>'+(T.inst>0?usd2(T.instSpend/T.inst):'\u2014')+'</td></tr>';
+    ib.innerHTML=ihtml;
   }
-  var pill=document.getElementById('fdPill');
-  if(pill) pill.textContent=usd2(T.spend)+' \u00b7 '+int(T.purch)+' purchases \u00b7 '+int(ftb)+' 1st-time buyers';
+  var ip=document.getElementById('fdInstPill'); if(ip) ip.textContent=usd2(T.instSpend)+' \u00b7 '+int(T.inst)+' installs \u00b7 CPI '+(T.inst>0?usd2(T.instSpend/T.inst):'\u2014');
+  // 03 Sales
+  var sb=document.getElementById('fdSalesBody');
+  if(sb){
+    var sRow=rows.filter(function(r){return r.isSales;});
+    var shtml=sRow.map(function(r){
+      var roas_=r.cost>0?(r.rev/r.cost).toFixed(2)+'×':'\u2014';
+      return '<tr>'+thumbCell('Sales',r.tu,FD_DAILY.region||'')+'<td style="text-align:left">'+live+'</td>'+
+        '<td>'+usd2(r.cost)+'</td><td>'+int(r.impr)+'</td><td>'+int(r.clk)+'</td><td>'+int(r.purch)+'</td><td>'+usd2(r.rev)+'</td><td style="color:var(--green);font-weight:700">'+roas_+'</td></tr>';
+    }).join('');
+    sb.innerHTML=shtml;
+  }
+  var spp=document.getElementById('fdSalesPill'); if(spp) spp.textContent=usd2(T.salesSpend)+' \u00b7 '+int(T.purch)+' purchases \u00b7 '+(T.salesSpend>0?(T.rev/T.salesSpend).toFixed(2)+'× ROAS':'\u2014');
   var eye=document.getElementById('fdTotalsEyebrow');
   if(eye){ var f=function(iso){var dt=new Date(iso+'T00:00:00Z');return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dt.getUTCMonth()]+' '+dt.getUTCDate();}; eye.textContent='ACCOUNT TOTALS · '+f(start)+' – '+f(end)+', 2026'; }
   // charts
