@@ -413,7 +413,7 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
       <div class="kpi"><div class="k">FTB</div><div class="v" id="kFtb">55</div><div class="s" id="kFtbSub">1st-Time Buyers <span style="font-size:.82em;color:var(--ink-4);font-weight:500">· $18.77/FTB</span></div></div>
     </div>
 
-    <div class="eyebrow" style="display:flex;align-items:center;gap:10px">Customer Economics <span style="font-weight:500;color:var(--ink-4);text-transform:none;letter-spacing:0;font-size:11px">· FTB = Mixpanel all-channel · spend ratios are blended, not user-attributed</span></div>
+    <div class="eyebrow" style="display:flex;align-items:center;gap:10px">Customer Economics <span style="font-weight:500;color:var(--ink-4);text-transform:none;letter-spacing:0;font-size:11px">· FTB = Mixpanel unique users, first_order_date in period, by vertical (all channels) · spend ÷ FTB is blended, not user-attributed</span></div>
     <div class="kpi-strip kpi-3" style="margin-bottom:22px">
       <div class="kpi"><div class="k">Blended spend ÷ FTB</div><div class="v" id="kCac">$15.04</div><div class="s">GR spend ÷ FTB · ⚠ not Meta-attributed</div></div>
       <div class="kpi"><div class="k">LTV · 12-month</div><div class="v" id="kLtv">$205.40</div><div class="s">Mixpanel cohort · rev/buyer, last 90d</div><div class="kpi-horizons"><span>30D <b>$79.09</b></span><span>3M <b>$132.31</b></span><span>6M <b>$178.60</b></span><span class="hz-12">12M <b>$205.40</b></span></div></div>
@@ -957,7 +957,7 @@ function renderMetaFD(start, end){
   });
   // Meta-attributed registrations for FD (fixed from account pull)
   T.regs=(FD_DAILY.regs!=null?FD_DAILY.regs:1);
-  var _mm=(FD_DAILY.mixpanelMonthly||{}); var _k=(start||'').slice(0,7); var ftb=(_mm[_k]!=null?_mm[_k]:((FD_DAILY.mixpanel&&FD_DAILY.mixpanel.ftb)||0));
+  var _mm=(FD_DAILY.mixpanelMonthly||{}); var _k=(start||'').slice(0,7); var ftb=(_mm[_k]!=null?_mm[_k]:0);
   var cpi=T.inst>0?T.instSpend/T.inst:0, cpp=T.purch>0?T.salesSpend/T.purch:0, aov=T.purch>0?T.rev/T.purch:0;
   var sroas=T.salesSpend>0?T.rev/T.salesSpend:0, cfb=ftb>0?T.spend/ftb:0, cpr=T.regs>0?T.spend/T.regs:0;
   var setTxt=function(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; };
