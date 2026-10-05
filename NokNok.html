@@ -1246,9 +1246,9 @@ function renderDashboard(start, end){
   document.getElementById('kAov').textContent = totalPurch? money(blendedAov) : '—';
 
   // ===== Estimated First-Time Buyers (FTB) =====
-  // Mixpanel-measured: 40% of registrants make a first purchase within 30 days
-  // (Account Created → Order Completed funnel, last 30d: 5,898 / 14,798 = 40%).
-  const FTB_RATE = 0.40;
+  // Mixpanel-measured: 32% of registrants make a first purchase within 30 days
+  // (Account Created → Order Completed funnel, last 30d: 4,482 / 14,038 = 32%).
+  const FTB_RATE = 0.32;
   const estFtb = Math.round(acctRegs * FTB_RATE);
   const estCfb = estFtb ? acctRegSpend / estFtb : 0;      // Cost per First-Time Buyer
   const ftbSub = estFtb ? '1st-Time Buyers' : 'No regs in range';
