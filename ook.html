@@ -2249,7 +2249,7 @@ function renderTopAdsInner(baseDates, baseLabel, N, marketFilter, periodFilter){
   // Market filter: detect which geo a key belongs to
   function detectMarket(name){
     // Catalogue: starts with EN_ or contains catalogue-related terms
-    if(/^EN_/i.test(name) || /catalogue/i.test(name) || /Static-Carousel/i.test(name)) return 'cat';
+    if(/^EN_/i.test(name) || /catalogue/i.test(name) || /Static-Carousel/i.test(name) || /Abaya & Thobe|Excl Kids/i.test(name)) return 'cat';
     // UAE: contains _UAE_ (case insensitive)
     if(/_UAE[_\s]/i.test(name)) return 'uae';
     // KSA: contains _KSA_
