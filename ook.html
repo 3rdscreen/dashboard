@@ -442,26 +442,41 @@ async function exportPDF(){
   const prev=btn.innerHTML; btn.innerHTML='<span>…</span>'; btn.style.pointerEvents='none';
   try{
     const bg=getComputedStyle(document.body).backgroundColor||'#ffffff';
-    const canvas=await html2canvas(view,{scale:2,backgroundColor:bg,useCORS:true,scrollX:0,scrollY:-window.scrollY,windowWidth:view.scrollWidth});
     const {jsPDF}=window.jspdf;
     const pdf=new jsPDF('p','pt','a4');
     const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
-    const margin=22, titleH=34;
+    const margin=22, titleH=36, gap=8, contentW=pw-margin*2, bottom=ph-margin;
     const range=(typeof calLabel==='function')?calLabel():'';
     const tn=(typeof tab!=='undefined'?tab:'overview'); const pretty=tn.charAt(0).toUpperCase()+tn.slice(1);
-    const imgW=pw-margin*2, imgH=canvas.height*imgW/canvas.width;
-    const img=canvas.toDataURL('image/png');
-    pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.setTextColor(30); pdf.text('OOK — '+pretty, margin, 22);
-    pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.setTextColor(120); pdf.text(range, pw-margin, 22, {align:'right'});
-    let position=titleH; let heightLeft=imgH-(ph-titleH);
-    pdf.addImage(img,'PNG',margin,position,imgW,imgH,undefined,'FAST');
-    while(heightLeft>0){
-      pdf.addPage();
-      position=-(imgH-heightLeft);
-      pdf.addImage(img,'PNG',margin,position,imgW,imgH,undefined,'FAST');
-      heightLeft-=ph;
+    // Title on page 1
+    pdf.setFont('helvetica','bold'); pdf.setFontSize(13); pdf.setTextColor(30); pdf.text('OOK — '+pretty, margin, 24);
+    pdf.setFont('helvetica','normal'); pdf.setFontSize(10); pdf.setTextColor(120); pdf.text(range, pw-margin, 24, {align:'right'});
+    // Pick the block level: descend through single-child wrappers, then take visible children as atomic blocks
+    let host=view;
+    while(host.children.length===1 && host.children[0].children.length>1) host=host.children[0];
+    let blocks=Array.from(host.children).filter(x=>x.offsetHeight>4);
+    if(blocks.length===0) blocks=[host];
+    let y=titleH;
+    for(const b of blocks){
+      const cv=await html2canvas(b,{scale:2,backgroundColor:bg,useCORS:true,scrollX:0,scrollY:-window.scrollY});
+      const h=cv.height*contentW/cv.width; const img=cv.toDataURL('image/png');
+      if(h<=ph-margin-titleH){
+        // fits on a page as a whole — never split it
+        if(y+h>bottom){ pdf.addPage(); y=margin; }
+        pdf.addImage(img,'PNG',margin,y,contentW,h,undefined,'FAST'); y+=h+gap;
+      } else {
+        // rare: a single block taller than one page — slice only this block across pages
+        if(y>titleH+2){ pdf.addPage(); y=margin; }
+        let off=0;
+        while(off<h){
+          pdf.addImage(img,'PNG',margin,y-off,contentW,h,undefined,'FAST');
+          off+=(bottom-y);
+          if(off<h){ pdf.addPage(); y=margin; }
+        }
+        y=bottom; // force next block onto a fresh page
+      }
     }
-    const safe=('Overview_'+range).replace(/[^\w]+/g,'-').replace(/^-+|-+$/g,'');
+    const safe=(pretty+'_'+range).replace(/[^\w]+/g,'-').replace(/^-+|-+$/g,'');
     pdf.save('OOK-'+safe+'.pdf');
   }catch(err){ console.error(err); alert('PDF export failed: '+err.message); }
   finally{ btn.innerHTML=prev; btn.style.pointerEvents=''; }
