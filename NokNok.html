@@ -1688,7 +1688,7 @@ function renderTikTokTrend(start,end){
   // opens on the latest report month — not a stale earlier one.
   const _today = new Date(TODAY_MS);
   let vy = _today.getUTCFullYear(), vm = _today.getUTCMonth();
-  let psMs=Date.UTC(2026,8,1), peMs=TODAY_MS, hovMs=null;   // selected start/end + hover preview (current month-to-date), as UTC ms
+  let psMs=Date.UTC(2026,9,1), peMs=TODAY_MS, hovMs=null;   // selected start/end + hover preview (current month-to-date), as UTC ms
 
   const pop=document.getElementById('calPop');
   const trigger=document.getElementById('periodTrigger');
