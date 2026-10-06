@@ -1471,7 +1471,7 @@ function reRenderMetaAds(){
     { label:'UK',           pattern:/[_ ]UK$/i },
     { label:'Catalogue_GCC_ADV+', pattern:/_Adv\+/i },
     { label:'Catalogue_KSA_ND',   pattern:/National Day/i },
-    { label:'Catalogue_GCC',      pattern:/^EN_|^en_|^Carousel/i },
+    { label:'Catalogue_GCC',      pattern:/^EN_|^en_|^Carousel|Abaya & Thobe|Excl Kids/i },
   ];
   // Detect campaign type: Pyjama, Abaya, or Catalogue
   function detectCampType(n){
@@ -3929,13 +3929,14 @@ function buildMetaCatalogueAdRows(dts, showAtc, ndOnly){
   const ads=(GRANULAR.meta&&GRANULAR.meta.ads)||{};
   const byName={};
   Object.keys(ads).forEach(name=>{
-    if(!/^EN_/i.test(name)) return;
+    const isEN=/^EN_/i.test(name);
+    if(!isEN && !/Abaya & Thobe|Excl Kids/i.test(name)) return;
     const isND=/National Day/i.test(name);
     if(ndOnly ? !isND : isND) return;
     const recs=dts.map(d=>(ads[name]||[]).find(x=>x.d===d)).filter(Boolean);
     const agg=aggRecords(recs);
     if(!(agg.spend>0)) return;
-    let dn=(name.match(/^EN_(.+?)[-_](?:Product|page|catalog(?:ue)?|Static)/i)||[])[1]||name.replace(/^EN_/,'');
+    let dn=isEN ? ((name.match(/^EN_(.+?)[-_](?:Product|page|catalog(?:ue)?|Static)/i)||[])[1]||name.replace(/^EN_/,'')) : name.split('|')[0].trim();
     dn=dn.replace(/[-_]page$/i,'').trim();
     if(!byName[dn]) byName[dn]={spend:0,sv:0,conv:0,atc:0};
     const m=byName[dn];
