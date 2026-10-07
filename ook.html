@@ -2528,22 +2528,24 @@ let _atcDates = [];
 
 
 
-// ── DAILY SPEND BY PLATFORM CHART ──────────────────────────────────
-let _spendChartInstance = null;
-let _spendChartMetric = 'spend';
-let _spendChartDates = null;
-let _spendChartPeriod = '30d';   // chart owns its own window; default last 30 days
+// ── DAILY BY-PLATFORM CHARTS — Spend / Sales Value / ROAS as separate modules ──
+const _SPEND_METRICS = [
+  {metric:'spend', title:'DAILY SPEND BY PLATFORM'},
+  {metric:'sv',    title:'DAILY SALES VALUE BY PLATFORM'},
+  {metric:'roas',  title:'DAILY ROAS BY PLATFORM'},
+];
+let _spendCharts  = {};                                  // metric → Chart instance
+let _spendPeriods = {spend:'30d', sv:'30d', roas:'30d'}; // each module owns its window
 
-// Compute the date window the spend chart should show, from its own period state.
-function _spendChartWindow(){
+function _spendChartWindow(metric){
   const all = ALL_DATES.slice();
-  const p = _spendChartPeriod;
+  const p = _spendPeriods[metric] || '30d';
   if(p==='7d')  return all.slice(-7);
   if(p==='14d') return all.slice(-14);
   if(p==='30d') return all.slice(-30);
   if(p==='all') return all;
   if(p==='custom'){
-    const f=document.getElementById('spend-cust-from'), t=document.getElementById('spend-cust-to');
+    const f=document.getElementById('spend-cust-from-'+metric), t=document.getElementById('spend-cust-to-'+metric);
     if(f&&t&&f.value&&t.value){
       const i=all.indexOf(f.value), j=all.indexOf(t.value);
       if(i>=0&&j>=0&&i<=j) return all.slice(i,j+1);
@@ -2552,9 +2554,9 @@ function _spendChartWindow(){
   }
   return all.slice(-30);
 }
-function _populateSpendCustom(){
+function _populateSpendCustom(metric){
   const all=ALL_DATES.slice();
-  const f=document.getElementById('spend-cust-from'), t=document.getElementById('spend-cust-to');
+  const f=document.getElementById('spend-cust-from-'+metric), t=document.getElementById('spend-cust-to-'+metric);
   if(!f||!t) return;
   if(!f.options.length){
     const opts=all.map(d=>`<option value="${d}">${d}</option>`).join('');
@@ -2562,59 +2564,44 @@ function _populateSpendCustom(){
     f.value=all[Math.max(0,all.length-30)]; t.value=all[all.length-1];
   }
 }
-function _applySpendCustom(){ renderSpendChart(_spendChartWindow(), _spendChartMetric); }
-function _switchSpendPeriod(p){
-  _spendChartPeriod = p;
-  document.querySelectorAll('#spend-period-row [data-sp]').forEach(b=>{
+function _applySpendCustom(metric){ renderOneSpendChart(metric); }
+function _switchSpendPeriod(metric, p){
+  _spendPeriods[metric] = p;
+  document.querySelectorAll('#spend-period-row-'+metric+' [data-sp]').forEach(b=>{
     const a = b.dataset.sp===p;
     b.style.background=a?'#1a1a1a':'#fff'; b.style.color=a?'#fff':'#666'; b.style.borderColor=a?'#1a1a1a':'#e0e0d8';
   });
-  const wrap=document.getElementById('spend-cust-wrap');
-  if(p==='custom'){ if(wrap) wrap.style.display='inline-flex'; _populateSpendCustom(); _applySpendCustom(); }
-  else { if(wrap) wrap.style.display='none'; renderSpendChart(_spendChartWindow(), _spendChartMetric); }
+  const wrap=document.getElementById('spend-cust-wrap-'+metric);
+  if(p==='custom'){ if(wrap) wrap.style.display='inline-flex'; _populateSpendCustom(metric); _applySpendCustom(metric); }
+  else { if(wrap) wrap.style.display='none'; renderOneSpendChart(metric); }
 }
-function buildSpendChart(){
-  const pill = (val,label)=>`<button data-sp="${val}" onclick="_switchSpendPeriod('${val}')" style="font-family:inherit;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1.5px solid ${val===_spendChartPeriod?'#1a1a1a':'#e0e0d8'};background:${val===_spendChartPeriod?'#1a1a1a':'#fff'};color:${val===_spendChartPeriod?'#fff':'#666'};cursor:pointer;white-space:nowrap">${label}</button>`;
+function _spendModule(metric, title){
+  const period=_spendPeriods[metric];
+  const pill = (val,label)=>`<button data-sp="${val}" onclick="_switchSpendPeriod('${metric}','${val}')" style="font-family:inherit;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1.5px solid ${val===period?'#1a1a1a':'#e0e0d8'};background:${val===period?'#1a1a1a':'#fff'};color:${val===period?'#fff':'#666'};cursor:pointer;white-space:nowrap">${label}</button>`;
   return `<div class="cc" style="margin-top:16px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
-      <div class="clbl" id="spend-chart-label">DAILY SPEND BY PLATFORM</div>
-      <div class="metric-toggle" id="spend-metric-toggle">
-        <button class="mt-btn active" data-metric="spend"  onclick="_switchSpendMetric('spend')">Spend</button>
-        <button class="mt-btn"        data-metric="sv"     onclick="_switchSpendMetric('sv')">Sales Value</button>
-        <button class="mt-btn"        data-metric="roas"   onclick="_switchSpendMetric('roas')">ROAS</button>
-      </div>
+      <div class="clbl">${title}</div>
     </div>
-    <div id="spend-period-row" style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+    <div id="spend-period-row-${metric}" style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">
       ${pill('7d','7d')}${pill('14d','14d')}${pill('30d','30d')}${pill('all','All')}${pill('custom','Custom')}
-      <span id="spend-cust-wrap" style="display:${_spendChartPeriod==='custom'?'inline-flex':'none'};align-items:center;gap:6px;margin-left:4px">
-        <select id="spend-cust-from" onchange="_applySpendCustom()" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
+      <span id="spend-cust-wrap-${metric}" style="display:${period==='custom'?'inline-flex':'none'};align-items:center;gap:6px;margin-left:4px">
+        <select id="spend-cust-from-${metric}" onchange="_applySpendCustom('${metric}')" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
         <span style="color:#999;font-size:11px">to</span>
-        <select id="spend-cust-to" onchange="_applySpendCustom()" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
+        <select id="spend-cust-to-${metric}" onchange="_applySpendCustom('${metric}')" style="font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer"></select>
       </span>
     </div>
-    <div class="cw" style="height:220px"><canvas id="spend-by-platform"></canvas></div>
+    <div class="cw" style="height:220px"><canvas id="spend-by-platform-${metric}"></canvas></div>
   </div>`;
 }
-function renderSpendChart(dates, metric){
-  const el = document.getElementById('spend-by-platform');
+function buildSpendChart(){
+  return _SPEND_METRICS.map(m=>_spendModule(m.metric, m.title)).join('');
+}
+function renderOneSpendChart(metric){
+  const el = document.getElementById('spend-by-platform-'+metric);
   if(!el) return;
-  if(_spendChartInstance){ _spendChartInstance.destroy(); _spendChartInstance=null; }
-  // Remember current metric so the toggle button can re-render
-  metric = metric || _spendChartMetric || 'spend';
-  _spendChartMetric = metric;
-  // Chart owns its period window (default 30D) — independent of the page date selector
-  _spendChartDates = _spendChartWindow();
-  dates = _spendChartDates;
-  if(_spendChartPeriod==='custom') _populateSpendCustom();
-
-  // Update the chart label based on metric
-  const labelMap = {spend:"DAILY SPEND BY PLATFORM", sv:"DAILY SALES VALUE BY PLATFORM", roas:"DAILY ROAS BY PLATFORM"};
-  const labelEl = document.getElementById('spend-chart-label');
-  if(labelEl) labelEl.textContent = labelMap[metric] || labelMap.spend;
-  // Sync toggle active state
-  document.querySelectorAll('#spend-metric-toggle .mt-btn').forEach(b=>{
-    b.classList.toggle('active', b.dataset.metric === metric);
-  });
+  if(_spendCharts[metric]){ _spendCharts[metric].destroy(); _spendCharts[metric]=null; }
+  const dates = _spendChartWindow(metric);
+  if(_spendPeriods[metric]==='custom') _populateSpendCustom(metric);
 
   const platforms = [
     {key:'meta',   label:'Meta',   color:'#1877F2'},
@@ -2622,28 +2609,21 @@ function renderSpendChart(dates, metric){
     {key:'snap',   label:'Snap',   color:'#FFCC00'},
     {key:'google', label:'Google', color:'#34A853'},
   ];
-
   function extract(r){
     if(!r || !(r.spend>0)) return null;
     if(metric==='sv')   return r.sv != null ? +r.sv.toFixed(2) : null;
     if(metric==='roas') return r.roas != null ? +(r.roas).toFixed(2) : null;
-    return Math.round(r.spend); // default: spend
+    return Math.round(r.spend);
   }
-
   const datasets = platforms.map(p => {
     const data = dates.map(d => { const r=(D[p.key]||[]).find(x=>x.d===d); return extract(r); });
     const markers = metric==='spend'
       ? dates.map(d => BUDGET_MARKERS.find(m=>m.date===d&&m.platform===p.key)||null)
       : dates.map(()=>null);
     return {
-      label: p.label,
-      data,
-      borderColor: p.color,
-      backgroundColor: p.color+'18',
-      borderWidth: 2,
-      tension: 0.3,
-      spanGaps: false,
-      fill: false,
+      label: p.label, data,
+      borderColor: p.color, backgroundColor: p.color+'18',
+      borderWidth: 2, tension: 0.3, spanGaps: false, fill: false,
       pointRadius: markers.map(m => m ? 8 : 3),
       pointStyle: markers.map(m => m ? 'triangle' : 'circle'),
       rotation: markers.map(m => m ? (m.direction==='up' ? 0 : 180) : 0),
@@ -2653,40 +2633,31 @@ function renderSpendChart(dates, metric){
       pointHoverRadius: markers.map(m => m ? 10 : 5),
     };
   });
-
-  // Y-axis formatter
-  const yFmt = metric==='roas'
-    ? (v => v.toFixed(2)+'x')
-    : (v => '$'+Math.round(v).toLocaleString());
-
-  _spendChartInstance = new Chart(el, {
+  const yFmt = metric==='roas' ? (v => v.toFixed(2)+'x') : (v => '$'+Math.round(v).toLocaleString());
+  _spendCharts[metric] = new Chart(el, {
     type:'line',
     data:{labels:dates, datasets},
     options:{
       ...bc,
       plugins:{
         legend:{position:'top', labels:{boxWidth:8,font:{size:10}}},
-        tooltip:{
-          callbacks:{
-            label: ctx => {
-              const p = platforms[ctx.datasetIndex];
-              const d = dates[ctx.dataIndex];
-              const y = ctx.parsed.y;
-              let valStr;
-              if(metric==='roas')      valStr = y!=null ? y.toFixed(2)+'x' : '—';
-              else                     valStr = y!=null ? '$'+y.toLocaleString() : '—';
-              let str = p.label+': '+valStr;
-              if(metric==='spend'){
-                const m = BUDGET_MARKERS.find(x=>x.date===d&&x.platform===p.key);
-                if(m) str += '  '+(m.direction==='up' ? '▲ Budget increased' : '▼ Budget decreased');
-              }
-              return str;
-            }
+        tooltip:{ callbacks:{ label: ctx => {
+          const p = platforms[ctx.datasetIndex];
+          const d = dates[ctx.dataIndex];
+          const y = ctx.parsed.y;
+          let valStr;
+          if(metric==='roas')      valStr = y!=null ? y.toFixed(2)+'x' : '—';
+          else                     valStr = y!=null ? '$'+y.toLocaleString() : '—';
+          let str = p.label+': '+valStr;
+          if(metric==='spend'){
+            const m = BUDGET_MARKERS.find(x=>x.date===d&&x.platform===p.key);
+            if(m) str += '  '+(m.direction==='up' ? '▲ Budget increased' : '▼ Budget decreased');
           }
-        }
+          return str;
+        }}}
       },
       onHover:(e, elements)=>{
-        const chart=_spendChartInstance; if(!chart) return;
+        const chart=_spendCharts[metric]; if(!chart) return;
         if(elements && elements.length>0){
           const hovered=elements[0].datasetIndex;
           chart.data.datasets.forEach((ds,i)=>{
@@ -2705,12 +2676,8 @@ function renderSpendChart(dates, metric){
     }
   });
 }
-
-// Switch the active metric and re-render with the same date window
-function _switchSpendMetric(metric){
-  if(_spendChartMetric === metric) return;
-  _spendChartMetric = metric;
-  renderSpendChart(_spendChartDates || ALL_DATES.slice(), metric);
+function renderSpendChart(){
+  _SPEND_METRICS.forEach(m=>renderOneSpendChart(m.metric));
 }
 
 // ── PLATFORM BUDGET TREND CHART — per-campaign daily trend ────────────
