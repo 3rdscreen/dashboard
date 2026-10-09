@@ -2385,14 +2385,24 @@ function renderTopAdsInner(baseDates, baseLabel, N, marketFilter, periodFilter){
     // Only show currently-ON ads (active in >=1 geo) — match the per-geo panel filters
     const _platActive = (nm)=>{
       const num=(String(nm).match(/^(\d+)/)||[])[1];
+      // Match the SAME creative before falling back to bare ad-number, so a
+      // retired creative is never resurrected by sharing its number with a
+      // live one (same bug that showed a phantom 499 "UGCO VO" on Meta KU).
+      const _sig = k => k.replace(/^\d+_/,'').replace(/_(Tiktok|Snap|Snapchat)_.*$/i,'')
+        .replace(/_(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\d+(_v\d+)?$/i,'')
+        .replace(/_v\d+$/i,'').replace(/\s+/g,' ').trim().toLowerCase();
       if(platKey==='tiktok' && typeof TIKTOK_AD_STATUS!=='undefined'){
         const b=nm.replace(/_mar\d+(_v\d+)?$/i,'').replace(/_apr\d+(_v\d+)?$/i,'').replace(/_v\d+$/i,'').trim();
         if(TIKTOK_AD_STATUS[b]!==undefined) return TIKTOK_AD_STATUS[b]==='active';
-        if(num) return Object.keys(TIKTOK_AD_STATUS).some(k=>k.split('_')[0]===num&&TIKTOK_AD_STATUS[k]==='active');
+        if(num){ const s=_sig(nm); const same=Object.keys(TIKTOK_AD_STATUS).filter(k=>k.split('_')[0]===num&&_sig(k)===s);
+          if(same.length) return same.some(k=>TIKTOK_AD_STATUS[k]==='active');
+          return Object.keys(TIKTOK_AD_STATUS).some(k=>k.split('_')[0]===num&&TIKTOK_AD_STATUS[k]==='active'); }
         return false;
       }
       if(platKey==='snap' && typeof SNAP_AD_STATUS!=='undefined'){
-        if(num) return Object.keys(SNAP_AD_STATUS).some(k=>k.split('_')[0]===num&&SNAP_AD_STATUS[k]!=='inactive');
+        if(num){ const s=_sig(nm); const same=Object.keys(SNAP_AD_STATUS).filter(k=>k.split('_')[0]===num&&_sig(k)===s);
+          if(same.length) return same.some(k=>SNAP_AD_STATUS[k]!=='inactive');
+          return Object.keys(SNAP_AD_STATUS).some(k=>k.split('_')[0]===num&&SNAP_AD_STATUS[k]!=='inactive'); }
         return false;
       }
       return true;
@@ -4021,9 +4031,20 @@ function isAdActive(fullName) {
     // Find STATUS key with same ad number — if geo known, require same geo
     const candidates = Object.keys(META_AD_STATUS).filter(k => k.startsWith(num + '_'));
     if (candidates.length) {
+      // CRITICAL: a single ad number can hold MULTIPLE distinct creatives
+      // (e.g. 499 "Details VO" active vs 499 "UGCO VO" retired). Match the
+      // SAME creative first, so a retired creative is NOT resurrected by
+      // sharing its number+geo with a live one whose geo spelling differs
+      // ("Ku & Qa" has no exact status key → must not borrow "Ku&Qat" active).
+      const creativeSig = k => k.replace(/^\d+_/,'').replace(/_Meta_.*$/i,'')
+        .replace(/_(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\d+(_v\d+)?$/i,'')
+        .replace(/_v\d+$/i,'').replace(/\s+/g,' ').trim().toLowerCase();
+      const mySig = creativeSig(fullName);
+      const sameCreative = candidates.filter(k => creativeSig(k) === mySig);
+      const pool = sameCreative.length ? sameCreative : candidates;
       if (geo) {
         // Prefer geo-specific match
-        const geoKey = candidates.find(k => {
+        const geoKey = pool.find(k => {
           const ku = k.toUpperCase();
           if (geo === 'UK')  return /[_ ]UK$/.test(ku);
           if (geo === 'UAE') return /_UAE/.test(ku);
@@ -4035,8 +4056,10 @@ function isAdActive(fullName) {
         if (geoKey) return META_AD_STATUS[geoKey] !== 'inactive';
       }
       // No geo detected — fall back to any match (bare key with no geo suffix)
-      const bareKey = candidates.find(k => !/_(UAE|KSA|Ku|KUW|KWT|GCC)/i.test(k.replace(num+'_','')));
+      const bareKey = pool.find(k => !/_(UAE|KSA|Ku|KUW|KWT|GCC)/i.test(k.replace(num+'_','')));
       if (bareKey) return META_AD_STATUS[bareKey] !== 'inactive';
+      // Same creative exists but no geo/bare match → honor its own status
+      if (sameCreative.length) return META_AD_STATUS[sameCreative[0]] !== 'inactive';
     }
   }
   // Unknown = inactive (don't show retired ads)
