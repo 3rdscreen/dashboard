@@ -4415,9 +4415,10 @@ function renderGranular(pk, dates) {
           style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid ${metaAdsPeriod==='latest'?'#1a1a1a':'#d0d0c8'};background:${metaAdsPeriod==='latest'?'#1a1a1a':'#fff'};color:${metaAdsPeriod==='latest'?'#fff':'#444'};cursor:pointer;transition:all .15s">${ALL_DATES[ALL_DATES.length-1]||'Latest'}</button>
         <button onclick="metaAdsPeriod=metaAdsPeriod==='7d'?'latest':'7d';reRenderMetaAds()" id="meta-ads-btn-7d"
           style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:${metaAdsPeriod==='7d'?'#1a1a1a':'#fff'};color:${metaAdsPeriod==='7d'?'#fff':'#444'};cursor:pointer;transition:all .15s">Last 7 days</button>
-            <button onclick="metaAdsPeriod=metaAdsPeriod==='30d'?'latest':'30d';reRenderMetaAds()" id="meta-ads-btn-30d" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 30 days</button>
         <button onclick="metaAdsPeriod=metaAdsPeriod==='3d'?'latest':'3d';reRenderMetaAds()" id="meta-ads-btn-3d"
           style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:${metaAdsPeriod==='3d'?'#1a1a1a':'#fff'};color:${metaAdsPeriod==='3d'?'#fff':'#444'};cursor:pointer;transition:all .15s">Last 3 days</button>
+        <button onclick="metaAdsPeriod=metaAdsPeriod==='30d'?'latest':'30d';reRenderMetaAds()" id="meta-ads-btn-30d"
+          style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:${metaAdsPeriod==='30d'?'#1a1a1a':'#fff'};color:${metaAdsPeriod==='30d'?'#fff':'#444'};cursor:pointer;transition:all .15s">Last 30 days</button>
       </div>
     </div>
     <div id="meta-ads-inner"></div>
@@ -4630,9 +4631,10 @@ function renderGranularOther(pk, ds, label) {
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #1a1a1a;background:#1a1a1a;color:#fff;cursor:pointer;transition:all .15s">${allDsAll.slice(-1)[0]||'Latest'}</button>
             <button onclick="ttAdsPeriod=ttAdsPeriod==='7d'?'latest':'7d';reRenderTTAds()" id="tt-ads-btn-7d"
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 7 days</button>
-            <button onclick="ttAdsPeriod=ttAdsPeriod==='30d'?'latest':'30d';reRenderTTAds()" id="tt-ads-btn-30d" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 30 days</button>
             <button onclick="ttAdsPeriod=ttAdsPeriod==='3d'?'latest':'3d';reRenderTTAds()" id="tt-ads-btn-3d"
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 3 days</button>
+            <button onclick="ttAdsPeriod=ttAdsPeriod==='30d'?'latest':'30d';reRenderTTAds()" id="tt-ads-btn-30d"
+              style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 30 days</button>
           </div>
         </div>
         <div id="tt-ads-inner">${ttAdsHTML}</div>
@@ -4655,9 +4657,10 @@ function renderGranularOther(pk, ds, label) {
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #1a1a1a;background:#1a1a1a;color:#fff;cursor:pointer;transition:all .15s">${allDsAllS.slice(-1)[0]||'Latest'}</button>
             <button onclick="snapAdsPeriod=snapAdsPeriod==='7d'?'latest':'7d';reRenderSnapAds()" id="snap-ads-btn-7d"
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 7 days</button>
-            <button onclick="snapAdsPeriod=snapAdsPeriod==='30d'?'latest':'30d';reRenderSnapAds()" id="snap-ads-btn-30d" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 30 days</button>
             <button onclick="snapAdsPeriod=snapAdsPeriod==='3d'?'latest':'3d';reRenderSnapAds()" id="snap-ads-btn-3d"
               style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 3 days</button>
+            <button onclick="snapAdsPeriod=snapAdsPeriod==='30d'?'latest':'30d';reRenderSnapAds()" id="snap-ads-btn-30d"
+              style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #d0d0c8;background:#fff;color:#444;cursor:pointer;transition:all .15s">Last 30 days</button>
           </div>
         </div>
         <div id="snap-ads-inner">${snapAdsHTML}</div>
