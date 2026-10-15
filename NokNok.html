@@ -1673,12 +1673,18 @@ function renderTikTokTrend(start,end){
   const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   // Use plain day-number keys (UTC midnight ms) to avoid timezone/closure issues
   const MIN_MS = Date.UTC(2026,4,1);    // May 1 2026
-  const TODAY_MS = Date.UTC(2026,9,4); // latest complete data day
+  // latest complete data day — derived from the data so the calendar never goes stale on a refresh
+  const TODAY_MS = (function(){
+    try{
+      var _dk=Object.keys(DAILY.acctReg).sort(); var _l=_dk[_dk.length-1].split('-').map(Number);
+      return Date.UTC(_l[0], _l[1]-1, _l[2]);
+    }catch(e){ return Date.UTC(2026,9,14); }
+  })();
   // View defaults to the month of TODAY_MS (not hardcoded), so the calendar always
   // opens on the latest report month — not a stale earlier one.
   const _today = new Date(TODAY_MS);
   let vy = _today.getUTCFullYear(), vm = _today.getUTCMonth();
-  let psMs=Date.UTC(2026,8,1), peMs=TODAY_MS, hovMs=null;   // selected start/end + hover preview (current month-to-date), as UTC ms
+  let psMs=Date.UTC(_today.getUTCFullYear(),_today.getUTCMonth(),1), peMs=TODAY_MS, hovMs=null;   // selected start/end: current month-to-date, as UTC ms
 
   const pop=document.getElementById('calPop');
   const trigger=document.getElementById('periodTrigger');
