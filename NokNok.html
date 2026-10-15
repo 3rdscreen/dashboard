@@ -1256,10 +1256,11 @@ function renderDashboard(start, end){
   const _ftbMonth = (start||'').slice(0,7);
   const _grRate = (GR_FTB_RATE[_ftbMonth]!=null) ? GR_FTB_RATE[_ftbMonth] : 0;
   const estFtb = Math.round(totalPurch * _grRate);
+  const cpFtb = estFtb ? totalSpend / estFtb : 0;
   document.getElementById('kFtb').textContent = estFtb ? int(estFtb) : '—';
-  document.getElementById('kFtbSub').innerHTML = estFtb ? 'Meta-attributed · modeled' : 'No data';
+  document.getElementById('kFtbSub').innerHTML = estFtb ? 'Meta-attributed · modeled <span style="font-size:.82em;color:var(--ink-4);font-weight:500">· '+money(cpFtb)+'/FTB</span>' : 'No data';
   document.getElementById('fFtb').textContent = estFtb ? int(estFtb) : '—';
-  document.getElementById('fFtbSub').textContent = estFtb ? 'Meta-attributed · modeled' : 'No data';
+  document.getElementById('fFtbSub').textContent = estFtb ? 'Meta-attributed · modeled · '+money(cpFtb)+'/FTB' : 'No data';
 
   // ===== Customer Economics (CAC, LTV, LTV:CAC) =====
   // CAC = total account spend / estimated FTB for this range.
