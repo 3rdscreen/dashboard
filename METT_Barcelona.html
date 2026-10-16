@@ -191,14 +191,14 @@
   <div class="filter-bar" id="filter-bar">
     <button class="filter-date-btn" type="button" id="btn-date-picker" aria-expanded="false" aria-haspopup="true">
       <div class="cal-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="1" stroke-linejoin="round"/><path d="M3 8h14M7 2v3M13 2v3" stroke-linecap="round"/></svg></div>
-      <div class="date-meta"><span class="date-eyebrow">Date range</span><span class="date-value" id="date-value">1 May &ndash; 15 Oct 2026</span></div>
+      <div class="date-meta"><span class="date-eyebrow">Date range</span><span class="date-value" id="date-value">1 &ndash; 15 Oct 2026</span></div>
       <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 4l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
-    <div class="filter-summary"><span class="sum-label">Period</span><span class="sum-val" id="period-sum">168 days</span></div>
+    <div class="filter-summary"><span class="sum-label">Period</span><span class="sum-val" id="period-sum">15 days</span></div>
     <div class="date-popover" id="date-popover" role="dialog" aria-label="Select date range">
       <aside class="presets">
         <div class="preset-header">Quick select</div>
-        <button class="preset-item active" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">May 1 &ndash; Oct 15</span></button>
+        <button class="preset-item" data-preset="all" type="button"><span class="preset-radio"></span>All data <span style="margin-left:auto;font-size:10px;color:var(--ink-3);">May 1 &ndash; Oct 15</span></button>
         <button class="preset-item" data-preset="yesterday" type="button"><span class="preset-radio"></span>Yesterday</button>
         <button class="preset-item" data-preset="7" type="button"><span class="preset-radio"></span>Last 7 days</button>
         <button class="preset-item" data-preset="14" type="button"><span class="preset-radio"></span>Last 14 days</button>
@@ -207,7 +207,7 @@
         <div class="preset-divider"></div>
         <button class="preset-item" data-preset="this-week" type="button"><span class="preset-radio"></span>This week</button>
         <button class="preset-item" data-preset="last-week" type="button"><span class="preset-radio"></span>Last week</button>
-        <button class="preset-item" data-preset="this-month" type="button"><span class="preset-radio"></span>This month</button>
+        <button class="preset-item active" data-preset="this-month" type="button"><span class="preset-radio"></span>This month</button>
         <button class="preset-item" data-preset="last-month" type="button"><span class="preset-radio"></span>Last month</button>
       </aside>
       <div class="cal-area">
@@ -215,11 +215,11 @@
           <div class="cal-month"><div class="cal-nav"><button class="cal-arrow" type="button" id="cal-prev" aria-label="Previous month"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="cal-title" id="cal-title-left">September 2026</span><span style="width:24px;"></span></div><div class="cal-grid" id="cal-grid-left"></div></div>
           <div class="cal-month"><div class="cal-nav"><span style="width:24px;"></span><span class="cal-title" id="cal-title-right">October 2026</span><button class="cal-arrow" type="button" id="cal-next" aria-label="Next month"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div class="cal-grid" id="cal-grid-right"></div></div>
         </div>
-        <div class="cal-footer"><div class="cal-selected" id="cal-selected"><strong>1 May 2026</strong> &mdash; <strong>15 Oct 2026</strong></div><div class="cal-actions"><button class="cal-btn" type="button" id="cal-cancel">Cancel</button><button class="cal-btn primary" type="button" id="cal-apply">Apply</button></div></div>
+        <div class="cal-footer"><div class="cal-selected" id="cal-selected"><strong>1 Oct 2026</strong> &mdash; <strong>15 Oct 2026</strong></div><div class="cal-actions"><button class="cal-btn" type="button" id="cal-cancel">Cancel</button><button class="cal-btn primary" type="button" id="cal-apply">Apply</button></div></div>
       </div>
     </div>
   </div>
-  <div class="filter-indicator"><span class="bar"></span><span id="filter-indicator">Showing all data &middot; 1 May &ndash; 15 Oct 2026</span></div>
+  <div class="filter-indicator"><span class="bar"></span><span id="filter-indicator">Showing this month &middot; 1 Oct &ndash; 15 Oct 2026</span></div>
   <div class="tabs-wrap"><nav class="tabs" id="tabs">
       <button class="tab active" data-tab="overview"><span class="num">I</span>Overview</button>
       <button class="tab" data-tab="paid"><span class="num">II</span>Paid media</button>
@@ -233,15 +233,15 @@
   <section class="page active" id="page-overview">
     <div class="page-head"><div class="eyebrow">Page I</div><h2>Overview</h2></div>
     <div class="kpi-grid cols-9">
-<div class="kpi hero" id="kpi-total-rev"><div class="label">Total revenue</div><div class="value"><span class="cur">&euro;</span>361,171</div><div class="delta"><span class="date-range-label">168 days</span> &middot; 316 bookings</div></div>
-<div class="kpi hero" id="kpi-total-bkg"><div class="label">Total bookings</div><div class="value">316</div><div class="delta">GA4 ecommerce purchases</div></div>
-<div class="kpi hero" id="kpi-paid-rev"><div class="label">Paid media revenue</div><div class="value"><span class="cur">&euro;</span>297,966</div><div class="delta">Driving 82.5% of revenue</div></div>
-<div class="kpi" id="kpi-paid-bkg"><div class="label">Paid bookings</div><div class="value">260</div><div class="delta">82.3% of all bookings</div></div>
-<div class="kpi" id="kpi-total-spend"><div class="label">Total paid spend</div><div class="value"><span class="cur">&euro;</span>42,979</div><div class="delta">Meta <span class="cur">&euro;</span>12,664 &middot; Google <span class="cur">&euro;</span>30,315</div></div>
-<div class="kpi" id="kpi-roas"><div class="label">Blended ROAS</div><div class="value">8.4<span class="unit">&times;</span></div><div class="delta">Growth-phase return</div></div>
-<div class="kpi" id="kpi-cpb"><div class="label">Cost per booking</div><div class="value"><span class="cur">&euro;</span>165</div><div class="delta">Paid spend / paid bookings</div></div>
-<div class="kpi" id="kpi-aov"><div class="label">Avg booking value</div><div class="value"><span class="cur">&euro;</span>1,143</div><div class="delta">Luxury market positioning</div></div>
-<div class="kpi" id="kpi-cvr"><div class="label">Website conversion rate</div><div class="value">0.09<span class="unit">%</span></div><div class="delta">316 bookings / 337,640 sessions</div></div>
+<div class="kpi hero" id="kpi-total-rev"><div class="label">Total revenue</div><div class="value"><span class="cur">&euro;</span>40,285</div><div class="delta"><span class="date-range-label">15 days</span> &middot; 28 bookings</div></div>
+<div class="kpi hero" id="kpi-total-bkg"><div class="label">Total bookings</div><div class="value">28</div><div class="delta">GA4 ecommerce purchases</div></div>
+<div class="kpi hero" id="kpi-paid-rev"><div class="label">Paid media revenue</div><div class="value"><span class="cur">&euro;</span>33,235</div><div class="delta">Driving 82.5% of revenue</div></div>
+<div class="kpi" id="kpi-paid-bkg"><div class="label">Paid bookings</div><div class="value">23</div><div class="delta">82.3% of all bookings</div></div>
+<div class="kpi" id="kpi-total-spend"><div class="label">Total paid spend</div><div class="value"><span class="cur">&euro;</span>2,382</div><div class="delta">Meta <span class="cur">&euro;</span>798 &middot; Google <span class="cur">&euro;</span>1,584</div></div>
+<div class="kpi" id="kpi-roas"><div class="label">Blended ROAS</div><div class="value">16.9<span class="unit">&times;</span></div><div class="delta">Growth-phase return</div></div>
+<div class="kpi" id="kpi-cpb"><div class="label">Cost per booking</div><div class="value"><span class="cur">&euro;</span>103</div><div class="delta">Paid spend / paid bookings</div></div>
+<div class="kpi" id="kpi-aov"><div class="label">Avg booking value</div><div class="value"><span class="cur">&euro;</span>1,439</div><div class="delta">Luxury market positioning</div></div>
+<div class="kpi" id="kpi-cvr"><div class="label">Website conversion rate</div><div class="value">0.14<span class="unit">%</span></div><div class="delta">28 bookings / 20,437 sessions</div></div>
     </div>
     <div class="grid-2">
       <div class="card"><div class="card-head"><div><h3>Daily revenue &amp; bookings</h3><div class="card-sub">GA4 ecommerce &middot; reconciles to &euro;361,170.94 / 316</div></div></div><div class="chart-wrap"><canvas id="chart-rev-trend"></canvas></div></div>
@@ -797,6 +797,11 @@ const CREATIVES=[{name:"Reel - 14 May 2025 (John Barger)",fmt:"Reel",offer:"John
     });
   });
 
+  // default to latest month (anchored to the last day in DATES, so it auto-advances each refresh)
+  document.querySelectorAll('.preset-item').forEach(p=>p.classList.remove('active'));
+  var _tm=document.querySelector('.preset-item[data-preset="this-month"]'); if(_tm)_tm.classList.add('active');
+  applyPreset('this-month');
+  selStart=pendStart; selEnd=pendEnd;
   refreshLabels();updateKPIs();scaleCells();rebuildActive();
 })();
 </script>
