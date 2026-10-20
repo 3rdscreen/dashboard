@@ -454,7 +454,9 @@ tr.group-subtotal td{background:#fafbfc;font-size:12.5px;font-weight:600;color:v
         <div class="chart-box"><canvas id="spendChart"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title"><span class="sw" style="background:var(--green)"></span>Sales ROAS by ad set</div>
+        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <span style="display:inline-flex;align-items:center"><span class="sw" style="background:var(--green)"></span>Sales by ad set &middot; number of orders</span>
+        </div>
         <div class="chart-box"><canvas id="roasChart"></canvas></div>
       </div>
     </div>
@@ -1337,17 +1339,23 @@ function renderDashboard(start, end){
       plugins:{legend:{position:'bottom',labels:{padding:15,font:{size:12,family:'Calibri'},boxWidth:12,boxHeight:12,usePointStyle:true,pointStyle:'circle'}},
         tooltip:{callbacks:{label:c=>' '+c.label+': $'+Number(c.parsed).toLocaleString()}}}}
   });
-  const sr = salesAgg.map(a=>({name:a.name,r:a.spend?a.value/a.spend:0})).sort((x,y)=>y.r-x.r);
-  if(roasChart) roasChart.destroy();
-  roasChart = new Chart(document.getElementById('roasChart'),{
-    type:'bar',
-    data:{labels:sr.map(d=>d.name),datasets:[{data:sr.map(d=>d.r.toFixed(2)),
-      backgroundColor:sr.map(d=>d.r>=5?'#067647':d.r>=3?'#B54708':'#B42318'),borderRadius:6,barThickness:18}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.parsed.x+'× ROAS'}}},
-      scales:{x:{beginAtZero:true,grid:{color:'#f1f3f8'},ticks:{font:{size:11,family:'Calibri'},callback:v=>v+'×'}},
-        y:{grid:{display:false},ticks:{font:{size:11,family:'Calibri'}}}}}
-  });
+  // Sales-by-ad-set chart: number of orders (purchases) per ad set, sorted high to low.
+  window.__salesAdsetAgg = salesAgg.filter(a=>a.purch>0).map(a=>({name:a.name,purch:a.purch}));
+  var __adsetPalette=['#16264A','#2E8B63','#C79A3C','#3B82A6','#B54708','#7C5CBF','#0F9E8E','#A23B57','#5B8C3A','#D08A2E','#4A6FA5','#8A4B8A','#2F8F6F','#B06A3A','#6A7F3A','#C0506A','#3A5A8A'];
+  window.__renderSalesAdset = function(){
+    var data=window.__salesAdsetAgg.slice().sort(function(x,y){return y.purch-x.purch;});
+    var cols=data.map(function(d,i){return __adsetPalette[i%__adsetPalette.length];});
+    if(roasChart) roasChart.destroy();
+    roasChart = new Chart(document.getElementById('roasChart'),{
+      type:'bar',
+      data:{labels:data.map(function(d){return d.name;}),datasets:[{data:data.map(function(d){return Math.round(d.purch);}),backgroundColor:cols,borderRadius:6,barThickness:18}]},
+      options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' '+Number(c.parsed.x).toLocaleString()+' order'+(c.parsed.x===1?'':'s');}}}},
+        scales:{x:{beginAtZero:true,grid:{color:'#f1f3f8'},ticks:{precision:0,font:{size:11,family:'Calibri'},callback:function(v){return Number(v).toLocaleString();}}},
+          y:{grid:{display:false},ticks:{font:{size:11,family:'Calibri'}}}}}
+    });
+  };
+  window.__renderSalesAdset();
 
   // Update eyebrow label
   const MS2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1681,6 +1689,16 @@ function renderTikTokTrend(start,end){
 
 
 
+// Sales-by-ad-set sort toggle (By sales / By ROAS)
+(function(){
+  var t=document.getElementById('salesAdsetToggle'); if(!t) return;
+  t.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-m]'); if(!b) return;
+    window.__salesAdsetMode=b.dataset.m;
+    t.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+    if(window.__renderSalesAdset) window.__renderSalesAdset(window.__salesAdsetMode);
+  });
+})();
 // Initial render: current month-to-date (through the latest complete data day)
 (function(){
   var _dk=Object.keys(DAILY.acctReg).sort(); var _end=_dk[_dk.length-1];
