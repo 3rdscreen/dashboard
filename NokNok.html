@@ -1574,6 +1574,7 @@ function renderOverview(start,end){
     '<div class="kpi"><div class="k">Blended CPI</div><div class="v">'+blended+'</div><div class="s">Install spend &divide; installs</div></div>'+
     '<div class="kpi"><div class="k">Registrations</div><div class="v">'+n0(mRegs)+'</div><div class="s">Meta (tracked)</div></div>'+
     '<div class="kpi"><div class="k">Purchases</div><div class="v">'+n0(mPurch)+'</div><div class="s">Meta (tracked)</div></div>'+
+    '<div class="kpi"><div class="k">FTB</div><div class="v">'+((typeof GR_FTB_MIX!=='undefined'&&GR_FTB_MIX[(start||'').slice(0,7)]!=null)?n0(GR_FTB_MIX[(start||'').slice(0,7)]):'—')+'</div><div class="s">Mixpanel (tracked)</div></div>'+
   '</div>'+
   '<div class="card" style="padding:20px 22px;margin-bottom:22px"><div style="font-weight:700;color:var(--navy);margin-bottom:4px">Platform breakdown</div>'+
     '<div class="tbl-scroll"><table class="xtable"><thead><tr><th>Platform</th><th>Status</th><th class="num">Spend</th><th class="num">Daily budget</th><th class="num">Installs</th><th class="num">Cost / Install</th></tr></thead><tbody>'+
