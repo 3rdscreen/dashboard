@@ -121,9 +121,9 @@
   .pb.Meta{background:#eef2ff;color:#3a53c5;border-color:#dde4ff}
   .pb.Google{background:#eafaf0;color:#1f8a4c;border-color:#d6f2e0}
   .pb.TikTok{background:#f1eef4;color:#161616;border-color:#e4e0ea}
-  .pb.ChatGPT{background:#e7f6f1;color:#0a7a5c;border-color:#cdeade}
   .pb.Snap{background:#fff7dc;color:#8a7000;border-color:#f2e9bf}
   .pb.Linkedin,.pb.LinkedIn{background:#e9f3fb;color:#1668c1;border-color:#d5e8f7}
+  .pb.ChatGPT{background:#e7f6f1;color:#0e8a6b;border-color:#cdeee3}
   .tag{font-size:9.5px;font-weight:800;letter-spacing:.5px;padding:2px 6px;border-radius:5px;flex:0 0 auto;font-family:var(--mono)}
   .tag.Low{background:var(--low-bg);color:var(--low)} .tag.Medium{background:var(--med-bg);color:var(--med)} .tag.High{background:var(--high-bg);color:var(--high)}
   .c-actions{position:absolute;top:0;bottom:0;right:6px;display:flex;align-items:center;gap:0;opacity:0;transition:opacity .12s;background:linear-gradient(90deg,rgba(255,255,255,0),#fff 34%);padding-left:44px;border-radius:0 8px 8px 0}
@@ -652,10 +652,17 @@ function updateDrop(x,y){
     const rel=(y-rect.top)/rect.height;
     const isChild=!!row.closest(".kids");
     const rc=findOwner(row.dataset.id); const rowParent=rc?rc.c.parentId:null;
-    if(rel>0.38 && rel<0.62 && !isChild && !draggedHasKids){
-      drag.mode="nest"; drag.dropParent=row.dataset.id; drag.dropBefore=null;
-      row.classList.add("nest-hot"); drag.hotRow=row;
-      drag.ph=document.createElement("div"); drag.ph.className="nest-slot"; drag.ph.textContent="↳ group under"; row.after(drag.ph);
+    // Drop ONTO a row to nest. If the row is already a child, nesting joins its group.
+    const nestTarget=isChild?rowParent:row.dataset.id;
+    const canNest=nestTarget && nestTarget!==drag.clientId && !draggedHasKids;
+    // Middle 50% of the row = group under it; top/bottom 25% = reorder.
+    if(rel>=0.25 && rel<=0.75 && canNest){
+      drag.mode="nest"; drag.dropParent=nestTarget; drag.dropBefore=null;
+      const hot=isChild?(board.querySelector('.row[data-id="'+nestTarget+'"]')||row):row;
+      hot.classList.add("nest-hot"); drag.hotRow=hot;
+      const pn=findOwner(nestTarget);
+      drag.ph=document.createElement("div"); drag.ph.className="nest-slot";
+      drag.ph.textContent="↳ group under "+(pn?pn.c.name:"this"); row.after(drag.ph);
     } else {
       const before=rel<0.5;
       drag.mode="insert";
