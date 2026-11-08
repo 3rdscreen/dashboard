@@ -375,7 +375,7 @@
 <div class="kpi" id="kpi-intl"><div class="label">International share</div><div class="value">77.1<span class="unit">%</span></div><div class="delta">non-domestic sessions</div></div>
 <div class="kpi" id="kpi-avgdur"><div class="label">Avg time / session</div><div class="value">31<span class="unit">s</span></div><div class="delta">site-wide engagement</div></div>
     </div>
-    <div class="card"><div class="card-head"><div><h3>Top markets by engagement &amp; revenue</h3><div class="card-sub">GA4 country dimension &middot; sessions, engagement &amp; measured ecommerce revenue</div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Country</th><th class="num">Users</th><th class="num">Sessions</th><th class="num">Engagement</th><th class="num">Avg time/session</th><th class="num">Bounce</th><th class="num">Bookings</th><th class="num">Revenue</th><th class="num">CVR</th></tr></thead><tbody>
+    <div class="card"><div class="card-head"><div><h3>Top markets by engagement &amp; revenue</h3><div class="card-sub">GA4 country dimension &middot; sessions, engagement &amp; measured ecommerce revenue</div></div></div><div class="table-wrap"><table class="data" id="tbl-mkt-eng"><thead><tr><th>Country</th><th class="num">Users</th><th class="num">Sessions</th><th class="num">Engagement</th><th class="num">Avg time/session</th><th class="num">Bounce</th><th class="num">Bookings</th><th class="num">Revenue</th><th class="num">CVR</th></tr></thead><tbody>
         <tr><td class="name">United States</td><td class="num" data-base="13662" data-fmt="int" data-scale="sess">13,662</td><td class="num" data-base="18587" data-fmt="int" data-scale="sess">18,587</td><td class="num">61.6%</td><td class="num">16s</td><td class="num"><span class="pill warn">38.4%</span></td><td class="num">39</td><td class="num">€39,992</td><td class="num"><span class="pill bad">0.21%</span></td></tr>
         <tr><td class="name">Spain</td><td class="num" data-base="5735" data-fmt="int" data-scale="sess">5,735</td><td class="num" data-base="7781" data-fmt="int" data-scale="sess">7,781</td><td class="num">85.1%</td><td class="num">48s</td><td class="num"><span class="pill good">14.9%</span></td><td class="num">20</td><td class="num">€18,270</td><td class="num"><span class="pill bad">0.26%</span></td></tr>
         <tr><td class="name">United Kingdom</td><td class="num" data-base="1358" data-fmt="int" data-scale="sess">1,358</td><td class="num" data-base="1843" data-fmt="int" data-scale="sess">1,843</td><td class="num">87.2%</td><td class="num">53s</td><td class="num"><span class="pill good">12.8%</span></td><td class="num">17</td><td class="num">€20,488</td><td class="num"><span class="pill warn">0.92%</span></td></tr>
@@ -391,7 +391,7 @@
       </tbody></table></div></div>
     <div class="grid-2" style="margin-top:18px;">
       <div class="card"><div class="card-head"><div><h3>Revenue by market</h3><div class="card-sub">Measured GA4 ecommerce &middot; top 8 countries by revenue</div></div></div><div class="chart-wrap"><canvas id="chart-markets"></canvas></div></div>
-      <div class="card"><div class="card-head"><div><h3>Market efficiency</h3><div class="card-sub">Paid spend allocated by session share <span class="badge modeled">Modeled</span></div></div></div><div class="table-wrap"><table class="data"><thead><tr><th>Country</th><th class="num">Sessions</th><th class="num">Sess. share</th><th class="num">Spend*</th><th class="num">Bkg</th><th class="num">CPA*</th><th class="num">ROAS*</th></tr></thead><tbody>
+      <div class="card"><div class="card-head"><div><h3>Market efficiency</h3><div class="card-sub">Bookings &amp; revenue measured for the selected range &middot; reconciles to total bookings &middot; paid spend allocated by session share <span class="badge modeled">Modeled</span></div></div></div><div class="table-wrap"><table class="data" id="tbl-mkt-eff"><thead><tr><th>Country</th><th class="num">Sessions</th><th class="num">Sess. share</th><th class="num">Spend*</th><th class="num">Bkg</th><th class="num">CPA*</th><th class="num">ROAS*</th></tr></thead><tbody>
         <tr><td class="name">United States</td><td class="num" data-base="18587" data-fmt="int" data-scale="sess">18,587</td><td class="num">54.7%</td><td class="num" data-base="6138.73" data-fmt="eur" data-scale="paid">€6,139</td><td class="num">39</td><td class="num">€157</td><td class="num">6.5×</td></tr>
         <tr><td class="name">United Kingdom</td><td class="num" data-base="1843" data-fmt="int" data-scale="sess">1,843</td><td class="num">5.4%</td><td class="num" data-base="608.69" data-fmt="eur" data-scale="paid">€609</td><td class="num">17</td><td class="num">€36</td><td class="num">33.7×</td></tr>
         <tr><td class="name">Spain</td><td class="num" data-base="7781" data-fmt="int" data-scale="sess">7,781</td><td class="num">22.9%</td><td class="num" data-base="2569.83" data-fmt="eur" data-scale="paid">€2,570</td><td class="num">20</td><td class="num">€128</td><td class="num">7.1×</td></tr>
@@ -469,6 +469,7 @@ const CHANNELS = [['Cross-network',11521],['Referral',10336],['Direct',6302],['O
 const GSPLIT = [['Search',6102.5],['Performance Max',5129.98]];
 const OFFERS = [['The First Arrival Rate',635],['Other offers',180]];
 const MARKETS = {labels:["United States", "United Kingdom", "Spain", "Norway", "Germany", "Netherlands", "Italy", "Canada"], sessions:[18587, 1843, 7781, 99, 361, 388, 183, 354], revenue:[39992.39, 20488.14, 18269.95, 7706.84, 4337, 3910.6, 3614, 3173.5]};
+const MKT = [{"n":"United States","s":18587,"u":13662,"e":11445,"d":290568,"b":0.3842,"ev":[[138,1,826.0],[139,1,1898.0],[146,1,586.0],[155,1,825.44],[164,2,2556.0],[167,1,504.0],[169,1,2614.5],[178,1,404.0],[183,1,908.0],[186,2,2292.0],[190,1,423.0],[193,1,964.0],[194,1,374.0],[195,1,401.0],[197,1,744.0],[198,1,1031.0],[205,1,423.0],[208,1,1881.0],[211,1,1180.0],[213,2,2648.0],[216,1,1002.0],[219,1,936.0],[222,1,851.0],[223,1,1059.0],[225,1,1067.5],[226,1,744.0],[231,1,1374.45],[236,1,1419.0],[237,1,469.2],[238,1,1427.0],[239,1,1931.2],[246,1,1199.7],[250,2,920.0],[263,1,1652.4],[274,1,457.0]]},{"n":"Spain","s":7781,"u":5735,"e":6624,"d":374651,"b":0.1487,"ev":[[163,1,1604.0],[178,1,501.0],[180,1,1597.0],[183,1,896.0],[184,2,1155.0],[185,1,889.0],[190,1,470.95],[192,2,3760.0],[200,2,802.0],[204,1,1265.0],[210,1,1800.5],[216,2,1426.0],[228,1,341.0],[244,1,997.5],[249,1,477.0],[256,1,288.0]]},{"n":"United Kingdom","s":1843,"u":1358,"e":1608,"d":96954,"b":0.1275,"ev":[[118,1,1642.0],[152,2,1376.32],[158,1,861.77],[166,1,1410.0],[176,1,1037.0],[179,1,1702.0],[191,2,2338.0],[192,1,838.0],[199,1,2602.0],[203,2,2090.0],[226,1,423.0],[266,1,655.0],[268,1,2543.2],[269,1,969.85]]},{"n":"France","s":798,"u":616,"e":702,"d":42154,"b":0.1203,"ev":[[192,1,982.0],[205,1,1287.0],[228,1,826.0]]},{"n":"Netherlands","s":388,"u":286,"e":349,"d":21263,"b":0.1005,"ev":[[131,1,1920.0],[201,1,668.0],[238,1,1322.6]]},{"n":"Germany","s":361,"u":313,"e":324,"d":14340,"b":0.1025,"ev":[[132,4,2685.0],[182,1,1652.0]]},{"n":"Canada","s":354,"u":272,"e":285,"d":20005,"b":0.1949,"ev":[[145,1,1154.0],[186,1,1134.0],[250,2,885.5]]},{"n":"Ireland","s":196,"u":150,"e":174,"d":13344,"b":0.1122,"ev":[[243,1,1025.1]]},{"n":"Italy","s":183,"u":130,"e":150,"d":9476,"b":0.1803,"ev":[[115,1,2409.0],[191,1,1205.0]]},{"n":"Switzerland","s":173,"u":123,"e":159,"d":11491,"b":0.0809,"ev":[[185,1,1002.0],[239,1,595.0]]},{"n":"Belgium","s":168,"u":119,"e":144,"d":11646,"b":0.1429,"ev":[[164,2,2068.0]]},{"n":"India","s":153,"u":134,"e":83,"d":2927,"b":0.4575,"ev":[[109,1,353.0]]},{"n":"Sweden","s":151,"u":68,"e":120,"d":8152,"b":0.2053,"ev":[[124,1,770.0]]},{"n":"Norway","s":99,"u":78,"e":83,"d":6940,"b":0.1616,"ev":[[154,2,7319.84],[256,1,387.0]]},{"n":"Denmark","s":80,"u":44,"e":70,"d":6618,"b":0.125,"ev":[[194,1,782.0]]},{"n":"Portugal","s":70,"u":39,"e":56,"d":2889,"b":0.2,"ev":[[134,2,640.0]]},{"n":"Argentina","s":62,"u":34,"e":53,"d":5225,"b":0.1452,"ev":[[170,1,3727.0]]},{"n":"Qatar","s":56,"u":45,"e":42,"d":6562,"b":0.25,"ev":[[178,1,2882.0]]},{"n":"Mexico","s":49,"u":38,"e":39,"d":7274,"b":0.2041,"ev":[[221,1,1476.0]]},{"n":"Israel","s":46,"u":36,"e":39,"d":2175,"b":0.1522,"ev":[[240,1,419.0]]},{"n":"South Africa","s":25,"u":18,"e":21,"d":1914,"b":0.16,"ev":[[263,1,1972.0]]},{"n":"Monaco","s":19,"u":16,"e":17,"d":2470,"b":0.1053,"ev":[[242,1,721.8]]},{"n":"Zambia","s":6,"u":2,"e":4,"d":225,"b":0.3333,"ev":[[200,1,1039.1]]},{"n":"Other markets","s":2362,"u":1269,"e":1748,"d":84461,"b":0.2599,"ev":[]}];
 
 const CREATIVES = [
   {name:"CASA METT Sitges | SEM",fmt:"Search",offer:"Google Ads \u00b7 demand capture (May 14 \u2013 Jul 21)",thumb:"",spend:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,101.5004,100.6125,108.3566,116.6098,93.4389,98.3568,101.9502,101.8282,102.7483,105.7268,101.2692,88.634,93.1095,107.6185,0.0,0.0,0.0,0.0,90.6601,114.815,102.0652,106.7605,102.2247,109.4164,106.7084,93.9504,80.9876,93.0654,132.2591,105.1665,110.4995,94.8131,82.5394,119.0354,91.6415,108.7025,85.4816,104.0072,127.6283,89.2612,71.3793,98.9207,101.743,106.7737,50.3744,0.0,0.0,0.0,36.2276,158.2686,103.1754,105.9302,104.7081,78.5076,102.8028,119.7715,100.8155,83.488,122.0299,106.0503,89.3858,89.781,118.9258,97.3356,93.6357,99.8584,73.2374,65.9699,49.96,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],imp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,941,1209,1282,1477,1998,1317,1780,2015,1735,2315,2086,1864,2119,2027,0,0,0,0,1436,1611,1819,2035,1495,2102,2059,1844,2002,2075,1872,1593,1477,1573,1803,1781,2052,1869,2244,2783,2387,1621,2012,2286,2246,2326,1036,0,0,0,951,2144,1657,1744,2178,2049,2156,2354,2374,2515,2990,2065,2499,2446,2621,2439,2228,1660,1482,1545,957,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],clk:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,76,81,92,133,114,137,139,144,147,149,147,144,144,158,0,0,0,0,118,158,147,157,154,161,162,151,123,137,171,171,208,191,156,198,156,178,138,153,188,154,117,157,164,169,81,0,0,0,69,181,133,134,160,129,160,160,146,125,177,158,157,141,176,145,157,200,151,128,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
@@ -782,9 +783,82 @@ const CREATIVES = [
   }
 
   function commit(){selStart=pendStart;selEnd=pendEnd;refreshLabels();updateKPIs();scaleCells();rebuildActive();closePop();}
+
+  /* ---------- Page VI market tables: exact in-range bookings/revenue ----------
+     Bookings and revenue come from per-country GA4 booking events, so both
+     tables reconcile to the Overview total in ANY selected range. Sessions and
+     users scale by the global session factor; paid spend is allocated by
+     session share (modeled, as labelled). */
+  function mktRange(){
+    const s=selStart,e=selEnd,f=factors();
+    const pSpend=sum(GOOG,s,e)+sum(META,s,e);
+    return MKT.map(m=>{
+      let b=0,r=0;
+      for(let k=0;k<m.ev.length;k++){const x=m.ev[k];if(x[0]>=s&&x[0]<=e){b+=x[1];r+=x[2];}}
+      const se=m.s*f.sess, us=m.u*f.sess;
+      return {n:m.n,sess:se,users:us,share:m.s/BASE.sessions,
+              spend:pSpend*(m.s/BASE.sessions),bkg:b,rev:r,
+              engRate:m.e/m.s*100,avg:Math.round(m.d/m.s),bo:m.b,tail:m.n==='Other markets'};
+    });
+  }
+  function pillCls(b){return b<=0.25?'good':(b<=0.40?'warn':'bad');}
+  function avgTxt(s){return s>=60?(Math.floor(s/60)+'m '+String(s%60).padStart(2,'0')+'s'):(s+'s');}
+  function buildMktTables(){
+    const rowsAll=mktRange();
+    const TOPN=12;
+    // --- efficiency: rank by in-range revenue, tail aggregates the remainder ---
+    const eff=document.getElementById('tbl-mkt-eff');
+    if(eff){
+      const named=rowsAll.filter(x=>!x.tail).slice().sort((a,b)=>b.rev-a.rev||b.sess-a.sess);
+      const top=named.slice(0,TOPN), restArr=named.slice(TOPN).concat(rowsAll.filter(x=>x.tail));
+      const rest=restArr.reduce((a,x)=>({sess:a.sess+x.sess,share:a.share+x.share,spend:a.spend+x.spend,
+        bkg:a.bkg+x.bkg,rev:a.rev+x.rev,n:a.n+(x.bkg>0?1:0)}),{sess:0,share:0,spend:0,bkg:0,rev:0,n:0});
+      const line=x=>{
+        const cpa=(x.spend>0&&x.bkg>0)?'&euro;'+Math.round(x.spend/x.bkg).toLocaleString():'&mdash;';
+        const roas=(x.spend>0&&x.rev>0)?(x.rev/x.spend).toFixed(1)+'×':'&mdash;';
+        return '<tr><td class="name">'+x.label+'</td>'
+          +'<td class="num">'+Math.round(x.sess).toLocaleString()+'</td>'
+          +'<td class="num">'+(x.share*100).toFixed(1)+'%</td>'
+          +'<td class="num">'+(x.spend>0?'&euro;'+Math.round(x.spend).toLocaleString():'&euro;0')+'</td>'
+          +'<td class="num">'+x.bkg+'</td><td class="num">'+cpa+'</td><td class="num">'+roas+'</td></tr>';
+      };
+      let html=top.map(x=>line(Object.assign({label:x.n},x))).join('');
+      if(rest.bkg>0||rest.sess>=1){
+        html+=line(Object.assign({label:'Other markets'+(rest.n?' ('+rest.n+')':'')},rest));
+      }
+      const tb=eff.querySelector('tbody'); if(tb)tb.innerHTML=html;
+    }
+    // --- engagement: keep the users ranking, exact in-range bookings/revenue ---
+    const eng=document.getElementById('tbl-mkt-eng');
+    if(eng){
+      const named=rowsAll.filter(x=>!x.tail).slice().sort((a,b)=>b.users-a.users);
+      const top=named.slice(0,TOPN), restArr=named.slice(TOPN).concat(rowsAll.filter(x=>x.tail));
+      const rest=restArr.reduce((a,x)=>({users:a.users+x.users,sess:a.sess+x.sess,bkg:a.bkg+x.bkg,
+        rev:a.rev+x.rev,n:a.n+(x.bkg>0?1:0)}),{users:0,sess:0,bkg:0,rev:0,n:0});
+      const line=x=>{
+        const cvr=x.sess>0?(x.bkg/x.sess*100):0;
+        const cls=cvr>=1?'good':(cvr>=0.4?'warn':'bad');
+        return '<tr><td class="name">'+x.label+'</td>'
+          +'<td class="num">'+Math.round(x.users).toLocaleString()+'</td>'
+          +'<td class="num">'+Math.round(x.sess).toLocaleString()+'</td>'
+          +'<td class="num">'+(x.engRate!=null?x.engRate.toFixed(1)+'%':'&mdash;')+'</td>'
+          +'<td class="num">'+(x.avg!=null?avgTxt(x.avg):'&mdash;')+'</td>'
+          +'<td class="num">'+(x.bo!=null?'<span class="pill '+pillCls(x.bo)+'">'+(x.bo*100).toFixed(1)+'%</span>':'&mdash;')+'</td>'
+          +'<td class="num">'+x.bkg+'</td>'
+          +'<td class="num">'+(x.rev>0?'&euro;'+Math.round(x.rev).toLocaleString():'&euro;0')+'</td>'
+          +'<td class="num"><span class="pill '+cls+'">'+cvr.toFixed(2)+'%</span></td></tr>';
+      };
+      let html=top.map(x=>line(Object.assign({label:x.n},x))).join('');
+      if(rest.bkg>0||rest.sess>=1){
+        html+=line(Object.assign({label:'Other markets'+(rest.n?' ('+rest.n+')':''),engRate:null,avg:null,bo:null},rest));
+      }
+      const tb=eng.querySelector('tbody'); if(tb)tb.innerHTML=html;
+    }
+  }
+
   function rebuildActive(){
     // rebuild charts/visuals for whichever page is active + always-needed
-    buildRevTrend();buildChannel();buildSessions();buildGSplit();buildOfferShare();buildAssist();buildDirectAssist();buildFunnels();buildMarkets();buildCreatives();
+    buildRevTrend();buildChannel();buildSessions();buildGSplit();buildOfferShare();buildAssist();buildDirectAssist();buildFunnels();buildMarkets();buildCreatives();buildMktTables();
   }
 
   /* ---------- popover open/close ---------- */
