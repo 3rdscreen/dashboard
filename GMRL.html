@@ -9,10 +9,10 @@
 --line:#eceef1;--line2:#e3e6ea;--bg:#f5f6f8;--card:#fff;--pause:#eef0f3;
 --aw:#e8820e;--tr:#2f72e0;--en:#c0399f;--radius:16px}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Calibri,"Carlito","Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+body{font-family:Calibri,"Carlito","Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;overflow-x:hidden;
 background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.4}
 .wrap{max-width:1240px;margin:0 auto;padding:0 20px 80px}
-.cover{background:radial-gradient(1200px 400px at 85% -40%,#2a2c33 0,var(--ink) 60%);color:#fff;margin:0 -20px;padding:30px 20px 0}
+.cover{background:radial-gradient(1200px 400px at 85% -40%,#2a2c33 0,var(--ink) 60%);color:#fff;width:100%;padding:30px 20px 0}
 .cover-in{max-width:1200px;margin:0 auto}
 .brand{display:flex;align-items:center;gap:16px}
 .logo{width:58px;height:58px;border:2.5px solid var(--y);border-radius:11px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:#fff}
@@ -49,7 +49,7 @@ font-size:14px;padding:5px 12px;border-radius:9px;font-family:inherit}
 .cal-btns button{font-family:inherit;font-weight:700;font-size:13px;padding:9px 16px;border-radius:9px;cursor:pointer;border:1px solid var(--line2);background:#fff}
 .cal-apply{background:var(--y)!important;border-color:var(--y)!important;color:var(--ink)!important}
 .cal-apply:disabled{background:#e6e8ec!important;border-color:#e6e8ec!important;color:#aab!important;cursor:default}
-.tabbar{position:sticky;top:0;z-index:30;background:rgba(21,22,26,.97);backdrop-filter:blur(8px);margin:0 -20px;border-bottom:1px solid #2c2e35}
+.tabbar{position:sticky;top:0;z-index:30;background:rgba(21,22,26,.97);backdrop-filter:blur(8px);width:100%;border-bottom:1px solid #2c2e35}
 .tabbar-in{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;gap:4px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
 .tabbar-in::-webkit-scrollbar{display:none}
 .tab{background:none;border:none;color:var(--g2);font-weight:650;font-size:13.5px;padding:15px 16px 13px;cursor:pointer;position:relative;font-family:inherit}
@@ -114,7 +114,7 @@ font-size:14px;padding:5px 12px;border-radius:9px;font-family:inherit}
 @media(max-width:860px){.kpis{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}.bt h1{font-size:20px}.phead h2{font-size:18px}
 .xt{min-width:900px}.xt th.l,.xt td.l{width:196px}.xt th:last-child,.xt td:last-child{width:88px}.xt th,.xt td{padding:9px 8px}
-.meta-row{gap:18px}.wrap{padding:0 14px 70px}.cover{padding:24px 14px 0}.tabbar{margin:0 -14px}}
+.meta-row{gap:16px}.wrap{padding:0 16px 70px}.cover{padding:22px 16px 0}.tabbar-in{padding:0 16px}.brand{gap:12px}.logo{width:50px;height:50px}}
 </style></head><body>
 <div class="cover"><div class="cover-in">
 <div class="brand"><div class="logo"><span>GRAY<br>MACK<br>ENZIE</span></div>
