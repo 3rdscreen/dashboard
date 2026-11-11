@@ -425,7 +425,12 @@ function propBlock(key, month){
 }
 
 function render(month){
-  document.getElementById('tables').innerHTML = ORDER.map(k => propBlock(k, month)).join('');
+  const _sorted = [...ORDER].sort((a,b) => {
+    const sa = (DATA[a].months[month] ? DATA[a].months[month].totalSpend : -1);
+    const sb = (DATA[b].months[month] ? DATA[b].months[month].totalSpend : -1);
+    return sb - sa;
+  });
+  document.getElementById('tables').innerHTML = _sorted.map(k => propBlock(k, month)).join('');
 
   document.getElementById('livePill').textContent   = MLABEL[month].n;
   document.getElementById('dateValue').textContent  = MLABEL[month].r;
