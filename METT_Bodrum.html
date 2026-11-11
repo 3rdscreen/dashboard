@@ -1313,7 +1313,7 @@
 
   // Scale all table cells with data-base attribute by rangeMult
   function scaleTableCells(rangeMult) {
-    var cells = document.querySelectorAll('td[data-base]');
+    var cells = document.querySelectorAll('[data-base]');
     for (var i = 0; i < cells.length; i++) {
       var base = parseFloat(cells[i].getAttribute('data-base'));
       var fmt = cells[i].getAttribute('data-fmt');
