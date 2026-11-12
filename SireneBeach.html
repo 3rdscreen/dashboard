@@ -1024,8 +1024,6 @@
       card("Clicks",int(clicks),"CTR "+pct(ctr),deltaChip(t.clicks,m(prev,function(x){return x.clicks;}),false))+
       card("Reservations",int(res),g?"Meta "+int(t.res)+" + Google "+int(g.res):"appointments scheduled",deltaChip(t.res,m(prev,function(x){return x.res;}),false))+
       card("Cost / reservation",res?money(cpRes):"—","reservation spend ÷ reservations",deltaChip(cpRes,pCpRes,true))+
-      (BRAND&&BRAND.key==="lm"?"":card("Profile visits",int(t.visits),"traffic campaign result",deltaChip(t.visits,m(prev,function(x){return x.visits;}),false))+
-      card("Instagram followers",int(t.follows),"new profile follows from ads",deltaChip(t.follows,m(prev,function(x){return x.follows;}),false)))+
       card("CTR",pct(ctr),"clicks ÷ impressions",deltaChip(ctr,pCtr,false))+
       card("Blended CPC",money(cpc),"per click",deltaChip(cpc,pCpc,true))+
       card("Blended CPM",money(cpm),"per 1k impr.",deltaChip(cpm,pCpm,true))+
