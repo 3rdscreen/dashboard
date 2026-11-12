@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YELO - Meta Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&display=swap');
+:root{--y:#C6F500;--y2:#d6ff3a;--ink:#0a0b0d;--ink2:#1c1d22;--g1:#6b6f7a;--g2:#9499a3;
+--line:#eceef1;--line2:#e3e6ea;--bg:#f5f6f8;--card:#fff;--pause:#eef0f3;
+--tr:#2f72e0;--en:#c0399f;--meta:#2f72e0;--tt:#ff0050;--goog:#e8820e;--radius:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Calibri,"Carlito","Segoe UI",system-ui,-apple-system,Roboto,Candara,"Trebuchet MS",sans-serif;
+background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.4;overflow-x:hidden}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px}
+.cover{background:radial-gradient(1100px 420px at 88% -45%,#20231a 0,var(--ink) 58%);color:#fff;width:100%;padding:30px 20px 0}
+.cover-in{max-width:1140px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:16px}
+.logo{width:58px;height:58px;border-radius:50%;flex:0 0 auto;background:var(--y);
+display:flex;align-items:center;justify-content:center;position:relative;
+box-shadow:0 0 0 3px #0a0b0d,0 0 0 5px transparent;background-clip:padding-box}
+.logo:before{content:"";position:absolute;inset:-5px;border-radius:50%;z-index:-1;
+background:conic-gradient(from 210deg,#ff0050,#ff7a00,#ff0050)}
+.logo span{font-weight:800;font-size:19px;letter-spacing:-.04em;color:var(--ink)}
+.bt h1{font-size:24px;font-weight:800;letter-spacing:-.02em}.bt h1 b{color:var(--y)}
+.bt .sub{color:var(--g2);font-size:12.5px;margin-top:3px}
+.meta-row{display:flex;flex-wrap:wrap;gap:26px;margin-top:22px;padding-bottom:22px;align-items:flex-start}
+.mi .ml{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--g1);font-weight:700}
+.mi .mv{font-size:14px;font-weight:650;margin-top:4px;color:#f3f4f6}.mi .mv b{color:var(--y)}
+.period-trigger{display:inline-flex;align-items:center;gap:8px;margin-top:3px;cursor:pointer;
+background:rgba(198,245,0,.14);border:1px solid rgba(198,245,0,.5);color:var(--y);font-weight:700;
+font-size:14px;padding:5px 12px;border-radius:9px;font-family:inherit}
+.period-trigger:hover{background:rgba(198,245,0,.24)}
+.period-trigger svg{width:13px;height:13px;stroke:var(--y)}
+.cal-ov{position:fixed;inset:0;background:rgba(10,11,14,.55);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.cal-ov.show{display:flex}
+.cal{background:#fff;color:var(--ink);border-radius:18px;width:360px;max-width:100%;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.cal-hint{background:#f3ffcc;color:#54660a;font-weight:700;font-size:12.5px;text-align:center;padding:11px;border-radius:10px;margin-bottom:16px}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-nav b{font-size:16px;font-weight:800}
+.cal-nav button{width:36px;height:36px;border:1px solid var(--line2);background:#fff;border-radius:9px;cursor:pointer;font-size:16px;color:var(--ink);display:flex;align-items:center;justify-content:center}
+.cal-nav button:disabled{opacity:.35;cursor:default}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-dow{font-size:12px;font-weight:700;color:var(--g2);text-align:center;padding:4px 0}
+.cal-d{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--ink2);user-select:none}
+.cal-d:hover{background:#eefbbf}
+.cal-d.off{color:#c7cbd2;cursor:default;pointer-events:none}
+.cal-d.in{background:#f1ffbf}
+.cal-d.end{background:var(--ink);color:#fff}
+.cal-ft{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.cal-sel{font-size:12.5px;font-weight:600;color:var(--g1)}
+.cal-btns{display:flex;gap:9px}
+.cal-btns button{font-family:inherit;font-weight:700;font-size:13px;padding:9px 16px;border-radius:9px;cursor:pointer;border:1px solid var(--line2);background:#fff}
+.cal-apply{background:var(--y)!important;border-color:var(--y)!important;color:var(--ink)!important}
+.cal-apply:disabled{background:#e6e8ec!important;border-color:#e6e8ec!important;color:#aab!important;cursor:default}
+/* brand-total banner */
+.blend{background:linear-gradient(135deg,#17180f,#0a0b0d);border-radius:var(--radius);padding:20px 22px;margin:26px 0 20px;color:#fff}
+.blend-top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.blend-t{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--g2);font-weight:700}
+.blend-v{font-size:30px;font-weight:800;letter-spacing:-.02em;color:#fff;margin-top:3px}.blend-v b{color:var(--y)}
+.blend-note{font-size:12px;color:var(--g2);font-weight:550;text-align:right}
+.blend-bar{height:12px;border-radius:7px;overflow:hidden;display:flex;margin:16px 0 12px;background:#2a2c33}
+.blend-bar span{display:block;height:100%}
+.blend-leg{display:flex;flex-wrap:wrap;gap:18px}
+.bl{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#d7dae0}
+.bl .dot{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+.bl b{color:#fff}.bl.offp{opacity:.5}
+/* platform toggle */
+.phead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.phead h2{font-size:21px;font-weight:800;letter-spacing:-.02em}
+.psel{display:inline-flex;gap:5px;background:#fff;border:1px solid var(--line2);border-radius:12px;padding:5px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%}
+.psel::-webkit-scrollbar{display:none}
+.pslot{font-family:inherit;font-weight:700;font-size:13px;padding:8px 15px;border-radius:8px;border:none;background:none;color:var(--g1);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.pslot .pd{width:9px;height:9px;border-radius:3px}
+.pslot.on{background:var(--ink);color:#fff}
+.pslot.dis{color:#c2c6cd;cursor:default}
+.pbody{display:none}.pbody.show{display:block}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:22px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px 12px}
+.kl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--g1);font-weight:700}
+.kv{font-size:19px;font-weight:750;margin-top:6px;letter-spacing:-.01em}
+.lvl{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:5px 5px 6px;margin-bottom:16px;overflow:hidden}
+.lvl-h{font-size:13px;font-weight:750;padding:14px 14px 11px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.lvl-h .ln{font-size:12px;font-weight:800;color:var(--ink);background:var(--y);min-width:26px;height:21px;padding:0 6px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center}
+.lnote{font-size:12px;font-weight:500;color:var(--g2);margin-left:2px}
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.xt{width:100%;border-collapse:collapse;min-width:900px;table-layout:fixed}
+.xt th{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--g1);font-weight:700;text-align:right;padding:11px 12px;border-bottom:1px solid var(--line2);white-space:nowrap}
+.xt th.l,.xt td.l{width:280px}
+.xt th.l,.xt th.l2{text-align:left}
+.xt td{font-size:13px;padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink2);font-weight:550}
+.xt td.l{text-align:left;font-weight:600;color:var(--ink);white-space:normal}
+.xt td.l2{text-align:left}.xt tbody tr:last-child td{border-bottom:none}
+.xt tr:hover td{background:#fcfcfd}
+.rt{display:block;font-size:12px;color:var(--g2);font-weight:600;margin-top:2px}
+.sub{display:block;font-size:12px;color:var(--g2);font-weight:500;margin-top:3px;line-height:1.35}
+.tot td{font-weight:800!important;color:var(--ink)!important;background:#fbfbfc;border-top:1.5px solid var(--line2)}
+.tot td.l{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--g1)!important}
+.rp td{opacity:.62}.rp:hover td{opacity:.78}
+.pp{display:inline-block;margin-left:8px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--g1);background:var(--pause);border:1px solid var(--line2);padding:1px 7px;border-radius:999px;vertical-align:1px}
+.ob{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:6px;margin-right:8px;color:#fff;vertical-align:1px}
+.ob-traffic{background:var(--tr)}.ob-engagement{background:var(--en)}
+.adc{display:flex;align-items:center;gap:12px}
+.th{width:46px;height:46px;border-radius:9px;overflow:hidden;flex:0 0 auto;background:#f0f1f4;border:1px solid var(--line2)}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th.ph{background:linear-gradient(135deg,#20231a,#0a0b0d)}
+.rp .th img{filter:grayscale(.75)}
+.admeta{display:flex;flex-direction:column;min-width:0}.an{font-weight:650;font-size:13px;color:var(--ink);line-height:1.3}
+.soon{font-size:12.5px;color:var(--g2);text-align:center;padding:30px 16px;border:1px dashed var(--line2);border-radius:12px;font-weight:550}
+.soon b{color:var(--g1);font-weight:700}
+.empty{text-align:center;color:var(--g2);font-size:13px;padding:34px;font-weight:550}
+.foot{text-align:center;color:var(--g2);font-size:12px;margin-top:34px;line-height:1.7}.foot b{color:var(--g1)}
+@media(max-width:860px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}.bt h1{font-size:20px}.phead h2{font-size:18px}
+.xt{min-width:820px}.xt th.l,.xt td.l{width:210px}.xt th,.xt td{padding:10px 9px}
+.phead{flex-direction:column;align-items:flex-start}.psel{width:100%}
+.blend-v{font-size:26px}.meta-row{gap:18px}.wrap{padding:0 14px 70px}.cover{padding:24px 14px 0}}
+</style></head><body>
+<div class="cover"><div class="cover-in">
+<div class="brand"><div class="logo"><span>y</span></div>
+<div class="bt"><h1><b>YELO</b> Performance</h1>
+<div class="sub">Meta Ads reporting - Yelo loyalty app - by 3rd Screen Digital</div></div></div>
+<div class="meta-row">
+<div class="mi"><div class="ml">Brand</div><div class="mv"><b>Yelo</b> - Lebanon</div></div>
+<div class="mi"><div class="ml">Period</div>
+<div class="period-trigger" id="periodTrigger"><span id="periodLabel">-</span>
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></div></div>
+<div class="mi"><div class="ml">Total spend</div><div class="mv"><b id="acctSpend">-</b></div></div>
+</div></div></div>
+<div class="wrap">
+<div class="blend"><div class="blend-top">
+<div><div class="blend-t">Yelo - all platforms</div><div class="blend-v"><b id="blendSpend">-</b></div></div>
+<div class="blend-note">Combined ad spend<br>across active platforms</div></div>
+<div class="blend-bar" id="blendBar"></div>
+<div class="blend-leg" id="blendLeg"></div></div>
+
+<div class="phead"><h2>Channels</h2>
+<div class="psel">
+<button class="pslot on" data-p="meta"><span class="pd" style="background:var(--meta)"></span>Meta · FB + IG</button>
+<button class="pslot dis" data-p="tiktok"><span class="pd" style="background:var(--tt)"></span>TikTok · soon</button>
+<button class="pslot dis" data-p="google"><span class="pd" style="background:var(--goog)"></span>Google · soon</button>
+</div></div>
+
+<div class="pbody show" id="p-meta"><div id="body-meta"></div></div>
+<div class="pbody" id="p-tiktok"><div class="soon"><b>TikTok isn't running yet.</b><br>The Yelo TikTok ad account is connected — tables will drop in here the moment campaigns go live.</div></div>
+<div class="pbody" id="p-google"><div class="soon"><b>Google isn't running yet.</b><br>Same view, per platform, once Google campaigns start.</div></div>
+
+<div class="foot"><b>YELO - Meta Performance</b> - data via Meta Ads API - Beirut time<br>
+Generated Nov 12, 2026 - 3rd Screen Digital. Creative thumbnails served from Meta's CDN (open the file in a browser to view them).</div></div>
+<div class="cal-ov" id="calOv"><div class="cal" onclick="event.stopPropagation()">
+<div class="cal-hint" id="calHint">Click a start date, then an end date</div>
+<div class="cal-nav"><button id="calPrev">&#8249;</button><b id="calTitle"></b><button id="calNext">&#8250;</button></div>
+<div class="cal-grid" id="calGrid"></div>
+<div class="cal-ft"><div class="cal-sel" id="calSel">Select start date</div>
+<div class="cal-btns"><button id="calCancel">Cancel</button><button class="cal-apply" id="calApply" disabled>Apply</button></div></div>
+</div></div>
+<script>
+var DATA={"ads":[{"id":"120251155793570718","nm":"Loyalty is now yelo","cid":"120251155190020718","aset":"Page growth - Oct 2026","st":"ADSET_PAUSED","cr":"1093972920312568","ri":"profile_visit_view","orig":"Dark ad - 28 Oct 2026","th":"https://scontent-ord5-1.xx.fbcdn.net/v/t15.5256-10/874109362_1085899927651585_658417082665120277_n.jpg?_nc_cat=111&_nc_map=urlgen_bucketless&ccb=1-7&_nc_ohc=Ghl2MdZx7M8Q7kNvwGKy6mw&_nc_oc=AdprtMr7oNcKHyfEzpJNtyNT4Xb7J3v_Uv9FZ3LpKGohaepA3bFtXar9r38b9XTWIYA&_nc_zt=23&_nc_ht=scontent-ord5-1.xx&edm=AEZPnVgEAAAA&_nc_gid=CRkRhv581C2BO0g637mEGg&_nc_tpa=Q5bMBQIlycNBoRTpq-o8LVfvdrwwooqzr-mSMpXyK-BFRB7Wjd_r3DfPIyrQssOjJxrR4fTgGyCzP5qV-w&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=5fad0e&_nc_sid=58080a&oh=00_AQTkDCILNw9eenBW1AypTyWYB4rw-nLHlSipSEinpkjexg&oe=6AFB5E92","d":{"2026-10-29":[163.94,51059,44647,1195,881,862],"2026-10-30":[261.22,59464,44344,1738,1131,1105],"2026-10-31":[154.56,32837,27092,916,578,561]}},{"id":"120251319128000718","nm":"Food Avenue cravings","cid":"120251155190020718","aset":"Download Yelo - Nov 2026","st":"ACTIVE","cr":"1464541845621225","ri":"profile_visit_view","orig":"Reel - 6 Nov 2026","th":"https://scontent-ord5-2.xx.fbcdn.net/v/t15.5256-10/899532886_867418836449933_3772833436977807820_n.jpg?_nc_cat=104&_nc_map=urlgen_bucketless&ccb=1-7&_nc_ohc=qMyizpIkPoIQ7kNvwGizUsb&_nc_oc=AdoJULhyq6WzYZXbzTt6VDe5SUor-iHJ_WvXbx-kDlQPwjXko-S8ooGISSfENdUzTxY&_nc_zt=23&_nc_ht=scontent-ord5-2.xx&edm=AEZPnVgEAAAA&_nc_gid=CRkRhv581C2BO0g637mEGg&_nc_tpa=Q5bMBQK8SG4cITrDHZxRVhnYO8vqdNCADQoNGEBHnF_c0QJUzn_WZFh__FWgU27AR6oiFeJ3uuE-NlEVVg&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=a7ce7f&_nc_sid=58080a&oh=00_AQQpwX36vWnSlXoAxQsqvlezJBF5cvFhYcfJLkd_uP9pgw&oe=6AFB7517","d":{"2026-11-10":[76.78,21833,18956,454,387,394],"2026-11-11":[75.34,13982,12237,255,206,205]}},{"id":"120251319128010718","nm":"All your favorite places","cid":"120251155190020718","aset":"Download Yelo - Nov 2026","st":"ACTIVE","cr":"1553981870097301","ri":"profile_visit_view","orig":"Reel - 29 Oct 2026","th":"https://scontent-ord5-1.xx.fbcdn.net/v/t15.5256-10/896134651_1696703058735557_140286274233035193_n.jpg?_nc_cat=100&_nc_map=urlgen_bucketless&ccb=1-7&_nc_ohc=TEetzWiPqJsQ7kNvwElnxwW&_nc_oc=AdqfVQfD1DMyzDj62UVraltz1ph1uxOuun3Mc3Egpy8E57sR0fkS1C85VjF94YVif_E&_nc_zt=23&_nc_ht=scontent-ord5-1.xx&edm=AEZPnVgEAAAA&_nc_gid=CRkRhv581C2BO0g637mEGg&_nc_tpa=Q5bMBQI0blpmddlziU_9x_QqFisncLA6OS-PgC74ZPdiUrrolduRIYHqx99kZG1rkMpn7xMp1NFYYTODNA&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=a7ce7f&_nc_sid=58080a&oh=00_AQSruWUVSBpLSiRTPaQFSuZdW_Eb11xOh2FpqkJN18L3Rw&oe=6AFB68DB","d":{"2026-11-10":[0.6,298,287,8,8,7],"2026-11-11":[0.1,62,54,3,2,3]}},{"id":"120251155540420718","nm":"All your favorites, one app","cid":"120251155190020718","aset":"Page growth - Oct 2026","st":"ADSET_PAUSED","cr":"2341341629969191","ri":"profile_visit_view","orig":"Reel - 21 Oct 2026","th":"https://scontent-ord5-1.xx.fbcdn.net/v/t15.5256-10/869474395_1625202299079253_7166252464488296183_n.jpg?_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_ohc=uSeMrD_GWggQ7kNvwGscwyf&_nc_oc=Adr35Tsp8CSzLlQ4dM_XTXMYoGVnbdcQZbjReIEzs3O_AkbiH5b7hk07qIf6iV0J3Jo&_nc_zt=23&_nc_ht=scontent-ord5-1.xx&edm=AEZPnVgEAAAA&_nc_gid=CRkRhv581C2BO0g637mEGg&_nc_tpa=Q5bMBQLffRlozBtT6cScvUrRZNo89v-9L0uNs28Zym5eaBHl5pRNbG0zGz6UbvLVdGKKbmPbjN5fAtFf3g&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=a7ce7f&_nc_sid=58080a&oh=00_AQQxafuCbVfdJyFZr6HChr81rFd54U9MbEREd68s3scZeA&oe=6AFB7A0E","d":{"2026-10-29":[11.55,3316,2903,38,32,37],"2026-10-30":[3.58,615,537,12,6,7],"2026-10-31":[0.79,175,137,4,3,3]}},{"id":"120251155626810718","nm":"helo yelo","cid":"120251155190020718","aset":"Page growth - Oct 2026","st":"ADSET_PAUSED","cr":"1003927059406174","ri":"profile_visit_view","orig":"Reel - 20 Sep 2026","th":"https://scontent-ord5-1.xx.fbcdn.net/v/t15.5256-10/870065932_2491303404730044_5828490513110072587_n.jpg?_nc_cat=102&_nc_map=urlgen_bucketless&ccb=1-7&_nc_ohc=0r1M99vMUcsQ7kNvwFFKUA8&_nc_oc=Ado6DHQ77n_W5P4s6D2BPQcD8XlepKOi0YY-gMbAGHEixRYpTHjqlaHEbBR0eZEP7rQ&_nc_zt=23&_nc_ht=scontent-ord5-1.xx&edm=AEZPnVgEAAAA&_nc_gid=CRkRhv581C2BO0g637mEGg&_nc_tpa=Q5bMBQLFFWr6UWODk26Peio_LQdZjE8M7sEUWVsxuRP2bQiyu47G90RBDBi_oqo6wPrrgtUFkHUxRDR3Qg&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=a7ce7f&_nc_sid=58080a&oh=00_AQR8RMQ5i2wgZ3965oeUs42-4QtcNMrWg2H3Q-TMwmwflg&oe=6AFB617A","d":{"2026-10-29":[2.06,1485,1412,25,25,25],"2026-10-30":[1.37,357,328,11,12,12],"2026-10-31":[0.61,142,134,5,5,5]}},{"id":"120251319168520718","nm":"Your rewards are on their way","cid":"120251319168450718","aset":"Your Rewards - Nov 2026","st":"ACTIVE","cr":"2197574690795043","ri":"actions:post_interaction_gross","orig":"Reel - 29 Oct 2026","th":"https://scontent-ord5-2.xx.fbcdn.net/v/t15.5256-10/895525125_1905936727066287_8261016552855134078_n.jpg?_nc_cat=110&_nc_map=urlgen_bucketless&ccb=1-7&_nc_ohc=nukiCx20xukQ7kNvwGwJiYo&_nc_oc=Adrj7TvLOb6kZSVBjYghvrR8-TF-CuQcLa-MRhX86eo-eZ9ZvUimO6MOeEihD4zzc4U&_nc_zt=23&_nc_ht=scontent-ord5-2.xx&edm=AEZPnVgEAAAA&_nc_gid=CRkRhv581C2BO0g637mEGg&_nc_tpa=Q5bMBQIwJqJLFDRzCG-iR_0deJGnvD94r-mGuNGW_8Y0BaWqrTVwrjibsUNUwHLJR_-Eq3bRwgtRrT7vHQ&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=a7ce7f&_nc_sid=58080a&oh=00_AQQcJ0lUpEx9yQ1bewlIP69mwTSsmpci0AEjE-Ilx55kIg&oe=6AFB7100","d":{"2026-11-10":[30.18,6638,4388,28,18,622],"2026-11-11":[28.24,7272,5118,17,13,456]}},{"id":"120251343644540718","nm":"Loyalty rewards, reimagined","cid":"120251319168450718","aset":"Double Your Points - Nov 2026","st":"ACTIVE","cr":"1674060634364919","ri":"actions:post_interaction_gross","orig":"Post IG - 11 Nov 2026","th":"https://scontent-ord5-1.xx.fbcdn.net/v/t45.1600-4/897185447_4159794814153749_4673626169917190870_n.jpg?_nc_cat=104&_nc_map=urlgen_bucketless&ccb=1-7&_nc_ohc=rlSwLUdQVpwQ7kNvwGEtIF-&_nc_oc=AdppoGsBzQi7yKBYdmPH67Az2I_rKX8KK81j31CnNKrUkOqMjls_NvKULNTVyZ_om3k&_nc_zt=1&_nc_ht=scontent-ord5-1.xx&edm=AEZPnVgEAAAA&_nc_gid=CRkRhv581C2BO0g637mEGg&_nc_tpa=Q5bMBQKE4iOzV90HC9jaaKBNmsZSdCm3LKAPhPoggC1Bq-Yv7tkX6WVr5IvZN87OlPrrUB2qtOuIIPF9NQ&stp=c0.5000x0.5000f_dst-emg0_p64x64_q75_tt6&ur=52f3c4&_nc_sid=58080a&oh=00_AQQgl7T8Xdh09C8ByvTrjxB0kEuE1LqOVRZKRsiyzuRWsg&oe=6AFB6958","d":{"2026-11-11":[96.03,39381,31212,217,186,418]}}],"campaigns":{"120251155190020718":{"obj":"Traffic","name":"YELO | Traffic | LB | Meta | 3RDS"},"120251319168450718":{"obj":"Engagement","name":"YELO | Engagement | LB | Meta | 3RDS"}},"dates":["2026-10-29","2026-10-30","2026-10-31","2026-11-10","2026-11-11"]};
+var OBJIND={Traffic:"profile_visit_view",Engagement:"post_interaction"};
+var RLAB={profile_visit_view:"IG Profile Visits","actions:post_interaction_gross":"Interactions",post_interaction:"Interactions",reach:"Reach",mixed:"Mixed"};
+function money(v){if(v==null)return "—";return v<1000?"$"+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):"$"+Math.round(v).toLocaleString();}
+function cents(v){if(v==null)return "—";return "$"+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function cpr(v){if(v==null)return "—";if(v>=0.01)return "$"+v.toFixed(2);return "$"+v.toPrecision(2);}
+function num(v){if(v==null)return "—";return Math.round(v).toLocaleString();}
+function pct(v){if(v==null)return "—";return v.toFixed(2)+"%";}
+function esc(s){return (s+"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function active(st){return st==="ACTIVE";}
+function sumAd(ad,s,e){var o={sp:0,imp:0,rch:0,clk:0,lc:0,res:0};for(var d in ad.d){if(d>=s&&d<=e){var a=ad.d[d];o.sp+=a[0];o.imp+=a[1];o.rch+=a[2];o.clk+=a[3];o.lc+=a[4];o.res+=a[5];}}return o;}
+function thumb(url){if(!url)return '<div class="th ph"></div>';return '<div class="th"><img loading="lazy" src="'+esc(url)+'" onerror="this.parentNode.classList.add(\'ph\');this.remove()"></div>';}
+function kpiStrip(ads){var sp=0,imp=0,rch=0,clk=0,nc={};ads.forEach(function(x){sp+=x.t.sp;imp+=x.t.imp;rch+=x.t.rch;clk+=x.t.clk;nc[x.cid]=1;});
+ var ctr=imp?clk/imp*100:0,cpm=imp?sp/imp*1000:0;
+ var cells=[["Spend",money(sp)],["Impressions",num(imp)],["Reach",num(rch)],["Clicks",num(clk)],["CTR",pct(ctr)],["CPM",cents(cpm)]];
+ return '<div class="kpis">'+cells.map(function(c){return '<div class="kpi"><div class="kl">'+c[0]+'</div><div class="kv">'+c[1]+'</div></div>';}).join("")+'</div>';}
+function campaignTable(ads){
+ var by={};ads.forEach(function(x){(by[x.cid]=by[x.cid]||[]).push(x);});
+ var rows="",T={sp:0,imp:0,rch:0,clk:0,res:0},n=0;
+ var order=Object.keys(by).sort(function(a,b){var sa=by[a].reduce(function(p,x){return p+x.t.sp;},0),sb=by[b].reduce(function(p,x){return p+x.t.sp;},0);return sb-sa;});
+ order.forEach(function(cid){var m=by[cid],c=DATA.campaigns[cid];var sp=0,imp=0,rch=0,clk=0,res=0,act=false;
+  m.forEach(function(x){sp+=x.t.sp;imp+=x.t.imp;rch+=x.t.rch;clk+=x.t.clk;res+=x.t.res;if(active(x.st))act=true;});
+  var ind=OBJIND[c.obj],ctr=imp?clk/imp*100:0,cpc=clk?sp/clk:0,cprv=res?sp/res:null;
+  T.sp+=sp;T.imp+=imp;T.rch+=rch;T.clk+=clk;T.res+=res;n++;
+  rows+='<tr class="'+(act?"":"rp")+'"><td class="l"><span class="ob ob-'+c.obj.toLowerCase()+'">'+c.obj+'</span>'+(act?"":'<span class="pp">Completed</span>')+'</td>'+
+   '<td>'+money(sp)+'</td><td>'+num(imp)+'</td><td>'+num(rch)+'</td><td>'+(rch?(imp/rch).toFixed(2):"—")+'</td><td>'+num(clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td>'+
+   '<td class="l2">'+num(res)+'<span class="rt">'+(RLAB[ind]||"")+'</span></td><td>'+cpr(cprv)+'</td></tr>';});
+ var ctr=T.imp?T.clk/T.imp*100:0,cpc=T.clk?T.sp/T.clk:0;
+ rows+='<tr class="tot"><td class="l">TOTAL · '+n+' campaigns</td><td>'+money(T.sp)+'</td><td>'+num(T.imp)+'</td><td>'+num(T.rch)+'</td><td>—</td><td>'+num(T.clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td><td class="l2">'+num(T.res)+'</td><td>—</td></tr>';
+ return '<div class="tbl-scroll"><table class="xt"><thead><tr><th class="l">Campaign</th><th>Spend</th><th>Impr.</th><th>Reach</th><th>Freq.</th><th>Clicks</th><th>CTR</th><th>CPC</th><th class="l2">Results</th><th>Cost / Result</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
+function adTable(ads){
+ var list=ads.slice().sort(function(a,b){return (active(a.st)===active(b.st))?b.t.sp-a.t.sp:(active(a.st)?-1:1);});
+ var rows="",T={sp:0,imp:0,rch:0,clk:0,res:0};
+ list.forEach(function(x){var r=x.t,ad=x.ad,c=DATA.campaigns[x.cid];T.sp+=r.sp;T.imp+=r.imp;T.rch+=r.rch;T.clk+=r.clk;T.res+=r.res;
+  var ctr=r.imp?r.clk/r.imp*100:0,cpc=r.clk?r.sp/r.clk:0,cprv=r.res?r.sp/r.res:null,frq=r.rch?r.imp/r.rch:0;var act=active(x.st);
+  var sub=esc(c.obj)+" · "+esc(ad.aset)+(ad.orig?" · "+esc(ad.orig):"");
+  rows+='<tr class="'+(act?"":"rp")+'"><td class="l adc">'+thumb(ad.th)+'<div class="admeta"><span class="an">'+esc(ad.nm)+'</span>'+(act?"":'<span class="pp">Completed</span>')+'<span class="sub">'+sub+'</span></div></td>'+
+   '<td>'+money(r.sp)+'</td><td>'+num(r.imp)+'</td><td>'+num(r.rch)+'</td><td>'+(frq?frq.toFixed(2):"—")+'</td><td>'+num(r.clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td>'+
+   '<td class="l2">'+num(r.res)+'<span class="rt">'+(RLAB[ad.ri]||"")+'</span></td><td>'+cpr(cprv)+'</td></tr>';});
+ var ctr=T.imp?T.clk/T.imp*100:0,cpc=T.clk?T.sp/T.clk:0;
+ rows+='<tr class="tot"><td class="l">TOTAL · '+list.length+' ads</td><td>'+money(T.sp)+'</td><td>'+num(T.imp)+'</td><td>'+num(T.rch)+'</td><td>—</td><td>'+num(T.clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td><td class="l2">'+num(T.res)+'</td><td>—</td></tr>';
+ return '<div class="tbl-scroll"><table class="xt"><thead><tr><th class="l">Ad</th><th>Spend</th><th>Impr.</th><th>Reach</th><th>Freq.</th><th>Clicks</th><th>CTR</th><th>CPC</th><th class="l2">Results</th><th>Cost / Result</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
+function metaSp(s,e){var t=0;DATA.ads.forEach(function(ad){var o=sumAd(ad,s,e);t+=o.sp;});return t;}
+function renderBlend(s,e){var m=metaSp(s,e);var total=m;
+ document.getElementById("blendSpend").innerHTML="<b>"+money(total)+"</b>";
+ var mp=total?m/total*100:0;
+ document.getElementById("blendBar").innerHTML='<span style="width:'+mp+'%;background:var(--meta)"></span><span style="width:'+(100-mp)+'%;background:#2a2c33"></span>';
+ var leg='<div class="bl"><span class="dot" style="background:var(--meta)"></span>Meta <b>'+money(m)+'</b> · '+(total?mp.toFixed(0):0)+'%</div>'+
+  '<div class="bl offp"><span class="dot" style="background:var(--tt)"></span>TikTok <b>not running</b></div>'+
+  '<div class="bl offp"><span class="dot" style="background:var(--goog)"></span>Google <b>not running</b></div>';
+ document.getElementById("blendLeg").innerHTML=leg;}
+function render(s,e){
+ var kept=[];
+ DATA.ads.forEach(function(ad){var c=DATA.campaigns[ad.cid];if(!c)return;var t=sumAd(ad,s,e);if(t.sp<=0&&t.imp<=0)return;
+  kept.push({ad:ad,cid:ad.cid,st:ad.st,t:t,obj:c.obj});});
+ var body=document.getElementById("body-meta");
+ if(!kept.length){body.innerHTML='<div class="empty">No delivery in this date range.</div>';}
+ else{body.innerHTML=kpiStrip(kept)+
+  '<div class="lvl"><div class="lvl-h"><span class="ln">01</span> Campaign level</div>'+campaignTable(kept)+'</div>'+
+  '<div class="lvl"><div class="lvl-h"><span class="ln">02</span> Ad level <span class="lnote">creative previews · Meta CDN</span></div>'+adTable(kept)+'</div>';}
+ renderBlend(s,e);
+ document.getElementById("acctSpend").textContent=money(metaSp(s,e));
+ document.getElementById("periodLabel").textContent=fmtRange(s,e);
+}
+var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var MONL=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function fmtRange(s,e){var sd=s.split("-"),ed=e.split("-");var sm=MON[+sd[1]-1],em=MON[+ed[1]-1];
+ if(sd[0]===ed[0]&&sd[1]===ed[1])return sm+" "+(+sd[2])+" – "+(+ed[2])+", "+sd[0];
+ return sm+" "+(+sd[2])+" – "+em+" "+(+ed[2])+", "+ed[0];}
+var DMIN=DATA.dates[0],DMAX=DATA.dates[DATA.dates.length-1];
+var curY=+DMAX.slice(0,4),curM=+DMAX.slice(5,7)-1;
+var selS=null,selE=null;
+function iso(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");}
+function buildCal(){
+ document.getElementById("calTitle").textContent=MONL[curM]+" "+curY;
+ var first=new Date(Date.UTC(curY,curM,1)).getUTCDay();
+ var dim=new Date(Date.UTC(curY,curM+1,0)).getUTCDate();
+ var dow=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+ var h=dow.map(function(d){return '<div class="cal-dow">'+d+'</div>';}).join("");
+ for(var i=0;i<first;i++)h+='<div></div>';
+ for(var d=1;d<=dim;d++){var ds=iso(curY,curM,d);var off=(ds<DMIN||ds>DMAX);
+  var cls="cal-d"+(off?" off":"");
+  if(selS&&selE&&ds>=selS&&ds<=selE)cls+=(ds===selS||ds===selE)?" end":" in";
+  else if(selS&&!selE&&ds===selS)cls+=" end";
+  h+='<div class="'+cls+'" data-d="'+ds+'">'+d+'</div>';}
+ document.getElementById("calGrid").innerHTML=h;
+ document.querySelectorAll("#calGrid .cal-d:not(.off)").forEach(function(el){el.onclick=function(){pick(el.dataset.d);};});
+ document.getElementById("calPrev").disabled=(curY<+DMIN.slice(0,4))||(curY==+DMIN.slice(0,4)&&curM<=+DMIN.slice(5,7)-1);
+ document.getElementById("calNext").disabled=(curY>+DMAX.slice(0,4))||(curY==+DMAX.slice(0,4)&&curM>=+DMAX.slice(5,7)-1);
+}
+function pick(ds){if(!selS||selE){selS=ds;selE=null;}else{if(ds<selS){selE=selS;selS=ds;}else selE=ds;}
+ document.getElementById("calSel").textContent=selE?(fmtRange(selS,selE)):"Select end date";
+ document.getElementById("calHint").textContent=selE?"Range selected":"Now click an end date";
+ document.getElementById("calApply").disabled=!(selS&&selE);buildCal();}
+function openCal(){document.getElementById("calOv").classList.add("show");buildCal();}
+function closeCal(){document.getElementById("calOv").classList.remove("show");}
+document.getElementById("periodTrigger").onclick=openCal;
+document.getElementById("calOv").onclick=closeCal;
+document.getElementById("calCancel").onclick=closeCal;
+document.getElementById("calPrev").onclick=function(){curM--;if(curM<0){curM=11;curY--;}buildCal();};
+document.getElementById("calNext").onclick=function(){curM++;if(curM>11){curM=0;curY++;}buildCal();};
+document.getElementById("calApply").onclick=function(){if(selS&&selE){render(selS,selE);closeCal();}};
+document.querySelectorAll(".pslot").forEach(function(b){b.onclick=function(){if(b.classList.contains("dis")&&!b.classList.contains("on")){
+  document.querySelectorAll(".pslot").forEach(function(x){x.classList.remove("on");});
+  document.querySelectorAll(".pbody").forEach(function(p){p.classList.remove("show");});
+  b.classList.add("on");var el=document.getElementById("p-"+b.dataset.p);if(el)el.classList.add("show");return;}
+ document.querySelectorAll(".pslot").forEach(function(x){x.classList.remove("on");});
+ document.querySelectorAll(".pbody").forEach(function(p){p.classList.remove("show");});
+ b.classList.add("on");var el=document.getElementById("p-"+b.dataset.p);if(el)el.classList.add("show");};});
+selS=DATA.dates[0];selE=DATA.dates[DATA.dates.length-1];
+render(selS,selE);
+</script></body></html>
