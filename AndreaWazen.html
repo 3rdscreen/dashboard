@@ -339,8 +339,10 @@ const SET_COLORS={};
 const norm=s=>s.replace(/\s+/g,' ').trim().toLowerCase();
 const thumbOf=n=>THUMBS[norm(n)]||null;
 const ACTIVE_ADS=new Set(["katy sling leopard", "sienna brown", "katy sling lace", "nora leo motfi", "nora leo motif", "loulou", "catalogue | loulou", "catalogue | bridal product set ad", "bridal | katy platform lace", "catalogue | carol mule", "catalogue | katy sling lace set", "catalogue | loulou product set", "loulou platform", "catalogue | leo motif product set", "carol spot motif - 2"]);
-const statusOf=n=>ACTIVE_ADS.has(norm(n))?'<span class="badge b-good">Active</span>':'<span class="badge">Off</span>';
-const setStatus=s=>{const n=s.ads.filter(a=>ACTIVE_ADS.has(norm(a.name))).length;return n?`<span class="badge b-good">${n} live</span>`:'<span class="badge">off</span>';};
+/* Live status reflects Meta as of 16 Nov 2026 (three active ad sets: GCC Broad, GCC Retargeting, Sydney Prospecting). */
+const LIVE_ADS=new Set(["floral mule black -ch","catalogue | carol - ch","reel loulou black -ch","carol black -ch","catalogue | carol mule","catalogue | loulou product set","catalogue | bridal product set ad","katy lace white - ch","loulou platform","catalogue - loulou platform","catalogue | new collection","catalogue | loulou - ch","catalogue | fall 26 new collection - ch","reel katy sling white -ch"]);
+const statusOf=n=>LIVE_ADS.has(norm(n))?'<span class="badge b-good">Active</span>':'<span class="badge">Off</span>';
+const setStatus=s=>{const n=s.ads.filter(a=>LIVE_ADS.has(norm(a.name))).length;return n?`<span class="badge b-good">${n} live</span>`:'<span class="badge">off</span>';};
 const n0=n=>n.toLocaleString('en-US',{maximumFractionDigits:0});
 const n2=n=>n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
