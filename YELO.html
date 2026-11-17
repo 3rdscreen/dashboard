@@ -259,6 +259,7 @@ document.querySelectorAll(".pslot").forEach(function(b){b.onclick=function(){if(
  document.querySelectorAll(".pslot").forEach(function(x){x.classList.remove("on");});
  document.querySelectorAll(".pbody").forEach(function(p){p.classList.remove("show");});
  b.classList.add("on");var el=document.getElementById("p-"+b.dataset.p);if(el)el.classList.add("show");};});
-selS=DATA.dates[0];selE=DATA.dates[DATA.dates.length-1];
+selE=DATA.dates[DATA.dates.length-1];
+(function(){var e=new Date(selE+"T00:00:00Z");e.setUTCDate(e.getUTCDate()-6);var s=e.toISOString().slice(0,10);selS=(s<DATA.dates[0])?DATA.dates[0]:s;})();
 render(selS,selE);
 </script></body></html>
