@@ -432,6 +432,36 @@
     {since:"2026-11-11",until:"2026-11-17",meta:{all:63131},tiktok:33176},
     {since:"2026-11-01",until:"2026-11-17",meta:null,tiktok:104947}
   ];
+  /* SevenRooms "Booked By" report (Andrew, 19 Nov): whole bookings + POS-linked spend by booking channel.
+     Additive date blocks, both venues together. Per channel: [reservations (not cancelled), covers, revenue, cancelled res, cancelled covers, no-show res, no-show covers] */
+  DATA.sr={src:"SevenRooms · Booked By report",blocks:[{"since":"2026-10-01","until":"2026-10-06","ch":{"web":[50,156,17331.83,22,92,1,2],"rwg":[40,118,13234.55,11,38,2,4],"lp":[7,16,981.8,1,2,0,0],"team":[100,352,36594.19,11,109,8,13],"walk":[8,21,2374.99,0,0,0,0]}},{"since":"2026-10-07","until":"2026-10-13","ch":{"web":[65,204,21238.16,14,43,0,0],"rwg":[52,157,17593.17,9,27,0,0],"lp":[3,10,722.73,4,8,0,0],"team":[105,464,37983.03,24,189,3,11],"walk":[14,30,2817.73,1,2,0,0]}},{"since":"2026-10-14","until":"2026-10-20","ch":{"web":[66,190,20884.98,23,68,1,2],"rwg":[58,176,21696.19,19,56,0,0],"lp":[2,4,286.36,0,0,1,4],"team":[97,415,39025.14,24,135,3,10],"walk":[16,38,2682.28,0,0,0,0]}},{"since":"2026-10-21","until":"2026-10-27","ch":{"web":[53,156,16878.16,24,62,0,0],"rwg":[42,131,17288.19,19,70,1,2],"lp":[0,0,0.0,2,4,0,0],"team":[82,388,45431.46,33,205,4,10],"walk":[20,49,3101.82,0,0,0,0]}},{"since":"2026-10-28","until":"2026-10-31","ch":{"web":[50,135,14117.74,21,77,5,15],"rwg":[42,154,17403.17,9,32,4,10],"lp":[9,28,2509.09,3,7,1,2],"team":[79,306,31167.03,22,151,5,11],"walk":[8,25,2116.35,0,0,0,0]}},{"since":"2026-11-01","until":"2026-11-03","ch":{"web":[7,21,2059.55,2,8,0,0],"rwg":[5,10,1130.92,0,0,0,0],"lp":[0,0,0.0,0,0,0,0],"team":[4,11,426.48,4,94,0,0],"walk":[1,3,205.0,0,0,1,4]}},{"since":"2026-11-04","until":"2026-11-10","ch":{"web":[65,208,24972.27,22,82,2,4],"rwg":[38,131,14560.45,11,33,1,2],"lp":[5,16,1475.0,0,0,1,2],"team":[101,397,42673.12,15,106,2,6],"walk":[8,20,2354.55,0,0,0,0]}},{"since":"2026-11-11","until":"2026-11-17","ch":{"web":[65,202,23938.6,27,92,8,18],"rwg":[57,188,20309.98,17,52,1,2],"lp":[6,20,1644.08,3,8,0,0],"team":[93,345,44039.64,20,119,9,28],"walk":[12,22,1813.86,0,0,1,4]}}]};
+  var SRCH=[["web","Booking widget","website"],["rwg","Reserve with Google","Google Search & Maps"],["lp","Landing pages","Rio Brunch · Samba Room"],
+            ["team","Reservation team","phone, DM, email, concierge"],["walk","Walk-ins","no booking"]];
+  /* channels counted as paid media: widget, Reserve with Google, 7X landing pages (Andrew, 19 Nov; walk-ins taken out same day) */
+  var PAIDCH=["web","rwg","lp"];
+  var SRWEEKS=[["2026-10-01","2026-10-06"],["2026-10-07","2026-10-13"],["2026-10-14","2026-10-20"],["2026-10-21","2026-10-27"],
+               ["2026-10-28","2026-11-03"],["2026-11-04","2026-11-10"],["2026-11-11","2026-11-17"]];
+  function srAgg(a,b){
+    var o={any:false,partial:false,since:null,until:null,ch:{},t:[0,0,0,0,0,0,0]};
+    SRCH.forEach(function(c){ o.ch[c[0]]=[0,0,0,0,0,0,0]; });
+    ((DATA.sr||{}).blocks||[]).forEach(function(x){
+      if(x.since>=a&&x.until<=b){
+        o.any=true; if(!o.since||x.since<o.since) o.since=x.since; if(!o.until||x.until>o.until) o.until=x.until;
+        Object.keys(x.ch).forEach(function(k){ for(var i=0;i<7;i++){ o.ch[k][i]+=x.ch[k][i]; o.t[i]+=x.ch[k][i]; } });
+      } else if(!(x.until<a||x.since>b)) o.partial=true;
+    });
+    var on=[0,0,0,0,0,0,0]; PAIDCH.forEach(function(k){ for(var i=0;i<7;i++) on[i]+=o.ch[k][i]; }); o.on=on;
+    return o;
+  }
+  /* ads vs SevenRooms over the exact SevenRooms dates. Spend = Meta + Google (TikTok ran for followers and isn't split by day).
+     Est. revenue from ads = ad reservations × revenue per online booking made (cancellations included, so it stays conservative) */
+  function srAds(sr){
+    var keep=venue; venue="all"; /* SevenRooms covers both venues, so ads do too */
+    var m=metaAgg(sr.since,sr.until), g=googleAgg(sr.since,sr.until); venue=keep;
+    var spend=m.s+g.s, res=g.res+m.ap;
+    return {m:m,g:g,spend:spend,res:res,rev:sr.on[2],roas:spend?sr.on[2]/spend:0};
+  }
+  function xr(n){ return (isFinite(n)?n:0).toFixed(1)+"×"; }
   var CUR=DATA.cur;
   var range={since:null,until:null}, venue="all";
 
@@ -455,6 +485,8 @@
     return pretty(a)+" – "+pretty(b);
   }
   function card(lbl,val,sub){ return '<div class="card"><div class="lbl">'+esc(lbl)+'</div><div class="val num">'+val+'</div><div class="sub">'+(sub||"")+'</div></div>'; }
+  /* full-width group label inside the overview grid (Andrew, 19 Nov: related cards together) */
+  function klab(t){ return '<div class="sublabel" style="grid-column:1/-1;margin:8px 0 0">'+esc(t)+'<span class="rule"></span></div>'; }
   function stat(lbl,val,sub){ return '<div class="stat"><div class="lbl">'+esc(lbl)+'</div><div class="val num">'+val+'</div><div class="sub">'+(sub||"")+'</div></div>'; }
 
   /* ---------- venues ---------- */
@@ -582,7 +614,7 @@
   function renderOverview(m,g,t){
     var s=m.s+g.s+t.s, i=m.i+g.i+t.i, k=m.k+g.k+t.k, res=g.res+m.ap;
     var ctr=i?k/i*100:0, cpm=i?s/i*1000:0;
-    document.getElementById("kpi").innerHTML=
+    document.getElementById("kpi").innerHTML=klab("Ads · delivery & engagement")+
       card("Total spend",money(s),[m.any?"Meta":"",g.any?"Google":"",t.status==="in"?"TikTok":""].filter(Boolean).join(" + ")||"no delivery")+
       card("Impressions",int(i),"CPM "+money(cpm))+
       (function(){ var e=(DATA.reach||[]).filter(function(x){ return x.since===range.since&&x.until===range.until; })[0];
@@ -594,15 +626,26 @@
       card("Clicks",int(k),"CTR "+pct(ctr)+" · Meta link clicks")+
       card("Profile visits",int(m.pv),"Meta · "+each(m.pv,m.objs["Instagram profile visits"]?m.objs["Instagram profile visits"].s:0))+
       /* Landing page views card removed (Andrew, 11 Nov) */
-      card("Calls",int(g.call),"Google · "+each(g.call,g.s))+
-      card("Directions",int(g.dir),"Google · "+each(g.dir,g.s))+
       (function(){ var tf=(t.status==="in"&&t.res)?t.res:0, n=m.fo+tf;
         var sub=[m.hasFo?"Meta "+int(m.fo):"", t.status==="in"?"TikTok "+int(tf):""].filter(Boolean).join(" · ")||"no follower data in this range";
         return card("Followers",int(n),sub); })()+
+      card("Calls",int(g.call),"Google · "+each(g.call,g.s))+
+      card("Directions",int(g.dir),"Google · "+each(g.dir,g.s))+
       (venue!=="all"?"":(function(){ var ga=ga4Agg(range.since,range.until), paid=g.res+m.ap;
         var rc=card("Reservations",int(paid),"from ads · Google "+int(g.res)+" · Meta "+int(m.ap));
-        if(!ga.any||!ga.ke) return rc+card("Paid share of reservations","—","no GA4 reservations in this range");
-        return rc+card("Paid share of reservations",pct(paid/ga.ke*100),int(paid)+" of "+int(ga.ke)+" website reservations (GA4)"); })());
+        /* share of ALL bookings from SevenRooms, not GA4 website reservations (client query 18 Nov; Andrew 19 Nov) */
+        var sr=srAgg(range.since,range.until);
+        if(!sr.any||sr.since!==range.since||sr.until!==range.until||!sr.t[0]){ var nw="pick full weeks (Wed–Tue) to compare with SevenRooms";
+          return klab("Bookings · SevenRooms")+card("Total bookings","—",nw)+rc+card("Paid media share of bookings","—",nw)+card("Cost per paid booking","—",nw)+card("Total revenue","—",nw)+card("Revenue from paid media","—",nw)+card("ROAS","—",nw); }
+        /* revenue + ROAS in the overview (Andrew, 19 Nov) */
+        var ad=srAds(sr);
+        /* reservations = SevenRooms paid media bookings, so they match the revenue (Andrew, 19 Nov) */
+        return klab("Bookings · SevenRooms")+card("Total bookings",int(sr.t[0]),"all SevenRooms bookings · "+int(sr.t[1])+" covers")+
+          card("Paid bookings",int(sr.on[0]),"paid media · SevenRooms")+card("Paid media share of bookings",pct(sr.on[0]/sr.t[0]*100),int(sr.on[0])+" of "+int(sr.t[0])+" SevenRooms bookings")+
+          card("Cost per paid booking",money(sr.on[0]?ad.spend/sr.on[0]:0),"Meta + Google spend ÷ "+int(sr.on[0])+" bookings")+
+          klab("Revenue · SevenRooms")+card("Total revenue",money(sr.t[2],0),"all SevenRooms bookings · "+money(sr.t[1]?sr.t[2]/sr.t[1]:0)+" per cover")+
+          card("Revenue from paid media",money(sr.on[2],0),"")+
+          card("ROAS",xr(ad.roas),""); })());
   }
   function renderToday(){
     var end=DATA.until, start=end.slice(0,8)+"01";
@@ -773,6 +816,46 @@
     }).join("");
   }
 
+  /* ---------- SevenRooms ---------- */
+  function renderSevenRooms(){
+    var box=document.getElementById("srBox"), line=document.getElementById("srline");
+    var sr=srAgg(range.since,range.until);
+    var wk=SRWEEKS.map(function(w){ return rangeLabel(w[0],w[1]); });
+    if(!sr.any){ line.innerHTML=""; box.innerHTML='<div class="state"><strong>No full SevenRooms week in this range</strong>SevenRooms is added in weekly blocks (Wed–Tue). Pick a range that covers at least one, e.g. '+esc(wk[wk.length-1])+'.</div>'; return; }
+    var a=srAds(sr), T=sr.t, O=sr.on;
+    line.innerHTML='Every booking in SevenRooms, not only ads · '+esc(rangeLabel(sr.since,sr.until))+
+      ((sr.since!==range.since||sr.until!==range.until)?' <span class="tag">full weeks inside your range</span>':'')+
+      ' · Sushi Samba &amp; Samba Room together'+(venue!=="all"?' (SevenRooms doesn’t split them)':'')+' · revenue = POS spend linked to the booking';
+    var cards=
+      card("Bookings",int(T[0]),int(T[1])+" covers · "+int(T[3])+" cancelled")+
+      card("Revenue",money(T[2],0),money(T[1]?T[2]/T[1]:0)+" per cover")+
+      card("Paid media bookings",int(O[0]),pct(T[0]?O[0]/T[0]*100:0)+" of bookings · "+int(O[1])+" covers")+
+      card("Revenue from paid media",money(O[2],0),pct(T[2]?O[2]/T[2]*100:0)+" of revenue · "+money(O[1]?O[2]/O[1]:0)+" per cover")+
+      card("Ad spend",money(a.spend),"Meta + Google, same days")+
+      card("ROAS",xr(a.roas),"paid media revenue ÷ ad spend")+
+      card("Platform-reported reservations",int(a.res),"Google "+int(a.g.res)+" · Meta "+int(a.m.ap))+
+      card("Cost per paid booking",money(O[0]?a.spend/O[0]:0),"ad spend ÷ paid media bookings");
+    var rows=SRCH.map(function(c){ var x=sr.ch[c[0]]; if(!x[0]&&!x[3]) return "";
+      return '<tr><td><span class="cell"><span class="rowname">'+esc(c[1])+'</span><span class="tag">'+esc(c[2])+'</span>'+(PAIDCH.indexOf(c[0])>=0?'<span class="tag" style="border-color:var(--accent);color:var(--accent)">paid media</span>':'')+'</span></td>'+
+        '<td class="num">'+int(x[0])+'</td><td class="num">'+pct(T[0]?x[0]/T[0]*100:0)+'</td><td class="num">'+int(x[1])+'</td>'+
+        '<td class="num">'+money(x[2],0)+'</td><td class="num">'+pct(T[2]?x[2]/T[2]*100:0)+'</td><td class="num">'+money(x[1]?x[2]/x[1]:0)+'</td>'+
+        '<td class="num">'+int(x[3])+'</td><td class="num">'+int(x[5])+'</td></tr>'; }).join("");
+    var chTable='<div class="sublabel">By booking channel<span class="rule"></span></div><div class="tablewrap"><table class="setstable"><thead><tr>'+
+      '<th>Channel</th><th>Bookings</th><th>Share</th><th>Covers</th><th>Revenue</th><th>Rev. share</th><th>Per cover</th><th>Cancelled</th><th>No-shows</th></tr></thead><tbody>'+rows+
+      '<tr class="total"><td>Total</td><td class="num">'+int(T[0])+'</td><td class="num">100%</td><td class="num">'+int(T[1])+'</td><td class="num">'+money(T[2],0)+'</td><td class="num">100%</td>'+
+      '<td class="num">'+money(T[1]?T[2]/T[1]:0)+'</td><td class="num">'+int(T[3])+'</td><td class="num">'+int(T[5])+'</td></tr></tbody></table></div>';
+    var wrows=SRWEEKS.map(function(w){ var x=srAgg(w[0],w[1]); if(!x.any) return ""; var y=srAds(x);
+      var cur=(w[0]>=sr.since&&w[1]<=sr.until)?' style="font-weight:700"':'';
+      return '<tr'+cur+'><td>'+esc(rangeLabel(w[0],w[1]))+'</td><td class="num">'+int(x.t[0])+'</td><td class="num">'+int(x.t[1])+'</td><td class="num">'+money(x.t[2],0)+'</td>'+
+        '<td class="num">'+int(x.on[0])+'</td><td class="num">'+pct(x.t[0]?x.on[0]/x.t[0]*100:0)+'</td><td class="num">'+money(x.on[2],0)+'</td>'+
+        '<td class="num">'+money(y.spend,0)+'</td><td class="num">'+xr(y.roas)+'</td></tr>'; }).join("");
+    var wTable='<div class="sublabel">Week by week · Wed–Tue<span class="rule"></span></div><div class="tablewrap"><table class="setstable daily"><thead><tr>'+
+      '<th>Week</th><th>Bookings</th><th>Covers</th><th>Revenue</th><th>Paid media</th><th>Share</th><th>Paid revenue</th><th>Ad spend</th><th>ROAS</th></tr></thead><tbody>'+wrows+'</tbody></table></div>';
+    box.innerHTML='<div class="kpi">'+cards+'</div>'; /* channel table, week-by-week table and note removed (Andrew, 19 Nov) */
+    var srNote='<p class="note">Bookings = reservations not cancelled (completed, no-shows and upcoming). Paid media = booking widget, Reserve with Google and landing pages. '+
+      'ROAS = their revenue ÷ Meta + Google spend for the same days (TikTok ran for followers and isn’t split by day).</p>';
+  }
+
   /* ---------- GA4 ---------- */
   function fmtSec(s){ s=Math.round(s||0); if(s<60) return s+"s"; var m=Math.floor(s/60); return m+"m "+(s-m*60)+"s"; }
   var CHDOT={"Paid Social":"mdot","Cross-network":"gdot","Paid Search":"gdot"};
@@ -823,12 +906,13 @@
     setMetaLine(m,g,t);
     renderOverview(m,g,t);
     renderPlatform(m,g,t);
+    /* SevenRooms section removed (Andrew, 19 Nov) — overview cards still use SevenRooms */
     renderObjectives(m);
     renderMeta(m);
     renderGoogle(g);
     renderTiktok(t);
     renderGa4();
-    document.getElementById("stamp").textContent="SUSHISAMBA Milano · "+VNAME[venue]+" · Meta · Google · TikTok · "+rangeLabel(range.since,range.until);
+    document.getElementById("stamp").textContent="SUSHISAMBA Milano · "+VNAME[venue]+" · Meta · Google · TikTok · SevenRooms · "+rangeLabel(range.since,range.until);
   }
   function setPeriod(a,b){ range.since=a; range.until=b; document.getElementById("periodLabel").textContent=rangeLabel(a,b); }
 
