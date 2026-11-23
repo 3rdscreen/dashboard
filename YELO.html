@@ -172,7 +172,7 @@ function campaignTable(ads){
  var order=Object.keys(by).sort(function(a,b){var sa=by[a].reduce(function(p,x){return p+x.t.sp;},0),sb=by[b].reduce(function(p,x){return p+x.t.sp;},0);return sb-sa;});
  order.forEach(function(cid){var m=by[cid],c=DATA.campaigns[cid];var sp=0,imp=0,rch=0,clk=0,res=0,igf=0,act=false;
   m.forEach(function(x){sp+=x.t.sp;imp+=x.t.imp;rch+=x.t.rch;clk+=x.t.clk;res+=x.t.res;igf+=x.t.igf;if(active(x.st))act=true;});
-  var ind=OBJIND[c.obj],ctr=imp?clk/imp*100:0,cpc=clk?sp/clk:0;var resShown=(c.obj==="Traffic")?igf:res;var resLab=(c.obj==="Traffic")?"Gained Followers":(RLAB[ind]||"");var cprv=resShown?sp/resShown:null;
+  var ind=OBJIND[c.obj],ctr=imp?clk/imp*100:0,cpc=clk?sp/clk:0;var resShown=(ind==="profile_visit_view")?igf:res;var resLab=(ind==="profile_visit_view")?"Gained Followers":(RLAB[ind]||"");var cprv=resShown?sp/resShown:null;
   T.sp+=sp;T.imp+=imp;T.rch+=rch;T.clk+=clk;T.res+=resShown;n++;
   rows+='<tr class="'+(act?"":"rp")+'"><td class="l"><span class="ob ob-'+c.obj.toLowerCase()+'">'+c.obj+'</span>'+(act?"":'<span class="pp">Completed</span>')+'</td>'+
    '<td>'+money(sp)+'</td><td>'+num(imp)+'</td><td>'+num(rch)+'</td><td>'+num(clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td>'+
@@ -183,7 +183,7 @@ function campaignTable(ads){
 function adTable(ads){
  var list=ads.slice().sort(function(a,b){return (active(a.st)===active(b.st))?b.t.sp-a.t.sp:(active(a.st)?-1:1);});
  var rows="",T={sp:0,imp:0,rch:0,clk:0,res:0};
- list.forEach(function(x){var r=x.t,ad=x.ad,c=DATA.campaigns[x.cid];var resShown=(c.obj==="Traffic")?(r.igf||0):r.res;var resLab=(c.obj==="Traffic")?"Gained Followers":(RLAB[ad.ri]||"");T.sp+=r.sp;T.imp+=r.imp;T.rch+=r.rch;T.clk+=r.clk;T.res+=resShown;
+ list.forEach(function(x){var r=x.t,ad=x.ad,c=DATA.campaigns[x.cid];var resShown=(ad.ri==="profile_visit_view")?(r.igf||0):r.res;var resLab=(ad.ri==="profile_visit_view")?"Gained Followers":(RLAB[ad.ri]||"");T.sp+=r.sp;T.imp+=r.imp;T.rch+=r.rch;T.clk+=r.clk;T.res+=resShown;
   var ctr=r.imp?r.clk/r.imp*100:0,cpc=r.clk?r.sp/r.clk:0,cprv=resShown?r.sp/resShown:null;var act=active(x.st);
   var sub=esc(c.obj)+" · "+esc(ad.aset)+(ad.orig?" · "+esc(ad.orig):"");
   rows+='<tr class="'+(act?"":"rp")+'"><td class="l adc">'+thumb(ad.th)+'<div class="admeta"><span class="an">'+esc(ad.nm)+'</span>'+(act?"":'<span class="pp">Completed</span>')+'<span class="sub">'+sub+'</span></div></td>'+
