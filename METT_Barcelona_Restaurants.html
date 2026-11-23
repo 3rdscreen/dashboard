@@ -362,6 +362,8 @@
   .ahead .ev{font-size:14px;font-weight:600;color:var(--muted);}
   .ahead .right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .lbox img{min-width:240px;}
+  .kpi.k5{grid-template-columns:repeat(5,1fr);}
+  @media (max-width:760px){ .kpi.k5{grid-template-columns:repeat(2,1fr);} }
 </style>
 </head>
 <body>
@@ -641,7 +643,8 @@ function render(){
   h+=card("Clicks",n0(TK),"CTR "+pct(div(TK,TI))+(hasG?" · Meta link clicks + Google clicks":" · Meta link clicks"));
   h+=card("Landing page views",n0(M.lpv),"Meta · "+money(div(A.obj[1].s,A.obj[1].r[1]))+" each");
   h+='</div>';
-  h+=sublabel("Instagram · Growth")+'<div class="kpi">';
+  h+=sublabel("Meta Ads · Instagram &amp; Website")+'<div class="kpi k5">';
+  h+=card("CPC",money(div(M.s,M.k)),n0(M.k)+" link clicks · CTR "+pct(div(M.k,M.i)));
   h+=card("Profile visits",n0(M.r[0]),"Meta · "+money(div(A.obj[0].s,M.r[0]))+" each");
   h+=card("Followers",n0(M.fol),"Instagram follows from Meta ads");
   h+=card("Post engagements",n0(M.pe),"all Meta ads");
