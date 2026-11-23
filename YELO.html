@@ -164,7 +164,7 @@ function sumAd(ad,s,e){var o={sp:0,imp:0,rch:0,clk:0,lc:0,res:0,igf:0};for(var d
 function thumb(url){if(!url)return '<div class="th ph"></div>';return '<div class="th"><img loading="lazy" src="'+esc(url)+'" onerror="this.parentNode.classList.add(\'ph\');this.remove()"></div>';}
 function kpiStrip(ads){var sp=0,imp=0,rch=0,clk=0,igf=0,nc={};ads.forEach(function(x){sp+=x.t.sp;imp+=x.t.imp;rch+=x.t.rch;clk+=x.t.clk;igf+=x.t.igf;nc[x.cid]=1;});
  var ctr=imp?clk/imp*100:0,cpm=imp?sp/imp*1000:0;
- var cells=[["Spend",money(sp)],["Impressions",num(imp)],["Reach",num(rch)],["Clicks",num(clk)],["CTR",pct(ctr)],["CPM",cents(cpm)],["Gained Followers",num(igf)]];
+ var cells=[["Spend",money(sp)],["Impressions",num(imp)],["Reach",num(rch)],["Clicks",num(clk)],["CTR",pct(ctr)],["CPM",cents(cpm)]];
  return '<div class="kpis">'+cells.map(function(c){return '<div class="kpi"><div class="kl">'+c[0]+'</div><div class="kv">'+c[1]+'</div></div>';}).join("")+'</div>';}
 function campaignTable(ads){
  var by={};ads.forEach(function(x){(by[x.cid]=by[x.cid]||[]).push(x);});
