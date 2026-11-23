@@ -652,7 +652,7 @@ function render(){
     h+=card("Directions",n0(G.dir),"Google · "+money(div(G.s,G.dir))+" each");
     h+=card("Calls",n0(G.call),"Google · "+money(div(G.s,G.call))+" each");
     h+=card("Booking clicks",n0(G.book),"Click to 7Rooms");
-    h+=card("Reservations",n0(G.res),"completed on the website");
+    h+=card("Cost / booking click",money(div(G.s,G.book)),"Google spend ÷ booking clicks");
     h+='</div>';
   }
 
@@ -715,10 +715,10 @@ function render(){
     S.gcamps.forEach(function(c,ci){
       var g=A.g[ci];if(!(g.s>0||g.i>0))return;
       h+='<div class="aset"><div class="ahead"><h4>'+esc(c.t)+'</h4><span class="right"><span class="ameta">'+ran(g)+'</span><span class="objbadge">'+(ci===0?"Search · Keywords":"PMax · Location visits")+'</span></span></div>';
-      h+='<div class="strip wide">'+stat("Spend",money(g.s),share(div(g.s,G.s))+" of Google")+stat("Impressions",n0(g.i),"CPM "+money(div(g.s,g.i)*1000))
-        +stat("Clicks",n0(g.k),"CTR "+pct(div(g.k,g.i)))+stat("CPC",money(div(g.s,g.k)),"per click")
+      h+='<div class="strip">'+stat("Spend",money(g.s),share(div(g.s,G.s))+" of Google")+stat("Impressions",n0(g.i),"CPM "+money(div(g.s,g.i)*1000))
+        +stat("Clicks",n0(g.k),"CTR "+pct(div(g.k,g.i))+" · CPC "+money(div(g.s,g.k)))
         +stat("Directions",n0(g.dir),money(div(g.s,g.dir))+" each")+stat("Calls",n0(g.call),g.call?money(g.s/g.call)+" each":"")
-        +stat("Booking clicks",n0(g.book),"Click to 7Rooms")+stat("Reservations",n0(g.res),"completed")+'</div>';
+        +stat("Booking clicks",n0(g.book),g.book?money(g.s/g.book)+" each · 7Rooms":"Click to 7Rooms")+'</div>';
       var mk=Object.keys(g.mon).sort();
       if(mk.length>1){
         h+='<details class="more"><summary>Month by month</summary><div class="tablewrap"><table class="setstable"><thead><tr><th>Month</th><th>Spend</th><th>Impr.</th><th>Clicks</th><th>CTR</th><th>CPC</th><th>Directions</th><th>Calls</th><th>Booking clicks</th></tr></thead><tbody>';
