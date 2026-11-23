@@ -195,9 +195,9 @@ function displayName(ad){if(vague(ad.nm)){var ds=cleanAdset(ad.aset);if(meaningf
 // sum an ad's day arrays within [s,e] (inclusive, ISO strings compare lexicographically)
 function sumAd(ad,s,e){var o={sp:0,imp:0,rch:0,clk:0,lc:0,res:0,igf:0};for(var d in ad.d){if(d>=s&&d<=e){var a=ad.d[d];o.igf+=(a[6]||0);o.sp+=a[0];o.imp+=a[1];o.rch+=a[2];o.clk+=a[3];o.lc+=a[4];o.res+=a[5];}}return o;}
 function thumb(cr,url){if(!url)return '<div class="th ph"></div>';return '<div class="th"><img loading="lazy" src="'+esc(url)+'" onerror="this.parentNode.classList.add(\'ph\');this.remove()"></div>';}
-function kpiStrip(ads){var sp=0,imp=0,rch=0,clk=0,nc={};ads.forEach(function(x){sp+=x.t.sp;imp+=x.t.imp;rch+=x.t.rch;clk+=x.t.clk;nc[x.cid]=1;});
+function kpiStrip(ads){var sp=0,imp=0,rch=0,clk=0,igf=0,nc={};ads.forEach(function(x){sp+=x.t.sp;imp+=x.t.imp;rch+=x.t.rch;clk+=x.t.clk;igf+=x.t.igf;nc[x.cid]=1;});
  var ctr=imp?clk/imp*100:0,cpm=imp?sp/imp*1000:0;
- var cells=[["Spend",money(sp)],["Impressions",num(imp)],["Reach",num(rch)],["Clicks",num(clk)],["CTR",pct(ctr)],["CPM",cents(cpm)],["Campaigns",""+Object.keys(nc).length]];
+ var cells=[["Spend",money(sp)],["Impressions",num(imp)],["Reach",num(rch)],["Clicks",num(clk)],["CTR",pct(ctr)],["CPM",cents(cpm)],["IG Followers",num(igf)],["Campaigns",""+Object.keys(nc).length]];
  return '<div class="kpis">'+cells.map(function(c){return '<div class="kpi"><div class="kl">'+c[0]+'</div><div class="kv">'+c[1]+'</div></div>';}).join("")+'</div>';}
 function campaignTable(ads){ // ads: [{cid,st,t}]
  var by={};ads.forEach(function(x){(by[x.cid]=by[x.cid]||[]).push(x);});
@@ -205,34 +205,34 @@ function campaignTable(ads){ // ads: [{cid,st,t}]
  var order=Object.keys(by).sort(function(a,b){var sa=by[a].reduce(function(p,x){return p+x.t.sp;},0),sb=by[b].reduce(function(p,x){return p+x.t.sp;},0);return sb-sa;});
  order.forEach(function(cid){var m=by[cid],c=DATA.campaigns[cid];var sp=0,imp=0,rch=0,clk=0,res=0,igf=0,act=false;
   m.forEach(function(x){sp+=x.t.sp;imp+=x.t.imp;rch+=x.t.rch;clk+=x.t.clk;res+=x.t.res;igf+=x.t.igf;if(active(x.st))act=true;});
-  var ind=OBJIND[c.obj],ctr=imp?clk/imp*100:0,cpc=clk?sp/clk:0,cpr=res?sp/res:null;
-  T.sp+=sp;T.imp+=imp;T.rch+=rch;T.clk+=clk;T.res+=res;if(c.obj==="Traffic")T.igf+=igf;n++;
+  var ind=OBJIND[c.obj],ctr=imp?clk/imp*100:0,cpc=clk?sp/clk:0;var resShown=(c.obj==="Traffic")?igf:res;var resLab=(c.obj==="Traffic")?"IG Followers":(RLAB[ind]||"");var cpr=resShown?sp/resShown:null;
+  T.sp+=sp;T.imp+=imp;T.rch+=rch;T.clk+=clk;T.res+=resShown;n++;
   rows+='<tr class="'+(act?"":"rp")+'"><td class="l"><span class="ob ob-'+c.obj.toLowerCase()+'">'+c.obj+'</span>'+(act?"":'<span class="pp">Completed</span>')+'</td>'+
-   '<td>'+money(sp)+'</td><td>'+num(imp)+'</td><td>'+num(rch)+'</td><td>'+(rch?(imp/rch).toFixed(2):"—")+'</td><td>'+num(clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td><td>'+(c.obj==="Traffic"?num(igf):"—")+'</td>'+
-   '<td class="l2">'+num(res)+'<span class="rt">'+(RLAB[ind]||"")+'</span></td><td>'+cprFmt(cpr)+'</td></tr>';});
+   '<td>'+money(sp)+'</td><td>'+num(imp)+'</td><td>'+num(rch)+'</td><td>'+num(clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td>'+
+   '<td class="l2">'+num(resShown)+'<span class="rt">'+resLab+'</span></td><td>'+cprFmt(cpr)+'</td></tr>';});
  var ctr=T.imp?T.clk/T.imp*100:0,cpc=T.clk?T.sp/T.clk:0;
- rows+='<tr class="tot"><td class="l">TOTAL · '+n+' campaigns</td><td>'+money(T.sp)+'</td><td>'+num(T.imp)+'</td><td>'+num(T.rch)+'</td><td>—</td><td>'+num(T.clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td><td>'+num(T.igf)+'</td><td class="l2">'+num(T.res)+'</td><td>—</td></tr>';
- return '<div class="tbl-scroll"><table class="xt"><thead><tr><th class="l">Campaign</th><th>Spend</th><th>Impr.</th><th>Reach</th><th>Freq.</th><th>Clicks</th><th>CTR</th><th>CPC</th><th>IG Follows</th><th class="l2">Results</th><th>Cost per Result</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
+ rows+='<tr class="tot"><td class="l">TOTAL · '+n+' campaigns</td><td>'+money(T.sp)+'</td><td>'+num(T.imp)+'</td><td>'+num(T.rch)+'</td><td>'+num(T.clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td><td class="l2">'+num(T.res)+'</td><td>—</td></tr>';
+ return '<div class="tbl-scroll"><table class="xt"><thead><tr><th class="l">Campaign</th><th>Spend</th><th>Impr.</th><th>Reach</th><th>Clicks</th><th>CTR</th><th>CPC</th><th class="l2">Results</th><th>Cost / Result</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
 function adTable(ads){ // ads:[{ad,cid,st,t,plat,obj}]
  // merge by display name ONLY — IG + FB (and same names across ad sets/objectives) fold into one row
  var g={};ads.forEach(function(x){var dn=displayName(x.ad);var e=g[dn];if(!e){e=g[dn]={nm:dn,m:[]};}e.m.push(x);});
- var merged=Object.keys(g).map(function(k){var e=g[k],m=e.m;var sp=0,imp=0,rch=0,clk=0,res=0,act=false,inds={},asets={},objs={},top=m[0];
-  m.forEach(function(x){sp+=x.t.sp;imp+=x.t.imp;rch+=x.t.rch;clk+=x.t.clk;res+=x.t.res;if(active(x.st))act=true;inds[x.ad.ri||OBJIND[x.obj]]=1;asets[cleanAdset(x.ad.aset)||clean(x.ad.aset)]=1;objs[x.obj]=1;if(x.t.sp>top.t.sp)top=x;});
+ var merged=Object.keys(g).map(function(k){var e=g[k],m=e.m;var sp=0,imp=0,rch=0,clk=0,res=0,igf=0,act=false,inds={},asets={},objs={},top=m[0];
+  m.forEach(function(x){sp+=x.t.sp;imp+=x.t.imp;rch+=x.t.rch;clk+=x.t.clk;res+=x.t.res;igf+=x.t.igf;if(active(x.st))act=true;inds[x.ad.ri||OBJIND[x.obj]]=1;asets[cleanAdset(x.ad.aset)||clean(x.ad.aset)]=1;objs[x.obj]=1;if(x.t.sp>top.t.sp)top=x;});
   var ri=top.ad.ri||OBJIND[top.obj]||(Object.keys(inds)[0]);
-  return {nm:e.nm,sp:sp,imp:imp,rch:rch,clk:clk,res:res,act:act,ri:ri,cr:top.ad.cr,th:top.ad.th,
+  return {nm:e.nm,sp:sp,imp:imp,rch:rch,clk:clk,res:res,igf:igf,act:act,ri:ri,cr:top.ad.cr,th:top.ad.th,
    nset:Object.keys(asets).length,aset:Object.keys(asets).length===1?Object.keys(asets)[0]:Object.keys(asets).length+" ad sets",
    obj:Object.keys(objs).length===1?Object.keys(objs)[0]:Object.keys(objs).join(" + "),nads:m.length};});
  merged.sort(function(a,b){return (a.act===b.act)?b.sp-a.sp:(a.act?-1:1);});
  var rows="",T={sp:0,imp:0,rch:0,clk:0,res:0};
- merged.forEach(function(r){T.sp+=r.sp;T.imp+=r.imp;T.rch+=r.rch;T.clk+=r.clk;T.res+=r.res;
-  var ctr=r.imp?r.clk/r.imp*100:0,cpc=r.clk?r.sp/r.clk:0,cpr=r.res?r.sp/r.res:null,frq=r.rch?r.imp/r.rch:0;
+ merged.forEach(function(r){var resShown=(r.obj==="Traffic")?(r.igf||0):r.res;var resLab=(r.obj==="Traffic")?"IG Followers":(RLAB[r.ri]||"");T.sp+=r.sp;T.imp+=r.imp;T.rch+=r.rch;T.clk+=r.clk;T.res+=resShown;
+  var ctr=r.imp?r.clk/r.imp*100:0,cpc=r.clk?r.sp/r.clk:0,cpr=resShown?r.sp/resShown:null;
   var sub=esc(r.obj)+" · "+esc(r.aset);
   rows+='<tr class="'+(r.act?"":"rp")+'"><td class="l adc">'+thumb(r.cr,r.th)+'<div class="admeta"><span class="an">'+esc(r.nm)+'</span>'+(r.act?"":'<span class="pp">Completed</span>')+'<span class="sub">'+sub+'</span></div></td>'+
-   '<td>'+money(r.sp)+'</td><td>'+num(r.imp)+'</td><td>'+num(r.rch)+'</td><td>'+(frq?frq.toFixed(2):"—")+'</td><td>'+num(r.clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td>'+
-   '<td class="l2">'+num(r.res)+'<span class="rt">'+(RLAB[r.ri]||"")+'</span></td><td>'+cprFmt(cpr)+'</td></tr>';});
+   '<td>'+money(r.sp)+'</td><td>'+num(r.imp)+'</td><td>'+num(r.rch)+'</td><td>'+num(r.clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td>'+
+   '<td class="l2">'+num(resShown)+'<span class="rt">'+resLab+'</span></td><td>'+cprFmt(cpr)+'</td></tr>';});
  var ctr=T.imp?T.clk/T.imp*100:0,cpc=T.clk?T.sp/T.clk:0;
- rows+='<tr class="tot"><td class="l">TOTAL · '+merged.length+' ads</td><td>'+money(T.sp)+'</td><td>'+num(T.imp)+'</td><td>'+num(T.rch)+'</td><td>—</td><td>'+num(T.clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td><td class="l2">'+num(T.res)+'</td><td>—</td></tr>';
- return '<div class="tbl-scroll"><table class="xt adt"><thead><tr><th class="l">Ad</th><th>Spend</th><th>Impr.</th><th>Reach</th><th>Freq.</th><th>Clicks</th><th>CTR</th><th>CPC</th><th class="l2">Results</th><th>Cost per Result</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
+ rows+='<tr class="tot"><td class="l">TOTAL · '+merged.length+' ads</td><td>'+money(T.sp)+'</td><td>'+num(T.imp)+'</td><td>'+num(T.rch)+'</td><td>'+num(T.clk)+'</td><td>'+pct(ctr)+'</td><td>'+cents(cpc)+'</td><td class="l2">'+num(T.res)+'</td><td>—</td></tr>';
+ return '<div class="tbl-scroll"><table class="xt adt"><thead><tr><th class="l">Ad</th><th>Spend</th><th>Impr.</th><th>Reach</th><th>Clicks</th><th>CTR</th><th>CPC</th><th class="l2">Results</th><th>Cost / Result</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
 // IG vs FB spend split donut (platform read per ad; unmarked spend = "Other")
 function placementDonut(ads){
  var IG=0,FB=0,OT=0;ads.forEach(function(x){var p=platform(x.ad.aset,x.ad.nm);if(p==="IG")IG+=x.t.sp;else if(p==="FB")FB+=x.t.sp;else OT+=x.t.sp;});
@@ -378,6 +378,6 @@ document.querySelectorAll(".pobj").forEach(function(o){o.dataset.meta=o.textCont
 // initial: full data range
 // default view = last 7 days ending at the latest data day
 selE=DATA.dates[DATA.dates.length-1];
-(function(){var e=new Date(selE+"T00:00:00Z");e.setUTCDate(e.getUTCDate()-6);var s=e.toISOString().slice(0,10);selS=(s<DATA.dates[0])?DATA.dates[0]:s;})();
+(function(){var s=selE.slice(0,8)+"01";selS=(s<DATA.dates[0])?DATA.dates[0]:s;})();
 render(selS,selE);
 </script></body></html>
