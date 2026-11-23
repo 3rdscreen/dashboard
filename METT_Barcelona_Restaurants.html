@@ -652,11 +652,12 @@ function render(){
   h+=card("Cost / follower",money(div(A.obj[0].s,A.obj[0].fol)),"Page Growth spend ÷ its follows");
   h+='</div>';
   if(hasG){
-    h+=sublabel("Google Ads · Albarada")+'<div class="kpi">';
+    h+=sublabel("Google Ads · Albarada")+'<div class="kpi k5">';
     h+=card("Directions",n0(G.dir),"Google · "+money(div(G.s,G.dir))+" each");
     h+=card("Calls",n0(G.call),"Google · "+money(div(G.s,G.call))+" each");
     h+=card("Booking clicks",n0(G.book),"Click to 7Rooms");
-    h+=card("CPC",money(div(G.s,G.k)),n0(G.k)+" Google clicks · CTR "+pct(div(G.k,G.i)));
+    h+=card("Clicks",n0(G.k),"Google · CTR "+pct(div(G.k,G.i)));
+    h+=card("CPC",money(div(G.s,G.k)),"Google spend ÷ clicks");
     h+='</div>';
   }
 
