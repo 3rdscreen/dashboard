@@ -637,10 +637,11 @@ function render(){
   /* overview */
   h+=slabel("Performance Overview — All Platforms");
   h+='<p class="metaline">Combined results across <span class="pdot"></span> Meta'+(hasG?' · <span class="gdot"></span> Google Ads':'')+' · '+esc(vname)+' · '+rangeLabel(sel.from,sel.to)+' · all figures in EUR</p>';
-  h+=sublabel("Ads · Delivery &amp; Engagement")+'<div class="kpi">';
+  h+=sublabel("Ads · Delivery &amp; Engagement")+'<div class="kpi k5">';
   h+=card("Total spend",money(TS),hasG?"Meta + Google":"Meta");
   h+=card("Impressions",n0(TI),"CPM "+money(div(TS,TI)*1000));
   h+=card("Clicks",n0(TK),"CTR "+pct(div(TK,TI))+(hasG?" · Meta link clicks + Google clicks":" · Meta link clicks"));
+  h+=card("CPC",money(div(TS,TK)),"total spend ÷ all clicks");
   h+=card("Landing page views",n0(M.lpv),"Meta · "+money(div(A.obj[1].s,A.obj[1].r[1]))+" each");
   h+='</div>';
   h+=sublabel("Meta Ads · Instagram &amp; Website")+'<div class="kpi k5">';
